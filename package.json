@@ -1,0 +1,29 @@
+{
+  "name": "land-tour-client",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:web": "npm run dev --filter=@land-tour/web",
+    "dev:admin": "npm run dev --filter=@land-tour/admin",
+    "build": "turbo build",
+    "build:web": "npm run build --filter=@land-tour/web",
+    "build:admin": "npm run build --filter=@land-tour/admin",
+    "lint": "turbo lint",
+    "db:push": "turbo run db:push",
+    "db:generate": "turbo run db:generate"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=18"
+  },
+  "version": "1.0.0",
+  "description": "Land Tour & Travel - Plataforma Turística B2B"
+}
