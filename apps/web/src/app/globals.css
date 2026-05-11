@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@source "../**/*.{ts,tsx}";
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+
+
+@theme {
+  --color-primary: #0b4339;
+  --color-primary-dark: #052924;
+  --color-primary-light: #156b5a;
+  --color-secondary: #28bfa9;
+  --color-secondary-light: #54dac0;
+  --color-gold: #c9a96e;
+  --color-light: #f5faf9;
+  --color-lighter: #edf7f5;
+
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b4339;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;          /* ← scroll suave en toda la página */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-montserrat);
+  overflow-x: hidden;
+}
+
+/* Cursor pointer en todos los elementos interactivos */
+a,
+button,
+[role="button"],
+label[for],
+select,
+summary {
+  cursor: pointer;
+}
+
+@layer components {
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(40, 191, 169, 0.2);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 30px rgba(40, 191, 169, 0.4);
+  }
+}
+
+.fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
