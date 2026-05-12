@@ -1,6 +1,8 @@
-// Server Component
+"use client";
+
 import React from "react";
 import { Star, Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -118,7 +120,13 @@ export const TestimonialsSection: React.FC = () => (
     <div className="container mx-auto px-4 sm:px-6">
 
       {/* ── Section header (brand standard) ── */}
-      <div className="text-center mb-12 sm:mb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-12 sm:mb-16"
+      >
         <span className="inline-block px-4 py-1.5 bg-secondary/15 text-secondary text-xs font-bold rounded-lg mb-4 uppercase tracking-widest">
           Testimonios
         </span>
@@ -132,18 +140,28 @@ export const TestimonialsSection: React.FC = () => (
         <p className="mt-4 text-primary/60 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
           Agencias aliadas y viajeros que ya confían en nosotros comparten su experiencia.
         </p>
-      </div>
+      </motion.div>
 
       {/* ── Desktop: 3-col grid ── */}
-      <div className="hidden md:grid md:grid-cols-3 gap-6 items-stretch">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="hidden md:grid md:grid-cols-3 gap-6 items-stretch"
+      >
         {TESTIMONIALS.map((t) => (
           <TestimonialCard key={t.id} testimonial={t} />
         ))}
-      </div>
+      </motion.div>
 
       {/* ── Mobile: horizontal snap carousel ── */}
       <div className="md:hidden -mx-4 px-4">
-        <div
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className="
             flex gap-4 overflow-x-auto
             snap-x snap-mandatory pb-4
@@ -157,7 +175,7 @@ export const TestimonialsSection: React.FC = () => (
               <TestimonialCard testimonial={t} />
             </div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Indicator dots */}
         <div className="flex justify-center gap-1.5 mt-3">

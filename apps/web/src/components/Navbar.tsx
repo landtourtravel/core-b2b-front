@@ -27,7 +27,8 @@ export const Navbar = () => {
             alt="Land Tour & Travel"
             width={90}
             height={30}
-            className="object-contain "
+            className="object-contain"
+            priority
           />
         </Link>
 

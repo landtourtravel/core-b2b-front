@@ -1,25 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { PackageCard } from "./PackageCard";
 import { Button } from "@land-tour/ui";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { PackageDetailModal } from "./PackageDetailModal";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const MOCK_PACKAGES = [
   {
-    title: "Italia Clásica 10 Días",
-    price: 1899,
-    duration: "10 Días / 9 Noches",
-    location: "Italia",
+    id: "panama-01",
+    title: "Panamá Ciudad + Playa",
+    price: 869,
+    duration: "5 DÍAS / 4 NOCHES",
+    location: "Panamá",
     category: "Tour",
     image:
-      "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&q=80",
+      "https://images.unsplash.com/photo-1589909202802-8f4abbce7502?w=800&q=80",
     flightIncluded: true,
-    transport: "Tren incluido",
+    transport: "Traslados incluidos",
   },
   {
+    id: "mexico-01",
     title: "Cancún Todo Incluido",
     price: 850,
     duration: "5 Días / 4 Noches",
@@ -31,17 +35,19 @@ const MOCK_PACKAGES = [
     transport: undefined,
   },
   {
-    title: "Madrid & París Express",
-    price: 1250,
-    duration: "8 Días / 7 Noches",
-    location: "Europa",
+    id: "italia-01",
+    title: "Italia Clásica 10 Días",
+    price: 1899,
+    duration: "10 Días / 9 Noches",
+    location: "Italia",
     category: "Tour",
     image:
-      "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
+      "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&q=80",
     flightIncluded: true,
-    transport: "Tren Eurostar incluido",
+    transport: "Tren incluido",
   },
   {
+    id: "peru-01",
     title: "Aventura en los Andes",
     price: 650,
     duration: "4 Días / 3 Noches",
@@ -57,6 +63,14 @@ const MOCK_PACKAGES = [
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export const PackagesSection = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+
+  const handleOpenModal = (pkg: any) => {
+    setSelectedPackage(pkg);
+    setIsModalOpen(true);
+  };
+
   return (
     <section className="py-24 bg-white" id="paquetes">
       <div className="container mx-auto px-4 sm:px-6">
@@ -79,26 +93,35 @@ export const PackagesSection = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {MOCK_PACKAGES.map((pkg, idx) => (
             <motion.div
-              key={idx}
+              key={pkg.id}
               className="h-full"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.08, duration: 0.4 }}
               viewport={{ once: true }}
             >
-              <PackageCard {...pkg} />
+              <PackageCard {...pkg} onClick={() => handleOpenModal(pkg)} />
             </motion.div>
           ))}
         </div>
 
         {/* CTA */}
         <div className="mt-12 text-center">
-          <Button variant="outline">Ver todos los paquetes</Button>
+          <Link href="/paquetes">
+            <Button variant="outline">Ver todos los paquetes</Button>
+          </Link>
         </div>
       </div>
+
+      {/* Modal de Detalle */}
+      <PackageDetailModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        packageData={selectedPackage}
+      />
     </section>
   );
 };

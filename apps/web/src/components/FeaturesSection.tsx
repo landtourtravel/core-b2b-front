@@ -1,6 +1,8 @@
-// Server Component — no interactivity needed
+"use client";
+
 import React from "react";
 import { BadgeDollarSign, Headphones, ShieldCheck, Globe } from "lucide-react";
+import { motion } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,10 +46,32 @@ const FEATURES: Feature[] = [
   },
 ];
 
+// ─── Animation Variants ───────────────────────────────────────────────────────
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
 // ─── Feature Card ─────────────────────────────────────────────────────────────
 
 const FeatureCard: React.FC<{ feature: Feature }> = ({ feature }) => (
-  <div
+  <motion.div
+    variants={itemVariants}
     className="
       flex flex-col items-center text-center h-full
       bg-white rounded-3xl
@@ -71,7 +95,7 @@ const FeatureCard: React.FC<{ feature: Feature }> = ({ feature }) => (
     <p className="text-primary/50 text-sm leading-relaxed">
       {feature.description}
     </p>
-  </div>
+  </motion.div>
 );
 
 // ─── Section ──────────────────────────────────────────────────────────────────
@@ -81,15 +105,25 @@ export const FeaturesSection: React.FC = () => (
     <div className="container mx-auto px-4 sm:px-6">
 
       {/* ── Desktop: 4-col grid ── */}
-      <div className="hidden md:grid md:grid-cols-4 gap-6 items-stretch">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        className="hidden md:grid md:grid-cols-4 gap-6 items-stretch"
+      >
         {FEATURES.map((f) => (
           <FeatureCard key={f.id} feature={f} />
         ))}
-      </div>
+      </motion.div>
 
       {/* ── Mobile: horizontal snap carousel ── */}
       <div className="md:hidden -mx-4 px-4">
-        <div
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
           className="
             flex gap-4 overflow-x-auto
             snap-x snap-mandatory pb-4
@@ -103,7 +137,7 @@ export const FeaturesSection: React.FC = () => (
               <FeatureCard feature={f} />
             </div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Indicator dots */}
         <div className="flex justify-center gap-1.5 mt-3">
@@ -116,3 +150,4 @@ export const FeaturesSection: React.FC = () => (
     </div>
   </section>
 );
+

@@ -3,9 +3,29 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Search, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const Hero = () => {
   const [travelers, setTravelers] = useState("1 Viajero");
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+    },
+  };
 
   return (
     <section
@@ -13,39 +33,66 @@ export const Hero = () => {
       className="relative w-full h-screen min-h-[650px] flex flex-col justify-center overflow-hidden"
     >
       {/* Imagen de fondo del hero */}
-      <Image
-        src="/images/playa_hero.jpg"
-        alt="Playa tropical - Land Tour & Travel"
-        fill
-        priority
-        className="object-cover object-center"
+      {window.innerWidth >= 768 ? (
+        <Image
+          src="https://images.unsplash.com/photo-1432889490240-84df33d47091?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Playa tropical - Land Tour & Travel"
+          fill
+          priority
+          className="object-cover object-center"
       />
+      ) : (
+        <Image
+          src="https://images.unsplash.com/photo-1544536871-6e891baa163f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Playa tropical - Land Tour & Travel"
+          fill
+          priority
+          className="object-cover object-center"
+      />
+      )}
 
       {/* Overlay verde oscuro semitransparente */}
-      <div className="absolute inset-0 bg-primary/55" aria-hidden="true" />
+      <div className="absolute inset-0 bg-primary/45" aria-hidden="true" />
 
       {/* ── Contenido ── */}
-      <div className="relative z-10 w-full px-6 flex flex-col justify-center items-center mx-auto max-w-7xl mt-10">
-        <div className="flex flex-col justify-start gap-3 md:gap-7">
+      <motion.div
+        className="relative z-10 w-full px-6 flex flex-col justify-center items-center mx-auto max-w-7xl mt-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="flex flex-col justify-start gap-3 md:gap-7 drop-shadow-xl drop-shadow-primary-dark ">
           {/* Eyebrow label */}
-          <p className="text-primary-light brightness-200 text-[15px] font-semibold tracking-[0.22em] uppercase ">
+          <motion.p
+            variants={itemVariants}
+            className="text-secondary-light text-[15px] font-semibold tracking-[0.22em] uppercase "
+          >
             Mayorista de Turismo
-          </p>
+          </motion.p>
           {/* Título */}
-          <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.15]">
+          <motion.h1
+            variants={itemVariants}
+            className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.15]"
+          >
             Vive experiencias{" "}
-            <em className="not-italic text-secondary">inolvidables</em>
+            <em className="not-italic text-secondary-light">inolvidables</em>
             <br />
             alrededor del mundo
-          </h1>
+          </motion.h1>
           {/* Bajada */}
-          <p className="text-white/80 text-sm md:text-[15px] leading-relaxed max-w-md lg:max-w-xl xl:max-w-2xl ">
+          <motion.p
+            variants={itemVariants}
+            className="text-white/80 text-sm md:text-[15px] leading-relaxed max-w-md lg:max-w-xl xl:max-w-2xl "
+          >
             Descubre nuestros paquetes turísticos diseñados para soñadores,
             aventureros y viajeros exigentes. Cotiza fácilmente con tu agencia de
             confianza.
-          </p>
+          </motion.p>
           {/* ── Search card ── */}
-          <div className="bg-white rounded-2xl shadow-2xl p-5 w-full">
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-2xl shadow-2xl p-5 w-full"
+          >
             <div className="flex flex-col md:flex-row md:items-end gap-4">
               {/* Campo: Destino */}
               <div className="flex flex-col gap-1 flex-1">
@@ -97,15 +144,15 @@ export const Hero = () => {
               {/* Botón */}
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-light active:scale-95 text-white text-sm font-semibold px-8 py-3 rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0"
+                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-light active:scale-95 text-white text-sm font-semibold px-8 py-3 rounded-full transition-all duration-200 whitespace-nowrap shrink-0"
               >
                 <Search size={15} />
                 Buscar
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

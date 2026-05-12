@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Mail, MapPin, Send } from "lucide-react";
+import { motion } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,7 +79,13 @@ export const ContactSection: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6">
 
         {/* ── Section header (brand standard) ── */}
-        <div className="text-center mb-12 sm:mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12 sm:mb-16"
+        >
           <span className="inline-block px-4 py-1.5 bg-secondary/15 text-secondary text-xs font-bold rounded-lg mb-4 uppercase tracking-widest">
             Contáctanos
           </span>
@@ -93,13 +100,19 @@ export const ContactSection: React.FC = () => {
             ¿Tienes preguntas sobre algún paquete? Escríbenos y un asesor te
             conectará con la agencia más cercana.
           </p>
-        </div>
+        </motion.div>
 
         {/* ── Two-column grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start max-w-5xl mx-auto">
 
           {/* ── Left: Contact Info ── */}
-          <div className="flex flex-col gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="flex flex-col gap-8"
+          >
 
             {/* Contact items */}
             <div className="flex flex-col gap-6">
@@ -129,10 +142,16 @@ export const ContactSection: React.FC = () => {
                 al instante con márgenes competitivos.
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Right: Form card ── */}
-          <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-lighter p-8 sm:p-10">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] border border-lighter p-8 sm:p-10"
+          >
             <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
 
               <input
@@ -192,10 +211,11 @@ export const ContactSection: React.FC = () => {
               </button>
 
             </form>
-          </div>
+          </motion.div>
 
         </div>
       </div>
     </section>
+
   );
 };

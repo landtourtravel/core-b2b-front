@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, MapPin, ArrowRight, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -363,7 +364,13 @@ export const DestinationsSection: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6">
 
           {/* ── Section header ── */}
-          <div className="text-center mb-12 sm:mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12 sm:mb-16"
+          >
             <span className="inline-block px-4 py-1.5 bg-secondary/15 text-secondary text-xs font-bold rounded-lg mb-4 uppercase tracking-widest">
               Destinos Destacados
             </span>
@@ -382,10 +389,16 @@ export const DestinationsSection: React.FC = () => {
               Explora los destinos más soñados del mundo. Pasa el cursor sobre cada tarjeta
               y déjate sorprender.
             </p>
-          </div>
+          </motion.div>
 
           {/* ── Desktop: Expandable flex row ── */}
-          <div className="hidden md:flex gap-3 h-[480px]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="hidden md:flex gap-3 h-[480px]"
+          >
             {DESTINATIONS.map((dest) => (
               <DestinationCard
                 key={dest.id}
@@ -396,10 +409,16 @@ export const DestinationsSection: React.FC = () => {
                 onOpen={() => setSelectedDestination(dest)}
               />
             ))}
-          </div>
+          </motion.div>
 
           {/* ── Mobile: Horizontal snap-scroll carousel ── */}
-          <div className="md:hidden -mx-4 px-4">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="md:hidden -mx-4 px-4"
+          >
             <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide">
               {DESTINATIONS.map((dest) => (
                 <div key={dest.id} className="w-[80vw] flex-shrink-0 snap-center">
@@ -416,7 +435,7 @@ export const DestinationsSection: React.FC = () => {
                 <span key={dest.id} className="w-1.5 h-1.5 rounded-full bg-primary/20" />
               ))}
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </section>

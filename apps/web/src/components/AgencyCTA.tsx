@@ -1,6 +1,8 @@
-// Server Component
+"use client";
+
 import React from "react";
 import { UserPlus } from "lucide-react";
+import { motion } from "framer-motion";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -20,8 +22,13 @@ export const AgencyCTA: React.FC = () => (
 
     {/* ── Content ── */}
     <div className="relative z-10 container mx-auto px-4 sm:px-6">
-      <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto text-center">
-
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col items-center gap-6 max-w-2xl mx-auto text-center"
+      >
         {/* Title */}
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
           ¿Eres una Agencia Minorista?
@@ -34,26 +41,32 @@ export const AgencyCTA: React.FC = () => (
         </p>
 
         {/* CTA Button */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
           type="button"
           className="
             inline-flex items-center gap-2.5
             bg-secondary hover:bg-secondary-light
             text-primary-dark font-bold text-sm sm:text-base
             px-8 py-3.5 rounded-full
-            hover:scale-105 transition-all duration-200
+            transition-all duration-200
             shadow-lg hover:shadow-xl
-            active:scale-95
           "
           aria-label="Regístrate como agencia aliada"
         >
           <UserPlus size={18} strokeWidth={2} />
           Regístrate
-        </button>
+        </motion.button>
 
-      </div>
+      </motion.div>
     </div>
 
   </section>
 );
+
 
