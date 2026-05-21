@@ -11,25 +11,19 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface PackageCardProps {
-  title: string;
-  price: number;
-  duration: string;
-  location: string;
-  category: string;
-  image?: string;
-  flightIncluded?: boolean;
-  transport?: string; // ej. "Tren incluido"
-  currency?: string;  // default "USD"
+import { Package } from "@land-tour/shared";
+
+export interface PackageCardProps extends Partial<Package> {
   onClick?: () => void;
+  currency?: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const PackageCard: React.FC<PackageCardProps> = ({
-  title,
-  price,
-  duration,
+  title = "Paquete Turístico",
+  price = 0,
+  duration = "Consultar",
   location,
   category,
   image,
@@ -39,6 +33,13 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   onClick,
 }) => {
   const fallbackImage = `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80`;
+
+  // Format location string
+  const locationLabel = typeof location === 'string'
+    ? location
+    : location
+      ? `${location.city}, ${location.country}`
+      : "Destino variado";
 
   return (
     <article
@@ -69,7 +70,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div className="flex items-center gap-1.5 mb-2">
           <MapPin size={13} className="text-secondary shrink-0" />
           <span className="text-secondary text-xs font-semibold tracking-wide">
-            {location}
+            {locationLabel}
           </span>
         </div>
 
@@ -113,7 +114,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             <p className="text-[11px] text-primary/50 font-medium mb-0.5">Desde</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-extrabold text-primary">
-                ${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                ${price.toLocaleString()}
               </span>
             </div>
             <p className="text-[11px] text-primary/50 font-medium mt-0.5">

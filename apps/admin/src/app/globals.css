@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@source "../**/*.{ts,tsx}";
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+
+
+
+@theme {
+  --color-primary: #0B4339;
+  --color-primary-dark: #052924;
+  --color-primary-light: #156B5A;
+  --color-secondary: #28BFA9;
+  --color-secondary-light: #54DAC0;
+  
+  --font-inter: "Inter", sans-serif;
+}
+
+:root {
+  --background: #F5FAF9;
+  --foreground: #0B4339;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter);
+}

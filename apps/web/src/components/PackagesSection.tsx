@@ -7,69 +7,49 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { PackageDetailModal } from "./PackageDetailModal";
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const MOCK_PACKAGES = [
-  {
-    id: "panama-01",
-    title: "Panamá Ciudad + Playa",
-    price: 869,
-    duration: "5 DÍAS / 4 NOCHES",
-    location: "Panamá",
-    category: "Tour",
-    image:
-      "https://images.unsplash.com/photo-1589909202802-8f4abbce7502?w=800&q=80",
-    flightIncluded: true,
-    transport: "Traslados incluidos",
-  },
-  {
-    id: "mexico-01",
-    title: "Cancún Todo Incluido",
-    price: 850,
-    duration: "5 Días / 4 Noches",
-    location: "México",
-    category: "Playa",
-    image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",
-    flightIncluded: true,
-    transport: undefined,
-  },
-  {
-    id: "italia-01",
-    title: "Italia Clásica 10 Días",
-    price: 1899,
-    duration: "10 Días / 9 Noches",
-    location: "Italia",
-    category: "Tour",
-    image:
-      "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&q=80",
-    flightIncluded: true,
-    transport: "Tren incluido",
-  },
-  {
-    id: "peru-01",
-    title: "Aventura en los Andes",
-    price: 650,
-    duration: "4 Días / 3 Noches",
-    location: "Perú",
-    category: "Montaña",
-    image:
-      "https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=800&q=80",
-    flightIncluded: false,
-    transport: "Bus panorámico incluido",
-  },
-];
+import { Package } from "@land-tour/shared";
+import { api } from "@/services/api";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export const PackagesSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleOpenModal = (pkg: any) => {
+  React.useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const data = await api.getPackages();
+        // Solo mostramos los primeros 4 en la sección de destacados
+        setPackages(data.slice(0, 4));
+      } catch (err) {
+        console.error("Error fetching packages:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPackages();
+  }, []);
+
+  const handleOpenModal = (pkg: Package) => {
     setSelectedPackage(pkg);
     setIsModalOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-24 bg-white min-h-[400px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+          <p className="text-primary/60 font-medium text-sm">Cargando mejores ofertas...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (packages.length === 0) return null;
 
   return (
     <section className="py-24 bg-white" id="paquetes">
@@ -94,7 +74,7 @@ export const PackagesSection = () => {
 
         {/* Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {MOCK_PACKAGES.map((pkg, idx) => (
+          {packages.map((pkg, idx) => (
             <motion.div
               key={pkg.id}
               className="h-full"

@@ -1,0 +1,567 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  X, 
+  MapPin, 
+  Clock, 
+  Plane, 
+  CheckCircle, 
+  Car, 
+  Hotel, 
+  Calendar, 
+  Mail, 
+  Phone,
+  MessageCircle,
+  CreditCard,
+  ChevronRight,
+  Info,
+  ShieldCheck,
+  AlertCircle
+} from "lucide-react";
+import Image from "next/image";
+
+import { Package } from "@land-tour/shared";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface ItineraryDay {
+  day: number;
+  date?: string;
+  location?: string;
+  title: string;
+  description: string;
+}
+
+export interface PackageDetail extends Partial<Package> {
+  dates?: string;
+  airline?: string;
+  reservationFee?: number;
+  childPrice?: number;
+  heroImage?: string;
+  gallery?: string[];
+  highlights?: string[];
+  includes?: string[];
+  notIncludes?: string[];
+  itinerary?: ItineraryDay[];
+  notes?: string[];
+}
+
+interface PackageDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  packageData?: PackageDetail | null;
+}
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
+const MOCK_PANAMA: PackageDetail = {
+  id: "panama-01",
+  title: "Panamá Ciudad + Playa",
+  location: "Panamá",
+  duration: "5 días / 4 noches",
+  dates: "09 - 13 de Mayo",
+  airline: "COPA Airlines · 10kg de mano",
+  price: 869,
+  reservationFee: 499,
+  childPrice: 500,
+  heroImage: "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  gallery: [
+    "https://images.unsplash.com/photo-1484821582734-6c6c9f99a672?q=80&w=1633&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1590523278191-995cbcda646b?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/flagged/photo-1557899775-24a0957d3895?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1621789097689-511e97f099e1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1727994961898-1b116f307f92?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  ],
+  highlights: [
+    "Boleto aéreo GYE-PTY-GYE vía COPA",
+    "2 noches en Marriott Panama Hotel 4★",
+    "2 noches en Decameron Panamá 3★ Sup. (Todo Incluido)",
+    "Traslados aeropuerto-hotel en servicio compartido",
+    "City tour, Casco Antiguo y Canal de Panamá",
+    "Cortesía: Botellita de Ron + Chip sin saldo por habitación",
+  ],
+  includes: [
+    "Boleto aéreo GYE-PTY-GYE vía COPA, 10kg de mano",
+    "Traslados aeropuerto-hotel-aeropuerto compartidos",
+    "2 noches Marriott Panama Hotel 4★ con desayuno buffet",
+    "City tour + Casco Antiguo + Canal de Panamá + Albrook Mall",
+    "2 noches Decameron Panamá 3★ Sup. Todo Incluido",
+    "Bebidas alcohólicas y no alcohólicas ilimitadas",
+    "Impuestos hoteleros y aéreos"
+  ],
+  notIncludes: [
+    "Servicios no especificados en el programa",
+    "Excursiones privadas",
+    "Gastos personales y propinas",
+    "Entradas a atracciones turísticas"
+  ],
+  itinerary: [
+    { day: 1, date: "Sáb 09 May", location: "Ciudad de Panamá", title: "Llegada a Panamá", description: "Vuelo CM 313 GYE 06:00 → PTY 08:12. Traslado al Marriott Panama Hotel. Tarde libre." },
+    { day: 2, date: "Dom 10 May", location: "Ciudad de Panamá", title: "City tour + Canal de Panamá", description: "Desayuno buffet. City tour panorámico, caminata por el Casco Antiguo, visita al Canal de Panamá y compras." },
+    { day: 3, date: "Lun 11 May", location: "Ciudad → Playa", title: "Traslado a Playa Decameron", description: "Desayuno y traslado al hotel Decameron Panamá 3★ Sup. Inicio del sistema Todo Incluido." },
+    { day: 4, date: "Mar 12 May", location: "Decameron", title: "Día libre todo incluido", description: "Día completo en el resort: desayunos, almuerzos y cenas buffet, bebidas ilimitadas." },
+    { day: 5, date: "Mié 13 May", location: "Regreso", title: "Retorno a Guayaquil", description: "Desayuno. Traslado al aeropuerto. Vuelo CM 213 PTY 18:40 → GYE 20:52." }
+  ],
+  notes: [
+    "- Todos los servicios terrestres y excursiones son en compartido",
+    "- Todo abono es no reembolsable",
+    "- Esto es un programa, no una reserva confirmada",
+    "- Cambios de fecha aplican penalidad + diferencia tarifaria",
+    "- LT TOURS SAS no se hace responsable por cambios de aerolínea"
+  ]
+};
+
+const AGENCIES = [
+  { name: "Viajes Andina Tours", city: "Guayaquil", phone: "+593 912345678", email: "ventas@andinatours.com" },
+  { name: "Mundo Mágico Travel", city: "Quito", phone: "+593 987654321", email: "info@mundomagico.com" },
+  { name: "Costa Sol Agencia", city: "Cuenca", phone: "+593 922334455", email: "reservas@costasol.com" },
+  { name: "Tropical Vacations", city: "Manta", phone: "+593 933445566", email: "manta@tropical.com" },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
+  isOpen,
+  onClose,
+  packageData: incomingData,
+}) => {
+  const [activeTab, setActiveTab] = useState("Resumen");
+  const [selectedAgency, setSelectedAgency] = useState<typeof AGENCIES[0] | null>(null);
+  
+  // Merge incoming data with defaults
+  const packageData: PackageDetail = {
+    ...MOCK_PANAMA,
+    ...(incomingData || {}),
+  };
+
+  const [mainImage, setMainImage] = useState(packageData.image || packageData.heroImage || MOCK_PANAMA.heroImage);
+  const tabs = ["Resumen", "Itinerario", "Incluye", "Cotizar"];
+
+  // Format location string
+  const locationLabel = typeof packageData.location === 'string' 
+    ? packageData.location 
+    : packageData.location 
+      ? `${packageData.location.city}, ${packageData.location.country}`
+      : "Destino variado";
+
+  // Update main image when package changes
+  useEffect(() => {
+    const newImage = packageData.image || packageData.heroImage || MOCK_PANAMA.heroImage;
+    if (newImage) {
+      setMainImage(newImage);
+    }
+  }, [packageData.id]);
+
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      // Get the scrollbar width to prevent layout shift
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      if (scrollBarWidth > 0) {
+        document.body.style.paddingRight = `${scrollBarWidth}px`;
+      }
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
+    
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [isOpen]);
+
+  if (!isMounted) return null;
+
+  const modalContent = (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          key="modal-portal" 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 pointer-events-none"
+        >
+          {/* Backdrop: Plain div inheriting parent opacity for reliability */}
+          <div
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer pointer-events-auto"
+          />
+
+          {/* Modal Container: Dashboard Style */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+            className="relative w-full max-w-4xl h-[90vh] max-h-[850px] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col z-10 border border-white/20 pointer-events-auto"
+          >
+            {/* Header/Hero Section (Compact) */}
+            <div className="relative h-1/3 min-h-[240px] shrink-0 overflow-hidden group">
+              <Image 
+                src={mainImage??''}
+                alt={packageData.title??''}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              
+              {/* Close Button */}
+              <button 
+                onClick={onClose}
+                className="absolute top-4 right-4 z-[110] p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/10 transition-all"
+              >
+                <X size={18} />
+              </button>
+
+              {/* Gallery Thumbnails (Ultra-compact) */}
+              <div className="absolute top-4 left-6 flex flex-row gap-2 z-20">
+                {packageData.gallery?.slice(0, 4).map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setMainImage(img)}
+                    className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${mainImage === img ? "border-secondary scale-110 shadow-lg" : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105"}`}
+                  >
+                    <Image src={img} alt="Thumbnail" fill className="object-cover" />
+                  </button>
+                ))}
+              </div>
+
+              {/* Title & Info Overlay */}
+              <div className="absolute bottom-4 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+                <div className="space-y-1 w-full sm:w-auto">
+                  <div className="flex flex-wrap gap-2 mb-1.5 sm:mb-2">
+                    <span className="px-2 py-0.5 bg-secondary text-primary font-black text-[9px] uppercase rounded-md shadow-sm">
+                      {packageData.duration}
+                    </span>
+                    <span className="px-2 py-0.5 bg-white/20 backdrop-blur-md text-white font-bold text-[9px] uppercase rounded-md border border-white/10">
+                      Salida GYE
+                    </span>
+                  </div>
+                  <h2 className="text-white text-xl sm:text-2xl md:text-4xl font-black leading-tight tracking-tight max-w-[90%] sm:max-w-none">
+                    {packageData.title}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/70 text-[10px] sm:text-xs font-bold">
+                    <span className="flex items-center gap-1 whitespace-nowrap"><Calendar size={12} className="text-secondary" /> {packageData.dates}</span>
+                    <span className="flex items-center gap-1 whitespace-nowrap"><Plane size={12} className="text-secondary" /> {packageData.airline}</span>
+                  </div>
+                </div>
+
+                {/* CTA Header Button */}
+                <button 
+                  onClick={() => setActiveTab("Cotizar")}
+                  className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-secondary hover:bg-secondary-light text-primary font-black text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(40,191,169,0.3)] active:scale-95"
+                >
+                  <MessageCircle size={16} />
+                  Cotizar Ahora
+                </button>
+              </div>
+            </div>
+
+            {/* Navigation Tabs (Compact) */}
+            <div className="bg-white border-b border-gray-100 px-6 shrink-0 z-30 overflow-x-auto no-scrollbar scroll-smooth">
+              <div className="flex gap-8 min-w-max">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`relative py-4 text-xs font-black uppercase tracking-widest transition-all ${
+                      activeTab === tab ? "text-primary" : "text-gray-400 hover:text-primary/70"
+                    }`}
+                  >
+                    {tab}
+                    {activeTab === tab && (
+                      <motion.div 
+                        layoutId="tab-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-secondary rounded-full"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tab Content (Flex-1 & Internal Scroll) */}
+            <div className="flex-1 overflow-hidden bg-[#F9FBFA] p-6">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -5 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full w-full overflow-y-auto no-scrollbar"
+                >
+                  {/* ── Resumen Tab ── */}
+                  {activeTab === "Resumen" && (
+                    <div className="flex flex-col gap-6">
+                      {/* Info Cards Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 shrink-0">
+                        {[
+                          { label: "Destino", value: locationLabel, icon: <MapPin className="text-secondary" size={14}/> },
+                          { label: "Duración", value: packageData.duration, icon: <Clock className="text-secondary" size={14}/> },
+                          { label: "Aerolínea", value: packageData.airline, icon: <Plane className="text-secondary" size={14}/> },
+                          { label: "Desde", value: `$${packageData.price} USD / pax`, icon: <CreditCard className="text-secondary" size={14}/> },
+                        ].map((item, i) => (
+                          <div key={i} className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-0.5 sm:gap-1">
+                            <span className="text-[9px] sm:text-[10px] font-black uppercase text-gray-400 tracking-tighter flex items-center gap-1">
+                              {item.icon} {item.label}
+                            </span>
+                            <span className="text-xs sm:text-sm font-black text-primary truncate leading-tight">{item.value}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Highlights (Compact List) */}
+                      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <CheckCircle size={14} className="text-secondary" />
+                          Lo más destacado
+                        </h3>
+                        <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+                          {packageData.highlights?.map((h: string, i: number) => (
+                            <div key={i} className="flex items-start gap-3 group">
+                              <div className="w-4 h-4 rounded bg-secondary/10 flex items-center justify-center mt-0.5 group-hover:bg-secondary/20 transition-colors">
+                                <ChevronRight size={10} className="text-secondary" />
+                              </div>
+                              <span className="text-[13px] font-medium text-primary/70 leading-relaxed">{h}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Itinerario Tab ── */}
+                  {activeTab === "Itinerario" && (
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                      <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Plan de viaje diario</h3>
+                      <div className="space-y-4">
+                        {packageData.itinerary?.map((day) => (
+                          <div key={day.day} className="flex gap-4 group">
+                            <div className="flex flex-col items-center">
+                              <div className="w-8 h-8 rounded-lg bg-primary text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-md">
+                                {day.day}
+                              </div>
+                              <div className="w-0.5 flex-1 bg-gray-100 my-1 rounded-full group-last:hidden" />
+                            </div>
+                            <div className="pb-4">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <h4 className="text-sm font-black text-primary">{day.title}</h4>
+                                <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 rounded-full">{day.location}</span>
+                              </div>
+                              <p className="text-[11px] text-gray-500 font-medium leading-relaxed max-w-3xl">{day.description}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Incluye Tab ── */}
+                  {activeTab === "Incluye" && (
+                    <div className="flex flex-col gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Incluye */}
+                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                          <h3 className="text-xs font-black text-secondary uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <ShieldCheck size={14} /> Servicios Incluidos
+                          </h3>
+                          <div className="space-y-2.5">
+                            {packageData.includes?.map((text, i) => (
+                              <div key={i} className="flex items-start gap-3">
+                                <CheckCircle size={12} className="text-secondary mt-0.5 shrink-0" />
+                                <span className="text-[11px] font-bold text-primary/70 leading-tight">{text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* No Incluye */}
+                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                          <h3 className="text-xs font-black text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <X size={14} /> No incluye
+                          </h3>
+                          <div className="space-y-2.5">
+                            {packageData.notIncludes?.map((text, i) => (
+                              <div key={i} className="flex items-start gap-3">
+                                <X size={12} className="text-red-300 mt-0.5 shrink-0" />
+                                <span className="text-[11px] font-bold text-primary/60 leading-tight">{text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Notas */}
+                      <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center gap-4">
+                        <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                          <AlertCircle size={16} />
+                        </div>
+                        <p className="text-[10px] font-bold text-amber-800 leading-snug">
+                          <span className="font-black">NOTA IMPORTANTE:</span> <br />{packageData.notes?.map((n) => <span key={n}>{n}<br/></span>)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Cotizar Tab ── */}
+                  {activeTab === "Cotizar" && (
+                    <div className="flex flex-col lg:flex-row gap-6 relative">
+                      {/* Price Breakdown (Left) */}
+                      <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
+                        <div className="bg-primary p-6 rounded-2xl text-white shadow-xl relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-12 translate-x-12 blur-2xl" />
+                          <span className="text-[10px] font-black uppercase text-secondary tracking-widest">Inversión Total</span>
+                          <div className="flex items-baseline gap-2 mt-1">
+                            <span className="text-4xl font-black tracking-tighter">${packageData.price}</span>
+                            <span className="text-xs font-bold text-white/60">USD / pax</span>
+                          </div>
+                          
+                          <div className="mt-6 space-y-3 pt-4 border-t border-white/10">
+                            <div className="flex justify-between items-center text-[11px]">
+                              <span className="font-bold text-white/70">Abono Inicial</span>
+                              <span className="font-black text-secondary">${packageData.reservationFee}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px]">
+                              <span className="font-bold text-white/70">Niños (2-11 años)</span>
+                              <span className="font-black text-secondary-light">${packageData?.childPrice || 500}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] pt-2">
+                              <span className="font-bold text-white/70">Saldo Pendiente</span>
+                              <span className="font-black text-white/90">${(packageData?.price ?? 0) - (packageData?.reservationFee ?? 0)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Agencies List (Right) */}
+                      <div className="flex-1 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative min-h-[400px]">
+                        <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Contacta con una agencia</h3>
+                        
+                        <div className="space-y-3">
+                          {AGENCIES.map((agency, i) => (
+                            <div key={i} className="p-4 border border-gray-50 rounded-xl bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-white hover:shadow-md hover:border-secondary/20 transition-all">
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-black text-[12px] shrink-0">
+                                  {agency.name.split(" ").map(n => n[0]).join("")}
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-black text-primary mb-0.5">{agency.name}</h4>
+                                  <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1">
+                                    <MapPin size={10} className="text-secondary" /> {agency.city}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <a 
+                                  href={`https://wa.me/${agency.phone.replace(/\D/g, '')}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex-1 sm:flex-none px-4 py-2 bg-[#25D366]/10 text-[#25D366] text-[10px] font-black rounded-lg hover:bg-[#25D366] hover:text-white transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <MessageCircle size={12} /> WhatsApp
+                                </a>
+                                <button 
+                                  onClick={() => setSelectedAgency(agency)}
+                                  className="flex-1 sm:flex-none px-4 py-2 bg-primary/10 text-primary text-[10px] font-black rounded-lg hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <Mail size={12} /> Email
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Overlaid Email Form */}
+                        <AnimatePresence>
+                          {selectedAgency && (
+                            <motion.div 
+                              key="agency-email-form"
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 20 }}
+                              className="absolute inset-0 bg-white z-50 p-6 flex flex-col rounded-2xl"
+                            >
+                              <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                  <button onClick={() => setSelectedAgency(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <ChevronRight size={18} className="rotate-180 text-gray-400" />
+                                  </button>
+                                  <div>
+                                    <h4 className="text-sm font-black text-primary">Enviar Email a {selectedAgency.name}</h4>
+                                    <p className="text-[10px] font-bold text-gray-400">{selectedAgency.email}</p>
+                                  </div>
+                                </div>
+                                <button onClick={() => setSelectedAgency(null)} className="text-gray-400 hover:text-primary"><X size={18} /></button>
+                              </div>
+
+                              <form className="flex-1 flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <input type="text" placeholder="Tu Nombre" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
+                                  <input type="email" placeholder="Tu Email" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
+                                </div>
+                                <textarea 
+                                  placeholder="Mensaje... (Indica fechas, número de personas, etc)" 
+                                  className="flex-1 w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-xs font-medium focus:border-secondary focus:ring-0 transition-all outline-none resize-none"
+                                />
+                                <button className="w-full py-3 bg-secondary text-primary font-black text-xs rounded-xl shadow-lg hover:brightness-105 transition-all">
+                                  Enviar Cotización
+                                </button>
+                              </form>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Footer (Ultra Clean) */}
+            <div className="bg-white border-t border-gray-50 px-8 py-3 shrink-0 flex flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-6">
+                  <Image src="/images/lttlogo.png" alt="Logo" fill className="object-contain" />
+                </div>
+              </div>
+              
+              <div className="flex gap-6">
+                <div className="flex items-center gap-2 text-primary/50">
+                  <Mail size={10} className="text-secondary" />
+                  <span className="text-[10px] font-bold">info@landtour.com</span>
+                </div>
+                <div className="flex items-center gap-2 text-primary/50">
+                  <Phone size={10} className="text-secondary" />
+                  <span className="text-[10px] font-bold">+593 4 123 4567</span>
+                </div>
+              </div>
+
+              <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest hidden lg:block">
+                Mayorista de Turismo · {new Date().getFullYear()}
+              </span>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  return createPortal(modalContent, document.body);
+};
