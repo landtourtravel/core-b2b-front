@@ -156,9 +156,11 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
   }, [packageData.id]);
 
   const [isMounted, setIsMounted] = React.useState(false);
+  const [currentYear, setCurrentYear] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     setIsMounted(true);
+    setCurrentYear(new Date().getFullYear());
   }, []);
 
   // Lock body scroll when modal is open
@@ -554,7 +556,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
               </div>
 
               <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest hidden lg:block">
-                Mayorista de Turismo · {new Date().getFullYear()}
+                Mayorista de Turismo · {currentYear}
               </span>
             </div>
           </motion.div>
