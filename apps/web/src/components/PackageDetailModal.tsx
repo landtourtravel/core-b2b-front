@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Package } from "@land-tour/shared";
+import { dialog } from "framer-motion/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,10 +92,10 @@ const MOCK_PANAMA: PackageDetail = {
 };
 
 const AGENCIES = [
-  { name: "Viajes Andina Tours",  city: "Guayaquil", phone: "+593 912345678", email: "ventas@andinatours.com" },
-  { name: "Mundo Mágico Travel",  city: "Quito",     phone: "+593 987654321", email: "info@mundomagico.com"  },
-  { name: "Costa Sol Agencia",    city: "Cuenca",    phone: "+593 922334455", email: "reservas@costasol.com" },
-  { name: "Tropical Vacations",   city: "Manta",     phone: "+593 933445566", email: "manta@tropical.com"   },
+  { name: "Viajes Andina Tours", city: "Guayaquil", phone: "+593 912345678", email: "ventas@andinatours.com" },
+  { name: "Mundo Mágico Travel", city: "Quito", phone: "+593 987654321", email: "info@mundomagico.com" },
+  { name: "Costa Sol Agencia", city: "Cuenca", phone: "+593 922334455", email: "reservas@costasol.com" },
+  { name: "Tropical Vacations", city: "Manta", phone: "+593 933445566", email: "manta@tropical.com" },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -121,17 +122,31 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
     typeof packageData.location === "string"
       ? packageData.location
       : packageData.location
-      ? `${packageData.location.city}, ${packageData.location.country}`
-      : "Destino variado";
+        ? `${packageData.location.city}, ${packageData.location.country}`
+        : "Destino variado";
 
   // ── Open / close dialog ──────────────────────────────────────────────────
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
+    const newImage = packageData.image || packageData.heroImage || MOCK_PANAMA.heroImage;
+    if (newImage) {
+      setMainImage(newImage);
+    }
+  }, [packageData.id]);
 
-    if (isOpen && !dialog.open) {
-      dialog.showModal();
-      const sw = window.innerWidth - document.documentElement.clientWidth;
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [currentYear, setCurrentYear] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      // Get the scrollbar width to prevent layout shift
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
       if (sw > 0) document.body.style.paddingRight = `${sw}px`;
     } else if (!isOpen && dialog.open) {
@@ -199,11 +214,10 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
               <button
                 key={idx}
                 onClick={() => setMainImage(img)}
-                className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
-                  mainImage === img
+                className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${mainImage === img
                     ? "border-secondary scale-110 shadow-lg"
                     : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105"
-                }`}
+                  }`}
               >
                 <Image src={img} alt="Thumbnail" fill sizes="48px" className="object-cover" />
               </button>
@@ -250,9 +264,8 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
               <button
                 key={tab}
                 onClick={() => { setActiveTab(tab); setSelectedAgency(null); }}
-                className={`relative py-4 text-xs font-black uppercase tracking-widest transition-all ${
-                  activeTab === tab ? "text-primary" : "text-gray-400 hover:text-primary/70"
-                }`}
+                className={`relative py-4 text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab ? "text-primary" : "text-gray-400 hover:text-primary/70"
+                  }`}
               >
                 {tab}
                 {activeTab === tab && (
@@ -283,10 +296,10 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                 <div className="flex flex-col gap-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 shrink-0">
                     {[
-                      { label: "Destino",  value: locationLabel,                     icon: <MapPin      className="text-secondary" size={14} /> },
-                      { label: "Duración", value: packageData.duration,              icon: <Clock       className="text-secondary" size={14} /> },
-                      { label: "Aerolínea",value: packageData.airline,               icon: <Plane       className="text-secondary" size={14} /> },
-                      { label: "Desde",    value: `$${packageData.price} USD / pax`, icon: <CreditCard  className="text-secondary" size={14} /> },
+                      { label: "Destino", value: locationLabel, icon: <MapPin className="text-secondary" size={14} /> },
+                      { label: "Duración", value: packageData.duration, icon: <Clock className="text-secondary" size={14} /> },
+                      { label: "Aerolínea", value: packageData.airline, icon: <Plane className="text-secondary" size={14} /> },
+                      { label: "Desde", value: `$${packageData.price} USD / pax`, icon: <CreditCard className="text-secondary" size={14} /> },
                     ].map((item, i) => (
                       <div key={i} className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-0.5 sm:gap-1">
                         <span className="text-[9px] sm:text-[10px] font-black uppercase text-gray-400 tracking-tighter flex items-center gap-1">
@@ -484,8 +497,8 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                         </div>
                         <form className="flex-1 flex flex-col gap-3" onSubmit={e => e.preventDefault()}>
                           <div className="grid grid-cols-2 gap-3">
-                            <input type="text"  placeholder="Tu Nombre" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
-                            <input type="email" placeholder="Tu Email"  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
+                            <input type="text" placeholder="Tu Nombre" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
+                            <input type="email" placeholder="Tu Email" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
                           </div>
                           <input type="text" readOnly value={packageData.title} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold outline-none cursor-default text-primary/50" />
                           <textarea
@@ -505,9 +518,14 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* ── Footer ── */}
+        {/* Footer (Ultra Clean) */}
         <div className="bg-white border-t border-gray-50 px-8 py-3 shrink-0 flex flex-row items-center justify-between gap-4">
-          <Image src="/images/lttlogo.png" alt="Logo" width={40} height={24} className="object-contain" />
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-6">
+              <Image src="/images/lttlogo.png" alt="Logo" fill className="object-contain" />
+            </div>
+          </div>
+
           <div className="flex gap-6">
             <div className="flex items-center gap-2 text-primary/50">
               <Mail size={10} className="text-secondary" />
@@ -518,11 +536,15 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
               <span className="text-[10px] font-bold">+593 4 123 4567</span>
             </div>
           </div>
+
           <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest hidden lg:block">
-            Mayorista de Turismo · {new Date().getFullYear()}
+            Mayorista de Turismo · {currentYear}
           </span>
         </div>
-      </div>
-    </dialog>
+      </motion.div>
+    </motion.div>
+  )
+}
+    </AnimatePresence >
   );
 };
