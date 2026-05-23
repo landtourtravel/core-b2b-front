@@ -27,6 +27,14 @@ export interface Tarifa {
   precio: number;
 }
 
+export interface ItineraryDay {
+  day: number;
+  date?: string;
+  location?: string;
+  title: string;
+  description: string;
+}
+
 export interface Package {
   id: string | number;
   title: string;
@@ -55,6 +63,15 @@ export interface Package {
   traslados?: string[];
   flightIncluded?: boolean;
   transport?: string;
+  gallery?: string[];
+  // Campos de detalle
+  dates?: string;
+  airline?: string;
+  reservationFee?: number;
+  childPrice?: number;
+  highlights?: string[];
+  itinerary?: ItineraryDay[];
+  notes?: string[];
 }
 
 export interface User {
