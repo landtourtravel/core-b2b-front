@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
+
+const MotionLink = motion.create(Link);
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -41,14 +44,14 @@ export const AgencyCTA: React.FC = () => (
         </p>
 
         {/* CTA Button */}
-        <motion.button
+        <MotionLink
+          href="/login"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          type="button"
           className="
             inline-flex items-center gap-2.5
             bg-secondary hover:bg-secondary-light
@@ -61,7 +64,7 @@ export const AgencyCTA: React.FC = () => (
         >
           <UserPlus size={18} strokeWidth={2} />
           Regístrate
-        </motion.button>
+        </MotionLink>
 
       </motion.div>
     </div>

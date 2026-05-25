@@ -83,13 +83,13 @@ export const Navbar = () => {
 
         {/* ── CTA ── */}
         <div className="hidden md:flex items-center shrink-0">
-          <button
-            type="button"
+          <Link
+            href="/login"
             className="flex items-center gap-2 px-5 py-[7px] rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:border-primary hover:text-primary transition-colors duration-200"
           >
             <ArrowRightToLine size={14} />
             Ingreso Agencias
-          </button>
+          </Link>
         </div>
 
         {/* ── Mobile toggle ── */}
@@ -116,13 +116,14 @@ export const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <button
-            type="button"
+          <Link
+            href="/login"
+            onClick={() => setIsMenuOpen(false)}
             className="mt-3 flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-300 text-sm font-medium text-gray-700 w-fit hover:border-primary hover:text-primary transition-colors"
           >
             <ArrowRightToLine size={14} />
             Ingreso Agencias
-          </button>
+          </Link>
         </div>
       )}
     </header>

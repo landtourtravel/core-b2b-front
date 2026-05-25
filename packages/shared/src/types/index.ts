@@ -57,9 +57,145 @@ export interface Package {
   transport?: string;
 }
 
+// ─── Autenticación / Usuarios ──────────────────────────────────────────────
+//
+// Roles dentro del portal de agencias minoristas.
+// ADMIN       → dueño/admin de la agencia: acceso completo a su agencia,
+//               puede configurar Marca Blanca, ver todos los colaboradores.
+// COLABORADOR → empleado de la agencia: puede cotizar y ver historial,
+//               NO accede a configuración ni gestión de equipo.
+// Kevin (superadmin) opera en lt-core-admin — otro subdominio, otro repo.
+export type UserRole = 'ADMIN' | 'COLABORADOR';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'COLABORADOR' | 'AGENCIA';
+  role: UserRole;
+  agenciaId: string;       // Scope: toda acción está limitada a esta agencia
+  agenciaNombre?: string;  // Denormalizado para UI sin query extra
+}
+
+// ─── Cotizaciones ──────────────────────────────────────────────────────────
+//
+// Ciclo de vida:
+//   BORRADOR → ENVIADA → APROBADA  (Kevin crea liquidación en lt-core-admin)
+//                      → RECHAZADA (cliente rechazó, crear nueva cotización)
+
+export type CotizacionStatus = 'BORRADOR' | 'ENVIADA' | 'APROBADA' | 'RECHAZADA';
+
+export const COTIZACION_STATUS_LABEL: Record<CotizacionStatus, string> = {
+  BORRADOR:  'Borrador',
+  ENVIADA:   'Enviada',
+  APROBADA:  'Aprobada',
+  RECHAZADA: 'Rechazada',
+};
+
+export const COTIZACION_STATUS_COLOR: Record<CotizacionStatus, string> = {
+  BORRADOR:  'bg-gray-100 text-gray-600',
+  ENVIADA:   'bg-amber-50 text-amber-600',
+  APROBADA:  'bg-emerald-50 text-emerald-600',
+  RECHAZADA: 'bg-red-50 text-red-500',
+};
+
+/// Cliente final (el pasajero) — pertenece a una agencia.
+/// No es un User del sistema.
+export interface Cliente {
+  id: string;
+  agenciaId: string;
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  documento?: string;  // CC, Pasaporte
+  direccion?: string;
+}
+
+/// Snapshot de pasajeros por tipo de habitación.
+export interface PasajerosCotizacion {
+  cantSGL:  number;  // habitaciones simples
+  cantDBL:  number;  // habitaciones dobles
+  cantTPL:  number;  // habitaciones triples
+  cantQUAD: number;  // habitaciones cuádruples
+  cantCHD:  number;  // niños
+}
+
+/// Snapshot de precios tomados del Paquete al momento de cotizar.
+/// Se congela para que cambios futuros en tarifas no afecten cotizaciones pasadas.
+export interface PreciosCotizacion {
+  precioSGL?:   number;
+  precioDBL?:   number;
+  precioTPL?:   number;
+  precioQUAD?:  number;
+  precioCHD?:   number;
+  precioBoleto?: number;  // por persona (si incluyeBoleto = true)
+}
+
+/// Cotización / Proforma generada por la agencia para un cliente.
+export interface Cotizacion {
+  id: string;
+  codigo: string;            // COT-YYYYMMDD-NNN
+
+  // Referencias
+  agenciaId:   string;
+  creadoPorId: string;
+  paqueteId:   number;
+  clienteId:   string;
+  cliente?:    Cliente;
+
+  // Snapshot del paquete
+  paqueteNombre:   string;
+  paqueteDuracion: string;   // "5 Días / 4 Noches"
+  paqueteDestino:  string;
+  paqueteIncluye:  string[];
+  incluyeBoleto:   boolean;
+
+  // Pasajeros y precios
+  pasajeros: PasajerosCotizacion;
+  precios:   PreciosCotizacion;
+
+  // Totales
+  subtotal: number;  // Σ(cant × precio) por tipo
+  markup:   number;  // Comisión de la agencia (oculta en PDF)
+  total:    number;  // subtotal + markup
+
+  // Fechas de viaje
+  fechaViaje?:   string;  // ISO
+  fechaRetorno?: string;
+
+  // Estado
+  status: CotizacionStatus;
+  notas?: string;
+
+  // Timestamps
+  fechaCreacion:    string;
+  fechaEnvio?:      string;
+  fechaAprobacion?: string;
+  fechaVencimiento?: string;
+}
+
+/// Calcula el subtotal de una cotización a partir de pasajeros y precios.
+/// Usar esta función en el cotizador para consistencia en toda la app.
+export function calcularSubtotal(
+  pasajeros: PasajerosCotizacion,
+  precios: PreciosCotizacion
+): number {
+  return (
+    pasajeros.cantSGL  * (precios.precioSGL  ?? 0) +
+    pasajeros.cantDBL  * (precios.precioDBL  ?? 0) +
+    pasajeros.cantTPL  * (precios.precioTPL  ?? 0) +
+    pasajeros.cantQUAD * (precios.precioQUAD ?? 0) +
+    pasajeros.cantCHD  * (precios.precioCHD  ?? 0)
+  );
+}
+
+/// Genera texto legible para el resumen de pasajeros.
+/// Ej: "1 SGL, 2 DBL, 1 CHD"
+export function resumenPasajeros(p: PasajerosCotizacion): string {
+  const partes: string[] = [];
+  if (p.cantSGL  > 0) partes.push(`${p.cantSGL} SGL`);
+  if (p.cantDBL  > 0) partes.push(`${p.cantDBL} DBL`);
+  if (p.cantTPL  > 0) partes.push(`${p.cantTPL} TPL`);
+  if (p.cantQUAD > 0) partes.push(`${p.cantQUAD} QUAD`);
+  if (p.cantCHD  > 0) partes.push(`${p.cantCHD} CHD`);
+  return partes.join(', ') || '—';
 }
