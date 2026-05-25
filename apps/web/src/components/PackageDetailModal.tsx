@@ -165,52 +165,40 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
 
   // Lock body scroll when modal is open
   useEffect(() => {
-    const dialogEl = dialogRef.current;
-    if (!dialogEl) return;
-
     if (isOpen) {
-      // Get the scrollbar width to prevent layout shift
       const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
       if (scrollBarWidth > 0) {
         document.body.style.paddingRight = `${scrollBarWidth}px`;
       }
-<<<<<<< Updated upstream
     } else {
-=======
-      if (!dialogEl.open) {
-        dialogEl.showModal();
-      }
-    } else {
-      if (dialogEl.open) {
-        dialogEl.close();
-      }
->>>>>>> Stashed changes
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     }
-<<<<<<< Updated upstream
-    
     return () => {
       document.documentElement.style.overflow = "";
-=======
-  }, [isOpen]);
-
-  // ── Escape key ───────────────────────────────────────────────────────────
-  useEffect(() => {
-    const dialogEl = dialogRef.current;
-    if (!dialogEl) return;
-    const handleCancel = (e: Event) => { e.preventDefault(); onClose(); };
-    dialogEl.addEventListener("cancel", handleCancel);
-    return () => {
-      dialogEl.removeEventListener("cancel", handleCancel);
->>>>>>> Stashed changes
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     };
   }, [isOpen]);
+
+  // ── Escape key ───────────────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isMounted) return null;
 
@@ -585,32 +573,10 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                 Mayorista de Turismo · {currentYear}
               </span>
             </div>
-<<<<<<< Updated upstream
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
-=======
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex items-center gap-2 text-primary/50">
-              <Mail size={10} className="text-secondary" />
-              <span className="text-[10px] font-bold">info@landtour.com</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary/50">
-              <Phone size={10} className="text-secondary" />
-              <span className="text-[10px] font-bold">+593 4 123 4567</span>
-            </div>
-          </div>
-
-          <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest hidden lg:block">
-            Mayorista de Turismo · {currentYear}
-          </span>
-      </div>
-    </div>
-  </dialog>
->>>>>>> Stashed changes
   );
 
   return createPortal(modalContent, document.body);
