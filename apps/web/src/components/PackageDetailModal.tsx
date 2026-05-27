@@ -167,18 +167,6 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
     return () => {
       dialog.removeEventListener("cancel", handleCancel);
       document.documentElement.style.overflow = "";
-=======
-  }, [isOpen]);
-
-  // ── Escape key ───────────────────────────────────────────────────────────
-  useEffect(() => {
-    const dialogEl = dialogRef.current;
-    if (!dialogEl) return;
-    const handleCancel = (e: Event) => { e.preventDefault(); onClose(); };
-    dialogEl.addEventListener("cancel", handleCancel);
-    return () => {
-      dialogEl.removeEventListener("cancel", handleCancel);
->>>>>>> Stashed changes
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     };
