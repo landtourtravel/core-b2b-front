@@ -3,18 +3,23 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { ArrowRightToLine, Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "#inicio",      label: "Inicio",       active: true  },
-  { href: "#paquetes",    label: "Paquetes",     active: false },
-  { href: "#destinos",    label: "Destinos",     active: false },
-  { href: "#testimonios", label: "Testimonios",  active: false },
-  { href: "#contacto",    label: "Contáctanos",  active: false },
+  { hash: "inicio",      label: "Inicio"      },
+  { hash: "paquetes",    label: "Paquetes"    },
+  { hash: "destinos",    label: "Destinos"    },
+  { hash: "testimonios", label: "Testimonios" },
+  { hash: "contacto",    label: "Contáctanos" },
 ];
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  const getHref = (hash: string) => isHome ? `#${hash}` : `/#${hash}`;
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -38,6 +43,7 @@ export const Navbar = () => {
   }, [isMenuOpen]);
 
   return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm md:py-2 lg:py-4">
       <div className="max-w-7xl mx-auto h-[68px] flex items-center justify-between gap-6 px-2 xl:px-0">
 
@@ -56,28 +62,29 @@ export const Navbar = () => {
         {/* ── Desktop nav ── */}
         <nav aria-label="Navegación principal" className="hidden md:block">
           <ul className="flex items-center gap-7">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`relative text-sm pb-1 transition-colors duration-200 group ${
-                    link.active
-                      ? "font-semibold text-gray-900"
-                      : "font-medium text-gray-500 hover:text-gray-900"
-                  }`}
-                >
-                  {link.label}
-                  {/* Underline activo */}
-                  {link.active && (
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gray-900 rounded-full" />
-                  )}
-                  {/* Underline hover (solo en inactivos) */}
-                  {!link.active && (
-                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gray-400 rounded-full group-hover:w-full transition-all duration-200" />
-                  )}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = isHome && link.hash === "inicio";
+              return (
+                <li key={link.hash}>
+                  <Link
+                    href={getHref(link.hash)}
+                    className={`relative text-sm pb-1 transition-colors duration-200 group ${
+                      active
+                        ? "font-semibold text-gray-900"
+                        : "font-medium text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    {link.label}
+                    {active && (
+                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gray-900 rounded-full" />
+                    )}
+                    {!active && (
+                      <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gray-400 rounded-full group-hover:w-full transition-all duration-200" />
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
@@ -108,8 +115,8 @@ export const Navbar = () => {
         <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-lg py-4 px-6 flex flex-col gap-2">
           {NAV_LINKS.map((link) => (
             <Link
-              key={link.href}
-              href={link.href}
+              key={link.hash}
+              href={getHref(link.hash)}
               onClick={() => setIsMenuOpen(false)}
               className="py-2 text-base font-medium text-gray-700 hover:text-primary transition-colors"
             >
@@ -127,5 +134,7 @@ export const Navbar = () => {
         </div>
       )}
     </header>
+
+    </>
   );
 };

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { X, MapPin, ArrowRight, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Destino } from "@land-tour/shared";
 import { api } from "@/services/api";
 
@@ -15,6 +16,7 @@ interface ModalProps {
 }
 
 const DestinationModal: React.FC<ModalProps> = ({ destination, onClose }) => {
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
   React.useEffect(() => {
@@ -112,7 +114,10 @@ const DestinationModal: React.FC<ModalProps> = ({ destination, onClose }) => {
 
                 <button
                   className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-light active:scale-95 text-white font-semibold text-sm px-6 py-3 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg group"
-                  onClick={onClose}
+                  onClick={() => {
+                    onClose();
+                    router.push(`/paquetes?destino=${encodeURIComponent(destination.ciudad)}`);
+                  }}
                 >
                   Ver paquetes disponibles
                   <ArrowRight

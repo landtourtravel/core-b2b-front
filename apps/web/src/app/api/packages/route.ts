@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Package } from '@land-tour/shared';
 
-export const dynamic = 'force-dynamic';
-
 // TODO: reemplazar con query Prisma directa a la DB
 const MOCK_PACKAGES: Package[] = [
   {

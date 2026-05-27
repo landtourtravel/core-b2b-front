@@ -7,11 +7,9 @@
   ],
   "scripts": {
     "dev": "turbo dev",
-    "dev:web": "npm run dev --filter=@land-tour/web",
-    "dev:admin": "npm run dev --filter=@land-tour/admin",
+    "dev:web": "turbo dev --filter=@land-tour/web",
     "build": "turbo build",
-    "build:web": "npm run build --filter=@land-tour/web",
-    "build:admin": "npm run build --filter=@land-tour/admin",
+    "build:web": "turbo build --filter=@land-tour/web",
     "lint": "turbo lint",
     "db:push": "turbo run db:push",
     "db:generate": "turbo run db:generate"
