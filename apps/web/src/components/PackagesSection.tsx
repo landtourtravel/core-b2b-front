@@ -6,56 +6,64 @@ import { Button } from "@land-tour/ui";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { PackageDetailModal } from "./PackageDetailModal";
-
+import { AlertTriangle, Package as PackageIcon } from "lucide-react";
 import { Package } from "@land-tour/shared";
 import { api } from "@/services/api";
-
-// ─── Section ──────────────────────────────────────────────────────────────────
 
 export const PackagesSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<"DB_FAIL" | "EMPTY" | null>(null);
 
   React.useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        const data = await api.getPackages();
-        // Solo mostramos los primeros 4 en la sección de destacados
+    api.getPackagesDetailed()
+      .then(({ data, error }) => {
         setPackages(data.slice(0, 4));
-      } catch (err) {
-        console.error("Error fetching packages:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPackages();
+        setFetchError(error);
+      })
+      .catch(() => setFetchError("DB_FAIL"))
+      .finally(() => setIsLoading(false));
   }, []);
-
-  const handleOpenModal = (pkg: Package) => {
-    setSelectedPackage(pkg);
-    setIsModalOpen(true);
-  };
 
   if (isLoading) {
     return (
-      <section className="py-24 bg-white min-h-[400px] flex items-center justify-center">
+      <section className="py-24 bg-white min-h-[300px] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-          <p className="text-primary/60 font-medium text-sm">Cargando mejores ofertas...</p>
+          <p className="text-primary/60 font-medium text-sm">Cargando paquetes...</p>
         </div>
       </section>
     );
   }
 
-  if (packages.length === 0) return null;
+  if (fetchError === "DB_FAIL") {
+    return (
+      <section className="py-24 bg-white min-h-[200px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center px-4">
+          <AlertTriangle size={32} className="text-amber-400" />
+          <p className="text-primary/60 font-semibold text-sm">Conexión a DB fallida — los paquetes no están disponibles en este momento.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (fetchError === "EMPTY" || packages.length === 0) {
+    return (
+      <section className="py-24 bg-white min-h-[200px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center px-4">
+          <PackageIcon size={32} className="text-primary/20" />
+          <p className="text-primary/50 font-semibold text-sm">No hay paquetes creados en la base de datos.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24 bg-white" id="paquetes">
       <div className="container mx-auto px-4 sm:px-6">
 
-        {/* Header — mismo estilo que DestinationsSection */}
         <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-4 py-1.5 bg-secondary/15 text-secondary text-xs font-bold rounded-lg mb-4 uppercase tracking-widest">
             Destacados
@@ -72,7 +80,6 @@ export const PackagesSection = () => {
           </p>
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {packages.map((pkg, idx) => (
             <motion.div
@@ -83,12 +90,11 @@ export const PackagesSection = () => {
               transition={{ delay: idx * 0.08, duration: 0.4 }}
               viewport={{ once: true }}
             >
-              <PackageCard {...pkg} onClick={() => handleOpenModal(pkg)} />
+              <PackageCard {...pkg} onClick={() => { setSelectedPackage(pkg); setIsModalOpen(true); }} />
             </motion.div>
           ))}
         </div>
 
-        {/* CTA */}
         <div className="mt-12 text-center">
           <Link href="/paquetes">
             <Button variant="outline">Ver todos los paquetes</Button>
@@ -96,10 +102,9 @@ export const PackagesSection = () => {
         </div>
       </div>
 
-      {/* Modal de Detalle */}
-      <PackageDetailModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <PackageDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         packageData={selectedPackage}
       />
     </section>

@@ -16,7 +16,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ==============================================================
@@ -45,7 +44,8 @@ model UsuarioAgencia {
   id        String   @id
   name      String?
   email     String?  @unique
-  role      String   // 'ASESOR_MINORISTA'
+  password  String?  // bcrypt hash — solo lectura para auth
+  role      String   // 'ADMIN' | 'COLABORADOR'
   agenciaId String?
   agencia   Agencia? @relation(fields: [agenciaId], references: [id], onDelete: SetNull)
 
@@ -56,9 +56,27 @@ model UsuarioAgencia {
 }
 
 /// @readonly — gestionado por lt-core-admin
+model DestinoRef {
+  id          Int     @id
+  pais        String
+  ciudad      String
+  tagline     String?
+  descripcion String? @db.Text
+  imagen      String?
+  color       String?
+
+  paquetes PaqueteRef[]
+
+  @@map("Destino")
+}
+
+/// @readonly — gestionado por lt-core-admin
 model PaqueteRef {
   id               Int     @id
   nombre           String
+  descripcion      String? @db.Text
+  imagen           String?
+  categoria        String?
   diasEstancia     Int
   nochesBase       Int
   incluyeBoleto    Boolean
@@ -68,6 +86,8 @@ model PaqueteRef {
   precioTPL        Float?
   precioQUAD       Float?
   precioPorPersona Float?
+  destinoId        Int?
+  destino          DestinoRef? @relation(fields: [destinoId], references: [id])
 
   cotizaciones Cotizacion[]
 

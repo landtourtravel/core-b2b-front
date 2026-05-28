@@ -9,7 +9,7 @@ import { PackageDetailModal } from '@/components/PackageDetailModal';
 import { api } from '@/services/api';
 import { Package } from '@land-tour/shared';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight, X, AlertTriangle } from 'lucide-react';
 
 const CATEGORIES = ['Todos', 'Playa', 'Ciudad', 'Aventura', 'Naturaleza', 'Cultura'];
 const ITEMS_PER_PAGE = 12;
@@ -24,6 +24,7 @@ const SORT_OPTIONS = [
 export default function PaquetesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<"DB_FAIL" | "EMPTY" | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [sortBy, setSortBy] = useState('');
@@ -34,7 +35,10 @@ export default function PaquetesPage() {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    api.getPackages().then(setPackages).catch(console.error).finally(() => setIsLoading(false));
+    api.getPackagesDetailed()
+      .then(({ data, error }) => { setPackages(data); setFetchError(error); })
+      .catch(() => setFetchError("DB_FAIL"))
+      .finally(() => setIsLoading(false));
   }, []);
 
   // Read URL params on mount
@@ -231,6 +235,17 @@ export default function PaquetesPage() {
               <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
               <p className="text-primary/50 font-medium text-sm">Buscando los mejores destinos...</p>
             </div>
+          ) : fetchError === "DB_FAIL" ? (
+            <div className="flex flex-col items-center justify-center py-28 gap-4 text-center">
+              <AlertTriangle size={40} className="text-amber-400" />
+              <h3 className="text-primary font-bold text-lg">Conexión a DB fallida</h3>
+              <p className="text-primary/50 text-sm max-w-xs leading-relaxed">
+                No se pudo conectar a la base de datos. Verifica tu conexión y vuelve a intentarlo.
+              </p>
+              <button onClick={() => window.location.reload()} className="mt-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-light transition-colors">
+                Reintentar
+              </button>
+            </div>
           ) : (
             <>
               {/* Contador + limpiar */}
@@ -315,21 +330,26 @@ export default function PaquetesPage() {
                   )}
                 </>
               ) : (
-                /* Empty state */
                 <div className="flex flex-col items-center justify-center py-28 text-center">
                   <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center mb-5">
                     <Search size={26} className="text-primary/20" />
                   </div>
-                  <h3 className="text-primary font-bold text-lg mb-2">Sin resultados</h3>
+                  <h3 className="text-primary font-bold text-lg mb-2">
+                    {fetchError === "EMPTY" && !hasFilters ? "No hay paquetes creados" : "Sin resultados"}
+                  </h3>
                   <p className="text-primary/40 text-sm max-w-xs mb-7 leading-relaxed">
-                    No encontramos paquetes que coincidan con tu búsqueda o filtros seleccionados.
+                    {fetchError === "EMPTY" && !hasFilters
+                      ? "No hay paquetes creados en la base de datos. El administrador debe crearlos desde el panel."
+                      : "No encontramos paquetes que coincidan con tu búsqueda o filtros seleccionados."}
                   </p>
-                  <button
-                    onClick={clearAll}
-                    className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-light transition-colors"
-                  >
-                    Ver todos los paquetes
-                  </button>
+                  {hasFilters && (
+                    <button
+                      onClick={clearAll}
+                      className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-light transition-colors"
+                    >
+                      Ver todos los paquetes
+                    </button>
+                  )}
                 </div>
               )}
             </>

@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import {
   X, User, Mail, Briefcase, FileText, Phone, UserPlus,
-  Globe, MapPin, Shield, Share2,
+  Globe, MapPin, Shield, Share2, Loader2, CheckCircle2,
 } from "lucide-react";
 
 interface RequestAccessModalProps {
@@ -30,7 +30,10 @@ const EMPTY_FORM: RequestAccessForm = {
 
 export const RequestAccessModal: React.FC<RequestAccessModalProps> = ({ isOpen, onClose }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [formData, setFormData] = useState<RequestAccessForm>(EMPTY_FORM);
+  const [formData, setFormData]   = useState<RequestAccessForm>(EMPTY_FORM);
+  const [isLoading, setLoading]   = useState(false);
+  const [success, setSuccess]     = useState(false);
+  const [error, setError]         = useState<string | null>(null);
 
   // Sync native dialog with isOpen
   useEffect(() => {
@@ -68,24 +71,25 @@ export const RequestAccessModal: React.FC<RequestAccessModalProps> = ({ isOpen, 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const summary = [
-      `Nombre: ${formData.fullName}`,
-      `Email: ${formData.email}`,
-      `Teléfono: ${formData.phone}`,
-      `C.I.: ${formData.idNumber}`,
-      `RUC/NIT: ${formData.ruc}`,
-      `Registro Turismo: ${formData.tourismRegistry}`,
-      `País / Ciudad: ${formData.country}, ${formData.city}`,
-      `Redes Sociales: ${formData.socialMedia}`,
-    ].join("\n");
-    alert(
-      `Solicitud enviada exitosamente.\n\n${summary}\n\n` +
-      `Un administrador validará tu información y te asignará credenciales en 24-48 horas.`
-    );
-    setFormData(EMPTY_FORM);
-    onClose();
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/request-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error al enviar solicitud");
+      setSuccess(true);
+      setFormData(EMPTY_FORM);
+    } catch (err: any) {
+      setError(err.message ?? "Error al enviar solicitud");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Field definitions ───────────────────────────────────────────────────────
@@ -142,8 +146,23 @@ export const RequestAccessModal: React.FC<RequestAccessModalProps> = ({ isOpen, 
           </div>
         </div>
 
+        {/* Success */}
+        {success && (
+          <div className="px-8 py-10 flex flex-col items-center gap-4">
+            <CheckCircle2 size={48} className="text-secondary" />
+            <h4 className="text-primary font-black text-xl text-center">¡Solicitud Enviada!</h4>
+            <p className="text-primary/60 text-sm font-medium text-center max-w-xs leading-relaxed">
+              Un administrador validará tu información y te asignará credenciales en 24–48 horas.
+            </p>
+            <button onClick={onClose} className="mt-2 px-8 py-3 bg-secondary text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95">
+              Cerrar
+            </button>
+          </div>
+        )}
+
         {/* Form */}
-        <form onSubmit={handleSubmit} className="px-8 py-7 space-y-5">
+        {!success && <form onSubmit={handleSubmit} className="px-8 py-7 space-y-5">
+          {error && <p className="text-xs font-bold text-red-500 text-center">{error}</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4">
             {fields.map((field) => (
               <div
@@ -191,13 +210,14 @@ export const RequestAccessModal: React.FC<RequestAccessModalProps> = ({ isOpen, 
             </button>
             <button
               type="submit"
-              className="w-full sm:w-auto px-7 py-3.5 bg-secondary hover:bg-secondary-light text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-lg shadow-secondary/20 flex items-center justify-center gap-2 cursor-pointer"
+              disabled={isLoading}
+              className="w-full sm:w-auto px-7 py-3.5 bg-secondary hover:bg-secondary-light text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-lg shadow-secondary/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <UserPlus size={14} />
-              Enviar Solicitud
+              {isLoading ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />}
+              {isLoading ? "Enviando..." : "Enviar Solicitud"}
             </button>
           </div>
-        </form>
+        </form>}
       </div>
     </dialog>
   );

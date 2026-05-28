@@ -108,120 +108,6 @@ const HOTELS_BY_PACKAGE: Record<string, HotelOption[]> = {
   default: PANAMA_HOTELS,
 };
 
-// ─── Fallback packages ────────────────────────────────────────────────────────
-const FALLBACK_PACKAGES: Package[] = [
-  {
-    id: "1",
-    title: "Panamá Ciudad + Playa Todo Incluido",
-    description: "Vive la magia de Panamá con todo incluido.",
-    price: 869,
-    image: "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=800&q=80",
-    category: "Playa",
-    duration: "5 días / 4 noches",
-    nochesBase: 4,
-    diasEstancia: 5,
-    location: { country: "Panamá", city: "Ciudad de Panamá" },
-    includes: ["Vuelo GYE-PTY-GYE vía COPA", "Traslados compartidos", "Hotel seleccionado", "Traslados aeropuerto"],
-    notIncludes: [],
-    prices: { sgl: 969, dbl: 869, tpl: 849, quad: 829, chd: 450 },
-    flightIncluded: false,
-  },
-  {
-    id: "2",
-    title: "Cancún Todo Incluido Premium",
-    description: "Paraíso en el Caribe mexicano.",
-    price: 1250,
-    image: "https://images.unsplash.com/photo-1552074284-5e88ef1aef18?w=800&q=80",
-    category: "Playa",
-    duration: "7 días / 6 noches",
-    nochesBase: 6,
-    diasEstancia: 7,
-    location: { country: "México", city: "Cancún" },
-    includes: ["Vuelo GYE-CUN-GYE", "Traslados aeropuerto", "6 noches resort 5★ Todo Incluido", "Bebidas ilimitadas"],
-    notIncludes: [],
-    prices: { sgl: 1450, dbl: 1250, tpl: 1190, quad: 1150, chd: 750 },
-    flightIncluded: true,
-  },
-  {
-    id: "3",
-    title: "Cartagena de Indias Mágica",
-    description: "Joyas del Caribe colombiano.",
-    price: 990,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
-    category: "Cultural",
-    duration: "5 días / 4 noches",
-    nochesBase: 4,
-    diasEstancia: 5,
-    location: { country: "Colombia", city: "Cartagena" },
-    includes: ["Vuelo GYE-CTG-GYE", "Traslados aeropuerto", "Hotel colonial 4★"],
-    notIncludes: [],
-    prices: { sgl: 1100, dbl: 990, tpl: 950, quad: 0, chd: 500 },
-    flightIncluded: false,
-  },
-];
-
-// ─── Initial mock cotizaciones ─────────────────────────────────────────────────
-const INITIAL_COTIZACIONES: CotizacionExtended[] = [
-  {
-    id: "cot-001", codigo: "COT-2024-001",
-    agenciaId: "agencia-andina", creadoPorId: "user-ana", paqueteId: 1, clienteId: "cli-001",
-    cliente: { id: "cli-001", agenciaId: "agencia-andina", nombre: "María González", email: "maria@email.com", telefono: "+593 912345678" },
-    paqueteNombre: "Panamá Ciudad + Playa Todo Incluido", paqueteDuracion: "5 Días / 4 Noches",
-    paqueteDestino: "Ciudad de Panamá, Panamá",
-    paqueteIncluye: ["Vuelo GYE-PTY-GYE vía COPA", "Traslados compartidos", "Hotel seleccionado"],
-    incluyeBoleto: true,
-    pasajeros: { cantSGL: 0, cantDBL: 2, cantTPL: 0, cantQUAD: 0, cantCHD: 0 },
-    precios: { precioSGL: 559, precioDBL: 429, precioTPL: 399, precioQUAD: 0, precioCHD: 0 },
-    subtotal: 858, markup: 0, total: 858,
-    fechaViaje: "09-13 May 2025", status: "ENVIADA", fechaCreacion: "28 Abr 2025",
-  },
-  {
-    id: "cot-002", codigo: "COT-2024-002",
-    agenciaId: "agencia-andina", creadoPorId: "user-ana", paqueteId: 1, clienteId: "cli-002",
-    cliente: { id: "cli-002", agenciaId: "agencia-andina", nombre: "Carlos Ruiz", email: "carlos@email.com", telefono: "+593 998877665" },
-    paqueteNombre: "Panamá Ciudad + Playa Todo Incluido", paqueteDuracion: "5 Días / 4 Noches",
-    paqueteDestino: "Ciudad de Panamá, Panamá",
-    paqueteIncluye: ["Vuelo GYE-PTY-GYE vía COPA", "Traslados compartidos", "Hotel seleccionado"],
-    incluyeBoleto: true,
-    pasajeros: { cantSGL: 0, cantDBL: 0, cantTPL: 3, cantQUAD: 0, cantCHD: 0 },
-    precios: { precioSGL: 559, precioDBL: 429, precioTPL: 399, precioQUAD: 0, precioCHD: 0 },
-    subtotal: 1197, markup: 0, total: 1197,
-    fechaViaje: "15-19 Jun 2025", status: "APROBADA", fechaCreacion: "28 Abr 2025",
-  },
-  {
-    id: "cot-003", codigo: "PRF-2024-001",
-    agenciaId: "agencia-andina", creadoPorId: "user-ana", paqueteId: 1, clienteId: "cli-003",
-    cliente: { id: "cli-003", agenciaId: "agencia-andina", nombre: "Laura Méndez" },
-    paqueteNombre: "Panamá Ciudad + Playa Todo Incluido", paqueteDuracion: "5 Días / 4 Noches",
-    paqueteDestino: "Ciudad de Panamá, Panamá",
-    paqueteIncluye: ["Traslados compartidos", "Hotel seleccionado"],
-    incluyeBoleto: false,
-    pasajeros: { cantSGL: 0, cantDBL: 2, cantTPL: 3, cantQUAD: 0, cantCHD: 0 },
-    precios: { precioSGL: 559, precioDBL: 429, precioTPL: 399, precioQUAD: 0, precioCHD: 0 },
-    subtotal: 2055, markup: 150, total: 2205,
-    fechaViaje: "20-24 May 2025", status: "BORRADOR", fechaCreacion: "28 Abr 2025",
-    notas: "Proforma: Ramada Via Argentina / Exe Oriental, Soloy",
-    hotelsComparison: [
-      { hotel: PANAMA_HOTELS[0], subtotal: 858 + 1197, extraNightsCost: 0, total: 858 + 1197 + 150 },
-      { hotel: PANAMA_HOTELS[1], subtotal: 878 + 1227, extraNightsCost: 0, total: 878 + 1227 + 150 },
-    ],
-    extraNights: 0, adultAirfareInput: 0, childAirfareInput: 0,
-  },
-  {
-    id: "cot-004", codigo: "COT-2024-004",
-    agenciaId: "agencia-andina", creadoPorId: "user-ana", paqueteId: 3, clienteId: "cli-004",
-    cliente: { id: "cli-004", agenciaId: "agencia-andina", nombre: "Pedro Vargas" },
-    paqueteNombre: "Cartagena de Indias Mágica", paqueteDuracion: "5 Días / 4 Noches",
-    paqueteDestino: "Cartagena, Colombia",
-    paqueteIncluye: ["Vuelo GYE-CTG-GYE", "Traslados aeropuerto", "Hotel colonial 4★"],
-    incluyeBoleto: true,
-    pasajeros: { cantSGL: 0, cantDBL: 2, cantTPL: 0, cantQUAD: 0, cantCHD: 0 },
-    precios: { precioSGL: 1100, precioDBL: 990, precioTPL: 950, precioQUAD: 0, precioCHD: 500 },
-    subtotal: 1980, markup: 0, total: 1980,
-    fechaViaje: "01-05 Jun 2025", status: "RECHAZADA", fechaCreacion: "27 Abr 2025",
-  },
-];
-
 // ─── T&C static text ──────────────────────────────────────────────────────────
 const TERMINOS_CONDICIONES = `Los precios indicados son por persona en la categoría de habitación seleccionada y están sujetos a disponibilidad hotelera al momento de la reserva. Land Tour Travel actúa como operador mayorista; la agencia minorista es responsable de la relación comercial con el cliente final. El pago del depósito de reserva (40% del total) es obligatorio para confirmar los servicios. Cancelaciones con menos de 15 días de anticipación están sujetas a penalidades del 50%. Los vuelos, cuando son incluidos, están sujetos a las políticas de la aerolínea operadora. Land Tour Travel no se responsabiliza por cambios de vuelo, demoras o cancelaciones por parte de la aerolínea. El pasajero es responsable de contar con documentación vigente (pasaporte, visa si aplica). Las tarifas de niños aplican para menores de 2 a 11 años compartiendo habitación con adultos. El markup/comisión de agencia no es visible para el cliente final en los documentos exportados.`;
 
@@ -250,20 +136,20 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   // ── Packages ─────────────────────────────────────────────────────────────────
-  const [packages, setPackages]           = useState<Package[]>([]);
-  const [isLoadingPackages, setLoadingPkg] = useState(true);
-  const [searchPkgTerm, setSearchPkgTerm] = useState("");
+  const [packages, setPackages]             = useState<Package[]>([]);
+  const [isLoadingPackages, setLoadingPkg]  = useState(true);
+  const [packagesFetchError, setPkgError]   = useState<"DB_FAIL" | "EMPTY" | null>(null);
+  const [searchPkgTerm, setSearchPkgTerm]   = useState("");
 
   useEffect(() => {
     setLoadingPkg(true);
-    api.getPackages()
-      .then((data) => setPackages(data))
-      .catch(() => {})
+    api.getPackagesDetailed()
+      .then(({ data, error }) => { setPackages(data); setPkgError(error); })
+      .catch(() => setPkgError("DB_FAIL"))
       .finally(() => setLoadingPkg(false));
   }, []);
 
-  const activePackages: Package[] = packages.length > 0 ? packages : FALLBACK_PACKAGES;
-  const filteredPackages = activePackages.filter((pkg) => {
+  const filteredPackages = packages.filter((pkg) => {
     const loc = `${pkg.location?.city || ""} ${pkg.location?.country || ""}`;
     return (
       pkg.title.toLowerCase().includes(searchPkgTerm.toLowerCase()) ||
@@ -273,7 +159,19 @@ export default function DashboardPage() {
   });
 
   // ── Cotizaciones ─────────────────────────────────────────────────────────────
-  const [cotizaciones, setCotizaciones] = useState<CotizacionExtended[]>(INITIAL_COTIZACIONES);
+  const [cotizaciones, setCotizaciones] = useState<CotizacionExtended[]>([]);
+  const [isLoadingCots, setLoadingCots] = useState(false);
+
+  useEffect(() => {
+    setLoadingCots(true);
+    fetch("/api/cotizaciones")
+      .then((r) => r.json())
+      .then((data: CotizacionExtended[]) => {
+        if (Array.isArray(data) && data.length > 0) setCotizaciones(data);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingCots(false));
+  }, []);
 
   // ── Proforma dialog refs / state ─────────────────────────────────────────────
   const proformaDialogRef    = useRef<HTMLDialogElement>(null);
@@ -315,12 +213,71 @@ export default function DashboardPage() {
   const [extraNights,   setExtraNights]   = useState(0);
   const [agencyMarkup,  setAgencyMarkup]  = useState(100);
 
-  // Marca blanca
+  // Marca blanca (persiste en localStorage)
   const [agencyLogo,    setAgencyLogo]    = useState<string | null>(null);
   const [agencyName,    setAgencyName]    = useState("Viajes Andina Tours");
   const [agencyPhone,   setAgencyPhone]   = useState("+593 912345678");
   const [agencyAddress, setAgencyAddress] = useState("Av. Francisco de Orellana, Guayaquil");
   const [defaultMarkup, setDefaultMarkup] = useState("100");
+  const [isSavingConfig, setSavingConfig] = useState(false);
+  const [configSaved,    setConfigSaved]  = useState(false);
+
+  // Cargar config de agencia desde API + localStorage al montar
+  useEffect(() => {
+    const saved = localStorage.getItem("agencyConfig");
+    if (saved) {
+      try {
+        const cfg = JSON.parse(saved);
+        if (cfg.agencyName)    setAgencyName(cfg.agencyName);
+        if (cfg.agencyPhone)   setAgencyPhone(cfg.agencyPhone);
+        if (cfg.agencyAddress) setAgencyAddress(cfg.agencyAddress);
+        if (cfg.defaultMarkup) setDefaultMarkup(cfg.defaultMarkup);
+        if (cfg.agencyLogo)    setAgencyLogo(cfg.agencyLogo);
+      } catch {}
+    }
+    fetch("/api/agency/config")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.nombre)   setAgencyName(data.nombre);
+        if (data?.telefono) setAgencyPhone(data.telefono);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSaveAgencyConfig = async () => {
+    setSavingConfig(true);
+    const cfg = { agencyName, agencyPhone, agencyAddress, defaultMarkup, agencyLogo };
+    localStorage.setItem("agencyConfig", JSON.stringify(cfg));
+    try {
+      await fetch("/api/agency/config", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: agencyName, telefono: agencyPhone, direccion: agencyAddress }),
+      });
+    } catch {}
+    setSavingConfig(false);
+    setConfigSaved(true);
+    setTimeout(() => setConfigSaved(false), 3000);
+  };
+
+  // Búsqueda de cliente existente por email
+  const [clientFoundMsg, setClientFoundMsg] = useState<string | null>(null);
+  const handleClientEmailBlur = async () => {
+    if (!clientEmail) return;
+    try {
+      const r = await fetch(`/api/clients?email=${encodeURIComponent(clientEmail)}`);
+      const c = await r.json();
+      if (c?.id) {
+        setClientName(c.nombre || clientName);
+        setClientPhone(c.telefono || clientPhone);
+        setClientId(c.documento || clientId);
+        setClientAddress(c.direccion || clientAddress);
+        setClientFoundMsg(`Cliente encontrado: ${c.nombre}`);
+      } else {
+        setClientFoundMsg(null);
+      }
+    } catch { setClientFoundMsg(null); }
+  };
 
   // ── Effects ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -332,7 +289,7 @@ export default function DashboardPage() {
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const selectedPkg = (
-    activePackages.find((p) => String(p.id) === String(selectedPkgId)) ?? activePackages[0]
+    packages.find((p) => String(p.id) === String(selectedPkgId)) ?? packages[0]
   ) as Package;
 
   const availableHotels: HotelOption[] =
@@ -387,7 +344,7 @@ export default function DashboardPage() {
     : "Según disponibilidad";
   const reservationFee = Math.round((effectivePrices.dbl || selectedPkg.price) * 0.4);
 
-  const packagesByCountry = activePackages.reduce<Record<string, Package[]>>((acc, pkg) => {
+  const packagesByCountry = packages.reduce<Record<string, Package[]>>((acc, pkg) => {
     const c = pkg.location?.country || "Otros";
     if (!acc[c]) acc[c] = [];
     acc[c].push(pkg);
@@ -408,6 +365,7 @@ export default function DashboardPage() {
   const resetForm = () => {
     setStep(1); setQuoteLocked(false);
     setClientName(""); setClientEmail(""); setClientPhone(""); setClientId(""); setClientAddress("");
+    setClientFoundMsg(null);
     setSelectedPkgId("1"); setExpandedCountry(null);
     setTravelDateFrom(""); setTravelDateTo("");
     setSelectedHotelIds([]);
@@ -440,12 +398,21 @@ export default function DashboardPage() {
     setChildAges((prev) => { const next = [...prev]; next[index] = age; return next; });
   };
 
-  const handleAprobar  = (id: string) =>
-    setCotizaciones((prev) => prev.map((c) => c.id === id ? { ...c, status: "APROBADA" as CotizacionStatus } : c));
-  const handleRechazar = (id: string) =>
-    setCotizaciones((prev) => prev.map((c) => c.id === id ? { ...c, status: "RECHAZADA" as CotizacionStatus } : c));
+  const patchCotizacionStatus = async (id: string, status: CotizacionStatus, extra?: object) => {
+    setCotizaciones((prev) => prev.map((c) => c.id === id ? { ...c, status } : c));
+    try {
+      await fetch(`/api/cotizaciones/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, ...extra }),
+      });
+    } catch {}
+  };
 
-  const handleSaveProforma = () => {
+  const handleAprobar  = (id: string) => patchCotizacionStatus(id, "APROBADA");
+  const handleRechazar = (id: string) => patchCotizacionStatus(id, "RECHAZADA");
+
+  const handleSaveProforma = async () => {
     const selHotels = availableHotels.filter((h) => selectedHotelIds.includes(h.id));
     const adultsPax = cantSGL + cantDBL + cantTPL + (quadEnabled ? cantQUAD : 0);
 
@@ -514,9 +481,63 @@ export default function DashboardPage() {
       childAirfareInput:  childAirfare,
     };
 
+    // Actualización optimista de la UI
     setCotizaciones((prev) => [newCot, ...prev]);
     setActiveTab("cotizaciones");
     resetForm();
+
+    // Persistencia en BD (en paralelo, sin bloquear la UI)
+    try {
+      // 1. Crear/buscar cliente
+      const clientRes = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre:    clientName || "Sin nombre",
+          email:     clientEmail || undefined,
+          telefono:  clientPhone || undefined,
+          documento: clientId   || undefined,
+          direccion: clientAddress || undefined,
+        }),
+      });
+      const clientData = clientRes.ok ? await clientRes.json() : null;
+      if (!clientData?.id) return;
+
+      // 2. Crear cotización
+      const cotRes = await fetch("/api/cotizaciones", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clienteId:       clientData.id,
+          paqueteId:       Number(selectedPkgId) || 1,
+          paqueteNombre:   selectedPkg.title,
+          paqueteDuracion: selectedPkgDuration,
+          paqueteDestino:  selectedPkgLocation,
+          paqueteIncluye:  selectedPkg.includes || [],
+          incluyeBoleto:   (selectedPkg as any).flightIncluded || adultAirfare > 0,
+          cantSGL, cantDBL, cantTPL,
+          cantQUAD: quadEnabled ? cantQUAD : 0,
+          cantCHD,
+          precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg.prices?.sgl  || 0,
+          precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg.prices?.dbl  || 0,
+          precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg.prices?.tpl  || 0,
+          precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg.prices?.quad || 0,
+          precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg.prices?.chd  || 0,
+          subtotal: first?.subtotal ?? computedSubtotal,
+          markup:   agencyMarkup,
+          total:    first?.total    ?? computedTotal,
+          fechaViaje: travelDateFrom || null,
+          notas: selHotels.length > 0 ? `Proforma: ${selHotels.map((h) => h.name).join(", ")}` : undefined,
+        }),
+      });
+      if (cotRes.ok) {
+        const saved = await cotRes.json();
+        // Reemplazar el ID temporal con el ID real de BD
+        setCotizaciones((prev) =>
+          prev.map((c) => c.id === newCot.id ? { ...c, id: saved.id, codigo: saved.codigo } : c)
+        );
+      }
+    } catch {}
   };
 
   const handleOpenFinalizeDialog = (cotId: string) => {
@@ -526,8 +547,9 @@ export default function DashboardPage() {
       proformaDialogRef.current.showModal();
   };
 
-  const handleFinalizeCotizacion = () => {
+  const handleFinalizeCotizacion = async () => {
     if (!proformaCotId || !proformaChosenHotel) return;
+    let chosenHotelName = "";
     setCotizaciones((prev) =>
       prev.map((c) => {
         if (c.id !== proformaCotId) return c;
@@ -535,6 +557,7 @@ export default function DashboardPage() {
           (h) => h.hotel.id === proformaChosenHotel
         );
         if (!chosen) return c;
+        chosenHotelName = chosen.hotel.name;
         return {
           ...c,
           chosenHotelId: proformaChosenHotel,
@@ -545,6 +568,14 @@ export default function DashboardPage() {
         };
       })
     );
+    try {
+      await fetch(`/api/cotizaciones/${proformaCotId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "APROBADA", selectedHotel: chosenHotelName }),
+      });
+    } catch {}
+
     proformaDialogRef.current?.close();
     setProformaCotId(null);
     setProformaChosenHotel("");
@@ -777,6 +808,17 @@ export default function DashboardPage() {
                   <div className="w-8 h-8 border-3 border-secondary/20 border-t-secondary rounded-full animate-spin" />
                   <p className="text-primary/50 font-bold text-xs">Cargando programas...</p>
                 </div>
+              ) : packagesFetchError === "DB_FAIL" ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+                  <AlertCircle size={28} className="text-amber-400" />
+                  <p className="text-primary/60 font-bold text-xs">Conexión a DB fallida — no se pudieron cargar los paquetes.</p>
+                </div>
+              ) : packagesFetchError === "EMPTY" || packages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+                  <Globe size={28} className="text-primary/20" />
+                  <p className="text-primary/50 font-bold text-xs">No hay paquetes creados en la base de datos.</p>
+                  <p className="text-primary/30 text-[10px]">El administrador debe crear los paquetes desde el panel.</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredPackages.map((pkg) => (
@@ -866,7 +908,8 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-1.5">
                           <label className={labelCls}>Correo Electrónico *</label>
-                          <input type="email" required value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="cliente@email.com" className={inputCls} />
+                          <input type="email" required value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} onBlur={handleClientEmailBlur} placeholder="cliente@email.com" className={inputCls} />
+                          {clientFoundMsg && <p className="text-[10px] font-bold text-secondary mt-1">{clientFoundMsg}</p>}
                         </div>
                         <div className="space-y-1.5">
                           <label className={labelCls}>Teléfono / WhatsApp *</label>
@@ -932,6 +975,17 @@ export default function DashboardPage() {
                               </p>
                             </div>
                             <span className="ml-auto px-2 py-0.5 bg-secondary text-primary text-[9px] font-black rounded-md shrink-0">Seleccionado</span>
+                          </div>
+                        ) : packagesFetchError === "DB_FAIL" ? (
+                          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center rounded-2xl border border-amber-100 bg-amber-50/40">
+                            <AlertCircle size={24} className="text-amber-400" />
+                            <p className="text-primary/60 font-bold text-xs">Conexión a DB fallida — no se pudieron cargar los paquetes.</p>
+                          </div>
+                        ) : packagesFetchError === "EMPTY" || packages.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center rounded-2xl border border-gray-100 bg-light/40">
+                            <Globe size={24} className="text-primary/20" />
+                            <p className="text-primary/50 font-bold text-xs">No hay paquetes creados en la base de datos.</p>
+                            <p className="text-primary/30 text-[10px]">El administrador debe crear los paquetes desde el panel.</p>
                           </div>
                         ) : (
                           /* Accordion by destination country */
@@ -1594,9 +1648,12 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-2">
-                  <button disabled={!isAdmin} onClick={() => isAdmin && alert("Configuración guardada exitosamente.")}
-                    className={`px-6 py-3.5 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 ${isAdmin ? "bg-primary hover:bg-primary-light cursor-pointer" : "bg-gray-400 cursor-not-allowed"}`}>
-                    Guardar Configuración
+                  <button
+                    disabled={!isAdmin || isSavingConfig}
+                    onClick={() => isAdmin && handleSaveAgencyConfig()}
+                    className={`px-6 py-3.5 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 ${isAdmin ? "bg-primary hover:bg-primary-light cursor-pointer disabled:opacity-70" : "bg-gray-400 cursor-not-allowed"}`}
+                  >
+                    {isSavingConfig ? "Guardando..." : configSaved ? "¡Guardado!" : "Guardar Configuración"}
                   </button>
                 </div>
               </div>

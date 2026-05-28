@@ -1,0 +1,217 @@
+// ==============================================================
+// PORTAL DE AGENCIAS — land-tour-client (apps/web)
+// ==============================================================
+// Este schema SOLO define las tablas nuevas del portal.
+// Las tablas de datos maestros (Agencia, User, Paquete, etc.)
+// son propiedad de lt-core-admin y se referencian por ID.
+//
+// IMPORTANTE: Ambas apps apuntan a la misma BD PostgreSQL.
+// Nunca hacer `prisma migrate` sobre los modelos de lt-core-admin.
+// ==============================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==============================================================
+// REFERENCIAS DE SOLO LECTURA (lt-core-admin)
+// Estos modelos ya existen en la BD. Se declaran aquí para
+// permitir relaciones Prisma y queries de lectura desde el portal.
+// Nunca incluir en migraciones nuevas — usar `prisma db pull` si cambian.
+// ==============================================================
+
+/// @readonly — gestionado por lt-core-admin
+model Agencia {
+  id       String  @id
+  nombre   String
+  correo   String?
+  telefono String?
+
+  usuarios     UsuarioAgencia[]
+  clientes     Cliente[]
+  cotizaciones Cotizacion[]
+
+  @@map("Agencia")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model UsuarioAgencia {
+  id        String   @id
+  name      String?
+  email     String?  @unique
+  password  String? // bcrypt hash — solo lectura para auth
+  role      String // 'ADMIN' | 'COLABORADOR'
+  agenciaId String?
+  agencia   Agencia? @relation(fields: [agenciaId], references: [id], onDelete: SetNull)
+
+  cotizaciones     Cotizacion[]
+  historialCambios HistorialCotizacion[]
+
+  @@map("User")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model DestinoRef {
+  id          Int     @id
+  pais        String
+  ciudad      String
+  tagline     String?
+  descripcion String? @db.Text
+  imagen      String?
+  color       String?
+
+  paquetes PaqueteRef[]
+
+  @@map("Destino")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model PaqueteRef {
+  id               Int         @id
+  nombre           String
+  descripcion      String?     @db.Text
+  imagen           String?
+  categoria        String?
+  diasEstancia     Int
+  nochesBase       Int
+  incluyeBoleto    Boolean
+  precioBoleto     Float?
+  precioSGL        Float?
+  precioDBL        Float?
+  precioTPL        Float?
+  precioQUAD       Float?
+  precioPorPersona Float?
+  destinoId        Int?
+  destino          DestinoRef? @relation(fields: [destinoId], references: [id])
+
+  cotizaciones Cotizacion[]
+
+  @@map("Paquete")
+}
+
+// ==============================================================
+// TABLAS NUEVAS — Portal de Cotizaciones
+// ==============================================================
+
+/// Cliente final de la agencia (el pasajero / viajero).
+/// No es un User del sistema — es el cliente de la agencia minorista.
+model Cliente {
+  id        String  @id @default(cuid())
+  agenciaId String
+  agencia   Agencia @relation(fields: [agenciaId], references: [id])
+
+  nombre    String
+  email     String?
+  telefono  String?
+  documento String? // CC, Pasaporte, RUC
+  direccion String?
+
+  fechaAlta DateTime @default(now())
+
+  cotizaciones Cotizacion[]
+
+  // Un cliente es único por agencia (no se comparte entre agencias)
+  @@unique([agenciaId, email])
+  @@unique([agenciaId, documento])
+}
+
+/// Cotización / Proforma generada por la agencia para un cliente.
+model Cotizacion {
+  id     String @id @default(cuid())
+  /// Código legible: COT-YYYYMMDD-NNN (generado en la Server Action)
+  codigo String @unique
+
+  // ── Relaciones principales ──────────────────────────────────
+  agenciaId String
+  agencia   Agencia @relation(fields: [agenciaId], references: [id])
+
+  creadoPorId String
+  creadoPor   UsuarioAgencia @relation(fields: [creadoPorId], references: [id])
+
+  paqueteId Int
+  paquete   PaqueteRef @relation(fields: [paqueteId], references: [id])
+
+  clienteId String
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+
+  // ── Snapshot del paquete (congelado al momento de cotizar) ──
+  // Se guarda para que cambios futuros en el paquete no alteren la cotización
+  paqueteNombre   String
+  paqueteDuracion String // "5 Días / 4 Noches"
+  paqueteDestino  String // "Panamá"
+  paqueteIncluye  String[] // Lista de includes en texto
+  incluyeBoleto   Boolean  @default(false)
+
+  // ── Pasajeros: cuántas habitaciones de cada tipo ─────────────
+  cantSGL  Int @default(0) // Habitaciones simples
+  cantDBL  Int @default(0) // Habitaciones dobles
+  cantTPL  Int @default(0) // Habitaciones triples
+  cantQUAD Int @default(0) // Habitaciones cuádruples
+  cantCHD  Int @default(0) // Niños (agregan al cuarto de un adulto)
+
+  // ── Precios snapshot al cotizar (de Paquete.precioXXX) ───────
+  // Fórmula: subtotal = Σ(cant × precio) por tipo
+  precioSGL    Float?
+  precioDBL    Float?
+  precioTPL    Float?
+  precioQUAD   Float?
+  precioCHD    Float?
+  precioBoleto Float? // Por persona (snapshot de Paquete.precioBoleto)
+
+  // ── Totales ──────────────────────────────────────────────────
+  subtotal Float // Σ(cant × precio) sin markup
+  markup   Float @default(0) // Comisión de la agencia (NO aparece en PDF cliente)
+  total    Float // subtotal + markup
+
+  // ── Fechas de viaje ──────────────────────────────────────────
+  fechaViaje   DateTime?
+  fechaRetorno DateTime?
+
+  // ── Estado del flujo ─────────────────────────────────────────
+  status CotizacionStatus @default(BORRADOR)
+  notas  String?          @db.Text
+
+  /// Token UUID enviado al cliente por email para aprobar/rechazar
+  tokenAprobacion String? @unique @default(cuid())
+
+  // ── Timestamps de transiciones ───────────────────────────────
+  fechaCreacion    DateTime  @default(now())
+  fechaEnvio       DateTime?
+  fechaAprobacion  DateTime?
+  fechaVencimiento DateTime?
+
+  historial HistorialCotizacion[]
+}
+
+/// Auditoría de cada cambio de estado en una cotización.
+model HistorialCotizacion {
+  id String @id @default(cuid())
+
+  cotizacionId String
+  cotizacion   Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+
+  cambiadoPorId String
+  cambiadoPor   UsuarioAgencia @relation(fields: [cambiadoPorId], references: [id])
+
+  statusAnterior CotizacionStatus?
+  statusNuevo    CotizacionStatus
+  nota           String?
+
+  fecha DateTime @default(now())
+}
+
+// ==============================================================
+// ENUMS
+// ==============================================================
+
+enum CotizacionStatus {
+  BORRADOR // En edición — no enviada al cliente
+  ENVIADA // Enviada al cliente, esperando respuesta
+  APROBADA // Cliente aprobó — Kevin crea la liquidación en lt-core-admin
+  RECHAZADA // Cliente rechazó
+}

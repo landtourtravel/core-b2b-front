@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Destino } from "@land-tour/shared";
 import { api } from "@/services/api";
+import { AlertTriangle, MapPin as MapPinIcon } from "lucide-react";
 
 // ─── Destination Modal ────────────────────────────────────────────────────────
 
@@ -287,21 +288,16 @@ export const DestinationsSection: React.FC = () => {
   const [selectedDestination, setSelectedDestination] = useState<Destino | null>(null);
   const [destinations, setDestinations] = useState<Destino[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<"DB_FAIL" | "EMPTY" | null>(null);
 
   React.useEffect(() => {
-    const fetchDestinations = async () => {
-      try {
-        const data = await api.getDestinations();
+    api.getDestinationsDetailed()
+      .then(({ data, error }) => {
         setDestinations(data);
-      } catch (err) {
-        console.error("Error fetching destinations:", err);
-        setError("No se pudieron cargar los destinos.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchDestinations();
+        setFetchError(error);
+      })
+      .catch(() => setFetchError("DB_FAIL"))
+      .finally(() => setIsLoading(false));
   }, []);
 
   // Lock body scroll when modal is open
@@ -336,7 +332,27 @@ export const DestinationsSection: React.FC = () => {
     );
   }
 
-  if (error || destinations.length === 0) return null;
+  if (fetchError === "DB_FAIL") {
+    return (
+      <section className="py-20 bg-light flex items-center justify-center min-h-[200px]">
+        <div className="flex flex-col items-center gap-3 text-center px-4">
+          <AlertTriangle size={32} className="text-amber-400" />
+          <p className="text-primary/60 font-semibold text-sm">Conexión a DB fallida — los destinos no están disponibles en este momento.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (fetchError === "EMPTY" || destinations.length === 0) {
+    return (
+      <section className="py-20 bg-light flex items-center justify-center min-h-[200px]">
+        <div className="flex flex-col items-center gap-3 text-center px-4">
+          <MapPinIcon size={32} className="text-primary/20" />
+          <p className="text-primary/50 font-semibold text-sm">No hay destinos creados en la base de datos.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
