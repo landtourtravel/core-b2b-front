@@ -288,9 +288,7 @@ export default function DashboardPage() {
   }, [cantCHD]);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
-  const selectedPkg = (
-    packages.find((p) => String(p.id) === String(selectedPkgId)) ?? packages[0]
-  ) as Package;
+  const selectedPkg = packages.find((p) => String(p.id) === String(selectedPkgId)) ?? packages[0];
 
   const availableHotels: HotelOption[] =
     HOTELS_BY_PACKAGE[String(selectedPkgId)] ?? HOTELS_BY_PACKAGE["default"];
@@ -303,8 +301,8 @@ export default function DashboardPage() {
   const effectivePrices = firstSelectedHotel
     ? { sgl: firstSelectedHotel.rates.sgl, dbl: firstSelectedHotel.rates.dbl,
         tpl: firstSelectedHotel.rates.tpl, quad: firstSelectedHotel.rates.quad, chd: firstSelectedHotel.rates.chd }
-    : { sgl: selectedPkg.prices?.sgl || 0, dbl: selectedPkg.prices?.dbl || 0,
-        tpl: selectedPkg.prices?.tpl || 0, quad: selectedPkg.prices?.quad || 0, chd: selectedPkg.prices?.chd || 0 };
+    : { sgl: selectedPkg?.prices?.sgl || 0, dbl: selectedPkg?.prices?.dbl || 0,
+        tpl: selectedPkg?.prices?.tpl || 0, quad: selectedPkg?.prices?.quad || 0, chd: selectedPkg?.prices?.chd || 0 };
 
   const computedSubtotal = calcularSubtotal(
     { cantSGL, cantDBL, cantTPL, cantQUAD: quadEnabled ? cantQUAD : 0, cantCHD },
@@ -312,7 +310,7 @@ export default function DashboardPage() {
       precioQUAD: effectivePrices.quad, precioCHD: effectivePrices.chd }
   );
   const totalAdults     = cantSGL + cantDBL + cantTPL + (quadEnabled ? cantQUAD : 0);
-  const airfareCost     = (selectedPkg as any).flightIncluded
+  const airfareCost     = (selectedPkg as any)?.flightIncluded
     ? 0
     : adultAirfare * totalAdults + childAirfare * cantCHD;
   const extraNightsCost = firstSelectedHotel && extraNights > 0
@@ -337,12 +335,12 @@ export default function DashboardPage() {
     { label: "Niños 2-11 (CHD)",    qty: cantCHD,                          price: effectivePrices.chd  },
   ].filter((r) => r.qty > 0);
 
-  const selectedPkgLocation = `${selectedPkg.location?.city || "Destino"}, ${selectedPkg.location?.country || ""}`;
-  const selectedPkgDuration = selectedPkg.duration || `${selectedPkg.diasEstancia} Días / ${selectedPkg.nochesBase} Noches`;
+  const selectedPkgLocation = `${selectedPkg?.location?.city || "Destino"}, ${selectedPkg?.location?.country || ""}`;
+  const selectedPkgDuration = selectedPkg?.duration || `${selectedPkg?.diasEstancia ?? "—"} Días / ${selectedPkg?.nochesBase ?? "—"} Noches`;
   const selectedPkgDates    = travelDateFrom
     ? `${travelDateFrom}${travelDateTo ? ` → ${travelDateTo}` : ""}`
     : "Según disponibilidad";
-  const reservationFee = Math.round((effectivePrices.dbl || selectedPkg.price) * 0.4);
+  const reservationFee = Math.round((effectivePrices.dbl || selectedPkg?.price || 0) * 0.4);
 
   const packagesByCountry = packages.reduce<Record<string, Package[]>>((acc, pkg) => {
     const c = pkg.location?.country || "Otros";
@@ -455,18 +453,18 @@ export default function DashboardPage() {
         documento: clientId || undefined,
         direccion: clientAddress || undefined,
       },
-      paqueteNombre:   selectedPkg.title,
+      paqueteNombre:   selectedPkg?.title ?? "",
       paqueteDuracion: selectedPkgDuration,
       paqueteDestino:  selectedPkgLocation,
-      paqueteIncluye:  selectedPkg.includes || [],
-      incluyeBoleto:   (selectedPkg as any).flightIncluded || adultAirfare > 0,
+      paqueteIncluye:  selectedPkg?.includes || [],
+      incluyeBoleto:   (selectedPkg as any)?.flightIncluded || adultAirfare > 0,
       pasajeros: { cantSGL, cantDBL, cantTPL, cantQUAD: quadEnabled ? cantQUAD : 0, cantCHD },
       precios: {
-        precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg.prices?.sgl  || 0,
-        precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg.prices?.dbl  || 0,
-        precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg.prices?.tpl  || 0,
-        precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg.prices?.quad || 0,
-        precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg.prices?.chd  || 0,
+        precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg?.prices?.sgl  || 0,
+        precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg?.prices?.dbl  || 0,
+        precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg?.prices?.tpl  || 0,
+        precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg?.prices?.quad || 0,
+        precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg?.prices?.chd  || 0,
       },
       subtotal: first?.subtotal ?? computedSubtotal,
       markup:   agencyMarkup,
@@ -510,19 +508,19 @@ export default function DashboardPage() {
         body: JSON.stringify({
           clienteId:       clientData.id,
           paqueteId:       Number(selectedPkgId) || 1,
-          paqueteNombre:   selectedPkg.title,
+          paqueteNombre:   selectedPkg?.title ?? "",
           paqueteDuracion: selectedPkgDuration,
           paqueteDestino:  selectedPkgLocation,
-          paqueteIncluye:  selectedPkg.includes || [],
-          incluyeBoleto:   (selectedPkg as any).flightIncluded || adultAirfare > 0,
+          paqueteIncluye:  selectedPkg?.includes || [],
+          incluyeBoleto:   (selectedPkg as any)?.flightIncluded || adultAirfare > 0,
           cantSGL, cantDBL, cantTPL,
           cantQUAD: quadEnabled ? cantQUAD : 0,
           cantCHD,
-          precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg.prices?.sgl  || 0,
-          precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg.prices?.dbl  || 0,
-          precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg.prices?.tpl  || 0,
-          precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg.prices?.quad || 0,
-          precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg.prices?.chd  || 0,
+          precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg?.prices?.sgl  || 0,
+          precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg?.prices?.dbl  || 0,
+          precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg?.prices?.tpl  || 0,
+          precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg?.prices?.quad || 0,
+          precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg?.prices?.chd  || 0,
           subtotal: first?.subtotal ?? computedSubtotal,
           markup:   agencyMarkup,
           total:    first?.total    ?? computedTotal,
@@ -862,6 +860,33 @@ export default function DashboardPage() {
           {activeTab === "cotizar" && (
             <div className="space-y-6 animate-fade-scale">
 
+              {/* Sin paquetes disponibles */}
+              {(isLoadingPackages || !selectedPkg) && (
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-20 gap-4 text-center px-6">
+                  {isLoadingPackages ? (
+                    <>
+                      <div className="w-9 h-9 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+                      <p className="text-primary/50 font-bold text-sm">Cargando paquetes disponibles...</p>
+                    </>
+                  ) : packagesFetchError === "DB_FAIL" ? (
+                    <>
+                      <AlertCircle size={32} className="text-amber-400" />
+                      <p className="text-primary/70 font-bold text-sm">No se pudo conectar con la base de datos.</p>
+                      <p className="text-primary/40 text-xs font-semibold">Verifica la conexión e intenta recargar la página.</p>
+                    </>
+                  ) : (
+                    <>
+                      <Globe size={32} className="text-primary/20" />
+                      <p className="text-primary/60 font-bold text-sm">No hay paquetes creados aún.</p>
+                      <p className="text-primary/35 text-xs font-semibold">El administrador debe crear los paquetes desde el panel.</p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Contenido del cotizador — solo si hay paquetes */}
+              {!isLoadingPackages && selectedPkg && (<>
+
               {/* Stepper progress */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center justify-center max-w-2xl mx-auto">
@@ -969,7 +994,7 @@ export default function DashboardPage() {
                               <Compass size={14} className="text-secondary" />
                             </div>
                             <div className="min-w-0">
-                              <p className="text-xs font-black text-primary">{selectedPkg.title}</p>
+                              <p className="text-xs font-black text-primary">{selectedPkg?.title}</p>
                               <p className="text-[10px] text-primary/50 font-bold mt-0.5">
                                 {selectedPkgLocation} · {selectedPkgDuration}
                               </p>
@@ -1303,7 +1328,7 @@ export default function DashboardPage() {
                           ["Cliente",   clientName  || "—"],
                           ["Email",     clientEmail || "—"],
                           ["Teléfono",  clientPhone || "—"],
-                          ["Paquete",   selectedPkg.title],
+                          ["Paquete",   selectedPkg?.title ?? "—"],
                           ["Destino",   selectedPkgLocation],
                           ["Duración",  selectedPkgDuration],
                           ["Fechas",    selectedPkgDates],
@@ -1496,6 +1521,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </>)}
             </div>
           )}
 
