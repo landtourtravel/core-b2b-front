@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:\\\\Users\\\\Usuario\\\\Documents\\\\PROYECTOS\\\\AGENCIADEVIAJES\\\\ltt-core-admin\\\\land-tour-client\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\Usuario\\\\Documents\\\\PROYECTOS\\\\AGENCIADEVIAJES\\\\ltt-core-admin\\\\land-tour-client\" branch --show-current)",
+      "Bash(git *)"
+    ]
+  }
+}

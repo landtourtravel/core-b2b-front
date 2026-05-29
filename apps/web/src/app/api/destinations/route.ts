@@ -10,16 +10,17 @@ export async function GET() {
       id:           d.id,
       pais:         d.pais,
       ciudad:       d.ciudad,
-      tagline:      d.tagline      ?? "",
-      description:  d.descripcion  ?? "",
-      image:        d.imagen       ?? "",
+      tagline:      "",
+      description:  d.descripcion ?? "",
+      image:        d.imagen     ?? "",
       highlights:   [],
       packageCount: 0,
-      color:        d.color        ?? "from-primary/80",
+      color:        "",
     }));
 
     return NextResponse.json(destinos);
-  } catch {
+  } catch (error) {
+    console.error('[/api/destinations] Error:', error);
     return NextResponse.json(
       { error: "DB_FAIL", message: "No se pudo conectar a la base de datos." },
       { status: 503 }

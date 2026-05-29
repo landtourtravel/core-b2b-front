@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Usuario/Documents/PROYECTOS/AGENCIADEVIAJES/ltt-core-admin/land-tour-client/**)",
+      "Bash(npm run *)",
+      "Bash(npx prisma *)"
+    ]
+  }
+}

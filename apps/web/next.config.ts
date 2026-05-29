@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'ltt-media-data.s3.us-east-2.amazonaws.com',
+      },
     ],
   },
   // next-auth v5 / @auth/core usa preact internamente para sus páginas built-in.

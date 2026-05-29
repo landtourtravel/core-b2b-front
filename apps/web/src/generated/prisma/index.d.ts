@@ -29,10 +29,50 @@ export type UsuarioAgencia = $Result.DefaultSelection<Prisma.$UsuarioAgenciaPayl
  */
 export type DestinoRef = $Result.DefaultSelection<Prisma.$DestinoRefPayload>
 /**
+ * Model HotelRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type HotelRef = $Result.DefaultSelection<Prisma.$HotelRefPayload>
+/**
  * Model PaqueteRef
  * @readonly — gestionado por lt-core-admin
  */
 export type PaqueteRef = $Result.DefaultSelection<Prisma.$PaqueteRefPayload>
+/**
+ * Model PaqueteHotelRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type PaqueteHotelRef = $Result.DefaultSelection<Prisma.$PaqueteHotelRefPayload>
+/**
+ * Model ActividadRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type ActividadRef = $Result.DefaultSelection<Prisma.$ActividadRefPayload>
+/**
+ * Model TrasladoRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type TrasladoRef = $Result.DefaultSelection<Prisma.$TrasladoRefPayload>
+/**
+ * Model PaqueteActividadRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type PaqueteActividadRef = $Result.DefaultSelection<Prisma.$PaqueteActividadRefPayload>
+/**
+ * Model PaqueteTrasladoRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type PaqueteTrasladoRef = $Result.DefaultSelection<Prisma.$PaqueteTrasladoRefPayload>
+/**
+ * Model VersionPaqueteRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type VersionPaqueteRef = $Result.DefaultSelection<Prisma.$VersionPaqueteRefPayload>
+/**
+ * Model ImagenPaqueteRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type ImagenPaqueteRef = $Result.DefaultSelection<Prisma.$ImagenPaqueteRefPayload>
 /**
  * Model Cliente
  * Cliente final de la agencia (el pasajero / viajero).
@@ -44,6 +84,12 @@ export type Cliente = $Result.DefaultSelection<Prisma.$ClientePayload>
  * Cotización / Proforma generada por la agencia para un cliente.
  */
 export type Cotizacion = $Result.DefaultSelection<Prisma.$CotizacionPayload>
+/**
+ * Model CotizacionDetalle
+ * Una fila por tipo de ocupación dentro de una cotización.
+ * Permite representar grupos mixtos: 2 DBL + 1 SGL en la misma proforma.
+ */
+export type CotizacionDetalle = $Result.DefaultSelection<Prisma.$CotizacionDetallePayload>
 /**
  * Model HistorialCotizacion
  * Auditoría de cada cambio de estado en una cotización.
@@ -221,6 +267,16 @@ export class PrismaClient<
   get destinoRef(): Prisma.DestinoRefDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.hotelRef`: Exposes CRUD operations for the **HotelRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more HotelRefs
+    * const hotelRefs = await prisma.hotelRef.findMany()
+    * ```
+    */
+  get hotelRef(): Prisma.HotelRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.paqueteRef`: Exposes CRUD operations for the **PaqueteRef** model.
     * Example usage:
     * ```ts
@@ -229,6 +285,76 @@ export class PrismaClient<
     * ```
     */
   get paqueteRef(): Prisma.PaqueteRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paqueteHotelRef`: Exposes CRUD operations for the **PaqueteHotelRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaqueteHotelRefs
+    * const paqueteHotelRefs = await prisma.paqueteHotelRef.findMany()
+    * ```
+    */
+  get paqueteHotelRef(): Prisma.PaqueteHotelRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.actividadRef`: Exposes CRUD operations for the **ActividadRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ActividadRefs
+    * const actividadRefs = await prisma.actividadRef.findMany()
+    * ```
+    */
+  get actividadRef(): Prisma.ActividadRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.trasladoRef`: Exposes CRUD operations for the **TrasladoRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TrasladoRefs
+    * const trasladoRefs = await prisma.trasladoRef.findMany()
+    * ```
+    */
+  get trasladoRef(): Prisma.TrasladoRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paqueteActividadRef`: Exposes CRUD operations for the **PaqueteActividadRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaqueteActividadRefs
+    * const paqueteActividadRefs = await prisma.paqueteActividadRef.findMany()
+    * ```
+    */
+  get paqueteActividadRef(): Prisma.PaqueteActividadRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paqueteTrasladoRef`: Exposes CRUD operations for the **PaqueteTrasladoRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaqueteTrasladoRefs
+    * const paqueteTrasladoRefs = await prisma.paqueteTrasladoRef.findMany()
+    * ```
+    */
+  get paqueteTrasladoRef(): Prisma.PaqueteTrasladoRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.versionPaqueteRef`: Exposes CRUD operations for the **VersionPaqueteRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VersionPaqueteRefs
+    * const versionPaqueteRefs = await prisma.versionPaqueteRef.findMany()
+    * ```
+    */
+  get versionPaqueteRef(): Prisma.VersionPaqueteRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.imagenPaqueteRef`: Exposes CRUD operations for the **ImagenPaqueteRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ImagenPaqueteRefs
+    * const imagenPaqueteRefs = await prisma.imagenPaqueteRef.findMany()
+    * ```
+    */
+  get imagenPaqueteRef(): Prisma.ImagenPaqueteRefDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.cliente`: Exposes CRUD operations for the **Cliente** model.
@@ -249,6 +375,16 @@ export class PrismaClient<
     * ```
     */
   get cotizacion(): Prisma.CotizacionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cotizacionDetalle`: Exposes CRUD operations for the **CotizacionDetalle** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CotizacionDetalles
+    * const cotizacionDetalles = await prisma.cotizacionDetalle.findMany()
+    * ```
+    */
+  get cotizacionDetalle(): Prisma.CotizacionDetalleDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.historialCotizacion`: Exposes CRUD operations for the **HistorialCotizacion** model.
@@ -696,9 +832,18 @@ export namespace Prisma {
     Agencia: 'Agencia',
     UsuarioAgencia: 'UsuarioAgencia',
     DestinoRef: 'DestinoRef',
+    HotelRef: 'HotelRef',
     PaqueteRef: 'PaqueteRef',
+    PaqueteHotelRef: 'PaqueteHotelRef',
+    ActividadRef: 'ActividadRef',
+    TrasladoRef: 'TrasladoRef',
+    PaqueteActividadRef: 'PaqueteActividadRef',
+    PaqueteTrasladoRef: 'PaqueteTrasladoRef',
+    VersionPaqueteRef: 'VersionPaqueteRef',
+    ImagenPaqueteRef: 'ImagenPaqueteRef',
     Cliente: 'Cliente',
     Cotizacion: 'Cotizacion',
+    CotizacionDetalle: 'CotizacionDetalle',
     HistorialCotizacion: 'HistorialCotizacion'
   };
 
@@ -715,7 +860,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "agencia" | "usuarioAgencia" | "destinoRef" | "paqueteRef" | "cliente" | "cotizacion" | "historialCotizacion"
+      modelProps: "agencia" | "usuarioAgencia" | "destinoRef" | "hotelRef" | "paqueteRef" | "paqueteHotelRef" | "actividadRef" | "trasladoRef" | "paqueteActividadRef" | "paqueteTrasladoRef" | "versionPaqueteRef" | "imagenPaqueteRef" | "cliente" | "cotizacion" | "cotizacionDetalle" | "historialCotizacion"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -941,6 +1086,80 @@ export namespace Prisma {
           }
         }
       }
+      HotelRef: {
+        payload: Prisma.$HotelRefPayload<ExtArgs>
+        fields: Prisma.HotelRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HotelRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HotelRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>
+          }
+          findFirst: {
+            args: Prisma.HotelRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HotelRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>
+          }
+          findMany: {
+            args: Prisma.HotelRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>[]
+          }
+          create: {
+            args: Prisma.HotelRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>
+          }
+          createMany: {
+            args: Prisma.HotelRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.HotelRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>[]
+          }
+          delete: {
+            args: Prisma.HotelRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>
+          }
+          update: {
+            args: Prisma.HotelRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.HotelRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HotelRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.HotelRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.HotelRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HotelRefPayload>
+          }
+          aggregate: {
+            args: Prisma.HotelRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHotelRef>
+          }
+          groupBy: {
+            args: Prisma.HotelRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HotelRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.HotelRefCountArgs<ExtArgs>
+            result: $Utils.Optional<HotelRefCountAggregateOutputType> | number
+          }
+        }
+      }
       PaqueteRef: {
         payload: Prisma.$PaqueteRefPayload<ExtArgs>
         fields: Prisma.PaqueteRefFieldRefs
@@ -1012,6 +1231,524 @@ export namespace Prisma {
           count: {
             args: Prisma.PaqueteRefCountArgs<ExtArgs>
             result: $Utils.Optional<PaqueteRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaqueteHotelRef: {
+        payload: Prisma.$PaqueteHotelRefPayload<ExtArgs>
+        fields: Prisma.PaqueteHotelRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaqueteHotelRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaqueteHotelRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>
+          }
+          findFirst: {
+            args: Prisma.PaqueteHotelRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaqueteHotelRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>
+          }
+          findMany: {
+            args: Prisma.PaqueteHotelRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>[]
+          }
+          create: {
+            args: Prisma.PaqueteHotelRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>
+          }
+          createMany: {
+            args: Prisma.PaqueteHotelRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaqueteHotelRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>[]
+          }
+          delete: {
+            args: Prisma.PaqueteHotelRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>
+          }
+          update: {
+            args: Prisma.PaqueteHotelRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaqueteHotelRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaqueteHotelRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaqueteHotelRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaqueteHotelRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteHotelRefPayload>
+          }
+          aggregate: {
+            args: Prisma.PaqueteHotelRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaqueteHotelRef>
+          }
+          groupBy: {
+            args: Prisma.PaqueteHotelRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaqueteHotelRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaqueteHotelRefCountArgs<ExtArgs>
+            result: $Utils.Optional<PaqueteHotelRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      ActividadRef: {
+        payload: Prisma.$ActividadRefPayload<ExtArgs>
+        fields: Prisma.ActividadRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ActividadRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ActividadRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>
+          }
+          findFirst: {
+            args: Prisma.ActividadRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ActividadRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>
+          }
+          findMany: {
+            args: Prisma.ActividadRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>[]
+          }
+          create: {
+            args: Prisma.ActividadRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>
+          }
+          createMany: {
+            args: Prisma.ActividadRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ActividadRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>[]
+          }
+          delete: {
+            args: Prisma.ActividadRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>
+          }
+          update: {
+            args: Prisma.ActividadRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.ActividadRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ActividadRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ActividadRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.ActividadRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ActividadRefPayload>
+          }
+          aggregate: {
+            args: Prisma.ActividadRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateActividadRef>
+          }
+          groupBy: {
+            args: Prisma.ActividadRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ActividadRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ActividadRefCountArgs<ExtArgs>
+            result: $Utils.Optional<ActividadRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      TrasladoRef: {
+        payload: Prisma.$TrasladoRefPayload<ExtArgs>
+        fields: Prisma.TrasladoRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TrasladoRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TrasladoRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>
+          }
+          findFirst: {
+            args: Prisma.TrasladoRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TrasladoRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>
+          }
+          findMany: {
+            args: Prisma.TrasladoRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>[]
+          }
+          create: {
+            args: Prisma.TrasladoRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>
+          }
+          createMany: {
+            args: Prisma.TrasladoRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TrasladoRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>[]
+          }
+          delete: {
+            args: Prisma.TrasladoRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>
+          }
+          update: {
+            args: Prisma.TrasladoRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.TrasladoRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TrasladoRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TrasladoRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.TrasladoRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrasladoRefPayload>
+          }
+          aggregate: {
+            args: Prisma.TrasladoRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTrasladoRef>
+          }
+          groupBy: {
+            args: Prisma.TrasladoRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TrasladoRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TrasladoRefCountArgs<ExtArgs>
+            result: $Utils.Optional<TrasladoRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaqueteActividadRef: {
+        payload: Prisma.$PaqueteActividadRefPayload<ExtArgs>
+        fields: Prisma.PaqueteActividadRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaqueteActividadRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaqueteActividadRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>
+          }
+          findFirst: {
+            args: Prisma.PaqueteActividadRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaqueteActividadRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>
+          }
+          findMany: {
+            args: Prisma.PaqueteActividadRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>[]
+          }
+          create: {
+            args: Prisma.PaqueteActividadRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>
+          }
+          createMany: {
+            args: Prisma.PaqueteActividadRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaqueteActividadRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>[]
+          }
+          delete: {
+            args: Prisma.PaqueteActividadRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>
+          }
+          update: {
+            args: Prisma.PaqueteActividadRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaqueteActividadRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaqueteActividadRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaqueteActividadRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaqueteActividadRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteActividadRefPayload>
+          }
+          aggregate: {
+            args: Prisma.PaqueteActividadRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaqueteActividadRef>
+          }
+          groupBy: {
+            args: Prisma.PaqueteActividadRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaqueteActividadRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaqueteActividadRefCountArgs<ExtArgs>
+            result: $Utils.Optional<PaqueteActividadRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaqueteTrasladoRef: {
+        payload: Prisma.$PaqueteTrasladoRefPayload<ExtArgs>
+        fields: Prisma.PaqueteTrasladoRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaqueteTrasladoRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaqueteTrasladoRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>
+          }
+          findFirst: {
+            args: Prisma.PaqueteTrasladoRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaqueteTrasladoRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>
+          }
+          findMany: {
+            args: Prisma.PaqueteTrasladoRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>[]
+          }
+          create: {
+            args: Prisma.PaqueteTrasladoRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>
+          }
+          createMany: {
+            args: Prisma.PaqueteTrasladoRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaqueteTrasladoRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>[]
+          }
+          delete: {
+            args: Prisma.PaqueteTrasladoRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>
+          }
+          update: {
+            args: Prisma.PaqueteTrasladoRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaqueteTrasladoRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaqueteTrasladoRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaqueteTrasladoRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaqueteTrasladoRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaqueteTrasladoRefPayload>
+          }
+          aggregate: {
+            args: Prisma.PaqueteTrasladoRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaqueteTrasladoRef>
+          }
+          groupBy: {
+            args: Prisma.PaqueteTrasladoRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaqueteTrasladoRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaqueteTrasladoRefCountArgs<ExtArgs>
+            result: $Utils.Optional<PaqueteTrasladoRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      VersionPaqueteRef: {
+        payload: Prisma.$VersionPaqueteRefPayload<ExtArgs>
+        fields: Prisma.VersionPaqueteRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VersionPaqueteRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VersionPaqueteRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>
+          }
+          findFirst: {
+            args: Prisma.VersionPaqueteRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VersionPaqueteRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>
+          }
+          findMany: {
+            args: Prisma.VersionPaqueteRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>[]
+          }
+          create: {
+            args: Prisma.VersionPaqueteRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>
+          }
+          createMany: {
+            args: Prisma.VersionPaqueteRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VersionPaqueteRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>[]
+          }
+          delete: {
+            args: Prisma.VersionPaqueteRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>
+          }
+          update: {
+            args: Prisma.VersionPaqueteRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.VersionPaqueteRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VersionPaqueteRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VersionPaqueteRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.VersionPaqueteRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VersionPaqueteRefPayload>
+          }
+          aggregate: {
+            args: Prisma.VersionPaqueteRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVersionPaqueteRef>
+          }
+          groupBy: {
+            args: Prisma.VersionPaqueteRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VersionPaqueteRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VersionPaqueteRefCountArgs<ExtArgs>
+            result: $Utils.Optional<VersionPaqueteRefCountAggregateOutputType> | number
+          }
+        }
+      }
+      ImagenPaqueteRef: {
+        payload: Prisma.$ImagenPaqueteRefPayload<ExtArgs>
+        fields: Prisma.ImagenPaqueteRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ImagenPaqueteRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ImagenPaqueteRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>
+          }
+          findFirst: {
+            args: Prisma.ImagenPaqueteRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ImagenPaqueteRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>
+          }
+          findMany: {
+            args: Prisma.ImagenPaqueteRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>[]
+          }
+          create: {
+            args: Prisma.ImagenPaqueteRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>
+          }
+          createMany: {
+            args: Prisma.ImagenPaqueteRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ImagenPaqueteRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>[]
+          }
+          delete: {
+            args: Prisma.ImagenPaqueteRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>
+          }
+          update: {
+            args: Prisma.ImagenPaqueteRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.ImagenPaqueteRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ImagenPaqueteRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ImagenPaqueteRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.ImagenPaqueteRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImagenPaqueteRefPayload>
+          }
+          aggregate: {
+            args: Prisma.ImagenPaqueteRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateImagenPaqueteRef>
+          }
+          groupBy: {
+            args: Prisma.ImagenPaqueteRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ImagenPaqueteRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ImagenPaqueteRefCountArgs<ExtArgs>
+            result: $Utils.Optional<ImagenPaqueteRefCountAggregateOutputType> | number
           }
         }
       }
@@ -1160,6 +1897,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CotizacionCountArgs<ExtArgs>
             result: $Utils.Optional<CotizacionCountAggregateOutputType> | number
+          }
+        }
+      }
+      CotizacionDetalle: {
+        payload: Prisma.$CotizacionDetallePayload<ExtArgs>
+        fields: Prisma.CotizacionDetalleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CotizacionDetalleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CotizacionDetalleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>
+          }
+          findFirst: {
+            args: Prisma.CotizacionDetalleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CotizacionDetalleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>
+          }
+          findMany: {
+            args: Prisma.CotizacionDetalleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>[]
+          }
+          create: {
+            args: Prisma.CotizacionDetalleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>
+          }
+          createMany: {
+            args: Prisma.CotizacionDetalleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CotizacionDetalleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>[]
+          }
+          delete: {
+            args: Prisma.CotizacionDetalleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>
+          }
+          update: {
+            args: Prisma.CotizacionDetalleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>
+          }
+          deleteMany: {
+            args: Prisma.CotizacionDetalleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CotizacionDetalleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CotizacionDetalleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>[]
+          }
+          upsert: {
+            args: Prisma.CotizacionDetalleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CotizacionDetallePayload>
+          }
+          aggregate: {
+            args: Prisma.CotizacionDetalleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCotizacionDetalle>
+          }
+          groupBy: {
+            args: Prisma.CotizacionDetalleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CotizacionDetalleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CotizacionDetalleCountArgs<ExtArgs>
+            result: $Utils.Optional<CotizacionDetalleCountAggregateOutputType> | number
           }
         }
       }
@@ -1348,9 +2159,18 @@ export namespace Prisma {
     agencia?: AgenciaOmit
     usuarioAgencia?: UsuarioAgenciaOmit
     destinoRef?: DestinoRefOmit
+    hotelRef?: HotelRefOmit
     paqueteRef?: PaqueteRefOmit
+    paqueteHotelRef?: PaqueteHotelRefOmit
+    actividadRef?: ActividadRefOmit
+    trasladoRef?: TrasladoRefOmit
+    paqueteActividadRef?: PaqueteActividadRefOmit
+    paqueteTrasladoRef?: PaqueteTrasladoRefOmit
+    versionPaqueteRef?: VersionPaqueteRefOmit
+    imagenPaqueteRef?: ImagenPaqueteRefOmit
     cliente?: ClienteOmit
     cotizacion?: CotizacionOmit
+    cotizacionDetalle?: CotizacionDetalleOmit
     historialCotizacion?: HistorialCotizacionOmit
   }
 
@@ -1521,11 +2341,15 @@ export namespace Prisma {
    */
 
   export type DestinoRefCountOutputType = {
-    paquetes: number
+    hoteles: number
+    actividades: number
+    traslados: number
   }
 
   export type DestinoRefCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    paquetes?: boolean | DestinoRefCountOutputTypeCountPaquetesArgs
+    hoteles?: boolean | DestinoRefCountOutputTypeCountHotelesArgs
+    actividades?: boolean | DestinoRefCountOutputTypeCountActividadesArgs
+    traslados?: boolean | DestinoRefCountOutputTypeCountTrasladosArgs
   }
 
   // Custom InputTypes
@@ -1542,8 +2366,53 @@ export namespace Prisma {
   /**
    * DestinoRefCountOutputType without action
    */
-  export type DestinoRefCountOutputTypeCountPaquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PaqueteRefWhereInput
+  export type DestinoRefCountOutputTypeCountHotelesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HotelRefWhereInput
+  }
+
+  /**
+   * DestinoRefCountOutputType without action
+   */
+  export type DestinoRefCountOutputTypeCountActividadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActividadRefWhereInput
+  }
+
+  /**
+   * DestinoRefCountOutputType without action
+   */
+  export type DestinoRefCountOutputTypeCountTrasladosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrasladoRefWhereInput
+  }
+
+
+  /**
+   * Count Type HotelRefCountOutputType
+   */
+
+  export type HotelRefCountOutputType = {
+    paquetes: number
+  }
+
+  export type HotelRefCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquetes?: boolean | HotelRefCountOutputTypeCountPaquetesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * HotelRefCountOutputType without action
+   */
+  export type HotelRefCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRefCountOutputType
+     */
+    select?: HotelRefCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * HotelRefCountOutputType without action
+   */
+  export type HotelRefCountOutputTypeCountPaquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteHotelRefWhereInput
   }
 
 
@@ -1552,11 +2421,19 @@ export namespace Prisma {
    */
 
   export type PaqueteRefCountOutputType = {
-    cotizaciones: number
+    hoteles: number
+    versiones: number
+    imagenes: number
+    actividades: number
+    traslados: number
   }
 
   export type PaqueteRefCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    cotizaciones?: boolean | PaqueteRefCountOutputTypeCountCotizacionesArgs
+    hoteles?: boolean | PaqueteRefCountOutputTypeCountHotelesArgs
+    versiones?: boolean | PaqueteRefCountOutputTypeCountVersionesArgs
+    imagenes?: boolean | PaqueteRefCountOutputTypeCountImagenesArgs
+    actividades?: boolean | PaqueteRefCountOutputTypeCountActividadesArgs
+    traslados?: boolean | PaqueteRefCountOutputTypeCountTrasladosArgs
   }
 
   // Custom InputTypes
@@ -1573,8 +2450,98 @@ export namespace Prisma {
   /**
    * PaqueteRefCountOutputType without action
    */
-  export type PaqueteRefCountOutputTypeCountCotizacionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CotizacionWhereInput
+  export type PaqueteRefCountOutputTypeCountHotelesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteHotelRefWhereInput
+  }
+
+  /**
+   * PaqueteRefCountOutputType without action
+   */
+  export type PaqueteRefCountOutputTypeCountVersionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VersionPaqueteRefWhereInput
+  }
+
+  /**
+   * PaqueteRefCountOutputType without action
+   */
+  export type PaqueteRefCountOutputTypeCountImagenesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ImagenPaqueteRefWhereInput
+  }
+
+  /**
+   * PaqueteRefCountOutputType without action
+   */
+  export type PaqueteRefCountOutputTypeCountActividadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteActividadRefWhereInput
+  }
+
+  /**
+   * PaqueteRefCountOutputType without action
+   */
+  export type PaqueteRefCountOutputTypeCountTrasladosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteTrasladoRefWhereInput
+  }
+
+
+  /**
+   * Count Type ActividadRefCountOutputType
+   */
+
+  export type ActividadRefCountOutputType = {
+    paquetes: number
+  }
+
+  export type ActividadRefCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquetes?: boolean | ActividadRefCountOutputTypeCountPaquetesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ActividadRefCountOutputType without action
+   */
+  export type ActividadRefCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRefCountOutputType
+     */
+    select?: ActividadRefCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ActividadRefCountOutputType without action
+   */
+  export type ActividadRefCountOutputTypeCountPaquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteActividadRefWhereInput
+  }
+
+
+  /**
+   * Count Type TrasladoRefCountOutputType
+   */
+
+  export type TrasladoRefCountOutputType = {
+    paquetes: number
+  }
+
+  export type TrasladoRefCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquetes?: boolean | TrasladoRefCountOutputTypeCountPaquetesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TrasladoRefCountOutputType without action
+   */
+  export type TrasladoRefCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRefCountOutputType
+     */
+    select?: TrasladoRefCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TrasladoRefCountOutputType without action
+   */
+  export type TrasladoRefCountOutputTypeCountPaquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteTrasladoRefWhereInput
   }
 
 
@@ -1614,10 +2581,12 @@ export namespace Prisma {
    */
 
   export type CotizacionCountOutputType = {
+    detalles: number
     historial: number
   }
 
   export type CotizacionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    detalles?: boolean | CotizacionCountOutputTypeCountDetallesArgs
     historial?: boolean | CotizacionCountOutputTypeCountHistorialArgs
   }
 
@@ -1630,6 +2599,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the CotizacionCountOutputType
      */
     select?: CotizacionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CotizacionCountOutputType without action
+   */
+  export type CotizacionCountOutputTypeCountDetallesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CotizacionDetalleWhereInput
   }
 
   /**
@@ -1657,22 +2633,28 @@ export namespace Prisma {
   export type AgenciaMinAggregateOutputType = {
     id: string | null
     nombre: string | null
+    descripcion: string | null
     correo: string | null
     telefono: string | null
+    fechaAlta: Date | null
   }
 
   export type AgenciaMaxAggregateOutputType = {
     id: string | null
     nombre: string | null
+    descripcion: string | null
     correo: string | null
     telefono: string | null
+    fechaAlta: Date | null
   }
 
   export type AgenciaCountAggregateOutputType = {
     id: number
     nombre: number
+    descripcion: number
     correo: number
     telefono: number
+    fechaAlta: number
     _all: number
   }
 
@@ -1680,22 +2662,28 @@ export namespace Prisma {
   export type AgenciaMinAggregateInputType = {
     id?: true
     nombre?: true
+    descripcion?: true
     correo?: true
     telefono?: true
+    fechaAlta?: true
   }
 
   export type AgenciaMaxAggregateInputType = {
     id?: true
     nombre?: true
+    descripcion?: true
     correo?: true
     telefono?: true
+    fechaAlta?: true
   }
 
   export type AgenciaCountAggregateInputType = {
     id?: true
     nombre?: true
+    descripcion?: true
     correo?: true
     telefono?: true
+    fechaAlta?: true
     _all?: true
   }
 
@@ -1774,8 +2762,10 @@ export namespace Prisma {
   export type AgenciaGroupByOutputType = {
     id: string
     nombre: string
+    descripcion: string | null
     correo: string | null
     telefono: string | null
+    fechaAlta: Date
     _count: AgenciaCountAggregateOutputType | null
     _min: AgenciaMinAggregateOutputType | null
     _max: AgenciaMaxAggregateOutputType | null
@@ -1798,8 +2788,10 @@ export namespace Prisma {
   export type AgenciaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nombre?: boolean
+    descripcion?: boolean
     correo?: boolean
     telefono?: boolean
+    fechaAlta?: boolean
     usuarios?: boolean | Agencia$usuariosArgs<ExtArgs>
     clientes?: boolean | Agencia$clientesArgs<ExtArgs>
     cotizaciones?: boolean | Agencia$cotizacionesArgs<ExtArgs>
@@ -1809,25 +2801,31 @@ export namespace Prisma {
   export type AgenciaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nombre?: boolean
+    descripcion?: boolean
     correo?: boolean
     telefono?: boolean
+    fechaAlta?: boolean
   }, ExtArgs["result"]["agencia"]>
 
   export type AgenciaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nombre?: boolean
+    descripcion?: boolean
     correo?: boolean
     telefono?: boolean
+    fechaAlta?: boolean
   }, ExtArgs["result"]["agencia"]>
 
   export type AgenciaSelectScalar = {
     id?: boolean
     nombre?: boolean
+    descripcion?: boolean
     correo?: boolean
     telefono?: boolean
+    fechaAlta?: boolean
   }
 
-  export type AgenciaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "correo" | "telefono", ExtArgs["result"]["agencia"]>
+  export type AgenciaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "descripcion" | "correo" | "telefono" | "fechaAlta", ExtArgs["result"]["agencia"]>
   export type AgenciaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     usuarios?: boolean | Agencia$usuariosArgs<ExtArgs>
     clientes?: boolean | Agencia$clientesArgs<ExtArgs>
@@ -1847,8 +2845,10 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       nombre: string
+      descripcion: string | null
       correo: string | null
       telefono: string | null
+      fechaAlta: Date
     }, ExtArgs["result"]["agencia"]>
     composites: {}
   }
@@ -2277,8 +3277,10 @@ export namespace Prisma {
   interface AgenciaFieldRefs {
     readonly id: FieldRef<"Agencia", 'String'>
     readonly nombre: FieldRef<"Agencia", 'String'>
+    readonly descripcion: FieldRef<"Agencia", 'String'>
     readonly correo: FieldRef<"Agencia", 'String'>
     readonly telefono: FieldRef<"Agencia", 'String'>
+    readonly fechaAlta: FieldRef<"Agencia", 'DateTime'>
   }
     
 
@@ -3939,30 +4941,24 @@ export namespace Prisma {
     id: number | null
     pais: string | null
     ciudad: string | null
-    tagline: string | null
     descripcion: string | null
     imagen: string | null
-    color: string | null
   }
 
   export type DestinoRefMaxAggregateOutputType = {
     id: number | null
     pais: string | null
     ciudad: string | null
-    tagline: string | null
     descripcion: string | null
     imagen: string | null
-    color: string | null
   }
 
   export type DestinoRefCountAggregateOutputType = {
     id: number
     pais: number
     ciudad: number
-    tagline: number
     descripcion: number
     imagen: number
-    color: number
     _all: number
   }
 
@@ -3979,30 +4975,24 @@ export namespace Prisma {
     id?: true
     pais?: true
     ciudad?: true
-    tagline?: true
     descripcion?: true
     imagen?: true
-    color?: true
   }
 
   export type DestinoRefMaxAggregateInputType = {
     id?: true
     pais?: true
     ciudad?: true
-    tagline?: true
     descripcion?: true
     imagen?: true
-    color?: true
   }
 
   export type DestinoRefCountAggregateInputType = {
     id?: true
     pais?: true
     ciudad?: true
-    tagline?: true
     descripcion?: true
     imagen?: true
-    color?: true
     _all?: true
   }
 
@@ -4096,10 +5086,8 @@ export namespace Prisma {
     id: number
     pais: string
     ciudad: string
-    tagline: string | null
     descripcion: string | null
     imagen: string | null
-    color: string | null
     _count: DestinoRefCountAggregateOutputType | null
     _avg: DestinoRefAvgAggregateOutputType | null
     _sum: DestinoRefSumAggregateOutputType | null
@@ -4125,11 +5113,11 @@ export namespace Prisma {
     id?: boolean
     pais?: boolean
     ciudad?: boolean
-    tagline?: boolean
     descripcion?: boolean
     imagen?: boolean
-    color?: boolean
-    paquetes?: boolean | DestinoRef$paquetesArgs<ExtArgs>
+    hoteles?: boolean | DestinoRef$hotelesArgs<ExtArgs>
+    actividades?: boolean | DestinoRef$actividadesArgs<ExtArgs>
+    traslados?: boolean | DestinoRef$trasladosArgs<ExtArgs>
     _count?: boolean | DestinoRefCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["destinoRef"]>
 
@@ -4137,35 +5125,31 @@ export namespace Prisma {
     id?: boolean
     pais?: boolean
     ciudad?: boolean
-    tagline?: boolean
     descripcion?: boolean
     imagen?: boolean
-    color?: boolean
   }, ExtArgs["result"]["destinoRef"]>
 
   export type DestinoRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     pais?: boolean
     ciudad?: boolean
-    tagline?: boolean
     descripcion?: boolean
     imagen?: boolean
-    color?: boolean
   }, ExtArgs["result"]["destinoRef"]>
 
   export type DestinoRefSelectScalar = {
     id?: boolean
     pais?: boolean
     ciudad?: boolean
-    tagline?: boolean
     descripcion?: boolean
     imagen?: boolean
-    color?: boolean
   }
 
-  export type DestinoRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pais" | "ciudad" | "tagline" | "descripcion" | "imagen" | "color", ExtArgs["result"]["destinoRef"]>
+  export type DestinoRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pais" | "ciudad" | "descripcion" | "imagen", ExtArgs["result"]["destinoRef"]>
   export type DestinoRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    paquetes?: boolean | DestinoRef$paquetesArgs<ExtArgs>
+    hoteles?: boolean | DestinoRef$hotelesArgs<ExtArgs>
+    actividades?: boolean | DestinoRef$actividadesArgs<ExtArgs>
+    traslados?: boolean | DestinoRef$trasladosArgs<ExtArgs>
     _count?: boolean | DestinoRefCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DestinoRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4174,16 +5158,16 @@ export namespace Prisma {
   export type $DestinoRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DestinoRef"
     objects: {
-      paquetes: Prisma.$PaqueteRefPayload<ExtArgs>[]
+      hoteles: Prisma.$HotelRefPayload<ExtArgs>[]
+      actividades: Prisma.$ActividadRefPayload<ExtArgs>[]
+      traslados: Prisma.$TrasladoRefPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       pais: string
       ciudad: string
-      tagline: string | null
       descripcion: string | null
       imagen: string | null
-      color: string | null
     }, ExtArgs["result"]["destinoRef"]>
     composites: {}
   }
@@ -4578,7 +5562,9 @@ export namespace Prisma {
    */
   export interface Prisma__DestinoRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    paquetes<T extends DestinoRef$paquetesArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRef$paquetesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    hoteles<T extends DestinoRef$hotelesArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRef$hotelesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    actividades<T extends DestinoRef$actividadesArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRef$actividadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    traslados<T extends DestinoRef$trasladosArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRef$trasladosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4611,10 +5597,8 @@ export namespace Prisma {
     readonly id: FieldRef<"DestinoRef", 'Int'>
     readonly pais: FieldRef<"DestinoRef", 'String'>
     readonly ciudad: FieldRef<"DestinoRef", 'String'>
-    readonly tagline: FieldRef<"DestinoRef", 'String'>
     readonly descripcion: FieldRef<"DestinoRef", 'String'>
     readonly imagen: FieldRef<"DestinoRef", 'String'>
-    readonly color: FieldRef<"DestinoRef", 'String'>
   }
     
 
@@ -5008,27 +5992,75 @@ export namespace Prisma {
   }
 
   /**
-   * DestinoRef.paquetes
+   * DestinoRef.hoteles
    */
-  export type DestinoRef$paquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DestinoRef$hotelesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PaqueteRef
+     * Select specific fields to fetch from the HotelRef
      */
-    select?: PaqueteRefSelect<ExtArgs> | null
+    select?: HotelRefSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PaqueteRef
+     * Omit specific fields from the HotelRef
      */
-    omit?: PaqueteRefOmit<ExtArgs> | null
+    omit?: HotelRefOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PaqueteRefInclude<ExtArgs> | null
-    where?: PaqueteRefWhereInput
-    orderBy?: PaqueteRefOrderByWithRelationInput | PaqueteRefOrderByWithRelationInput[]
-    cursor?: PaqueteRefWhereUniqueInput
+    include?: HotelRefInclude<ExtArgs> | null
+    where?: HotelRefWhereInput
+    orderBy?: HotelRefOrderByWithRelationInput | HotelRefOrderByWithRelationInput[]
+    cursor?: HotelRefWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PaqueteRefScalarFieldEnum | PaqueteRefScalarFieldEnum[]
+    distinct?: HotelRefScalarFieldEnum | HotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * DestinoRef.actividades
+   */
+  export type DestinoRef$actividadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    where?: ActividadRefWhereInput
+    orderBy?: ActividadRefOrderByWithRelationInput | ActividadRefOrderByWithRelationInput[]
+    cursor?: ActividadRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActividadRefScalarFieldEnum | ActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * DestinoRef.traslados
+   */
+  export type DestinoRef$trasladosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    where?: TrasladoRefWhereInput
+    orderBy?: TrasladoRefOrderByWithRelationInput | TrasladoRefOrderByWithRelationInput[]
+    cursor?: TrasladoRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrasladoRefScalarFieldEnum | TrasladoRefScalarFieldEnum[]
   }
 
   /**
@@ -5051,6 +6083,1128 @@ export namespace Prisma {
 
 
   /**
+   * Model HotelRef
+   */
+
+  export type AggregateHotelRef = {
+    _count: HotelRefCountAggregateOutputType | null
+    _avg: HotelRefAvgAggregateOutputType | null
+    _sum: HotelRefSumAggregateOutputType | null
+    _min: HotelRefMinAggregateOutputType | null
+    _max: HotelRefMaxAggregateOutputType | null
+  }
+
+  export type HotelRefAvgAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    estrellas: number | null
+  }
+
+  export type HotelRefSumAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    estrellas: number | null
+  }
+
+  export type HotelRefMinAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    nombre: string | null
+    estrellas: number | null
+  }
+
+  export type HotelRefMaxAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    nombre: string | null
+    estrellas: number | null
+  }
+
+  export type HotelRefCountAggregateOutputType = {
+    id: number
+    destinoId: number
+    nombre: number
+    estrellas: number
+    _all: number
+  }
+
+
+  export type HotelRefAvgAggregateInputType = {
+    id?: true
+    destinoId?: true
+    estrellas?: true
+  }
+
+  export type HotelRefSumAggregateInputType = {
+    id?: true
+    destinoId?: true
+    estrellas?: true
+  }
+
+  export type HotelRefMinAggregateInputType = {
+    id?: true
+    destinoId?: true
+    nombre?: true
+    estrellas?: true
+  }
+
+  export type HotelRefMaxAggregateInputType = {
+    id?: true
+    destinoId?: true
+    nombre?: true
+    estrellas?: true
+  }
+
+  export type HotelRefCountAggregateInputType = {
+    id?: true
+    destinoId?: true
+    nombre?: true
+    estrellas?: true
+    _all?: true
+  }
+
+  export type HotelRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HotelRef to aggregate.
+     */
+    where?: HotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HotelRefs to fetch.
+     */
+    orderBy?: HotelRefOrderByWithRelationInput | HotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned HotelRefs
+    **/
+    _count?: true | HotelRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: HotelRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: HotelRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HotelRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HotelRefMaxAggregateInputType
+  }
+
+  export type GetHotelRefAggregateType<T extends HotelRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateHotelRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHotelRef[P]>
+      : GetScalarType<T[P], AggregateHotelRef[P]>
+  }
+
+
+
+
+  export type HotelRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HotelRefWhereInput
+    orderBy?: HotelRefOrderByWithAggregationInput | HotelRefOrderByWithAggregationInput[]
+    by: HotelRefScalarFieldEnum[] | HotelRefScalarFieldEnum
+    having?: HotelRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HotelRefCountAggregateInputType | true
+    _avg?: HotelRefAvgAggregateInputType
+    _sum?: HotelRefSumAggregateInputType
+    _min?: HotelRefMinAggregateInputType
+    _max?: HotelRefMaxAggregateInputType
+  }
+
+  export type HotelRefGroupByOutputType = {
+    id: number
+    destinoId: number
+    nombre: string
+    estrellas: number
+    _count: HotelRefCountAggregateOutputType | null
+    _avg: HotelRefAvgAggregateOutputType | null
+    _sum: HotelRefSumAggregateOutputType | null
+    _min: HotelRefMinAggregateOutputType | null
+    _max: HotelRefMaxAggregateOutputType | null
+  }
+
+  type GetHotelRefGroupByPayload<T extends HotelRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HotelRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HotelRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HotelRefGroupByOutputType[P]>
+            : GetScalarType<T[P], HotelRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HotelRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    estrellas?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+    paquetes?: boolean | HotelRef$paquetesArgs<ExtArgs>
+    _count?: boolean | HotelRefCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hotelRef"]>
+
+  export type HotelRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    estrellas?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hotelRef"]>
+
+  export type HotelRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    estrellas?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hotelRef"]>
+
+  export type HotelRefSelectScalar = {
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    estrellas?: boolean
+  }
+
+  export type HotelRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "destinoId" | "nombre" | "estrellas", ExtArgs["result"]["hotelRef"]>
+  export type HotelRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+    paquetes?: boolean | HotelRef$paquetesArgs<ExtArgs>
+    _count?: boolean | HotelRefCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type HotelRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }
+  export type HotelRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }
+
+  export type $HotelRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "HotelRef"
+    objects: {
+      destino: Prisma.$DestinoRefPayload<ExtArgs>
+      paquetes: Prisma.$PaqueteHotelRefPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      destinoId: number
+      nombre: string
+      estrellas: number
+    }, ExtArgs["result"]["hotelRef"]>
+    composites: {}
+  }
+
+  type HotelRefGetPayload<S extends boolean | null | undefined | HotelRefDefaultArgs> = $Result.GetResult<Prisma.$HotelRefPayload, S>
+
+  type HotelRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HotelRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HotelRefCountAggregateInputType | true
+    }
+
+  export interface HotelRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HotelRef'], meta: { name: 'HotelRef' } }
+    /**
+     * Find zero or one HotelRef that matches the filter.
+     * @param {HotelRefFindUniqueArgs} args - Arguments to find a HotelRef
+     * @example
+     * // Get one HotelRef
+     * const hotelRef = await prisma.hotelRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HotelRefFindUniqueArgs>(args: SelectSubset<T, HotelRefFindUniqueArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one HotelRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HotelRefFindUniqueOrThrowArgs} args - Arguments to find a HotelRef
+     * @example
+     * // Get one HotelRef
+     * const hotelRef = await prisma.hotelRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HotelRefFindUniqueOrThrowArgs>(args: SelectSubset<T, HotelRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HotelRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefFindFirstArgs} args - Arguments to find a HotelRef
+     * @example
+     * // Get one HotelRef
+     * const hotelRef = await prisma.hotelRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HotelRefFindFirstArgs>(args?: SelectSubset<T, HotelRefFindFirstArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HotelRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefFindFirstOrThrowArgs} args - Arguments to find a HotelRef
+     * @example
+     * // Get one HotelRef
+     * const hotelRef = await prisma.hotelRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HotelRefFindFirstOrThrowArgs>(args?: SelectSubset<T, HotelRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more HotelRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all HotelRefs
+     * const hotelRefs = await prisma.hotelRef.findMany()
+     * 
+     * // Get first 10 HotelRefs
+     * const hotelRefs = await prisma.hotelRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const hotelRefWithIdOnly = await prisma.hotelRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HotelRefFindManyArgs>(args?: SelectSubset<T, HotelRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a HotelRef.
+     * @param {HotelRefCreateArgs} args - Arguments to create a HotelRef.
+     * @example
+     * // Create one HotelRef
+     * const HotelRef = await prisma.hotelRef.create({
+     *   data: {
+     *     // ... data to create a HotelRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends HotelRefCreateArgs>(args: SelectSubset<T, HotelRefCreateArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many HotelRefs.
+     * @param {HotelRefCreateManyArgs} args - Arguments to create many HotelRefs.
+     * @example
+     * // Create many HotelRefs
+     * const hotelRef = await prisma.hotelRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HotelRefCreateManyArgs>(args?: SelectSubset<T, HotelRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many HotelRefs and returns the data saved in the database.
+     * @param {HotelRefCreateManyAndReturnArgs} args - Arguments to create many HotelRefs.
+     * @example
+     * // Create many HotelRefs
+     * const hotelRef = await prisma.hotelRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many HotelRefs and only return the `id`
+     * const hotelRefWithIdOnly = await prisma.hotelRef.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends HotelRefCreateManyAndReturnArgs>(args?: SelectSubset<T, HotelRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a HotelRef.
+     * @param {HotelRefDeleteArgs} args - Arguments to delete one HotelRef.
+     * @example
+     * // Delete one HotelRef
+     * const HotelRef = await prisma.hotelRef.delete({
+     *   where: {
+     *     // ... filter to delete one HotelRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HotelRefDeleteArgs>(args: SelectSubset<T, HotelRefDeleteArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one HotelRef.
+     * @param {HotelRefUpdateArgs} args - Arguments to update one HotelRef.
+     * @example
+     * // Update one HotelRef
+     * const hotelRef = await prisma.hotelRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HotelRefUpdateArgs>(args: SelectSubset<T, HotelRefUpdateArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more HotelRefs.
+     * @param {HotelRefDeleteManyArgs} args - Arguments to filter HotelRefs to delete.
+     * @example
+     * // Delete a few HotelRefs
+     * const { count } = await prisma.hotelRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HotelRefDeleteManyArgs>(args?: SelectSubset<T, HotelRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HotelRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many HotelRefs
+     * const hotelRef = await prisma.hotelRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HotelRefUpdateManyArgs>(args: SelectSubset<T, HotelRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HotelRefs and returns the data updated in the database.
+     * @param {HotelRefUpdateManyAndReturnArgs} args - Arguments to update many HotelRefs.
+     * @example
+     * // Update many HotelRefs
+     * const hotelRef = await prisma.hotelRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more HotelRefs and only return the `id`
+     * const hotelRefWithIdOnly = await prisma.hotelRef.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends HotelRefUpdateManyAndReturnArgs>(args: SelectSubset<T, HotelRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one HotelRef.
+     * @param {HotelRefUpsertArgs} args - Arguments to update or create a HotelRef.
+     * @example
+     * // Update or create a HotelRef
+     * const hotelRef = await prisma.hotelRef.upsert({
+     *   create: {
+     *     // ... data to create a HotelRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the HotelRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HotelRefUpsertArgs>(args: SelectSubset<T, HotelRefUpsertArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of HotelRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefCountArgs} args - Arguments to filter HotelRefs to count.
+     * @example
+     * // Count the number of HotelRefs
+     * const count = await prisma.hotelRef.count({
+     *   where: {
+     *     // ... the filter for the HotelRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends HotelRefCountArgs>(
+      args?: Subset<T, HotelRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HotelRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a HotelRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HotelRefAggregateArgs>(args: Subset<T, HotelRefAggregateArgs>): Prisma.PrismaPromise<GetHotelRefAggregateType<T>>
+
+    /**
+     * Group by HotelRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HotelRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HotelRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HotelRefGroupByArgs['orderBy'] }
+        : { orderBy?: HotelRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HotelRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHotelRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the HotelRef model
+   */
+  readonly fields: HotelRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for HotelRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HotelRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    destino<T extends DestinoRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRefDefaultArgs<ExtArgs>>): Prisma__DestinoRefClient<$Result.GetResult<Prisma.$DestinoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    paquetes<T extends HotelRef$paquetesArgs<ExtArgs> = {}>(args?: Subset<T, HotelRef$paquetesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the HotelRef model
+   */
+  interface HotelRefFieldRefs {
+    readonly id: FieldRef<"HotelRef", 'Int'>
+    readonly destinoId: FieldRef<"HotelRef", 'Int'>
+    readonly nombre: FieldRef<"HotelRef", 'String'>
+    readonly estrellas: FieldRef<"HotelRef", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * HotelRef findUnique
+   */
+  export type HotelRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which HotelRef to fetch.
+     */
+    where: HotelRefWhereUniqueInput
+  }
+
+  /**
+   * HotelRef findUniqueOrThrow
+   */
+  export type HotelRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which HotelRef to fetch.
+     */
+    where: HotelRefWhereUniqueInput
+  }
+
+  /**
+   * HotelRef findFirst
+   */
+  export type HotelRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which HotelRef to fetch.
+     */
+    where?: HotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HotelRefs to fetch.
+     */
+    orderBy?: HotelRefOrderByWithRelationInput | HotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HotelRefs.
+     */
+    cursor?: HotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HotelRefs.
+     */
+    distinct?: HotelRefScalarFieldEnum | HotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * HotelRef findFirstOrThrow
+   */
+  export type HotelRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which HotelRef to fetch.
+     */
+    where?: HotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HotelRefs to fetch.
+     */
+    orderBy?: HotelRefOrderByWithRelationInput | HotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HotelRefs.
+     */
+    cursor?: HotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HotelRefs.
+     */
+    distinct?: HotelRefScalarFieldEnum | HotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * HotelRef findMany
+   */
+  export type HotelRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which HotelRefs to fetch.
+     */
+    where?: HotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HotelRefs to fetch.
+     */
+    orderBy?: HotelRefOrderByWithRelationInput | HotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing HotelRefs.
+     */
+    cursor?: HotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HotelRefs.
+     */
+    distinct?: HotelRefScalarFieldEnum | HotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * HotelRef create
+   */
+  export type HotelRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a HotelRef.
+     */
+    data: XOR<HotelRefCreateInput, HotelRefUncheckedCreateInput>
+  }
+
+  /**
+   * HotelRef createMany
+   */
+  export type HotelRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many HotelRefs.
+     */
+    data: HotelRefCreateManyInput | HotelRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * HotelRef createManyAndReturn
+   */
+  export type HotelRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many HotelRefs.
+     */
+    data: HotelRefCreateManyInput | HotelRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HotelRef update
+   */
+  export type HotelRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a HotelRef.
+     */
+    data: XOR<HotelRefUpdateInput, HotelRefUncheckedUpdateInput>
+    /**
+     * Choose, which HotelRef to update.
+     */
+    where: HotelRefWhereUniqueInput
+  }
+
+  /**
+   * HotelRef updateMany
+   */
+  export type HotelRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update HotelRefs.
+     */
+    data: XOR<HotelRefUpdateManyMutationInput, HotelRefUncheckedUpdateManyInput>
+    /**
+     * Filter which HotelRefs to update
+     */
+    where?: HotelRefWhereInput
+    /**
+     * Limit how many HotelRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * HotelRef updateManyAndReturn
+   */
+  export type HotelRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * The data used to update HotelRefs.
+     */
+    data: XOR<HotelRefUpdateManyMutationInput, HotelRefUncheckedUpdateManyInput>
+    /**
+     * Filter which HotelRefs to update
+     */
+    where?: HotelRefWhereInput
+    /**
+     * Limit how many HotelRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HotelRef upsert
+   */
+  export type HotelRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the HotelRef to update in case it exists.
+     */
+    where: HotelRefWhereUniqueInput
+    /**
+     * In case the HotelRef found by the `where` argument doesn't exist, create a new HotelRef with this data.
+     */
+    create: XOR<HotelRefCreateInput, HotelRefUncheckedCreateInput>
+    /**
+     * In case the HotelRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HotelRefUpdateInput, HotelRefUncheckedUpdateInput>
+  }
+
+  /**
+   * HotelRef delete
+   */
+  export type HotelRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+    /**
+     * Filter which HotelRef to delete.
+     */
+    where: HotelRefWhereUniqueInput
+  }
+
+  /**
+   * HotelRef deleteMany
+   */
+  export type HotelRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HotelRefs to delete
+     */
+    where?: HotelRefWhereInput
+    /**
+     * Limit how many HotelRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * HotelRef.paquetes
+   */
+  export type HotelRef$paquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    where?: PaqueteHotelRefWhereInput
+    orderBy?: PaqueteHotelRefOrderByWithRelationInput | PaqueteHotelRefOrderByWithRelationInput[]
+    cursor?: PaqueteHotelRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaqueteHotelRefScalarFieldEnum | PaqueteHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * HotelRef without action
+   */
+  export type HotelRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HotelRef
+     */
+    select?: HotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HotelRef
+     */
+    omit?: HotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HotelRefInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model PaqueteRef
    */
 
@@ -5064,164 +7218,122 @@ export namespace Prisma {
 
   export type PaqueteRefAvgAggregateOutputType = {
     id: number | null
+    precioBoleto: number | null
+    numPax: number | null
     diasEstancia: number | null
     nochesBase: number | null
-    precioBoleto: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
+    precioTotal: number | null
     precioPorPersona: number | null
-    destinoId: number | null
   }
 
   export type PaqueteRefSumAggregateOutputType = {
     id: number | null
+    precioBoleto: number | null
+    numPax: number | null
     diasEstancia: number | null
     nochesBase: number | null
-    precioBoleto: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
+    precioTotal: number | null
     precioPorPersona: number | null
-    destinoId: number | null
   }
 
   export type PaqueteRefMinAggregateOutputType = {
     id: number | null
     nombre: string | null
     descripcion: string | null
-    imagen: string | null
-    categoria: string | null
-    diasEstancia: number | null
-    nochesBase: number | null
     incluyeBoleto: boolean | null
     precioBoleto: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
+    numPax: number | null
+    diasEstancia: number | null
+    nochesBase: number | null
+    precioTotal: number | null
     precioPorPersona: number | null
-    destinoId: number | null
   }
 
   export type PaqueteRefMaxAggregateOutputType = {
     id: number | null
     nombre: string | null
     descripcion: string | null
-    imagen: string | null
-    categoria: string | null
-    diasEstancia: number | null
-    nochesBase: number | null
     incluyeBoleto: boolean | null
     precioBoleto: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
+    numPax: number | null
+    diasEstancia: number | null
+    nochesBase: number | null
+    precioTotal: number | null
     precioPorPersona: number | null
-    destinoId: number | null
   }
 
   export type PaqueteRefCountAggregateOutputType = {
     id: number
     nombre: number
     descripcion: number
-    imagen: number
-    categoria: number
-    diasEstancia: number
-    nochesBase: number
     incluyeBoleto: number
     precioBoleto: number
-    precioSGL: number
-    precioDBL: number
-    precioTPL: number
-    precioQUAD: number
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal: number
     precioPorPersona: number
-    destinoId: number
     _all: number
   }
 
 
   export type PaqueteRefAvgAggregateInputType = {
     id?: true
+    precioBoleto?: true
+    numPax?: true
     diasEstancia?: true
     nochesBase?: true
-    precioBoleto?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
+    precioTotal?: true
     precioPorPersona?: true
-    destinoId?: true
   }
 
   export type PaqueteRefSumAggregateInputType = {
     id?: true
+    precioBoleto?: true
+    numPax?: true
     diasEstancia?: true
     nochesBase?: true
-    precioBoleto?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
+    precioTotal?: true
     precioPorPersona?: true
-    destinoId?: true
   }
 
   export type PaqueteRefMinAggregateInputType = {
     id?: true
     nombre?: true
     descripcion?: true
-    imagen?: true
-    categoria?: true
-    diasEstancia?: true
-    nochesBase?: true
     incluyeBoleto?: true
     precioBoleto?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
+    numPax?: true
+    diasEstancia?: true
+    nochesBase?: true
+    precioTotal?: true
     precioPorPersona?: true
-    destinoId?: true
   }
 
   export type PaqueteRefMaxAggregateInputType = {
     id?: true
     nombre?: true
     descripcion?: true
-    imagen?: true
-    categoria?: true
-    diasEstancia?: true
-    nochesBase?: true
     incluyeBoleto?: true
     precioBoleto?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
+    numPax?: true
+    diasEstancia?: true
+    nochesBase?: true
+    precioTotal?: true
     precioPorPersona?: true
-    destinoId?: true
   }
 
   export type PaqueteRefCountAggregateInputType = {
     id?: true
     nombre?: true
     descripcion?: true
-    imagen?: true
-    categoria?: true
-    diasEstancia?: true
-    nochesBase?: true
     incluyeBoleto?: true
     precioBoleto?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
+    numPax?: true
+    diasEstancia?: true
+    nochesBase?: true
+    precioTotal?: true
     precioPorPersona?: true
-    destinoId?: true
     _all?: true
   }
 
@@ -5315,18 +7427,13 @@ export namespace Prisma {
     id: number
     nombre: string
     descripcion: string | null
-    imagen: string | null
-    categoria: string | null
-    diasEstancia: number
-    nochesBase: number
     incluyeBoleto: boolean
     precioBoleto: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal: number | null
     precioPorPersona: number | null
-    destinoId: number | null
     _count: PaqueteRefCountAggregateOutputType | null
     _avg: PaqueteRefAvgAggregateOutputType | null
     _sum: PaqueteRefSumAggregateOutputType | null
@@ -5352,20 +7459,18 @@ export namespace Prisma {
     id?: boolean
     nombre?: boolean
     descripcion?: boolean
-    imagen?: boolean
-    categoria?: boolean
-    diasEstancia?: boolean
-    nochesBase?: boolean
     incluyeBoleto?: boolean
     precioBoleto?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
+    numPax?: boolean
+    diasEstancia?: boolean
+    nochesBase?: boolean
+    precioTotal?: boolean
     precioPorPersona?: boolean
-    destinoId?: boolean
-    destino?: boolean | PaqueteRef$destinoArgs<ExtArgs>
-    cotizaciones?: boolean | PaqueteRef$cotizacionesArgs<ExtArgs>
+    hoteles?: boolean | PaqueteRef$hotelesArgs<ExtArgs>
+    versiones?: boolean | PaqueteRef$versionesArgs<ExtArgs>
+    imagenes?: boolean | PaqueteRef$imagenesArgs<ExtArgs>
+    actividades?: boolean | PaqueteRef$actividadesArgs<ExtArgs>
+    traslados?: boolean | PaqueteRef$trasladosArgs<ExtArgs>
     _count?: boolean | PaqueteRefCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paqueteRef"]>
 
@@ -5373,93 +7478,73 @@ export namespace Prisma {
     id?: boolean
     nombre?: boolean
     descripcion?: boolean
-    imagen?: boolean
-    categoria?: boolean
-    diasEstancia?: boolean
-    nochesBase?: boolean
     incluyeBoleto?: boolean
     precioBoleto?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
+    numPax?: boolean
+    diasEstancia?: boolean
+    nochesBase?: boolean
+    precioTotal?: boolean
     precioPorPersona?: boolean
-    destinoId?: boolean
-    destino?: boolean | PaqueteRef$destinoArgs<ExtArgs>
   }, ExtArgs["result"]["paqueteRef"]>
 
   export type PaqueteRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nombre?: boolean
     descripcion?: boolean
-    imagen?: boolean
-    categoria?: boolean
-    diasEstancia?: boolean
-    nochesBase?: boolean
     incluyeBoleto?: boolean
     precioBoleto?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
+    numPax?: boolean
+    diasEstancia?: boolean
+    nochesBase?: boolean
+    precioTotal?: boolean
     precioPorPersona?: boolean
-    destinoId?: boolean
-    destino?: boolean | PaqueteRef$destinoArgs<ExtArgs>
   }, ExtArgs["result"]["paqueteRef"]>
 
   export type PaqueteRefSelectScalar = {
     id?: boolean
     nombre?: boolean
     descripcion?: boolean
-    imagen?: boolean
-    categoria?: boolean
-    diasEstancia?: boolean
-    nochesBase?: boolean
     incluyeBoleto?: boolean
     precioBoleto?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
+    numPax?: boolean
+    diasEstancia?: boolean
+    nochesBase?: boolean
+    precioTotal?: boolean
     precioPorPersona?: boolean
-    destinoId?: boolean
   }
 
-  export type PaqueteRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "descripcion" | "imagen" | "categoria" | "diasEstancia" | "nochesBase" | "incluyeBoleto" | "precioBoleto" | "precioSGL" | "precioDBL" | "precioTPL" | "precioQUAD" | "precioPorPersona" | "destinoId", ExtArgs["result"]["paqueteRef"]>
+  export type PaqueteRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "descripcion" | "incluyeBoleto" | "precioBoleto" | "numPax" | "diasEstancia" | "nochesBase" | "precioTotal" | "precioPorPersona", ExtArgs["result"]["paqueteRef"]>
   export type PaqueteRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    destino?: boolean | PaqueteRef$destinoArgs<ExtArgs>
-    cotizaciones?: boolean | PaqueteRef$cotizacionesArgs<ExtArgs>
+    hoteles?: boolean | PaqueteRef$hotelesArgs<ExtArgs>
+    versiones?: boolean | PaqueteRef$versionesArgs<ExtArgs>
+    imagenes?: boolean | PaqueteRef$imagenesArgs<ExtArgs>
+    actividades?: boolean | PaqueteRef$actividadesArgs<ExtArgs>
+    traslados?: boolean | PaqueteRef$trasladosArgs<ExtArgs>
     _count?: boolean | PaqueteRefCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type PaqueteRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    destino?: boolean | PaqueteRef$destinoArgs<ExtArgs>
-  }
-  export type PaqueteRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    destino?: boolean | PaqueteRef$destinoArgs<ExtArgs>
-  }
+  export type PaqueteRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type PaqueteRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $PaqueteRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PaqueteRef"
     objects: {
-      destino: Prisma.$DestinoRefPayload<ExtArgs> | null
-      cotizaciones: Prisma.$CotizacionPayload<ExtArgs>[]
+      hoteles: Prisma.$PaqueteHotelRefPayload<ExtArgs>[]
+      versiones: Prisma.$VersionPaqueteRefPayload<ExtArgs>[]
+      imagenes: Prisma.$ImagenPaqueteRefPayload<ExtArgs>[]
+      actividades: Prisma.$PaqueteActividadRefPayload<ExtArgs>[]
+      traslados: Prisma.$PaqueteTrasladoRefPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       nombre: string
       descripcion: string | null
-      imagen: string | null
-      categoria: string | null
-      diasEstancia: number
-      nochesBase: number
       incluyeBoleto: boolean
       precioBoleto: number | null
-      precioSGL: number | null
-      precioDBL: number | null
-      precioTPL: number | null
-      precioQUAD: number | null
+      numPax: number
+      diasEstancia: number
+      nochesBase: number
+      precioTotal: number | null
       precioPorPersona: number | null
-      destinoId: number | null
     }, ExtArgs["result"]["paqueteRef"]>
     composites: {}
   }
@@ -5854,8 +7939,11 @@ export namespace Prisma {
    */
   export interface Prisma__PaqueteRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    destino<T extends PaqueteRef$destinoArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$destinoArgs<ExtArgs>>): Prisma__DestinoRefClient<$Result.GetResult<Prisma.$DestinoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    cotizaciones<T extends PaqueteRef$cotizacionesArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$cotizacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CotizacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    hoteles<T extends PaqueteRef$hotelesArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$hotelesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    versiones<T extends PaqueteRef$versionesArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$versionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    imagenes<T extends PaqueteRef$imagenesArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$imagenesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    actividades<T extends PaqueteRef$actividadesArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$actividadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    traslados<T extends PaqueteRef$trasladosArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRef$trasladosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5888,18 +7976,13 @@ export namespace Prisma {
     readonly id: FieldRef<"PaqueteRef", 'Int'>
     readonly nombre: FieldRef<"PaqueteRef", 'String'>
     readonly descripcion: FieldRef<"PaqueteRef", 'String'>
-    readonly imagen: FieldRef<"PaqueteRef", 'String'>
-    readonly categoria: FieldRef<"PaqueteRef", 'String'>
-    readonly diasEstancia: FieldRef<"PaqueteRef", 'Int'>
-    readonly nochesBase: FieldRef<"PaqueteRef", 'Int'>
     readonly incluyeBoleto: FieldRef<"PaqueteRef", 'Boolean'>
     readonly precioBoleto: FieldRef<"PaqueteRef", 'Float'>
-    readonly precioSGL: FieldRef<"PaqueteRef", 'Float'>
-    readonly precioDBL: FieldRef<"PaqueteRef", 'Float'>
-    readonly precioTPL: FieldRef<"PaqueteRef", 'Float'>
-    readonly precioQUAD: FieldRef<"PaqueteRef", 'Float'>
+    readonly numPax: FieldRef<"PaqueteRef", 'Int'>
+    readonly diasEstancia: FieldRef<"PaqueteRef", 'Int'>
+    readonly nochesBase: FieldRef<"PaqueteRef", 'Int'>
+    readonly precioTotal: FieldRef<"PaqueteRef", 'Float'>
     readonly precioPorPersona: FieldRef<"PaqueteRef", 'Float'>
-    readonly destinoId: FieldRef<"PaqueteRef", 'Int'>
   }
     
 
@@ -6154,10 +8237,6 @@ export namespace Prisma {
      */
     data: PaqueteRefCreateManyInput | PaqueteRefCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: PaqueteRefIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6228,10 +8307,6 @@ export namespace Prisma {
      * Limit how many PaqueteRefs to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: PaqueteRefIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6301,46 +8376,123 @@ export namespace Prisma {
   }
 
   /**
-   * PaqueteRef.destino
+   * PaqueteRef.hoteles
    */
-  export type PaqueteRef$destinoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PaqueteRef$hotelesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DestinoRef
+     * Select specific fields to fetch from the PaqueteHotelRef
      */
-    select?: DestinoRefSelect<ExtArgs> | null
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DestinoRef
+     * Omit specific fields from the PaqueteHotelRef
      */
-    omit?: DestinoRefOmit<ExtArgs> | null
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DestinoRefInclude<ExtArgs> | null
-    where?: DestinoRefWhereInput
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    where?: PaqueteHotelRefWhereInput
+    orderBy?: PaqueteHotelRefOrderByWithRelationInput | PaqueteHotelRefOrderByWithRelationInput[]
+    cursor?: PaqueteHotelRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaqueteHotelRefScalarFieldEnum | PaqueteHotelRefScalarFieldEnum[]
   }
 
   /**
-   * PaqueteRef.cotizaciones
+   * PaqueteRef.versiones
    */
-  export type PaqueteRef$cotizacionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PaqueteRef$versionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Cotizacion
+     * Select specific fields to fetch from the VersionPaqueteRef
      */
-    select?: CotizacionSelect<ExtArgs> | null
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Cotizacion
+     * Omit specific fields from the VersionPaqueteRef
      */
-    omit?: CotizacionOmit<ExtArgs> | null
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: CotizacionInclude<ExtArgs> | null
-    where?: CotizacionWhereInput
-    orderBy?: CotizacionOrderByWithRelationInput | CotizacionOrderByWithRelationInput[]
-    cursor?: CotizacionWhereUniqueInput
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    where?: VersionPaqueteRefWhereInput
+    orderBy?: VersionPaqueteRefOrderByWithRelationInput | VersionPaqueteRefOrderByWithRelationInput[]
+    cursor?: VersionPaqueteRefWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: CotizacionScalarFieldEnum | CotizacionScalarFieldEnum[]
+    distinct?: VersionPaqueteRefScalarFieldEnum | VersionPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteRef.imagenes
+   */
+  export type PaqueteRef$imagenesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    where?: ImagenPaqueteRefWhereInput
+    orderBy?: ImagenPaqueteRefOrderByWithRelationInput | ImagenPaqueteRefOrderByWithRelationInput[]
+    cursor?: ImagenPaqueteRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ImagenPaqueteRefScalarFieldEnum | ImagenPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteRef.actividades
+   */
+  export type PaqueteRef$actividadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    where?: PaqueteActividadRefWhereInput
+    orderBy?: PaqueteActividadRefOrderByWithRelationInput | PaqueteActividadRefOrderByWithRelationInput[]
+    cursor?: PaqueteActividadRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaqueteActividadRefScalarFieldEnum | PaqueteActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteRef.traslados
+   */
+  export type PaqueteRef$trasladosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    where?: PaqueteTrasladoRefWhereInput
+    orderBy?: PaqueteTrasladoRefOrderByWithRelationInput | PaqueteTrasladoRefOrderByWithRelationInput[]
+    cursor?: PaqueteTrasladoRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaqueteTrasladoRefScalarFieldEnum | PaqueteTrasladoRefScalarFieldEnum[]
   }
 
   /**
@@ -6359,6 +8511,7687 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PaqueteRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaqueteHotelRef
+   */
+
+  export type AggregatePaqueteHotelRef = {
+    _count: PaqueteHotelRefCountAggregateOutputType | null
+    _avg: PaqueteHotelRefAvgAggregateOutputType | null
+    _sum: PaqueteHotelRefSumAggregateOutputType | null
+    _min: PaqueteHotelRefMinAggregateOutputType | null
+    _max: PaqueteHotelRefMaxAggregateOutputType | null
+  }
+
+  export type PaqueteHotelRefAvgAggregateOutputType = {
+    paqueteId: number | null
+    hotelId: number | null
+    cantidad: number | null
+  }
+
+  export type PaqueteHotelRefSumAggregateOutputType = {
+    paqueteId: number | null
+    hotelId: number | null
+    cantidad: number | null
+  }
+
+  export type PaqueteHotelRefMinAggregateOutputType = {
+    paqueteId: number | null
+    hotelId: number | null
+    tipoHabitacion: string | null
+    cantidad: number | null
+  }
+
+  export type PaqueteHotelRefMaxAggregateOutputType = {
+    paqueteId: number | null
+    hotelId: number | null
+    tipoHabitacion: string | null
+    cantidad: number | null
+  }
+
+  export type PaqueteHotelRefCountAggregateOutputType = {
+    paqueteId: number
+    hotelId: number
+    tipoHabitacion: number
+    cantidad: number
+    _all: number
+  }
+
+
+  export type PaqueteHotelRefAvgAggregateInputType = {
+    paqueteId?: true
+    hotelId?: true
+    cantidad?: true
+  }
+
+  export type PaqueteHotelRefSumAggregateInputType = {
+    paqueteId?: true
+    hotelId?: true
+    cantidad?: true
+  }
+
+  export type PaqueteHotelRefMinAggregateInputType = {
+    paqueteId?: true
+    hotelId?: true
+    tipoHabitacion?: true
+    cantidad?: true
+  }
+
+  export type PaqueteHotelRefMaxAggregateInputType = {
+    paqueteId?: true
+    hotelId?: true
+    tipoHabitacion?: true
+    cantidad?: true
+  }
+
+  export type PaqueteHotelRefCountAggregateInputType = {
+    paqueteId?: true
+    hotelId?: true
+    tipoHabitacion?: true
+    cantidad?: true
+    _all?: true
+  }
+
+  export type PaqueteHotelRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaqueteHotelRef to aggregate.
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteHotelRefs to fetch.
+     */
+    orderBy?: PaqueteHotelRefOrderByWithRelationInput | PaqueteHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaqueteHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaqueteHotelRefs
+    **/
+    _count?: true | PaqueteHotelRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaqueteHotelRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaqueteHotelRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaqueteHotelRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaqueteHotelRefMaxAggregateInputType
+  }
+
+  export type GetPaqueteHotelRefAggregateType<T extends PaqueteHotelRefAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaqueteHotelRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaqueteHotelRef[P]>
+      : GetScalarType<T[P], AggregatePaqueteHotelRef[P]>
+  }
+
+
+
+
+  export type PaqueteHotelRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteHotelRefWhereInput
+    orderBy?: PaqueteHotelRefOrderByWithAggregationInput | PaqueteHotelRefOrderByWithAggregationInput[]
+    by: PaqueteHotelRefScalarFieldEnum[] | PaqueteHotelRefScalarFieldEnum
+    having?: PaqueteHotelRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaqueteHotelRefCountAggregateInputType | true
+    _avg?: PaqueteHotelRefAvgAggregateInputType
+    _sum?: PaqueteHotelRefSumAggregateInputType
+    _min?: PaqueteHotelRefMinAggregateInputType
+    _max?: PaqueteHotelRefMaxAggregateInputType
+  }
+
+  export type PaqueteHotelRefGroupByOutputType = {
+    paqueteId: number
+    hotelId: number
+    tipoHabitacion: string
+    cantidad: number
+    _count: PaqueteHotelRefCountAggregateOutputType | null
+    _avg: PaqueteHotelRefAvgAggregateOutputType | null
+    _sum: PaqueteHotelRefSumAggregateOutputType | null
+    _min: PaqueteHotelRefMinAggregateOutputType | null
+    _max: PaqueteHotelRefMaxAggregateOutputType | null
+  }
+
+  type GetPaqueteHotelRefGroupByPayload<T extends PaqueteHotelRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaqueteHotelRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaqueteHotelRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaqueteHotelRefGroupByOutputType[P]>
+            : GetScalarType<T[P], PaqueteHotelRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaqueteHotelRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    cantidad?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteHotelRef"]>
+
+  export type PaqueteHotelRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    cantidad?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteHotelRef"]>
+
+  export type PaqueteHotelRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    cantidad?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteHotelRef"]>
+
+  export type PaqueteHotelRefSelectScalar = {
+    paqueteId?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    cantidad?: boolean
+  }
+
+  export type PaqueteHotelRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"paqueteId" | "hotelId" | "tipoHabitacion" | "cantidad", ExtArgs["result"]["paqueteHotelRef"]>
+  export type PaqueteHotelRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }
+  export type PaqueteHotelRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }
+  export type PaqueteHotelRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }
+
+  export type $PaqueteHotelRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaqueteHotelRef"
+    objects: {
+      paquete: Prisma.$PaqueteRefPayload<ExtArgs>
+      hotel: Prisma.$HotelRefPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      paqueteId: number
+      hotelId: number
+      tipoHabitacion: string
+      cantidad: number
+    }, ExtArgs["result"]["paqueteHotelRef"]>
+    composites: {}
+  }
+
+  type PaqueteHotelRefGetPayload<S extends boolean | null | undefined | PaqueteHotelRefDefaultArgs> = $Result.GetResult<Prisma.$PaqueteHotelRefPayload, S>
+
+  type PaqueteHotelRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaqueteHotelRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaqueteHotelRefCountAggregateInputType | true
+    }
+
+  export interface PaqueteHotelRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaqueteHotelRef'], meta: { name: 'PaqueteHotelRef' } }
+    /**
+     * Find zero or one PaqueteHotelRef that matches the filter.
+     * @param {PaqueteHotelRefFindUniqueArgs} args - Arguments to find a PaqueteHotelRef
+     * @example
+     * // Get one PaqueteHotelRef
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaqueteHotelRefFindUniqueArgs>(args: SelectSubset<T, PaqueteHotelRefFindUniqueArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaqueteHotelRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaqueteHotelRefFindUniqueOrThrowArgs} args - Arguments to find a PaqueteHotelRef
+     * @example
+     * // Get one PaqueteHotelRef
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaqueteHotelRefFindUniqueOrThrowArgs>(args: SelectSubset<T, PaqueteHotelRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaqueteHotelRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefFindFirstArgs} args - Arguments to find a PaqueteHotelRef
+     * @example
+     * // Get one PaqueteHotelRef
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaqueteHotelRefFindFirstArgs>(args?: SelectSubset<T, PaqueteHotelRefFindFirstArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaqueteHotelRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefFindFirstOrThrowArgs} args - Arguments to find a PaqueteHotelRef
+     * @example
+     * // Get one PaqueteHotelRef
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaqueteHotelRefFindFirstOrThrowArgs>(args?: SelectSubset<T, PaqueteHotelRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaqueteHotelRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaqueteHotelRefs
+     * const paqueteHotelRefs = await prisma.paqueteHotelRef.findMany()
+     * 
+     * // Get first 10 PaqueteHotelRefs
+     * const paqueteHotelRefs = await prisma.paqueteHotelRef.findMany({ take: 10 })
+     * 
+     * // Only select the `paqueteId`
+     * const paqueteHotelRefWithPaqueteIdOnly = await prisma.paqueteHotelRef.findMany({ select: { paqueteId: true } })
+     * 
+     */
+    findMany<T extends PaqueteHotelRefFindManyArgs>(args?: SelectSubset<T, PaqueteHotelRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaqueteHotelRef.
+     * @param {PaqueteHotelRefCreateArgs} args - Arguments to create a PaqueteHotelRef.
+     * @example
+     * // Create one PaqueteHotelRef
+     * const PaqueteHotelRef = await prisma.paqueteHotelRef.create({
+     *   data: {
+     *     // ... data to create a PaqueteHotelRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaqueteHotelRefCreateArgs>(args: SelectSubset<T, PaqueteHotelRefCreateArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaqueteHotelRefs.
+     * @param {PaqueteHotelRefCreateManyArgs} args - Arguments to create many PaqueteHotelRefs.
+     * @example
+     * // Create many PaqueteHotelRefs
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaqueteHotelRefCreateManyArgs>(args?: SelectSubset<T, PaqueteHotelRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaqueteHotelRefs and returns the data saved in the database.
+     * @param {PaqueteHotelRefCreateManyAndReturnArgs} args - Arguments to create many PaqueteHotelRefs.
+     * @example
+     * // Create many PaqueteHotelRefs
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaqueteHotelRefs and only return the `paqueteId`
+     * const paqueteHotelRefWithPaqueteIdOnly = await prisma.paqueteHotelRef.createManyAndReturn({
+     *   select: { paqueteId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaqueteHotelRefCreateManyAndReturnArgs>(args?: SelectSubset<T, PaqueteHotelRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaqueteHotelRef.
+     * @param {PaqueteHotelRefDeleteArgs} args - Arguments to delete one PaqueteHotelRef.
+     * @example
+     * // Delete one PaqueteHotelRef
+     * const PaqueteHotelRef = await prisma.paqueteHotelRef.delete({
+     *   where: {
+     *     // ... filter to delete one PaqueteHotelRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaqueteHotelRefDeleteArgs>(args: SelectSubset<T, PaqueteHotelRefDeleteArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaqueteHotelRef.
+     * @param {PaqueteHotelRefUpdateArgs} args - Arguments to update one PaqueteHotelRef.
+     * @example
+     * // Update one PaqueteHotelRef
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaqueteHotelRefUpdateArgs>(args: SelectSubset<T, PaqueteHotelRefUpdateArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaqueteHotelRefs.
+     * @param {PaqueteHotelRefDeleteManyArgs} args - Arguments to filter PaqueteHotelRefs to delete.
+     * @example
+     * // Delete a few PaqueteHotelRefs
+     * const { count } = await prisma.paqueteHotelRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaqueteHotelRefDeleteManyArgs>(args?: SelectSubset<T, PaqueteHotelRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaqueteHotelRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaqueteHotelRefs
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaqueteHotelRefUpdateManyArgs>(args: SelectSubset<T, PaqueteHotelRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaqueteHotelRefs and returns the data updated in the database.
+     * @param {PaqueteHotelRefUpdateManyAndReturnArgs} args - Arguments to update many PaqueteHotelRefs.
+     * @example
+     * // Update many PaqueteHotelRefs
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaqueteHotelRefs and only return the `paqueteId`
+     * const paqueteHotelRefWithPaqueteIdOnly = await prisma.paqueteHotelRef.updateManyAndReturn({
+     *   select: { paqueteId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaqueteHotelRefUpdateManyAndReturnArgs>(args: SelectSubset<T, PaqueteHotelRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaqueteHotelRef.
+     * @param {PaqueteHotelRefUpsertArgs} args - Arguments to update or create a PaqueteHotelRef.
+     * @example
+     * // Update or create a PaqueteHotelRef
+     * const paqueteHotelRef = await prisma.paqueteHotelRef.upsert({
+     *   create: {
+     *     // ... data to create a PaqueteHotelRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaqueteHotelRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaqueteHotelRefUpsertArgs>(args: SelectSubset<T, PaqueteHotelRefUpsertArgs<ExtArgs>>): Prisma__PaqueteHotelRefClient<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaqueteHotelRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefCountArgs} args - Arguments to filter PaqueteHotelRefs to count.
+     * @example
+     * // Count the number of PaqueteHotelRefs
+     * const count = await prisma.paqueteHotelRef.count({
+     *   where: {
+     *     // ... the filter for the PaqueteHotelRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaqueteHotelRefCountArgs>(
+      args?: Subset<T, PaqueteHotelRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaqueteHotelRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaqueteHotelRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaqueteHotelRefAggregateArgs>(args: Subset<T, PaqueteHotelRefAggregateArgs>): Prisma.PrismaPromise<GetPaqueteHotelRefAggregateType<T>>
+
+    /**
+     * Group by PaqueteHotelRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteHotelRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaqueteHotelRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaqueteHotelRefGroupByArgs['orderBy'] }
+        : { orderBy?: PaqueteHotelRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaqueteHotelRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaqueteHotelRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaqueteHotelRef model
+   */
+  readonly fields: PaqueteHotelRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaqueteHotelRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaqueteHotelRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    paquete<T extends PaqueteRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRefDefaultArgs<ExtArgs>>): Prisma__PaqueteRefClient<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    hotel<T extends HotelRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HotelRefDefaultArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaqueteHotelRef model
+   */
+  interface PaqueteHotelRefFieldRefs {
+    readonly paqueteId: FieldRef<"PaqueteHotelRef", 'Int'>
+    readonly hotelId: FieldRef<"PaqueteHotelRef", 'Int'>
+    readonly tipoHabitacion: FieldRef<"PaqueteHotelRef", 'String'>
+    readonly cantidad: FieldRef<"PaqueteHotelRef", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaqueteHotelRef findUnique
+   */
+  export type PaqueteHotelRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteHotelRef to fetch.
+     */
+    where: PaqueteHotelRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteHotelRef findUniqueOrThrow
+   */
+  export type PaqueteHotelRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteHotelRef to fetch.
+     */
+    where: PaqueteHotelRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteHotelRef findFirst
+   */
+  export type PaqueteHotelRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteHotelRef to fetch.
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteHotelRefs to fetch.
+     */
+    orderBy?: PaqueteHotelRefOrderByWithRelationInput | PaqueteHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaqueteHotelRefs.
+     */
+    cursor?: PaqueteHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteHotelRefs.
+     */
+    distinct?: PaqueteHotelRefScalarFieldEnum | PaqueteHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteHotelRef findFirstOrThrow
+   */
+  export type PaqueteHotelRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteHotelRef to fetch.
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteHotelRefs to fetch.
+     */
+    orderBy?: PaqueteHotelRefOrderByWithRelationInput | PaqueteHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaqueteHotelRefs.
+     */
+    cursor?: PaqueteHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteHotelRefs.
+     */
+    distinct?: PaqueteHotelRefScalarFieldEnum | PaqueteHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteHotelRef findMany
+   */
+  export type PaqueteHotelRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteHotelRefs to fetch.
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteHotelRefs to fetch.
+     */
+    orderBy?: PaqueteHotelRefOrderByWithRelationInput | PaqueteHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaqueteHotelRefs.
+     */
+    cursor?: PaqueteHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteHotelRefs.
+     */
+    distinct?: PaqueteHotelRefScalarFieldEnum | PaqueteHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteHotelRef create
+   */
+  export type PaqueteHotelRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaqueteHotelRef.
+     */
+    data: XOR<PaqueteHotelRefCreateInput, PaqueteHotelRefUncheckedCreateInput>
+  }
+
+  /**
+   * PaqueteHotelRef createMany
+   */
+  export type PaqueteHotelRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaqueteHotelRefs.
+     */
+    data: PaqueteHotelRefCreateManyInput | PaqueteHotelRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaqueteHotelRef createManyAndReturn
+   */
+  export type PaqueteHotelRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaqueteHotelRefs.
+     */
+    data: PaqueteHotelRefCreateManyInput | PaqueteHotelRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaqueteHotelRef update
+   */
+  export type PaqueteHotelRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaqueteHotelRef.
+     */
+    data: XOR<PaqueteHotelRefUpdateInput, PaqueteHotelRefUncheckedUpdateInput>
+    /**
+     * Choose, which PaqueteHotelRef to update.
+     */
+    where: PaqueteHotelRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteHotelRef updateMany
+   */
+  export type PaqueteHotelRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaqueteHotelRefs.
+     */
+    data: XOR<PaqueteHotelRefUpdateManyMutationInput, PaqueteHotelRefUncheckedUpdateManyInput>
+    /**
+     * Filter which PaqueteHotelRefs to update
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * Limit how many PaqueteHotelRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaqueteHotelRef updateManyAndReturn
+   */
+  export type PaqueteHotelRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * The data used to update PaqueteHotelRefs.
+     */
+    data: XOR<PaqueteHotelRefUpdateManyMutationInput, PaqueteHotelRefUncheckedUpdateManyInput>
+    /**
+     * Filter which PaqueteHotelRefs to update
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * Limit how many PaqueteHotelRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaqueteHotelRef upsert
+   */
+  export type PaqueteHotelRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaqueteHotelRef to update in case it exists.
+     */
+    where: PaqueteHotelRefWhereUniqueInput
+    /**
+     * In case the PaqueteHotelRef found by the `where` argument doesn't exist, create a new PaqueteHotelRef with this data.
+     */
+    create: XOR<PaqueteHotelRefCreateInput, PaqueteHotelRefUncheckedCreateInput>
+    /**
+     * In case the PaqueteHotelRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaqueteHotelRefUpdateInput, PaqueteHotelRefUncheckedUpdateInput>
+  }
+
+  /**
+   * PaqueteHotelRef delete
+   */
+  export type PaqueteHotelRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter which PaqueteHotelRef to delete.
+     */
+    where: PaqueteHotelRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteHotelRef deleteMany
+   */
+  export type PaqueteHotelRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaqueteHotelRefs to delete
+     */
+    where?: PaqueteHotelRefWhereInput
+    /**
+     * Limit how many PaqueteHotelRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaqueteHotelRef without action
+   */
+  export type PaqueteHotelRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteHotelRef
+     */
+    select?: PaqueteHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteHotelRef
+     */
+    omit?: PaqueteHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteHotelRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ActividadRef
+   */
+
+  export type AggregateActividadRef = {
+    _count: ActividadRefCountAggregateOutputType | null
+    _avg: ActividadRefAvgAggregateOutputType | null
+    _sum: ActividadRefSumAggregateOutputType | null
+    _min: ActividadRefMinAggregateOutputType | null
+    _max: ActividadRefMaxAggregateOutputType | null
+  }
+
+  export type ActividadRefAvgAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+  }
+
+  export type ActividadRefSumAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+  }
+
+  export type ActividadRefMinAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    nombre: string | null
+    descripcion: string | null
+  }
+
+  export type ActividadRefMaxAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    nombre: string | null
+    descripcion: string | null
+  }
+
+  export type ActividadRefCountAggregateOutputType = {
+    id: number
+    destinoId: number
+    nombre: number
+    descripcion: number
+    _all: number
+  }
+
+
+  export type ActividadRefAvgAggregateInputType = {
+    id?: true
+    destinoId?: true
+  }
+
+  export type ActividadRefSumAggregateInputType = {
+    id?: true
+    destinoId?: true
+  }
+
+  export type ActividadRefMinAggregateInputType = {
+    id?: true
+    destinoId?: true
+    nombre?: true
+    descripcion?: true
+  }
+
+  export type ActividadRefMaxAggregateInputType = {
+    id?: true
+    destinoId?: true
+    nombre?: true
+    descripcion?: true
+  }
+
+  export type ActividadRefCountAggregateInputType = {
+    id?: true
+    destinoId?: true
+    nombre?: true
+    descripcion?: true
+    _all?: true
+  }
+
+  export type ActividadRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ActividadRef to aggregate.
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActividadRefs to fetch.
+     */
+    orderBy?: ActividadRefOrderByWithRelationInput | ActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ActividadRefs
+    **/
+    _count?: true | ActividadRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ActividadRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ActividadRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ActividadRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ActividadRefMaxAggregateInputType
+  }
+
+  export type GetActividadRefAggregateType<T extends ActividadRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateActividadRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateActividadRef[P]>
+      : GetScalarType<T[P], AggregateActividadRef[P]>
+  }
+
+
+
+
+  export type ActividadRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActividadRefWhereInput
+    orderBy?: ActividadRefOrderByWithAggregationInput | ActividadRefOrderByWithAggregationInput[]
+    by: ActividadRefScalarFieldEnum[] | ActividadRefScalarFieldEnum
+    having?: ActividadRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ActividadRefCountAggregateInputType | true
+    _avg?: ActividadRefAvgAggregateInputType
+    _sum?: ActividadRefSumAggregateInputType
+    _min?: ActividadRefMinAggregateInputType
+    _max?: ActividadRefMaxAggregateInputType
+  }
+
+  export type ActividadRefGroupByOutputType = {
+    id: number
+    destinoId: number
+    nombre: string
+    descripcion: string | null
+    _count: ActividadRefCountAggregateOutputType | null
+    _avg: ActividadRefAvgAggregateOutputType | null
+    _sum: ActividadRefSumAggregateOutputType | null
+    _min: ActividadRefMinAggregateOutputType | null
+    _max: ActividadRefMaxAggregateOutputType | null
+  }
+
+  type GetActividadRefGroupByPayload<T extends ActividadRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ActividadRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ActividadRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ActividadRefGroupByOutputType[P]>
+            : GetScalarType<T[P], ActividadRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ActividadRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    descripcion?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+    paquetes?: boolean | ActividadRef$paquetesArgs<ExtArgs>
+    _count?: boolean | ActividadRefCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["actividadRef"]>
+
+  export type ActividadRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    descripcion?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["actividadRef"]>
+
+  export type ActividadRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    descripcion?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["actividadRef"]>
+
+  export type ActividadRefSelectScalar = {
+    id?: boolean
+    destinoId?: boolean
+    nombre?: boolean
+    descripcion?: boolean
+  }
+
+  export type ActividadRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "destinoId" | "nombre" | "descripcion", ExtArgs["result"]["actividadRef"]>
+  export type ActividadRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+    paquetes?: boolean | ActividadRef$paquetesArgs<ExtArgs>
+    _count?: boolean | ActividadRefCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ActividadRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }
+  export type ActividadRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }
+
+  export type $ActividadRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ActividadRef"
+    objects: {
+      destino: Prisma.$DestinoRefPayload<ExtArgs>
+      paquetes: Prisma.$PaqueteActividadRefPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      destinoId: number
+      nombre: string
+      descripcion: string | null
+    }, ExtArgs["result"]["actividadRef"]>
+    composites: {}
+  }
+
+  type ActividadRefGetPayload<S extends boolean | null | undefined | ActividadRefDefaultArgs> = $Result.GetResult<Prisma.$ActividadRefPayload, S>
+
+  type ActividadRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ActividadRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ActividadRefCountAggregateInputType | true
+    }
+
+  export interface ActividadRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ActividadRef'], meta: { name: 'ActividadRef' } }
+    /**
+     * Find zero or one ActividadRef that matches the filter.
+     * @param {ActividadRefFindUniqueArgs} args - Arguments to find a ActividadRef
+     * @example
+     * // Get one ActividadRef
+     * const actividadRef = await prisma.actividadRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ActividadRefFindUniqueArgs>(args: SelectSubset<T, ActividadRefFindUniqueArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ActividadRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ActividadRefFindUniqueOrThrowArgs} args - Arguments to find a ActividadRef
+     * @example
+     * // Get one ActividadRef
+     * const actividadRef = await prisma.actividadRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ActividadRefFindUniqueOrThrowArgs>(args: SelectSubset<T, ActividadRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ActividadRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefFindFirstArgs} args - Arguments to find a ActividadRef
+     * @example
+     * // Get one ActividadRef
+     * const actividadRef = await prisma.actividadRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ActividadRefFindFirstArgs>(args?: SelectSubset<T, ActividadRefFindFirstArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ActividadRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefFindFirstOrThrowArgs} args - Arguments to find a ActividadRef
+     * @example
+     * // Get one ActividadRef
+     * const actividadRef = await prisma.actividadRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ActividadRefFindFirstOrThrowArgs>(args?: SelectSubset<T, ActividadRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ActividadRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ActividadRefs
+     * const actividadRefs = await prisma.actividadRef.findMany()
+     * 
+     * // Get first 10 ActividadRefs
+     * const actividadRefs = await prisma.actividadRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const actividadRefWithIdOnly = await prisma.actividadRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ActividadRefFindManyArgs>(args?: SelectSubset<T, ActividadRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ActividadRef.
+     * @param {ActividadRefCreateArgs} args - Arguments to create a ActividadRef.
+     * @example
+     * // Create one ActividadRef
+     * const ActividadRef = await prisma.actividadRef.create({
+     *   data: {
+     *     // ... data to create a ActividadRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends ActividadRefCreateArgs>(args: SelectSubset<T, ActividadRefCreateArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ActividadRefs.
+     * @param {ActividadRefCreateManyArgs} args - Arguments to create many ActividadRefs.
+     * @example
+     * // Create many ActividadRefs
+     * const actividadRef = await prisma.actividadRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ActividadRefCreateManyArgs>(args?: SelectSubset<T, ActividadRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ActividadRefs and returns the data saved in the database.
+     * @param {ActividadRefCreateManyAndReturnArgs} args - Arguments to create many ActividadRefs.
+     * @example
+     * // Create many ActividadRefs
+     * const actividadRef = await prisma.actividadRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ActividadRefs and only return the `id`
+     * const actividadRefWithIdOnly = await prisma.actividadRef.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ActividadRefCreateManyAndReturnArgs>(args?: SelectSubset<T, ActividadRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ActividadRef.
+     * @param {ActividadRefDeleteArgs} args - Arguments to delete one ActividadRef.
+     * @example
+     * // Delete one ActividadRef
+     * const ActividadRef = await prisma.actividadRef.delete({
+     *   where: {
+     *     // ... filter to delete one ActividadRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ActividadRefDeleteArgs>(args: SelectSubset<T, ActividadRefDeleteArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ActividadRef.
+     * @param {ActividadRefUpdateArgs} args - Arguments to update one ActividadRef.
+     * @example
+     * // Update one ActividadRef
+     * const actividadRef = await prisma.actividadRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ActividadRefUpdateArgs>(args: SelectSubset<T, ActividadRefUpdateArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ActividadRefs.
+     * @param {ActividadRefDeleteManyArgs} args - Arguments to filter ActividadRefs to delete.
+     * @example
+     * // Delete a few ActividadRefs
+     * const { count } = await prisma.actividadRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ActividadRefDeleteManyArgs>(args?: SelectSubset<T, ActividadRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ActividadRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ActividadRefs
+     * const actividadRef = await prisma.actividadRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ActividadRefUpdateManyArgs>(args: SelectSubset<T, ActividadRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ActividadRefs and returns the data updated in the database.
+     * @param {ActividadRefUpdateManyAndReturnArgs} args - Arguments to update many ActividadRefs.
+     * @example
+     * // Update many ActividadRefs
+     * const actividadRef = await prisma.actividadRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ActividadRefs and only return the `id`
+     * const actividadRefWithIdOnly = await prisma.actividadRef.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ActividadRefUpdateManyAndReturnArgs>(args: SelectSubset<T, ActividadRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ActividadRef.
+     * @param {ActividadRefUpsertArgs} args - Arguments to update or create a ActividadRef.
+     * @example
+     * // Update or create a ActividadRef
+     * const actividadRef = await prisma.actividadRef.upsert({
+     *   create: {
+     *     // ... data to create a ActividadRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ActividadRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ActividadRefUpsertArgs>(args: SelectSubset<T, ActividadRefUpsertArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ActividadRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefCountArgs} args - Arguments to filter ActividadRefs to count.
+     * @example
+     * // Count the number of ActividadRefs
+     * const count = await prisma.actividadRef.count({
+     *   where: {
+     *     // ... the filter for the ActividadRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ActividadRefCountArgs>(
+      args?: Subset<T, ActividadRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ActividadRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ActividadRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ActividadRefAggregateArgs>(args: Subset<T, ActividadRefAggregateArgs>): Prisma.PrismaPromise<GetActividadRefAggregateType<T>>
+
+    /**
+     * Group by ActividadRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ActividadRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ActividadRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ActividadRefGroupByArgs['orderBy'] }
+        : { orderBy?: ActividadRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ActividadRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetActividadRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ActividadRef model
+   */
+  readonly fields: ActividadRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ActividadRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ActividadRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    destino<T extends DestinoRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRefDefaultArgs<ExtArgs>>): Prisma__DestinoRefClient<$Result.GetResult<Prisma.$DestinoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    paquetes<T extends ActividadRef$paquetesArgs<ExtArgs> = {}>(args?: Subset<T, ActividadRef$paquetesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ActividadRef model
+   */
+  interface ActividadRefFieldRefs {
+    readonly id: FieldRef<"ActividadRef", 'Int'>
+    readonly destinoId: FieldRef<"ActividadRef", 'Int'>
+    readonly nombre: FieldRef<"ActividadRef", 'String'>
+    readonly descripcion: FieldRef<"ActividadRef", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ActividadRef findUnique
+   */
+  export type ActividadRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ActividadRef to fetch.
+     */
+    where: ActividadRefWhereUniqueInput
+  }
+
+  /**
+   * ActividadRef findUniqueOrThrow
+   */
+  export type ActividadRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ActividadRef to fetch.
+     */
+    where: ActividadRefWhereUniqueInput
+  }
+
+  /**
+   * ActividadRef findFirst
+   */
+  export type ActividadRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ActividadRef to fetch.
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActividadRefs to fetch.
+     */
+    orderBy?: ActividadRefOrderByWithRelationInput | ActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ActividadRefs.
+     */
+    cursor?: ActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ActividadRefs.
+     */
+    distinct?: ActividadRefScalarFieldEnum | ActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * ActividadRef findFirstOrThrow
+   */
+  export type ActividadRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ActividadRef to fetch.
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActividadRefs to fetch.
+     */
+    orderBy?: ActividadRefOrderByWithRelationInput | ActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ActividadRefs.
+     */
+    cursor?: ActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ActividadRefs.
+     */
+    distinct?: ActividadRefScalarFieldEnum | ActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * ActividadRef findMany
+   */
+  export type ActividadRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ActividadRefs to fetch.
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ActividadRefs to fetch.
+     */
+    orderBy?: ActividadRefOrderByWithRelationInput | ActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ActividadRefs.
+     */
+    cursor?: ActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ActividadRefs.
+     */
+    distinct?: ActividadRefScalarFieldEnum | ActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * ActividadRef create
+   */
+  export type ActividadRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ActividadRef.
+     */
+    data: XOR<ActividadRefCreateInput, ActividadRefUncheckedCreateInput>
+  }
+
+  /**
+   * ActividadRef createMany
+   */
+  export type ActividadRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ActividadRefs.
+     */
+    data: ActividadRefCreateManyInput | ActividadRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ActividadRef createManyAndReturn
+   */
+  export type ActividadRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many ActividadRefs.
+     */
+    data: ActividadRefCreateManyInput | ActividadRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ActividadRef update
+   */
+  export type ActividadRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ActividadRef.
+     */
+    data: XOR<ActividadRefUpdateInput, ActividadRefUncheckedUpdateInput>
+    /**
+     * Choose, which ActividadRef to update.
+     */
+    where: ActividadRefWhereUniqueInput
+  }
+
+  /**
+   * ActividadRef updateMany
+   */
+  export type ActividadRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ActividadRefs.
+     */
+    data: XOR<ActividadRefUpdateManyMutationInput, ActividadRefUncheckedUpdateManyInput>
+    /**
+     * Filter which ActividadRefs to update
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * Limit how many ActividadRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ActividadRef updateManyAndReturn
+   */
+  export type ActividadRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * The data used to update ActividadRefs.
+     */
+    data: XOR<ActividadRefUpdateManyMutationInput, ActividadRefUncheckedUpdateManyInput>
+    /**
+     * Filter which ActividadRefs to update
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * Limit how many ActividadRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ActividadRef upsert
+   */
+  export type ActividadRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ActividadRef to update in case it exists.
+     */
+    where: ActividadRefWhereUniqueInput
+    /**
+     * In case the ActividadRef found by the `where` argument doesn't exist, create a new ActividadRef with this data.
+     */
+    create: XOR<ActividadRefCreateInput, ActividadRefUncheckedCreateInput>
+    /**
+     * In case the ActividadRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ActividadRefUpdateInput, ActividadRefUncheckedUpdateInput>
+  }
+
+  /**
+   * ActividadRef delete
+   */
+  export type ActividadRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter which ActividadRef to delete.
+     */
+    where: ActividadRefWhereUniqueInput
+  }
+
+  /**
+   * ActividadRef deleteMany
+   */
+  export type ActividadRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ActividadRefs to delete
+     */
+    where?: ActividadRefWhereInput
+    /**
+     * Limit how many ActividadRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ActividadRef.paquetes
+   */
+  export type ActividadRef$paquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    where?: PaqueteActividadRefWhereInput
+    orderBy?: PaqueteActividadRefOrderByWithRelationInput | PaqueteActividadRefOrderByWithRelationInput[]
+    cursor?: PaqueteActividadRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaqueteActividadRefScalarFieldEnum | PaqueteActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * ActividadRef without action
+   */
+  export type ActividadRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActividadRef
+     */
+    select?: ActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActividadRef
+     */
+    omit?: ActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActividadRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TrasladoRef
+   */
+
+  export type AggregateTrasladoRef = {
+    _count: TrasladoRefCountAggregateOutputType | null
+    _avg: TrasladoRefAvgAggregateOutputType | null
+    _sum: TrasladoRefSumAggregateOutputType | null
+    _min: TrasladoRefMinAggregateOutputType | null
+    _max: TrasladoRefMaxAggregateOutputType | null
+  }
+
+  export type TrasladoRefAvgAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+  }
+
+  export type TrasladoRefSumAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+  }
+
+  export type TrasladoRefMinAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    tipo: string | null
+  }
+
+  export type TrasladoRefMaxAggregateOutputType = {
+    id: number | null
+    destinoId: number | null
+    tipo: string | null
+  }
+
+  export type TrasladoRefCountAggregateOutputType = {
+    id: number
+    destinoId: number
+    tipo: number
+    _all: number
+  }
+
+
+  export type TrasladoRefAvgAggregateInputType = {
+    id?: true
+    destinoId?: true
+  }
+
+  export type TrasladoRefSumAggregateInputType = {
+    id?: true
+    destinoId?: true
+  }
+
+  export type TrasladoRefMinAggregateInputType = {
+    id?: true
+    destinoId?: true
+    tipo?: true
+  }
+
+  export type TrasladoRefMaxAggregateInputType = {
+    id?: true
+    destinoId?: true
+    tipo?: true
+  }
+
+  export type TrasladoRefCountAggregateInputType = {
+    id?: true
+    destinoId?: true
+    tipo?: true
+    _all?: true
+  }
+
+  export type TrasladoRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrasladoRef to aggregate.
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrasladoRefs to fetch.
+     */
+    orderBy?: TrasladoRefOrderByWithRelationInput | TrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TrasladoRefs
+    **/
+    _count?: true | TrasladoRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TrasladoRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TrasladoRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TrasladoRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TrasladoRefMaxAggregateInputType
+  }
+
+  export type GetTrasladoRefAggregateType<T extends TrasladoRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateTrasladoRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTrasladoRef[P]>
+      : GetScalarType<T[P], AggregateTrasladoRef[P]>
+  }
+
+
+
+
+  export type TrasladoRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrasladoRefWhereInput
+    orderBy?: TrasladoRefOrderByWithAggregationInput | TrasladoRefOrderByWithAggregationInput[]
+    by: TrasladoRefScalarFieldEnum[] | TrasladoRefScalarFieldEnum
+    having?: TrasladoRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TrasladoRefCountAggregateInputType | true
+    _avg?: TrasladoRefAvgAggregateInputType
+    _sum?: TrasladoRefSumAggregateInputType
+    _min?: TrasladoRefMinAggregateInputType
+    _max?: TrasladoRefMaxAggregateInputType
+  }
+
+  export type TrasladoRefGroupByOutputType = {
+    id: number
+    destinoId: number
+    tipo: string
+    _count: TrasladoRefCountAggregateOutputType | null
+    _avg: TrasladoRefAvgAggregateOutputType | null
+    _sum: TrasladoRefSumAggregateOutputType | null
+    _min: TrasladoRefMinAggregateOutputType | null
+    _max: TrasladoRefMaxAggregateOutputType | null
+  }
+
+  type GetTrasladoRefGroupByPayload<T extends TrasladoRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TrasladoRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TrasladoRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TrasladoRefGroupByOutputType[P]>
+            : GetScalarType<T[P], TrasladoRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TrasladoRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    tipo?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+    paquetes?: boolean | TrasladoRef$paquetesArgs<ExtArgs>
+    _count?: boolean | TrasladoRefCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trasladoRef"]>
+
+  export type TrasladoRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    tipo?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trasladoRef"]>
+
+  export type TrasladoRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    destinoId?: boolean
+    tipo?: boolean
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trasladoRef"]>
+
+  export type TrasladoRefSelectScalar = {
+    id?: boolean
+    destinoId?: boolean
+    tipo?: boolean
+  }
+
+  export type TrasladoRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "destinoId" | "tipo", ExtArgs["result"]["trasladoRef"]>
+  export type TrasladoRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+    paquetes?: boolean | TrasladoRef$paquetesArgs<ExtArgs>
+    _count?: boolean | TrasladoRefCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TrasladoRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }
+  export type TrasladoRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
+  }
+
+  export type $TrasladoRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TrasladoRef"
+    objects: {
+      destino: Prisma.$DestinoRefPayload<ExtArgs>
+      paquetes: Prisma.$PaqueteTrasladoRefPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      destinoId: number
+      tipo: string
+    }, ExtArgs["result"]["trasladoRef"]>
+    composites: {}
+  }
+
+  type TrasladoRefGetPayload<S extends boolean | null | undefined | TrasladoRefDefaultArgs> = $Result.GetResult<Prisma.$TrasladoRefPayload, S>
+
+  type TrasladoRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TrasladoRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TrasladoRefCountAggregateInputType | true
+    }
+
+  export interface TrasladoRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TrasladoRef'], meta: { name: 'TrasladoRef' } }
+    /**
+     * Find zero or one TrasladoRef that matches the filter.
+     * @param {TrasladoRefFindUniqueArgs} args - Arguments to find a TrasladoRef
+     * @example
+     * // Get one TrasladoRef
+     * const trasladoRef = await prisma.trasladoRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TrasladoRefFindUniqueArgs>(args: SelectSubset<T, TrasladoRefFindUniqueArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TrasladoRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TrasladoRefFindUniqueOrThrowArgs} args - Arguments to find a TrasladoRef
+     * @example
+     * // Get one TrasladoRef
+     * const trasladoRef = await prisma.trasladoRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TrasladoRefFindUniqueOrThrowArgs>(args: SelectSubset<T, TrasladoRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrasladoRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefFindFirstArgs} args - Arguments to find a TrasladoRef
+     * @example
+     * // Get one TrasladoRef
+     * const trasladoRef = await prisma.trasladoRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TrasladoRefFindFirstArgs>(args?: SelectSubset<T, TrasladoRefFindFirstArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrasladoRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefFindFirstOrThrowArgs} args - Arguments to find a TrasladoRef
+     * @example
+     * // Get one TrasladoRef
+     * const trasladoRef = await prisma.trasladoRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TrasladoRefFindFirstOrThrowArgs>(args?: SelectSubset<T, TrasladoRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TrasladoRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TrasladoRefs
+     * const trasladoRefs = await prisma.trasladoRef.findMany()
+     * 
+     * // Get first 10 TrasladoRefs
+     * const trasladoRefs = await prisma.trasladoRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const trasladoRefWithIdOnly = await prisma.trasladoRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TrasladoRefFindManyArgs>(args?: SelectSubset<T, TrasladoRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TrasladoRef.
+     * @param {TrasladoRefCreateArgs} args - Arguments to create a TrasladoRef.
+     * @example
+     * // Create one TrasladoRef
+     * const TrasladoRef = await prisma.trasladoRef.create({
+     *   data: {
+     *     // ... data to create a TrasladoRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends TrasladoRefCreateArgs>(args: SelectSubset<T, TrasladoRefCreateArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TrasladoRefs.
+     * @param {TrasladoRefCreateManyArgs} args - Arguments to create many TrasladoRefs.
+     * @example
+     * // Create many TrasladoRefs
+     * const trasladoRef = await prisma.trasladoRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TrasladoRefCreateManyArgs>(args?: SelectSubset<T, TrasladoRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TrasladoRefs and returns the data saved in the database.
+     * @param {TrasladoRefCreateManyAndReturnArgs} args - Arguments to create many TrasladoRefs.
+     * @example
+     * // Create many TrasladoRefs
+     * const trasladoRef = await prisma.trasladoRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TrasladoRefs and only return the `id`
+     * const trasladoRefWithIdOnly = await prisma.trasladoRef.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TrasladoRefCreateManyAndReturnArgs>(args?: SelectSubset<T, TrasladoRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TrasladoRef.
+     * @param {TrasladoRefDeleteArgs} args - Arguments to delete one TrasladoRef.
+     * @example
+     * // Delete one TrasladoRef
+     * const TrasladoRef = await prisma.trasladoRef.delete({
+     *   where: {
+     *     // ... filter to delete one TrasladoRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TrasladoRefDeleteArgs>(args: SelectSubset<T, TrasladoRefDeleteArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TrasladoRef.
+     * @param {TrasladoRefUpdateArgs} args - Arguments to update one TrasladoRef.
+     * @example
+     * // Update one TrasladoRef
+     * const trasladoRef = await prisma.trasladoRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TrasladoRefUpdateArgs>(args: SelectSubset<T, TrasladoRefUpdateArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TrasladoRefs.
+     * @param {TrasladoRefDeleteManyArgs} args - Arguments to filter TrasladoRefs to delete.
+     * @example
+     * // Delete a few TrasladoRefs
+     * const { count } = await prisma.trasladoRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TrasladoRefDeleteManyArgs>(args?: SelectSubset<T, TrasladoRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrasladoRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TrasladoRefs
+     * const trasladoRef = await prisma.trasladoRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TrasladoRefUpdateManyArgs>(args: SelectSubset<T, TrasladoRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrasladoRefs and returns the data updated in the database.
+     * @param {TrasladoRefUpdateManyAndReturnArgs} args - Arguments to update many TrasladoRefs.
+     * @example
+     * // Update many TrasladoRefs
+     * const trasladoRef = await prisma.trasladoRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TrasladoRefs and only return the `id`
+     * const trasladoRefWithIdOnly = await prisma.trasladoRef.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TrasladoRefUpdateManyAndReturnArgs>(args: SelectSubset<T, TrasladoRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TrasladoRef.
+     * @param {TrasladoRefUpsertArgs} args - Arguments to update or create a TrasladoRef.
+     * @example
+     * // Update or create a TrasladoRef
+     * const trasladoRef = await prisma.trasladoRef.upsert({
+     *   create: {
+     *     // ... data to create a TrasladoRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TrasladoRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TrasladoRefUpsertArgs>(args: SelectSubset<T, TrasladoRefUpsertArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TrasladoRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefCountArgs} args - Arguments to filter TrasladoRefs to count.
+     * @example
+     * // Count the number of TrasladoRefs
+     * const count = await prisma.trasladoRef.count({
+     *   where: {
+     *     // ... the filter for the TrasladoRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends TrasladoRefCountArgs>(
+      args?: Subset<T, TrasladoRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TrasladoRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TrasladoRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TrasladoRefAggregateArgs>(args: Subset<T, TrasladoRefAggregateArgs>): Prisma.PrismaPromise<GetTrasladoRefAggregateType<T>>
+
+    /**
+     * Group by TrasladoRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrasladoRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TrasladoRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TrasladoRefGroupByArgs['orderBy'] }
+        : { orderBy?: TrasladoRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TrasladoRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTrasladoRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TrasladoRef model
+   */
+  readonly fields: TrasladoRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TrasladoRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TrasladoRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    destino<T extends DestinoRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRefDefaultArgs<ExtArgs>>): Prisma__DestinoRefClient<$Result.GetResult<Prisma.$DestinoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    paquetes<T extends TrasladoRef$paquetesArgs<ExtArgs> = {}>(args?: Subset<T, TrasladoRef$paquetesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TrasladoRef model
+   */
+  interface TrasladoRefFieldRefs {
+    readonly id: FieldRef<"TrasladoRef", 'Int'>
+    readonly destinoId: FieldRef<"TrasladoRef", 'Int'>
+    readonly tipo: FieldRef<"TrasladoRef", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TrasladoRef findUnique
+   */
+  export type TrasladoRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TrasladoRef to fetch.
+     */
+    where: TrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * TrasladoRef findUniqueOrThrow
+   */
+  export type TrasladoRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TrasladoRef to fetch.
+     */
+    where: TrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * TrasladoRef findFirst
+   */
+  export type TrasladoRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TrasladoRef to fetch.
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrasladoRefs to fetch.
+     */
+    orderBy?: TrasladoRefOrderByWithRelationInput | TrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrasladoRefs.
+     */
+    cursor?: TrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrasladoRefs.
+     */
+    distinct?: TrasladoRefScalarFieldEnum | TrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * TrasladoRef findFirstOrThrow
+   */
+  export type TrasladoRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TrasladoRef to fetch.
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrasladoRefs to fetch.
+     */
+    orderBy?: TrasladoRefOrderByWithRelationInput | TrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrasladoRefs.
+     */
+    cursor?: TrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrasladoRefs.
+     */
+    distinct?: TrasladoRefScalarFieldEnum | TrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * TrasladoRef findMany
+   */
+  export type TrasladoRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TrasladoRefs to fetch.
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrasladoRefs to fetch.
+     */
+    orderBy?: TrasladoRefOrderByWithRelationInput | TrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TrasladoRefs.
+     */
+    cursor?: TrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrasladoRefs.
+     */
+    distinct?: TrasladoRefScalarFieldEnum | TrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * TrasladoRef create
+   */
+  export type TrasladoRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TrasladoRef.
+     */
+    data: XOR<TrasladoRefCreateInput, TrasladoRefUncheckedCreateInput>
+  }
+
+  /**
+   * TrasladoRef createMany
+   */
+  export type TrasladoRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TrasladoRefs.
+     */
+    data: TrasladoRefCreateManyInput | TrasladoRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrasladoRef createManyAndReturn
+   */
+  export type TrasladoRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many TrasladoRefs.
+     */
+    data: TrasladoRefCreateManyInput | TrasladoRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrasladoRef update
+   */
+  export type TrasladoRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TrasladoRef.
+     */
+    data: XOR<TrasladoRefUpdateInput, TrasladoRefUncheckedUpdateInput>
+    /**
+     * Choose, which TrasladoRef to update.
+     */
+    where: TrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * TrasladoRef updateMany
+   */
+  export type TrasladoRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TrasladoRefs.
+     */
+    data: XOR<TrasladoRefUpdateManyMutationInput, TrasladoRefUncheckedUpdateManyInput>
+    /**
+     * Filter which TrasladoRefs to update
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * Limit how many TrasladoRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrasladoRef updateManyAndReturn
+   */
+  export type TrasladoRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * The data used to update TrasladoRefs.
+     */
+    data: XOR<TrasladoRefUpdateManyMutationInput, TrasladoRefUncheckedUpdateManyInput>
+    /**
+     * Filter which TrasladoRefs to update
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * Limit how many TrasladoRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrasladoRef upsert
+   */
+  export type TrasladoRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TrasladoRef to update in case it exists.
+     */
+    where: TrasladoRefWhereUniqueInput
+    /**
+     * In case the TrasladoRef found by the `where` argument doesn't exist, create a new TrasladoRef with this data.
+     */
+    create: XOR<TrasladoRefCreateInput, TrasladoRefUncheckedCreateInput>
+    /**
+     * In case the TrasladoRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TrasladoRefUpdateInput, TrasladoRefUncheckedUpdateInput>
+  }
+
+  /**
+   * TrasladoRef delete
+   */
+  export type TrasladoRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter which TrasladoRef to delete.
+     */
+    where: TrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * TrasladoRef deleteMany
+   */
+  export type TrasladoRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrasladoRefs to delete
+     */
+    where?: TrasladoRefWhereInput
+    /**
+     * Limit how many TrasladoRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrasladoRef.paquetes
+   */
+  export type TrasladoRef$paquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    where?: PaqueteTrasladoRefWhereInput
+    orderBy?: PaqueteTrasladoRefOrderByWithRelationInput | PaqueteTrasladoRefOrderByWithRelationInput[]
+    cursor?: PaqueteTrasladoRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaqueteTrasladoRefScalarFieldEnum | PaqueteTrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * TrasladoRef without action
+   */
+  export type TrasladoRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrasladoRef
+     */
+    select?: TrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrasladoRef
+     */
+    omit?: TrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrasladoRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaqueteActividadRef
+   */
+
+  export type AggregatePaqueteActividadRef = {
+    _count: PaqueteActividadRefCountAggregateOutputType | null
+    _avg: PaqueteActividadRefAvgAggregateOutputType | null
+    _sum: PaqueteActividadRefSumAggregateOutputType | null
+    _min: PaqueteActividadRefMinAggregateOutputType | null
+    _max: PaqueteActividadRefMaxAggregateOutputType | null
+  }
+
+  export type PaqueteActividadRefAvgAggregateOutputType = {
+    paqueteId: number | null
+    actividadId: number | null
+  }
+
+  export type PaqueteActividadRefSumAggregateOutputType = {
+    paqueteId: number | null
+    actividadId: number | null
+  }
+
+  export type PaqueteActividadRefMinAggregateOutputType = {
+    paqueteId: number | null
+    actividadId: number | null
+  }
+
+  export type PaqueteActividadRefMaxAggregateOutputType = {
+    paqueteId: number | null
+    actividadId: number | null
+  }
+
+  export type PaqueteActividadRefCountAggregateOutputType = {
+    paqueteId: number
+    actividadId: number
+    _all: number
+  }
+
+
+  export type PaqueteActividadRefAvgAggregateInputType = {
+    paqueteId?: true
+    actividadId?: true
+  }
+
+  export type PaqueteActividadRefSumAggregateInputType = {
+    paqueteId?: true
+    actividadId?: true
+  }
+
+  export type PaqueteActividadRefMinAggregateInputType = {
+    paqueteId?: true
+    actividadId?: true
+  }
+
+  export type PaqueteActividadRefMaxAggregateInputType = {
+    paqueteId?: true
+    actividadId?: true
+  }
+
+  export type PaqueteActividadRefCountAggregateInputType = {
+    paqueteId?: true
+    actividadId?: true
+    _all?: true
+  }
+
+  export type PaqueteActividadRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaqueteActividadRef to aggregate.
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteActividadRefs to fetch.
+     */
+    orderBy?: PaqueteActividadRefOrderByWithRelationInput | PaqueteActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaqueteActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaqueteActividadRefs
+    **/
+    _count?: true | PaqueteActividadRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaqueteActividadRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaqueteActividadRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaqueteActividadRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaqueteActividadRefMaxAggregateInputType
+  }
+
+  export type GetPaqueteActividadRefAggregateType<T extends PaqueteActividadRefAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaqueteActividadRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaqueteActividadRef[P]>
+      : GetScalarType<T[P], AggregatePaqueteActividadRef[P]>
+  }
+
+
+
+
+  export type PaqueteActividadRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteActividadRefWhereInput
+    orderBy?: PaqueteActividadRefOrderByWithAggregationInput | PaqueteActividadRefOrderByWithAggregationInput[]
+    by: PaqueteActividadRefScalarFieldEnum[] | PaqueteActividadRefScalarFieldEnum
+    having?: PaqueteActividadRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaqueteActividadRefCountAggregateInputType | true
+    _avg?: PaqueteActividadRefAvgAggregateInputType
+    _sum?: PaqueteActividadRefSumAggregateInputType
+    _min?: PaqueteActividadRefMinAggregateInputType
+    _max?: PaqueteActividadRefMaxAggregateInputType
+  }
+
+  export type PaqueteActividadRefGroupByOutputType = {
+    paqueteId: number
+    actividadId: number
+    _count: PaqueteActividadRefCountAggregateOutputType | null
+    _avg: PaqueteActividadRefAvgAggregateOutputType | null
+    _sum: PaqueteActividadRefSumAggregateOutputType | null
+    _min: PaqueteActividadRefMinAggregateOutputType | null
+    _max: PaqueteActividadRefMaxAggregateOutputType | null
+  }
+
+  type GetPaqueteActividadRefGroupByPayload<T extends PaqueteActividadRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaqueteActividadRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaqueteActividadRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaqueteActividadRefGroupByOutputType[P]>
+            : GetScalarType<T[P], PaqueteActividadRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaqueteActividadRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    actividadId?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    actividad?: boolean | ActividadRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteActividadRef"]>
+
+  export type PaqueteActividadRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    actividadId?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    actividad?: boolean | ActividadRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteActividadRef"]>
+
+  export type PaqueteActividadRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    actividadId?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    actividad?: boolean | ActividadRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteActividadRef"]>
+
+  export type PaqueteActividadRefSelectScalar = {
+    paqueteId?: boolean
+    actividadId?: boolean
+  }
+
+  export type PaqueteActividadRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"paqueteId" | "actividadId", ExtArgs["result"]["paqueteActividadRef"]>
+  export type PaqueteActividadRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    actividad?: boolean | ActividadRefDefaultArgs<ExtArgs>
+  }
+  export type PaqueteActividadRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    actividad?: boolean | ActividadRefDefaultArgs<ExtArgs>
+  }
+  export type PaqueteActividadRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    actividad?: boolean | ActividadRefDefaultArgs<ExtArgs>
+  }
+
+  export type $PaqueteActividadRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaqueteActividadRef"
+    objects: {
+      paquete: Prisma.$PaqueteRefPayload<ExtArgs>
+      actividad: Prisma.$ActividadRefPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      paqueteId: number
+      actividadId: number
+    }, ExtArgs["result"]["paqueteActividadRef"]>
+    composites: {}
+  }
+
+  type PaqueteActividadRefGetPayload<S extends boolean | null | undefined | PaqueteActividadRefDefaultArgs> = $Result.GetResult<Prisma.$PaqueteActividadRefPayload, S>
+
+  type PaqueteActividadRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaqueteActividadRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaqueteActividadRefCountAggregateInputType | true
+    }
+
+  export interface PaqueteActividadRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaqueteActividadRef'], meta: { name: 'PaqueteActividadRef' } }
+    /**
+     * Find zero or one PaqueteActividadRef that matches the filter.
+     * @param {PaqueteActividadRefFindUniqueArgs} args - Arguments to find a PaqueteActividadRef
+     * @example
+     * // Get one PaqueteActividadRef
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaqueteActividadRefFindUniqueArgs>(args: SelectSubset<T, PaqueteActividadRefFindUniqueArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaqueteActividadRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaqueteActividadRefFindUniqueOrThrowArgs} args - Arguments to find a PaqueteActividadRef
+     * @example
+     * // Get one PaqueteActividadRef
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaqueteActividadRefFindUniqueOrThrowArgs>(args: SelectSubset<T, PaqueteActividadRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaqueteActividadRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefFindFirstArgs} args - Arguments to find a PaqueteActividadRef
+     * @example
+     * // Get one PaqueteActividadRef
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaqueteActividadRefFindFirstArgs>(args?: SelectSubset<T, PaqueteActividadRefFindFirstArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaqueteActividadRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefFindFirstOrThrowArgs} args - Arguments to find a PaqueteActividadRef
+     * @example
+     * // Get one PaqueteActividadRef
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaqueteActividadRefFindFirstOrThrowArgs>(args?: SelectSubset<T, PaqueteActividadRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaqueteActividadRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaqueteActividadRefs
+     * const paqueteActividadRefs = await prisma.paqueteActividadRef.findMany()
+     * 
+     * // Get first 10 PaqueteActividadRefs
+     * const paqueteActividadRefs = await prisma.paqueteActividadRef.findMany({ take: 10 })
+     * 
+     * // Only select the `paqueteId`
+     * const paqueteActividadRefWithPaqueteIdOnly = await prisma.paqueteActividadRef.findMany({ select: { paqueteId: true } })
+     * 
+     */
+    findMany<T extends PaqueteActividadRefFindManyArgs>(args?: SelectSubset<T, PaqueteActividadRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaqueteActividadRef.
+     * @param {PaqueteActividadRefCreateArgs} args - Arguments to create a PaqueteActividadRef.
+     * @example
+     * // Create one PaqueteActividadRef
+     * const PaqueteActividadRef = await prisma.paqueteActividadRef.create({
+     *   data: {
+     *     // ... data to create a PaqueteActividadRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaqueteActividadRefCreateArgs>(args: SelectSubset<T, PaqueteActividadRefCreateArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaqueteActividadRefs.
+     * @param {PaqueteActividadRefCreateManyArgs} args - Arguments to create many PaqueteActividadRefs.
+     * @example
+     * // Create many PaqueteActividadRefs
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaqueteActividadRefCreateManyArgs>(args?: SelectSubset<T, PaqueteActividadRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaqueteActividadRefs and returns the data saved in the database.
+     * @param {PaqueteActividadRefCreateManyAndReturnArgs} args - Arguments to create many PaqueteActividadRefs.
+     * @example
+     * // Create many PaqueteActividadRefs
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaqueteActividadRefs and only return the `paqueteId`
+     * const paqueteActividadRefWithPaqueteIdOnly = await prisma.paqueteActividadRef.createManyAndReturn({
+     *   select: { paqueteId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaqueteActividadRefCreateManyAndReturnArgs>(args?: SelectSubset<T, PaqueteActividadRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaqueteActividadRef.
+     * @param {PaqueteActividadRefDeleteArgs} args - Arguments to delete one PaqueteActividadRef.
+     * @example
+     * // Delete one PaqueteActividadRef
+     * const PaqueteActividadRef = await prisma.paqueteActividadRef.delete({
+     *   where: {
+     *     // ... filter to delete one PaqueteActividadRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaqueteActividadRefDeleteArgs>(args: SelectSubset<T, PaqueteActividadRefDeleteArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaqueteActividadRef.
+     * @param {PaqueteActividadRefUpdateArgs} args - Arguments to update one PaqueteActividadRef.
+     * @example
+     * // Update one PaqueteActividadRef
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaqueteActividadRefUpdateArgs>(args: SelectSubset<T, PaqueteActividadRefUpdateArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaqueteActividadRefs.
+     * @param {PaqueteActividadRefDeleteManyArgs} args - Arguments to filter PaqueteActividadRefs to delete.
+     * @example
+     * // Delete a few PaqueteActividadRefs
+     * const { count } = await prisma.paqueteActividadRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaqueteActividadRefDeleteManyArgs>(args?: SelectSubset<T, PaqueteActividadRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaqueteActividadRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaqueteActividadRefs
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaqueteActividadRefUpdateManyArgs>(args: SelectSubset<T, PaqueteActividadRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaqueteActividadRefs and returns the data updated in the database.
+     * @param {PaqueteActividadRefUpdateManyAndReturnArgs} args - Arguments to update many PaqueteActividadRefs.
+     * @example
+     * // Update many PaqueteActividadRefs
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaqueteActividadRefs and only return the `paqueteId`
+     * const paqueteActividadRefWithPaqueteIdOnly = await prisma.paqueteActividadRef.updateManyAndReturn({
+     *   select: { paqueteId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaqueteActividadRefUpdateManyAndReturnArgs>(args: SelectSubset<T, PaqueteActividadRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaqueteActividadRef.
+     * @param {PaqueteActividadRefUpsertArgs} args - Arguments to update or create a PaqueteActividadRef.
+     * @example
+     * // Update or create a PaqueteActividadRef
+     * const paqueteActividadRef = await prisma.paqueteActividadRef.upsert({
+     *   create: {
+     *     // ... data to create a PaqueteActividadRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaqueteActividadRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaqueteActividadRefUpsertArgs>(args: SelectSubset<T, PaqueteActividadRefUpsertArgs<ExtArgs>>): Prisma__PaqueteActividadRefClient<$Result.GetResult<Prisma.$PaqueteActividadRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaqueteActividadRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefCountArgs} args - Arguments to filter PaqueteActividadRefs to count.
+     * @example
+     * // Count the number of PaqueteActividadRefs
+     * const count = await prisma.paqueteActividadRef.count({
+     *   where: {
+     *     // ... the filter for the PaqueteActividadRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaqueteActividadRefCountArgs>(
+      args?: Subset<T, PaqueteActividadRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaqueteActividadRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaqueteActividadRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaqueteActividadRefAggregateArgs>(args: Subset<T, PaqueteActividadRefAggregateArgs>): Prisma.PrismaPromise<GetPaqueteActividadRefAggregateType<T>>
+
+    /**
+     * Group by PaqueteActividadRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteActividadRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaqueteActividadRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaqueteActividadRefGroupByArgs['orderBy'] }
+        : { orderBy?: PaqueteActividadRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaqueteActividadRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaqueteActividadRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaqueteActividadRef model
+   */
+  readonly fields: PaqueteActividadRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaqueteActividadRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaqueteActividadRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    paquete<T extends PaqueteRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRefDefaultArgs<ExtArgs>>): Prisma__PaqueteRefClient<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    actividad<T extends ActividadRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ActividadRefDefaultArgs<ExtArgs>>): Prisma__ActividadRefClient<$Result.GetResult<Prisma.$ActividadRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaqueteActividadRef model
+   */
+  interface PaqueteActividadRefFieldRefs {
+    readonly paqueteId: FieldRef<"PaqueteActividadRef", 'Int'>
+    readonly actividadId: FieldRef<"PaqueteActividadRef", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaqueteActividadRef findUnique
+   */
+  export type PaqueteActividadRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteActividadRef to fetch.
+     */
+    where: PaqueteActividadRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteActividadRef findUniqueOrThrow
+   */
+  export type PaqueteActividadRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteActividadRef to fetch.
+     */
+    where: PaqueteActividadRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteActividadRef findFirst
+   */
+  export type PaqueteActividadRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteActividadRef to fetch.
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteActividadRefs to fetch.
+     */
+    orderBy?: PaqueteActividadRefOrderByWithRelationInput | PaqueteActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaqueteActividadRefs.
+     */
+    cursor?: PaqueteActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteActividadRefs.
+     */
+    distinct?: PaqueteActividadRefScalarFieldEnum | PaqueteActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteActividadRef findFirstOrThrow
+   */
+  export type PaqueteActividadRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteActividadRef to fetch.
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteActividadRefs to fetch.
+     */
+    orderBy?: PaqueteActividadRefOrderByWithRelationInput | PaqueteActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaqueteActividadRefs.
+     */
+    cursor?: PaqueteActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteActividadRefs.
+     */
+    distinct?: PaqueteActividadRefScalarFieldEnum | PaqueteActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteActividadRef findMany
+   */
+  export type PaqueteActividadRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteActividadRefs to fetch.
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteActividadRefs to fetch.
+     */
+    orderBy?: PaqueteActividadRefOrderByWithRelationInput | PaqueteActividadRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaqueteActividadRefs.
+     */
+    cursor?: PaqueteActividadRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteActividadRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteActividadRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteActividadRefs.
+     */
+    distinct?: PaqueteActividadRefScalarFieldEnum | PaqueteActividadRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteActividadRef create
+   */
+  export type PaqueteActividadRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaqueteActividadRef.
+     */
+    data: XOR<PaqueteActividadRefCreateInput, PaqueteActividadRefUncheckedCreateInput>
+  }
+
+  /**
+   * PaqueteActividadRef createMany
+   */
+  export type PaqueteActividadRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaqueteActividadRefs.
+     */
+    data: PaqueteActividadRefCreateManyInput | PaqueteActividadRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaqueteActividadRef createManyAndReturn
+   */
+  export type PaqueteActividadRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaqueteActividadRefs.
+     */
+    data: PaqueteActividadRefCreateManyInput | PaqueteActividadRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaqueteActividadRef update
+   */
+  export type PaqueteActividadRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaqueteActividadRef.
+     */
+    data: XOR<PaqueteActividadRefUpdateInput, PaqueteActividadRefUncheckedUpdateInput>
+    /**
+     * Choose, which PaqueteActividadRef to update.
+     */
+    where: PaqueteActividadRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteActividadRef updateMany
+   */
+  export type PaqueteActividadRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaqueteActividadRefs.
+     */
+    data: XOR<PaqueteActividadRefUpdateManyMutationInput, PaqueteActividadRefUncheckedUpdateManyInput>
+    /**
+     * Filter which PaqueteActividadRefs to update
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * Limit how many PaqueteActividadRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaqueteActividadRef updateManyAndReturn
+   */
+  export type PaqueteActividadRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * The data used to update PaqueteActividadRefs.
+     */
+    data: XOR<PaqueteActividadRefUpdateManyMutationInput, PaqueteActividadRefUncheckedUpdateManyInput>
+    /**
+     * Filter which PaqueteActividadRefs to update
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * Limit how many PaqueteActividadRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaqueteActividadRef upsert
+   */
+  export type PaqueteActividadRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaqueteActividadRef to update in case it exists.
+     */
+    where: PaqueteActividadRefWhereUniqueInput
+    /**
+     * In case the PaqueteActividadRef found by the `where` argument doesn't exist, create a new PaqueteActividadRef with this data.
+     */
+    create: XOR<PaqueteActividadRefCreateInput, PaqueteActividadRefUncheckedCreateInput>
+    /**
+     * In case the PaqueteActividadRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaqueteActividadRefUpdateInput, PaqueteActividadRefUncheckedUpdateInput>
+  }
+
+  /**
+   * PaqueteActividadRef delete
+   */
+  export type PaqueteActividadRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+    /**
+     * Filter which PaqueteActividadRef to delete.
+     */
+    where: PaqueteActividadRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteActividadRef deleteMany
+   */
+  export type PaqueteActividadRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaqueteActividadRefs to delete
+     */
+    where?: PaqueteActividadRefWhereInput
+    /**
+     * Limit how many PaqueteActividadRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaqueteActividadRef without action
+   */
+  export type PaqueteActividadRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteActividadRef
+     */
+    select?: PaqueteActividadRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteActividadRef
+     */
+    omit?: PaqueteActividadRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteActividadRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaqueteTrasladoRef
+   */
+
+  export type AggregatePaqueteTrasladoRef = {
+    _count: PaqueteTrasladoRefCountAggregateOutputType | null
+    _avg: PaqueteTrasladoRefAvgAggregateOutputType | null
+    _sum: PaqueteTrasladoRefSumAggregateOutputType | null
+    _min: PaqueteTrasladoRefMinAggregateOutputType | null
+    _max: PaqueteTrasladoRefMaxAggregateOutputType | null
+  }
+
+  export type PaqueteTrasladoRefAvgAggregateOutputType = {
+    paqueteId: number | null
+    trasladoId: number | null
+  }
+
+  export type PaqueteTrasladoRefSumAggregateOutputType = {
+    paqueteId: number | null
+    trasladoId: number | null
+  }
+
+  export type PaqueteTrasladoRefMinAggregateOutputType = {
+    paqueteId: number | null
+    trasladoId: number | null
+  }
+
+  export type PaqueteTrasladoRefMaxAggregateOutputType = {
+    paqueteId: number | null
+    trasladoId: number | null
+  }
+
+  export type PaqueteTrasladoRefCountAggregateOutputType = {
+    paqueteId: number
+    trasladoId: number
+    _all: number
+  }
+
+
+  export type PaqueteTrasladoRefAvgAggregateInputType = {
+    paqueteId?: true
+    trasladoId?: true
+  }
+
+  export type PaqueteTrasladoRefSumAggregateInputType = {
+    paqueteId?: true
+    trasladoId?: true
+  }
+
+  export type PaqueteTrasladoRefMinAggregateInputType = {
+    paqueteId?: true
+    trasladoId?: true
+  }
+
+  export type PaqueteTrasladoRefMaxAggregateInputType = {
+    paqueteId?: true
+    trasladoId?: true
+  }
+
+  export type PaqueteTrasladoRefCountAggregateInputType = {
+    paqueteId?: true
+    trasladoId?: true
+    _all?: true
+  }
+
+  export type PaqueteTrasladoRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaqueteTrasladoRef to aggregate.
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteTrasladoRefs to fetch.
+     */
+    orderBy?: PaqueteTrasladoRefOrderByWithRelationInput | PaqueteTrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaqueteTrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteTrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteTrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaqueteTrasladoRefs
+    **/
+    _count?: true | PaqueteTrasladoRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaqueteTrasladoRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaqueteTrasladoRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaqueteTrasladoRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaqueteTrasladoRefMaxAggregateInputType
+  }
+
+  export type GetPaqueteTrasladoRefAggregateType<T extends PaqueteTrasladoRefAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaqueteTrasladoRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaqueteTrasladoRef[P]>
+      : GetScalarType<T[P], AggregatePaqueteTrasladoRef[P]>
+  }
+
+
+
+
+  export type PaqueteTrasladoRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaqueteTrasladoRefWhereInput
+    orderBy?: PaqueteTrasladoRefOrderByWithAggregationInput | PaqueteTrasladoRefOrderByWithAggregationInput[]
+    by: PaqueteTrasladoRefScalarFieldEnum[] | PaqueteTrasladoRefScalarFieldEnum
+    having?: PaqueteTrasladoRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaqueteTrasladoRefCountAggregateInputType | true
+    _avg?: PaqueteTrasladoRefAvgAggregateInputType
+    _sum?: PaqueteTrasladoRefSumAggregateInputType
+    _min?: PaqueteTrasladoRefMinAggregateInputType
+    _max?: PaqueteTrasladoRefMaxAggregateInputType
+  }
+
+  export type PaqueteTrasladoRefGroupByOutputType = {
+    paqueteId: number
+    trasladoId: number
+    _count: PaqueteTrasladoRefCountAggregateOutputType | null
+    _avg: PaqueteTrasladoRefAvgAggregateOutputType | null
+    _sum: PaqueteTrasladoRefSumAggregateOutputType | null
+    _min: PaqueteTrasladoRefMinAggregateOutputType | null
+    _max: PaqueteTrasladoRefMaxAggregateOutputType | null
+  }
+
+  type GetPaqueteTrasladoRefGroupByPayload<T extends PaqueteTrasladoRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaqueteTrasladoRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaqueteTrasladoRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaqueteTrasladoRefGroupByOutputType[P]>
+            : GetScalarType<T[P], PaqueteTrasladoRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaqueteTrasladoRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    trasladoId?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    traslado?: boolean | TrasladoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteTrasladoRef"]>
+
+  export type PaqueteTrasladoRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    trasladoId?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    traslado?: boolean | TrasladoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteTrasladoRef"]>
+
+  export type PaqueteTrasladoRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    paqueteId?: boolean
+    trasladoId?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    traslado?: boolean | TrasladoRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paqueteTrasladoRef"]>
+
+  export type PaqueteTrasladoRefSelectScalar = {
+    paqueteId?: boolean
+    trasladoId?: boolean
+  }
+
+  export type PaqueteTrasladoRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"paqueteId" | "trasladoId", ExtArgs["result"]["paqueteTrasladoRef"]>
+  export type PaqueteTrasladoRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    traslado?: boolean | TrasladoRefDefaultArgs<ExtArgs>
+  }
+  export type PaqueteTrasladoRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    traslado?: boolean | TrasladoRefDefaultArgs<ExtArgs>
+  }
+  export type PaqueteTrasladoRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+    traslado?: boolean | TrasladoRefDefaultArgs<ExtArgs>
+  }
+
+  export type $PaqueteTrasladoRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaqueteTrasladoRef"
+    objects: {
+      paquete: Prisma.$PaqueteRefPayload<ExtArgs>
+      traslado: Prisma.$TrasladoRefPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      paqueteId: number
+      trasladoId: number
+    }, ExtArgs["result"]["paqueteTrasladoRef"]>
+    composites: {}
+  }
+
+  type PaqueteTrasladoRefGetPayload<S extends boolean | null | undefined | PaqueteTrasladoRefDefaultArgs> = $Result.GetResult<Prisma.$PaqueteTrasladoRefPayload, S>
+
+  type PaqueteTrasladoRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaqueteTrasladoRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaqueteTrasladoRefCountAggregateInputType | true
+    }
+
+  export interface PaqueteTrasladoRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaqueteTrasladoRef'], meta: { name: 'PaqueteTrasladoRef' } }
+    /**
+     * Find zero or one PaqueteTrasladoRef that matches the filter.
+     * @param {PaqueteTrasladoRefFindUniqueArgs} args - Arguments to find a PaqueteTrasladoRef
+     * @example
+     * // Get one PaqueteTrasladoRef
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaqueteTrasladoRefFindUniqueArgs>(args: SelectSubset<T, PaqueteTrasladoRefFindUniqueArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaqueteTrasladoRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaqueteTrasladoRefFindUniqueOrThrowArgs} args - Arguments to find a PaqueteTrasladoRef
+     * @example
+     * // Get one PaqueteTrasladoRef
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaqueteTrasladoRefFindUniqueOrThrowArgs>(args: SelectSubset<T, PaqueteTrasladoRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaqueteTrasladoRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefFindFirstArgs} args - Arguments to find a PaqueteTrasladoRef
+     * @example
+     * // Get one PaqueteTrasladoRef
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaqueteTrasladoRefFindFirstArgs>(args?: SelectSubset<T, PaqueteTrasladoRefFindFirstArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaqueteTrasladoRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefFindFirstOrThrowArgs} args - Arguments to find a PaqueteTrasladoRef
+     * @example
+     * // Get one PaqueteTrasladoRef
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaqueteTrasladoRefFindFirstOrThrowArgs>(args?: SelectSubset<T, PaqueteTrasladoRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaqueteTrasladoRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaqueteTrasladoRefs
+     * const paqueteTrasladoRefs = await prisma.paqueteTrasladoRef.findMany()
+     * 
+     * // Get first 10 PaqueteTrasladoRefs
+     * const paqueteTrasladoRefs = await prisma.paqueteTrasladoRef.findMany({ take: 10 })
+     * 
+     * // Only select the `paqueteId`
+     * const paqueteTrasladoRefWithPaqueteIdOnly = await prisma.paqueteTrasladoRef.findMany({ select: { paqueteId: true } })
+     * 
+     */
+    findMany<T extends PaqueteTrasladoRefFindManyArgs>(args?: SelectSubset<T, PaqueteTrasladoRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaqueteTrasladoRef.
+     * @param {PaqueteTrasladoRefCreateArgs} args - Arguments to create a PaqueteTrasladoRef.
+     * @example
+     * // Create one PaqueteTrasladoRef
+     * const PaqueteTrasladoRef = await prisma.paqueteTrasladoRef.create({
+     *   data: {
+     *     // ... data to create a PaqueteTrasladoRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaqueteTrasladoRefCreateArgs>(args: SelectSubset<T, PaqueteTrasladoRefCreateArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaqueteTrasladoRefs.
+     * @param {PaqueteTrasladoRefCreateManyArgs} args - Arguments to create many PaqueteTrasladoRefs.
+     * @example
+     * // Create many PaqueteTrasladoRefs
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaqueteTrasladoRefCreateManyArgs>(args?: SelectSubset<T, PaqueteTrasladoRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaqueteTrasladoRefs and returns the data saved in the database.
+     * @param {PaqueteTrasladoRefCreateManyAndReturnArgs} args - Arguments to create many PaqueteTrasladoRefs.
+     * @example
+     * // Create many PaqueteTrasladoRefs
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaqueteTrasladoRefs and only return the `paqueteId`
+     * const paqueteTrasladoRefWithPaqueteIdOnly = await prisma.paqueteTrasladoRef.createManyAndReturn({
+     *   select: { paqueteId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaqueteTrasladoRefCreateManyAndReturnArgs>(args?: SelectSubset<T, PaqueteTrasladoRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaqueteTrasladoRef.
+     * @param {PaqueteTrasladoRefDeleteArgs} args - Arguments to delete one PaqueteTrasladoRef.
+     * @example
+     * // Delete one PaqueteTrasladoRef
+     * const PaqueteTrasladoRef = await prisma.paqueteTrasladoRef.delete({
+     *   where: {
+     *     // ... filter to delete one PaqueteTrasladoRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaqueteTrasladoRefDeleteArgs>(args: SelectSubset<T, PaqueteTrasladoRefDeleteArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaqueteTrasladoRef.
+     * @param {PaqueteTrasladoRefUpdateArgs} args - Arguments to update one PaqueteTrasladoRef.
+     * @example
+     * // Update one PaqueteTrasladoRef
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaqueteTrasladoRefUpdateArgs>(args: SelectSubset<T, PaqueteTrasladoRefUpdateArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaqueteTrasladoRefs.
+     * @param {PaqueteTrasladoRefDeleteManyArgs} args - Arguments to filter PaqueteTrasladoRefs to delete.
+     * @example
+     * // Delete a few PaqueteTrasladoRefs
+     * const { count } = await prisma.paqueteTrasladoRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaqueteTrasladoRefDeleteManyArgs>(args?: SelectSubset<T, PaqueteTrasladoRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaqueteTrasladoRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaqueteTrasladoRefs
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaqueteTrasladoRefUpdateManyArgs>(args: SelectSubset<T, PaqueteTrasladoRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaqueteTrasladoRefs and returns the data updated in the database.
+     * @param {PaqueteTrasladoRefUpdateManyAndReturnArgs} args - Arguments to update many PaqueteTrasladoRefs.
+     * @example
+     * // Update many PaqueteTrasladoRefs
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaqueteTrasladoRefs and only return the `paqueteId`
+     * const paqueteTrasladoRefWithPaqueteIdOnly = await prisma.paqueteTrasladoRef.updateManyAndReturn({
+     *   select: { paqueteId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaqueteTrasladoRefUpdateManyAndReturnArgs>(args: SelectSubset<T, PaqueteTrasladoRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaqueteTrasladoRef.
+     * @param {PaqueteTrasladoRefUpsertArgs} args - Arguments to update or create a PaqueteTrasladoRef.
+     * @example
+     * // Update or create a PaqueteTrasladoRef
+     * const paqueteTrasladoRef = await prisma.paqueteTrasladoRef.upsert({
+     *   create: {
+     *     // ... data to create a PaqueteTrasladoRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaqueteTrasladoRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaqueteTrasladoRefUpsertArgs>(args: SelectSubset<T, PaqueteTrasladoRefUpsertArgs<ExtArgs>>): Prisma__PaqueteTrasladoRefClient<$Result.GetResult<Prisma.$PaqueteTrasladoRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaqueteTrasladoRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefCountArgs} args - Arguments to filter PaqueteTrasladoRefs to count.
+     * @example
+     * // Count the number of PaqueteTrasladoRefs
+     * const count = await prisma.paqueteTrasladoRef.count({
+     *   where: {
+     *     // ... the filter for the PaqueteTrasladoRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaqueteTrasladoRefCountArgs>(
+      args?: Subset<T, PaqueteTrasladoRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaqueteTrasladoRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaqueteTrasladoRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaqueteTrasladoRefAggregateArgs>(args: Subset<T, PaqueteTrasladoRefAggregateArgs>): Prisma.PrismaPromise<GetPaqueteTrasladoRefAggregateType<T>>
+
+    /**
+     * Group by PaqueteTrasladoRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaqueteTrasladoRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaqueteTrasladoRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaqueteTrasladoRefGroupByArgs['orderBy'] }
+        : { orderBy?: PaqueteTrasladoRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaqueteTrasladoRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaqueteTrasladoRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaqueteTrasladoRef model
+   */
+  readonly fields: PaqueteTrasladoRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaqueteTrasladoRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaqueteTrasladoRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    paquete<T extends PaqueteRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRefDefaultArgs<ExtArgs>>): Prisma__PaqueteRefClient<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    traslado<T extends TrasladoRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrasladoRefDefaultArgs<ExtArgs>>): Prisma__TrasladoRefClient<$Result.GetResult<Prisma.$TrasladoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaqueteTrasladoRef model
+   */
+  interface PaqueteTrasladoRefFieldRefs {
+    readonly paqueteId: FieldRef<"PaqueteTrasladoRef", 'Int'>
+    readonly trasladoId: FieldRef<"PaqueteTrasladoRef", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaqueteTrasladoRef findUnique
+   */
+  export type PaqueteTrasladoRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteTrasladoRef to fetch.
+     */
+    where: PaqueteTrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteTrasladoRef findUniqueOrThrow
+   */
+  export type PaqueteTrasladoRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteTrasladoRef to fetch.
+     */
+    where: PaqueteTrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteTrasladoRef findFirst
+   */
+  export type PaqueteTrasladoRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteTrasladoRef to fetch.
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteTrasladoRefs to fetch.
+     */
+    orderBy?: PaqueteTrasladoRefOrderByWithRelationInput | PaqueteTrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaqueteTrasladoRefs.
+     */
+    cursor?: PaqueteTrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteTrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteTrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteTrasladoRefs.
+     */
+    distinct?: PaqueteTrasladoRefScalarFieldEnum | PaqueteTrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteTrasladoRef findFirstOrThrow
+   */
+  export type PaqueteTrasladoRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteTrasladoRef to fetch.
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteTrasladoRefs to fetch.
+     */
+    orderBy?: PaqueteTrasladoRefOrderByWithRelationInput | PaqueteTrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaqueteTrasladoRefs.
+     */
+    cursor?: PaqueteTrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteTrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteTrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteTrasladoRefs.
+     */
+    distinct?: PaqueteTrasladoRefScalarFieldEnum | PaqueteTrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteTrasladoRef findMany
+   */
+  export type PaqueteTrasladoRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter, which PaqueteTrasladoRefs to fetch.
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaqueteTrasladoRefs to fetch.
+     */
+    orderBy?: PaqueteTrasladoRefOrderByWithRelationInput | PaqueteTrasladoRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaqueteTrasladoRefs.
+     */
+    cursor?: PaqueteTrasladoRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaqueteTrasladoRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaqueteTrasladoRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaqueteTrasladoRefs.
+     */
+    distinct?: PaqueteTrasladoRefScalarFieldEnum | PaqueteTrasladoRefScalarFieldEnum[]
+  }
+
+  /**
+   * PaqueteTrasladoRef create
+   */
+  export type PaqueteTrasladoRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaqueteTrasladoRef.
+     */
+    data: XOR<PaqueteTrasladoRefCreateInput, PaqueteTrasladoRefUncheckedCreateInput>
+  }
+
+  /**
+   * PaqueteTrasladoRef createMany
+   */
+  export type PaqueteTrasladoRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaqueteTrasladoRefs.
+     */
+    data: PaqueteTrasladoRefCreateManyInput | PaqueteTrasladoRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaqueteTrasladoRef createManyAndReturn
+   */
+  export type PaqueteTrasladoRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaqueteTrasladoRefs.
+     */
+    data: PaqueteTrasladoRefCreateManyInput | PaqueteTrasladoRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaqueteTrasladoRef update
+   */
+  export type PaqueteTrasladoRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaqueteTrasladoRef.
+     */
+    data: XOR<PaqueteTrasladoRefUpdateInput, PaqueteTrasladoRefUncheckedUpdateInput>
+    /**
+     * Choose, which PaqueteTrasladoRef to update.
+     */
+    where: PaqueteTrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteTrasladoRef updateMany
+   */
+  export type PaqueteTrasladoRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaqueteTrasladoRefs.
+     */
+    data: XOR<PaqueteTrasladoRefUpdateManyMutationInput, PaqueteTrasladoRefUncheckedUpdateManyInput>
+    /**
+     * Filter which PaqueteTrasladoRefs to update
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * Limit how many PaqueteTrasladoRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaqueteTrasladoRef updateManyAndReturn
+   */
+  export type PaqueteTrasladoRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * The data used to update PaqueteTrasladoRefs.
+     */
+    data: XOR<PaqueteTrasladoRefUpdateManyMutationInput, PaqueteTrasladoRefUncheckedUpdateManyInput>
+    /**
+     * Filter which PaqueteTrasladoRefs to update
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * Limit how many PaqueteTrasladoRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaqueteTrasladoRef upsert
+   */
+  export type PaqueteTrasladoRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaqueteTrasladoRef to update in case it exists.
+     */
+    where: PaqueteTrasladoRefWhereUniqueInput
+    /**
+     * In case the PaqueteTrasladoRef found by the `where` argument doesn't exist, create a new PaqueteTrasladoRef with this data.
+     */
+    create: XOR<PaqueteTrasladoRefCreateInput, PaqueteTrasladoRefUncheckedCreateInput>
+    /**
+     * In case the PaqueteTrasladoRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaqueteTrasladoRefUpdateInput, PaqueteTrasladoRefUncheckedUpdateInput>
+  }
+
+  /**
+   * PaqueteTrasladoRef delete
+   */
+  export type PaqueteTrasladoRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+    /**
+     * Filter which PaqueteTrasladoRef to delete.
+     */
+    where: PaqueteTrasladoRefWhereUniqueInput
+  }
+
+  /**
+   * PaqueteTrasladoRef deleteMany
+   */
+  export type PaqueteTrasladoRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaqueteTrasladoRefs to delete
+     */
+    where?: PaqueteTrasladoRefWhereInput
+    /**
+     * Limit how many PaqueteTrasladoRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaqueteTrasladoRef without action
+   */
+  export type PaqueteTrasladoRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaqueteTrasladoRef
+     */
+    select?: PaqueteTrasladoRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaqueteTrasladoRef
+     */
+    omit?: PaqueteTrasladoRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaqueteTrasladoRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model VersionPaqueteRef
+   */
+
+  export type AggregateVersionPaqueteRef = {
+    _count: VersionPaqueteRefCountAggregateOutputType | null
+    _avg: VersionPaqueteRefAvgAggregateOutputType | null
+    _sum: VersionPaqueteRefSumAggregateOutputType | null
+    _min: VersionPaqueteRefMinAggregateOutputType | null
+    _max: VersionPaqueteRefMaxAggregateOutputType | null
+  }
+
+  export type VersionPaqueteRefAvgAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    numPax: number | null
+    precioTotal: number | null
+    precioPorPersona: number | null
+  }
+
+  export type VersionPaqueteRefSumAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    numPax: number | null
+    precioTotal: number | null
+    precioPorPersona: number | null
+  }
+
+  export type VersionPaqueteRefMinAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    numPax: number | null
+    tipoPax: string | null
+    precioTotal: number | null
+    precioPorPersona: number | null
+  }
+
+  export type VersionPaqueteRefMaxAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    numPax: number | null
+    tipoPax: string | null
+    precioTotal: number | null
+    precioPorPersona: number | null
+  }
+
+  export type VersionPaqueteRefCountAggregateOutputType = {
+    id: number
+    paqueteId: number
+    numPax: number
+    tipoPax: number
+    precioTotal: number
+    precioPorPersona: number
+    _all: number
+  }
+
+
+  export type VersionPaqueteRefAvgAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    numPax?: true
+    precioTotal?: true
+    precioPorPersona?: true
+  }
+
+  export type VersionPaqueteRefSumAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    numPax?: true
+    precioTotal?: true
+    precioPorPersona?: true
+  }
+
+  export type VersionPaqueteRefMinAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    numPax?: true
+    tipoPax?: true
+    precioTotal?: true
+    precioPorPersona?: true
+  }
+
+  export type VersionPaqueteRefMaxAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    numPax?: true
+    tipoPax?: true
+    precioTotal?: true
+    precioPorPersona?: true
+  }
+
+  export type VersionPaqueteRefCountAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    numPax?: true
+    tipoPax?: true
+    precioTotal?: true
+    precioPorPersona?: true
+    _all?: true
+  }
+
+  export type VersionPaqueteRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VersionPaqueteRef to aggregate.
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VersionPaqueteRefs to fetch.
+     */
+    orderBy?: VersionPaqueteRefOrderByWithRelationInput | VersionPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VersionPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VersionPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VersionPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VersionPaqueteRefs
+    **/
+    _count?: true | VersionPaqueteRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: VersionPaqueteRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VersionPaqueteRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VersionPaqueteRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VersionPaqueteRefMaxAggregateInputType
+  }
+
+  export type GetVersionPaqueteRefAggregateType<T extends VersionPaqueteRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateVersionPaqueteRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVersionPaqueteRef[P]>
+      : GetScalarType<T[P], AggregateVersionPaqueteRef[P]>
+  }
+
+
+
+
+  export type VersionPaqueteRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VersionPaqueteRefWhereInput
+    orderBy?: VersionPaqueteRefOrderByWithAggregationInput | VersionPaqueteRefOrderByWithAggregationInput[]
+    by: VersionPaqueteRefScalarFieldEnum[] | VersionPaqueteRefScalarFieldEnum
+    having?: VersionPaqueteRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VersionPaqueteRefCountAggregateInputType | true
+    _avg?: VersionPaqueteRefAvgAggregateInputType
+    _sum?: VersionPaqueteRefSumAggregateInputType
+    _min?: VersionPaqueteRefMinAggregateInputType
+    _max?: VersionPaqueteRefMaxAggregateInputType
+  }
+
+  export type VersionPaqueteRefGroupByOutputType = {
+    id: number
+    paqueteId: number
+    numPax: number
+    tipoPax: string
+    precioTotal: number | null
+    precioPorPersona: number | null
+    _count: VersionPaqueteRefCountAggregateOutputType | null
+    _avg: VersionPaqueteRefAvgAggregateOutputType | null
+    _sum: VersionPaqueteRefSumAggregateOutputType | null
+    _min: VersionPaqueteRefMinAggregateOutputType | null
+    _max: VersionPaqueteRefMaxAggregateOutputType | null
+  }
+
+  type GetVersionPaqueteRefGroupByPayload<T extends VersionPaqueteRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VersionPaqueteRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VersionPaqueteRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VersionPaqueteRefGroupByOutputType[P]>
+            : GetScalarType<T[P], VersionPaqueteRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VersionPaqueteRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    paqueteId?: boolean
+    numPax?: boolean
+    tipoPax?: boolean
+    precioTotal?: boolean
+    precioPorPersona?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["versionPaqueteRef"]>
+
+  export type VersionPaqueteRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    paqueteId?: boolean
+    numPax?: boolean
+    tipoPax?: boolean
+    precioTotal?: boolean
+    precioPorPersona?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["versionPaqueteRef"]>
+
+  export type VersionPaqueteRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    paqueteId?: boolean
+    numPax?: boolean
+    tipoPax?: boolean
+    precioTotal?: boolean
+    precioPorPersona?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["versionPaqueteRef"]>
+
+  export type VersionPaqueteRefSelectScalar = {
+    id?: boolean
+    paqueteId?: boolean
+    numPax?: boolean
+    tipoPax?: boolean
+    precioTotal?: boolean
+    precioPorPersona?: boolean
+  }
+
+  export type VersionPaqueteRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "paqueteId" | "numPax" | "tipoPax" | "precioTotal" | "precioPorPersona", ExtArgs["result"]["versionPaqueteRef"]>
+  export type VersionPaqueteRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }
+  export type VersionPaqueteRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }
+  export type VersionPaqueteRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }
+
+  export type $VersionPaqueteRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VersionPaqueteRef"
+    objects: {
+      paquete: Prisma.$PaqueteRefPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      paqueteId: number
+      numPax: number
+      tipoPax: string
+      precioTotal: number | null
+      precioPorPersona: number | null
+    }, ExtArgs["result"]["versionPaqueteRef"]>
+    composites: {}
+  }
+
+  type VersionPaqueteRefGetPayload<S extends boolean | null | undefined | VersionPaqueteRefDefaultArgs> = $Result.GetResult<Prisma.$VersionPaqueteRefPayload, S>
+
+  type VersionPaqueteRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VersionPaqueteRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VersionPaqueteRefCountAggregateInputType | true
+    }
+
+  export interface VersionPaqueteRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VersionPaqueteRef'], meta: { name: 'VersionPaqueteRef' } }
+    /**
+     * Find zero or one VersionPaqueteRef that matches the filter.
+     * @param {VersionPaqueteRefFindUniqueArgs} args - Arguments to find a VersionPaqueteRef
+     * @example
+     * // Get one VersionPaqueteRef
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VersionPaqueteRefFindUniqueArgs>(args: SelectSubset<T, VersionPaqueteRefFindUniqueArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one VersionPaqueteRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VersionPaqueteRefFindUniqueOrThrowArgs} args - Arguments to find a VersionPaqueteRef
+     * @example
+     * // Get one VersionPaqueteRef
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VersionPaqueteRefFindUniqueOrThrowArgs>(args: SelectSubset<T, VersionPaqueteRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VersionPaqueteRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefFindFirstArgs} args - Arguments to find a VersionPaqueteRef
+     * @example
+     * // Get one VersionPaqueteRef
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VersionPaqueteRefFindFirstArgs>(args?: SelectSubset<T, VersionPaqueteRefFindFirstArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VersionPaqueteRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefFindFirstOrThrowArgs} args - Arguments to find a VersionPaqueteRef
+     * @example
+     * // Get one VersionPaqueteRef
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VersionPaqueteRefFindFirstOrThrowArgs>(args?: SelectSubset<T, VersionPaqueteRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more VersionPaqueteRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VersionPaqueteRefs
+     * const versionPaqueteRefs = await prisma.versionPaqueteRef.findMany()
+     * 
+     * // Get first 10 VersionPaqueteRefs
+     * const versionPaqueteRefs = await prisma.versionPaqueteRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const versionPaqueteRefWithIdOnly = await prisma.versionPaqueteRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VersionPaqueteRefFindManyArgs>(args?: SelectSubset<T, VersionPaqueteRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a VersionPaqueteRef.
+     * @param {VersionPaqueteRefCreateArgs} args - Arguments to create a VersionPaqueteRef.
+     * @example
+     * // Create one VersionPaqueteRef
+     * const VersionPaqueteRef = await prisma.versionPaqueteRef.create({
+     *   data: {
+     *     // ... data to create a VersionPaqueteRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends VersionPaqueteRefCreateArgs>(args: SelectSubset<T, VersionPaqueteRefCreateArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many VersionPaqueteRefs.
+     * @param {VersionPaqueteRefCreateManyArgs} args - Arguments to create many VersionPaqueteRefs.
+     * @example
+     * // Create many VersionPaqueteRefs
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VersionPaqueteRefCreateManyArgs>(args?: SelectSubset<T, VersionPaqueteRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many VersionPaqueteRefs and returns the data saved in the database.
+     * @param {VersionPaqueteRefCreateManyAndReturnArgs} args - Arguments to create many VersionPaqueteRefs.
+     * @example
+     * // Create many VersionPaqueteRefs
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many VersionPaqueteRefs and only return the `id`
+     * const versionPaqueteRefWithIdOnly = await prisma.versionPaqueteRef.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VersionPaqueteRefCreateManyAndReturnArgs>(args?: SelectSubset<T, VersionPaqueteRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a VersionPaqueteRef.
+     * @param {VersionPaqueteRefDeleteArgs} args - Arguments to delete one VersionPaqueteRef.
+     * @example
+     * // Delete one VersionPaqueteRef
+     * const VersionPaqueteRef = await prisma.versionPaqueteRef.delete({
+     *   where: {
+     *     // ... filter to delete one VersionPaqueteRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VersionPaqueteRefDeleteArgs>(args: SelectSubset<T, VersionPaqueteRefDeleteArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one VersionPaqueteRef.
+     * @param {VersionPaqueteRefUpdateArgs} args - Arguments to update one VersionPaqueteRef.
+     * @example
+     * // Update one VersionPaqueteRef
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VersionPaqueteRefUpdateArgs>(args: SelectSubset<T, VersionPaqueteRefUpdateArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more VersionPaqueteRefs.
+     * @param {VersionPaqueteRefDeleteManyArgs} args - Arguments to filter VersionPaqueteRefs to delete.
+     * @example
+     * // Delete a few VersionPaqueteRefs
+     * const { count } = await prisma.versionPaqueteRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VersionPaqueteRefDeleteManyArgs>(args?: SelectSubset<T, VersionPaqueteRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VersionPaqueteRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VersionPaqueteRefs
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VersionPaqueteRefUpdateManyArgs>(args: SelectSubset<T, VersionPaqueteRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VersionPaqueteRefs and returns the data updated in the database.
+     * @param {VersionPaqueteRefUpdateManyAndReturnArgs} args - Arguments to update many VersionPaqueteRefs.
+     * @example
+     * // Update many VersionPaqueteRefs
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more VersionPaqueteRefs and only return the `id`
+     * const versionPaqueteRefWithIdOnly = await prisma.versionPaqueteRef.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VersionPaqueteRefUpdateManyAndReturnArgs>(args: SelectSubset<T, VersionPaqueteRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one VersionPaqueteRef.
+     * @param {VersionPaqueteRefUpsertArgs} args - Arguments to update or create a VersionPaqueteRef.
+     * @example
+     * // Update or create a VersionPaqueteRef
+     * const versionPaqueteRef = await prisma.versionPaqueteRef.upsert({
+     *   create: {
+     *     // ... data to create a VersionPaqueteRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the VersionPaqueteRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VersionPaqueteRefUpsertArgs>(args: SelectSubset<T, VersionPaqueteRefUpsertArgs<ExtArgs>>): Prisma__VersionPaqueteRefClient<$Result.GetResult<Prisma.$VersionPaqueteRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of VersionPaqueteRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefCountArgs} args - Arguments to filter VersionPaqueteRefs to count.
+     * @example
+     * // Count the number of VersionPaqueteRefs
+     * const count = await prisma.versionPaqueteRef.count({
+     *   where: {
+     *     // ... the filter for the VersionPaqueteRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends VersionPaqueteRefCountArgs>(
+      args?: Subset<T, VersionPaqueteRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VersionPaqueteRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VersionPaqueteRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VersionPaqueteRefAggregateArgs>(args: Subset<T, VersionPaqueteRefAggregateArgs>): Prisma.PrismaPromise<GetVersionPaqueteRefAggregateType<T>>
+
+    /**
+     * Group by VersionPaqueteRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VersionPaqueteRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VersionPaqueteRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VersionPaqueteRefGroupByArgs['orderBy'] }
+        : { orderBy?: VersionPaqueteRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VersionPaqueteRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVersionPaqueteRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VersionPaqueteRef model
+   */
+  readonly fields: VersionPaqueteRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VersionPaqueteRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VersionPaqueteRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    paquete<T extends PaqueteRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRefDefaultArgs<ExtArgs>>): Prisma__PaqueteRefClient<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VersionPaqueteRef model
+   */
+  interface VersionPaqueteRefFieldRefs {
+    readonly id: FieldRef<"VersionPaqueteRef", 'Int'>
+    readonly paqueteId: FieldRef<"VersionPaqueteRef", 'Int'>
+    readonly numPax: FieldRef<"VersionPaqueteRef", 'Int'>
+    readonly tipoPax: FieldRef<"VersionPaqueteRef", 'String'>
+    readonly precioTotal: FieldRef<"VersionPaqueteRef", 'Float'>
+    readonly precioPorPersona: FieldRef<"VersionPaqueteRef", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VersionPaqueteRef findUnique
+   */
+  export type VersionPaqueteRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which VersionPaqueteRef to fetch.
+     */
+    where: VersionPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * VersionPaqueteRef findUniqueOrThrow
+   */
+  export type VersionPaqueteRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which VersionPaqueteRef to fetch.
+     */
+    where: VersionPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * VersionPaqueteRef findFirst
+   */
+  export type VersionPaqueteRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which VersionPaqueteRef to fetch.
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VersionPaqueteRefs to fetch.
+     */
+    orderBy?: VersionPaqueteRefOrderByWithRelationInput | VersionPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VersionPaqueteRefs.
+     */
+    cursor?: VersionPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VersionPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VersionPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VersionPaqueteRefs.
+     */
+    distinct?: VersionPaqueteRefScalarFieldEnum | VersionPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * VersionPaqueteRef findFirstOrThrow
+   */
+  export type VersionPaqueteRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which VersionPaqueteRef to fetch.
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VersionPaqueteRefs to fetch.
+     */
+    orderBy?: VersionPaqueteRefOrderByWithRelationInput | VersionPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VersionPaqueteRefs.
+     */
+    cursor?: VersionPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VersionPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VersionPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VersionPaqueteRefs.
+     */
+    distinct?: VersionPaqueteRefScalarFieldEnum | VersionPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * VersionPaqueteRef findMany
+   */
+  export type VersionPaqueteRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which VersionPaqueteRefs to fetch.
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VersionPaqueteRefs to fetch.
+     */
+    orderBy?: VersionPaqueteRefOrderByWithRelationInput | VersionPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VersionPaqueteRefs.
+     */
+    cursor?: VersionPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VersionPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VersionPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VersionPaqueteRefs.
+     */
+    distinct?: VersionPaqueteRefScalarFieldEnum | VersionPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * VersionPaqueteRef create
+   */
+  export type VersionPaqueteRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a VersionPaqueteRef.
+     */
+    data: XOR<VersionPaqueteRefCreateInput, VersionPaqueteRefUncheckedCreateInput>
+  }
+
+  /**
+   * VersionPaqueteRef createMany
+   */
+  export type VersionPaqueteRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many VersionPaqueteRefs.
+     */
+    data: VersionPaqueteRefCreateManyInput | VersionPaqueteRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * VersionPaqueteRef createManyAndReturn
+   */
+  export type VersionPaqueteRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many VersionPaqueteRefs.
+     */
+    data: VersionPaqueteRefCreateManyInput | VersionPaqueteRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VersionPaqueteRef update
+   */
+  export type VersionPaqueteRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a VersionPaqueteRef.
+     */
+    data: XOR<VersionPaqueteRefUpdateInput, VersionPaqueteRefUncheckedUpdateInput>
+    /**
+     * Choose, which VersionPaqueteRef to update.
+     */
+    where: VersionPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * VersionPaqueteRef updateMany
+   */
+  export type VersionPaqueteRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VersionPaqueteRefs.
+     */
+    data: XOR<VersionPaqueteRefUpdateManyMutationInput, VersionPaqueteRefUncheckedUpdateManyInput>
+    /**
+     * Filter which VersionPaqueteRefs to update
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * Limit how many VersionPaqueteRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VersionPaqueteRef updateManyAndReturn
+   */
+  export type VersionPaqueteRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * The data used to update VersionPaqueteRefs.
+     */
+    data: XOR<VersionPaqueteRefUpdateManyMutationInput, VersionPaqueteRefUncheckedUpdateManyInput>
+    /**
+     * Filter which VersionPaqueteRefs to update
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * Limit how many VersionPaqueteRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VersionPaqueteRef upsert
+   */
+  export type VersionPaqueteRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the VersionPaqueteRef to update in case it exists.
+     */
+    where: VersionPaqueteRefWhereUniqueInput
+    /**
+     * In case the VersionPaqueteRef found by the `where` argument doesn't exist, create a new VersionPaqueteRef with this data.
+     */
+    create: XOR<VersionPaqueteRefCreateInput, VersionPaqueteRefUncheckedCreateInput>
+    /**
+     * In case the VersionPaqueteRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VersionPaqueteRefUpdateInput, VersionPaqueteRefUncheckedUpdateInput>
+  }
+
+  /**
+   * VersionPaqueteRef delete
+   */
+  export type VersionPaqueteRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter which VersionPaqueteRef to delete.
+     */
+    where: VersionPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * VersionPaqueteRef deleteMany
+   */
+  export type VersionPaqueteRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VersionPaqueteRefs to delete
+     */
+    where?: VersionPaqueteRefWhereInput
+    /**
+     * Limit how many VersionPaqueteRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * VersionPaqueteRef without action
+   */
+  export type VersionPaqueteRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VersionPaqueteRef
+     */
+    select?: VersionPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VersionPaqueteRef
+     */
+    omit?: VersionPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VersionPaqueteRefInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ImagenPaqueteRef
+   */
+
+  export type AggregateImagenPaqueteRef = {
+    _count: ImagenPaqueteRefCountAggregateOutputType | null
+    _avg: ImagenPaqueteRefAvgAggregateOutputType | null
+    _sum: ImagenPaqueteRefSumAggregateOutputType | null
+    _min: ImagenPaqueteRefMinAggregateOutputType | null
+    _max: ImagenPaqueteRefMaxAggregateOutputType | null
+  }
+
+  export type ImagenPaqueteRefAvgAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    orden: number | null
+  }
+
+  export type ImagenPaqueteRefSumAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    orden: number | null
+  }
+
+  export type ImagenPaqueteRefMinAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    url: string | null
+    orden: number | null
+  }
+
+  export type ImagenPaqueteRefMaxAggregateOutputType = {
+    id: number | null
+    paqueteId: number | null
+    url: string | null
+    orden: number | null
+  }
+
+  export type ImagenPaqueteRefCountAggregateOutputType = {
+    id: number
+    paqueteId: number
+    url: number
+    orden: number
+    _all: number
+  }
+
+
+  export type ImagenPaqueteRefAvgAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    orden?: true
+  }
+
+  export type ImagenPaqueteRefSumAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    orden?: true
+  }
+
+  export type ImagenPaqueteRefMinAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    url?: true
+    orden?: true
+  }
+
+  export type ImagenPaqueteRefMaxAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    url?: true
+    orden?: true
+  }
+
+  export type ImagenPaqueteRefCountAggregateInputType = {
+    id?: true
+    paqueteId?: true
+    url?: true
+    orden?: true
+    _all?: true
+  }
+
+  export type ImagenPaqueteRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImagenPaqueteRef to aggregate.
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImagenPaqueteRefs to fetch.
+     */
+    orderBy?: ImagenPaqueteRefOrderByWithRelationInput | ImagenPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ImagenPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImagenPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImagenPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ImagenPaqueteRefs
+    **/
+    _count?: true | ImagenPaqueteRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ImagenPaqueteRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ImagenPaqueteRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ImagenPaqueteRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ImagenPaqueteRefMaxAggregateInputType
+  }
+
+  export type GetImagenPaqueteRefAggregateType<T extends ImagenPaqueteRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateImagenPaqueteRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateImagenPaqueteRef[P]>
+      : GetScalarType<T[P], AggregateImagenPaqueteRef[P]>
+  }
+
+
+
+
+  export type ImagenPaqueteRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ImagenPaqueteRefWhereInput
+    orderBy?: ImagenPaqueteRefOrderByWithAggregationInput | ImagenPaqueteRefOrderByWithAggregationInput[]
+    by: ImagenPaqueteRefScalarFieldEnum[] | ImagenPaqueteRefScalarFieldEnum
+    having?: ImagenPaqueteRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ImagenPaqueteRefCountAggregateInputType | true
+    _avg?: ImagenPaqueteRefAvgAggregateInputType
+    _sum?: ImagenPaqueteRefSumAggregateInputType
+    _min?: ImagenPaqueteRefMinAggregateInputType
+    _max?: ImagenPaqueteRefMaxAggregateInputType
+  }
+
+  export type ImagenPaqueteRefGroupByOutputType = {
+    id: number
+    paqueteId: number
+    url: string
+    orden: number
+    _count: ImagenPaqueteRefCountAggregateOutputType | null
+    _avg: ImagenPaqueteRefAvgAggregateOutputType | null
+    _sum: ImagenPaqueteRefSumAggregateOutputType | null
+    _min: ImagenPaqueteRefMinAggregateOutputType | null
+    _max: ImagenPaqueteRefMaxAggregateOutputType | null
+  }
+
+  type GetImagenPaqueteRefGroupByPayload<T extends ImagenPaqueteRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ImagenPaqueteRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ImagenPaqueteRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ImagenPaqueteRefGroupByOutputType[P]>
+            : GetScalarType<T[P], ImagenPaqueteRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ImagenPaqueteRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    paqueteId?: boolean
+    url?: boolean
+    orden?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["imagenPaqueteRef"]>
+
+  export type ImagenPaqueteRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    paqueteId?: boolean
+    url?: boolean
+    orden?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["imagenPaqueteRef"]>
+
+  export type ImagenPaqueteRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    paqueteId?: boolean
+    url?: boolean
+    orden?: boolean
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["imagenPaqueteRef"]>
+
+  export type ImagenPaqueteRefSelectScalar = {
+    id?: boolean
+    paqueteId?: boolean
+    url?: boolean
+    orden?: boolean
+  }
+
+  export type ImagenPaqueteRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "paqueteId" | "url" | "orden", ExtArgs["result"]["imagenPaqueteRef"]>
+  export type ImagenPaqueteRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }
+  export type ImagenPaqueteRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }
+  export type ImagenPaqueteRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
+  }
+
+  export type $ImagenPaqueteRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ImagenPaqueteRef"
+    objects: {
+      paquete: Prisma.$PaqueteRefPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      paqueteId: number
+      url: string
+      orden: number
+    }, ExtArgs["result"]["imagenPaqueteRef"]>
+    composites: {}
+  }
+
+  type ImagenPaqueteRefGetPayload<S extends boolean | null | undefined | ImagenPaqueteRefDefaultArgs> = $Result.GetResult<Prisma.$ImagenPaqueteRefPayload, S>
+
+  type ImagenPaqueteRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ImagenPaqueteRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ImagenPaqueteRefCountAggregateInputType | true
+    }
+
+  export interface ImagenPaqueteRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ImagenPaqueteRef'], meta: { name: 'ImagenPaqueteRef' } }
+    /**
+     * Find zero or one ImagenPaqueteRef that matches the filter.
+     * @param {ImagenPaqueteRefFindUniqueArgs} args - Arguments to find a ImagenPaqueteRef
+     * @example
+     * // Get one ImagenPaqueteRef
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ImagenPaqueteRefFindUniqueArgs>(args: SelectSubset<T, ImagenPaqueteRefFindUniqueArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ImagenPaqueteRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ImagenPaqueteRefFindUniqueOrThrowArgs} args - Arguments to find a ImagenPaqueteRef
+     * @example
+     * // Get one ImagenPaqueteRef
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ImagenPaqueteRefFindUniqueOrThrowArgs>(args: SelectSubset<T, ImagenPaqueteRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ImagenPaqueteRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefFindFirstArgs} args - Arguments to find a ImagenPaqueteRef
+     * @example
+     * // Get one ImagenPaqueteRef
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ImagenPaqueteRefFindFirstArgs>(args?: SelectSubset<T, ImagenPaqueteRefFindFirstArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ImagenPaqueteRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefFindFirstOrThrowArgs} args - Arguments to find a ImagenPaqueteRef
+     * @example
+     * // Get one ImagenPaqueteRef
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ImagenPaqueteRefFindFirstOrThrowArgs>(args?: SelectSubset<T, ImagenPaqueteRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ImagenPaqueteRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ImagenPaqueteRefs
+     * const imagenPaqueteRefs = await prisma.imagenPaqueteRef.findMany()
+     * 
+     * // Get first 10 ImagenPaqueteRefs
+     * const imagenPaqueteRefs = await prisma.imagenPaqueteRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const imagenPaqueteRefWithIdOnly = await prisma.imagenPaqueteRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ImagenPaqueteRefFindManyArgs>(args?: SelectSubset<T, ImagenPaqueteRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ImagenPaqueteRef.
+     * @param {ImagenPaqueteRefCreateArgs} args - Arguments to create a ImagenPaqueteRef.
+     * @example
+     * // Create one ImagenPaqueteRef
+     * const ImagenPaqueteRef = await prisma.imagenPaqueteRef.create({
+     *   data: {
+     *     // ... data to create a ImagenPaqueteRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends ImagenPaqueteRefCreateArgs>(args: SelectSubset<T, ImagenPaqueteRefCreateArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ImagenPaqueteRefs.
+     * @param {ImagenPaqueteRefCreateManyArgs} args - Arguments to create many ImagenPaqueteRefs.
+     * @example
+     * // Create many ImagenPaqueteRefs
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ImagenPaqueteRefCreateManyArgs>(args?: SelectSubset<T, ImagenPaqueteRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ImagenPaqueteRefs and returns the data saved in the database.
+     * @param {ImagenPaqueteRefCreateManyAndReturnArgs} args - Arguments to create many ImagenPaqueteRefs.
+     * @example
+     * // Create many ImagenPaqueteRefs
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ImagenPaqueteRefs and only return the `id`
+     * const imagenPaqueteRefWithIdOnly = await prisma.imagenPaqueteRef.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ImagenPaqueteRefCreateManyAndReturnArgs>(args?: SelectSubset<T, ImagenPaqueteRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ImagenPaqueteRef.
+     * @param {ImagenPaqueteRefDeleteArgs} args - Arguments to delete one ImagenPaqueteRef.
+     * @example
+     * // Delete one ImagenPaqueteRef
+     * const ImagenPaqueteRef = await prisma.imagenPaqueteRef.delete({
+     *   where: {
+     *     // ... filter to delete one ImagenPaqueteRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ImagenPaqueteRefDeleteArgs>(args: SelectSubset<T, ImagenPaqueteRefDeleteArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ImagenPaqueteRef.
+     * @param {ImagenPaqueteRefUpdateArgs} args - Arguments to update one ImagenPaqueteRef.
+     * @example
+     * // Update one ImagenPaqueteRef
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ImagenPaqueteRefUpdateArgs>(args: SelectSubset<T, ImagenPaqueteRefUpdateArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ImagenPaqueteRefs.
+     * @param {ImagenPaqueteRefDeleteManyArgs} args - Arguments to filter ImagenPaqueteRefs to delete.
+     * @example
+     * // Delete a few ImagenPaqueteRefs
+     * const { count } = await prisma.imagenPaqueteRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ImagenPaqueteRefDeleteManyArgs>(args?: SelectSubset<T, ImagenPaqueteRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ImagenPaqueteRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ImagenPaqueteRefs
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ImagenPaqueteRefUpdateManyArgs>(args: SelectSubset<T, ImagenPaqueteRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ImagenPaqueteRefs and returns the data updated in the database.
+     * @param {ImagenPaqueteRefUpdateManyAndReturnArgs} args - Arguments to update many ImagenPaqueteRefs.
+     * @example
+     * // Update many ImagenPaqueteRefs
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ImagenPaqueteRefs and only return the `id`
+     * const imagenPaqueteRefWithIdOnly = await prisma.imagenPaqueteRef.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ImagenPaqueteRefUpdateManyAndReturnArgs>(args: SelectSubset<T, ImagenPaqueteRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ImagenPaqueteRef.
+     * @param {ImagenPaqueteRefUpsertArgs} args - Arguments to update or create a ImagenPaqueteRef.
+     * @example
+     * // Update or create a ImagenPaqueteRef
+     * const imagenPaqueteRef = await prisma.imagenPaqueteRef.upsert({
+     *   create: {
+     *     // ... data to create a ImagenPaqueteRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ImagenPaqueteRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ImagenPaqueteRefUpsertArgs>(args: SelectSubset<T, ImagenPaqueteRefUpsertArgs<ExtArgs>>): Prisma__ImagenPaqueteRefClient<$Result.GetResult<Prisma.$ImagenPaqueteRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ImagenPaqueteRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefCountArgs} args - Arguments to filter ImagenPaqueteRefs to count.
+     * @example
+     * // Count the number of ImagenPaqueteRefs
+     * const count = await prisma.imagenPaqueteRef.count({
+     *   where: {
+     *     // ... the filter for the ImagenPaqueteRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ImagenPaqueteRefCountArgs>(
+      args?: Subset<T, ImagenPaqueteRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ImagenPaqueteRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ImagenPaqueteRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ImagenPaqueteRefAggregateArgs>(args: Subset<T, ImagenPaqueteRefAggregateArgs>): Prisma.PrismaPromise<GetImagenPaqueteRefAggregateType<T>>
+
+    /**
+     * Group by ImagenPaqueteRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImagenPaqueteRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ImagenPaqueteRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ImagenPaqueteRefGroupByArgs['orderBy'] }
+        : { orderBy?: ImagenPaqueteRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ImagenPaqueteRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetImagenPaqueteRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ImagenPaqueteRef model
+   */
+  readonly fields: ImagenPaqueteRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ImagenPaqueteRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ImagenPaqueteRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    paquete<T extends PaqueteRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRefDefaultArgs<ExtArgs>>): Prisma__PaqueteRefClient<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ImagenPaqueteRef model
+   */
+  interface ImagenPaqueteRefFieldRefs {
+    readonly id: FieldRef<"ImagenPaqueteRef", 'Int'>
+    readonly paqueteId: FieldRef<"ImagenPaqueteRef", 'Int'>
+    readonly url: FieldRef<"ImagenPaqueteRef", 'String'>
+    readonly orden: FieldRef<"ImagenPaqueteRef", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ImagenPaqueteRef findUnique
+   */
+  export type ImagenPaqueteRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ImagenPaqueteRef to fetch.
+     */
+    where: ImagenPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * ImagenPaqueteRef findUniqueOrThrow
+   */
+  export type ImagenPaqueteRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ImagenPaqueteRef to fetch.
+     */
+    where: ImagenPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * ImagenPaqueteRef findFirst
+   */
+  export type ImagenPaqueteRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ImagenPaqueteRef to fetch.
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImagenPaqueteRefs to fetch.
+     */
+    orderBy?: ImagenPaqueteRefOrderByWithRelationInput | ImagenPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImagenPaqueteRefs.
+     */
+    cursor?: ImagenPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImagenPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImagenPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImagenPaqueteRefs.
+     */
+    distinct?: ImagenPaqueteRefScalarFieldEnum | ImagenPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * ImagenPaqueteRef findFirstOrThrow
+   */
+  export type ImagenPaqueteRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ImagenPaqueteRef to fetch.
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImagenPaqueteRefs to fetch.
+     */
+    orderBy?: ImagenPaqueteRefOrderByWithRelationInput | ImagenPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImagenPaqueteRefs.
+     */
+    cursor?: ImagenPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImagenPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImagenPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImagenPaqueteRefs.
+     */
+    distinct?: ImagenPaqueteRefScalarFieldEnum | ImagenPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * ImagenPaqueteRef findMany
+   */
+  export type ImagenPaqueteRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter, which ImagenPaqueteRefs to fetch.
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImagenPaqueteRefs to fetch.
+     */
+    orderBy?: ImagenPaqueteRefOrderByWithRelationInput | ImagenPaqueteRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ImagenPaqueteRefs.
+     */
+    cursor?: ImagenPaqueteRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImagenPaqueteRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImagenPaqueteRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImagenPaqueteRefs.
+     */
+    distinct?: ImagenPaqueteRefScalarFieldEnum | ImagenPaqueteRefScalarFieldEnum[]
+  }
+
+  /**
+   * ImagenPaqueteRef create
+   */
+  export type ImagenPaqueteRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ImagenPaqueteRef.
+     */
+    data: XOR<ImagenPaqueteRefCreateInput, ImagenPaqueteRefUncheckedCreateInput>
+  }
+
+  /**
+   * ImagenPaqueteRef createMany
+   */
+  export type ImagenPaqueteRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ImagenPaqueteRefs.
+     */
+    data: ImagenPaqueteRefCreateManyInput | ImagenPaqueteRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ImagenPaqueteRef createManyAndReturn
+   */
+  export type ImagenPaqueteRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many ImagenPaqueteRefs.
+     */
+    data: ImagenPaqueteRefCreateManyInput | ImagenPaqueteRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ImagenPaqueteRef update
+   */
+  export type ImagenPaqueteRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ImagenPaqueteRef.
+     */
+    data: XOR<ImagenPaqueteRefUpdateInput, ImagenPaqueteRefUncheckedUpdateInput>
+    /**
+     * Choose, which ImagenPaqueteRef to update.
+     */
+    where: ImagenPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * ImagenPaqueteRef updateMany
+   */
+  export type ImagenPaqueteRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ImagenPaqueteRefs.
+     */
+    data: XOR<ImagenPaqueteRefUpdateManyMutationInput, ImagenPaqueteRefUncheckedUpdateManyInput>
+    /**
+     * Filter which ImagenPaqueteRefs to update
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * Limit how many ImagenPaqueteRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ImagenPaqueteRef updateManyAndReturn
+   */
+  export type ImagenPaqueteRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * The data used to update ImagenPaqueteRefs.
+     */
+    data: XOR<ImagenPaqueteRefUpdateManyMutationInput, ImagenPaqueteRefUncheckedUpdateManyInput>
+    /**
+     * Filter which ImagenPaqueteRefs to update
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * Limit how many ImagenPaqueteRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ImagenPaqueteRef upsert
+   */
+  export type ImagenPaqueteRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ImagenPaqueteRef to update in case it exists.
+     */
+    where: ImagenPaqueteRefWhereUniqueInput
+    /**
+     * In case the ImagenPaqueteRef found by the `where` argument doesn't exist, create a new ImagenPaqueteRef with this data.
+     */
+    create: XOR<ImagenPaqueteRefCreateInput, ImagenPaqueteRefUncheckedCreateInput>
+    /**
+     * In case the ImagenPaqueteRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ImagenPaqueteRefUpdateInput, ImagenPaqueteRefUncheckedUpdateInput>
+  }
+
+  /**
+   * ImagenPaqueteRef delete
+   */
+  export type ImagenPaqueteRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
+    /**
+     * Filter which ImagenPaqueteRef to delete.
+     */
+    where: ImagenPaqueteRefWhereUniqueInput
+  }
+
+  /**
+   * ImagenPaqueteRef deleteMany
+   */
+  export type ImagenPaqueteRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImagenPaqueteRefs to delete
+     */
+    where?: ImagenPaqueteRefWhereInput
+    /**
+     * Limit how many ImagenPaqueteRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ImagenPaqueteRef without action
+   */
+  export type ImagenPaqueteRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImagenPaqueteRef
+     */
+    select?: ImagenPaqueteRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ImagenPaqueteRef
+     */
+    omit?: ImagenPaqueteRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ImagenPaqueteRefInclude<ExtArgs> | null
   }
 
 
@@ -7508,17 +17341,8 @@ export namespace Prisma {
 
   export type CotizacionAvgAggregateOutputType = {
     paqueteId: number | null
-    cantSGL: number | null
-    cantDBL: number | null
-    cantTPL: number | null
-    cantQUAD: number | null
-    cantCHD: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
-    precioCHD: number | null
     precioBoleto: number | null
+    boletoTotal: number | null
     subtotal: number | null
     markup: number | null
     total: number | null
@@ -7526,17 +17350,8 @@ export namespace Prisma {
 
   export type CotizacionSumAggregateOutputType = {
     paqueteId: number | null
-    cantSGL: number | null
-    cantDBL: number | null
-    cantTPL: number | null
-    cantQUAD: number | null
-    cantCHD: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
-    precioCHD: number | null
     precioBoleto: number | null
+    boletoTotal: number | null
     subtotal: number | null
     markup: number | null
     total: number | null
@@ -7547,23 +17362,14 @@ export namespace Prisma {
     codigo: string | null
     agenciaId: string | null
     creadoPorId: string | null
-    paqueteId: number | null
     clienteId: string | null
-    paqueteNombre: string | null
-    paqueteDuracion: string | null
-    paqueteDestino: string | null
+    paqueteId: number | null
+    snapshotNombre: string | null
+    snapshotDestino: string | null
+    snapshotDuracion: string | null
     incluyeBoleto: boolean | null
-    cantSGL: number | null
-    cantDBL: number | null
-    cantTPL: number | null
-    cantQUAD: number | null
-    cantCHD: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
-    precioCHD: number | null
     precioBoleto: number | null
+    boletoTotal: number | null
     subtotal: number | null
     markup: number | null
     total: number | null
@@ -7583,23 +17389,14 @@ export namespace Prisma {
     codigo: string | null
     agenciaId: string | null
     creadoPorId: string | null
-    paqueteId: number | null
     clienteId: string | null
-    paqueteNombre: string | null
-    paqueteDuracion: string | null
-    paqueteDestino: string | null
+    paqueteId: number | null
+    snapshotNombre: string | null
+    snapshotDestino: string | null
+    snapshotDuracion: string | null
     incluyeBoleto: boolean | null
-    cantSGL: number | null
-    cantDBL: number | null
-    cantTPL: number | null
-    cantQUAD: number | null
-    cantCHD: number | null
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
-    precioCHD: number | null
     precioBoleto: number | null
+    boletoTotal: number | null
     subtotal: number | null
     markup: number | null
     total: number | null
@@ -7619,24 +17416,15 @@ export namespace Prisma {
     codigo: number
     agenciaId: number
     creadoPorId: number
-    paqueteId: number
     clienteId: number
-    paqueteNombre: number
-    paqueteDuracion: number
-    paqueteDestino: number
-    paqueteIncluye: number
+    paqueteId: number
+    snapshotNombre: number
+    snapshotDestino: number
+    snapshotDuracion: number
+    snapshotIncluye: number
     incluyeBoleto: number
-    cantSGL: number
-    cantDBL: number
-    cantTPL: number
-    cantQUAD: number
-    cantCHD: number
-    precioSGL: number
-    precioDBL: number
-    precioTPL: number
-    precioQUAD: number
-    precioCHD: number
     precioBoleto: number
+    boletoTotal: number
     subtotal: number
     markup: number
     total: number
@@ -7655,17 +17443,8 @@ export namespace Prisma {
 
   export type CotizacionAvgAggregateInputType = {
     paqueteId?: true
-    cantSGL?: true
-    cantDBL?: true
-    cantTPL?: true
-    cantQUAD?: true
-    cantCHD?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
-    precioCHD?: true
     precioBoleto?: true
+    boletoTotal?: true
     subtotal?: true
     markup?: true
     total?: true
@@ -7673,17 +17452,8 @@ export namespace Prisma {
 
   export type CotizacionSumAggregateInputType = {
     paqueteId?: true
-    cantSGL?: true
-    cantDBL?: true
-    cantTPL?: true
-    cantQUAD?: true
-    cantCHD?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
-    precioCHD?: true
     precioBoleto?: true
+    boletoTotal?: true
     subtotal?: true
     markup?: true
     total?: true
@@ -7694,23 +17464,14 @@ export namespace Prisma {
     codigo?: true
     agenciaId?: true
     creadoPorId?: true
-    paqueteId?: true
     clienteId?: true
-    paqueteNombre?: true
-    paqueteDuracion?: true
-    paqueteDestino?: true
+    paqueteId?: true
+    snapshotNombre?: true
+    snapshotDestino?: true
+    snapshotDuracion?: true
     incluyeBoleto?: true
-    cantSGL?: true
-    cantDBL?: true
-    cantTPL?: true
-    cantQUAD?: true
-    cantCHD?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
-    precioCHD?: true
     precioBoleto?: true
+    boletoTotal?: true
     subtotal?: true
     markup?: true
     total?: true
@@ -7730,23 +17491,14 @@ export namespace Prisma {
     codigo?: true
     agenciaId?: true
     creadoPorId?: true
-    paqueteId?: true
     clienteId?: true
-    paqueteNombre?: true
-    paqueteDuracion?: true
-    paqueteDestino?: true
+    paqueteId?: true
+    snapshotNombre?: true
+    snapshotDestino?: true
+    snapshotDuracion?: true
     incluyeBoleto?: true
-    cantSGL?: true
-    cantDBL?: true
-    cantTPL?: true
-    cantQUAD?: true
-    cantCHD?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
-    precioCHD?: true
     precioBoleto?: true
+    boletoTotal?: true
     subtotal?: true
     markup?: true
     total?: true
@@ -7766,24 +17518,15 @@ export namespace Prisma {
     codigo?: true
     agenciaId?: true
     creadoPorId?: true
-    paqueteId?: true
     clienteId?: true
-    paqueteNombre?: true
-    paqueteDuracion?: true
-    paqueteDestino?: true
-    paqueteIncluye?: true
+    paqueteId?: true
+    snapshotNombre?: true
+    snapshotDestino?: true
+    snapshotDuracion?: true
+    snapshotIncluye?: true
     incluyeBoleto?: true
-    cantSGL?: true
-    cantDBL?: true
-    cantTPL?: true
-    cantQUAD?: true
-    cantCHD?: true
-    precioSGL?: true
-    precioDBL?: true
-    precioTPL?: true
-    precioQUAD?: true
-    precioCHD?: true
     precioBoleto?: true
+    boletoTotal?: true
     subtotal?: true
     markup?: true
     total?: true
@@ -7890,24 +17633,15 @@ export namespace Prisma {
     codigo: string
     agenciaId: string
     creadoPorId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye: string[]
+    paqueteId: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye: string[]
     incluyeBoleto: boolean
-    cantSGL: number
-    cantDBL: number
-    cantTPL: number
-    cantQUAD: number
-    cantCHD: number
-    precioSGL: number | null
-    precioDBL: number | null
-    precioTPL: number | null
-    precioQUAD: number | null
-    precioCHD: number | null
     precioBoleto: number | null
+    boletoTotal: number
     subtotal: number
     markup: number
     total: number
@@ -7946,24 +17680,15 @@ export namespace Prisma {
     codigo?: boolean
     agenciaId?: boolean
     creadoPorId?: boolean
-    paqueteId?: boolean
     clienteId?: boolean
-    paqueteNombre?: boolean
-    paqueteDuracion?: boolean
-    paqueteDestino?: boolean
-    paqueteIncluye?: boolean
+    paqueteId?: boolean
+    snapshotNombre?: boolean
+    snapshotDestino?: boolean
+    snapshotDuracion?: boolean
+    snapshotIncluye?: boolean
     incluyeBoleto?: boolean
-    cantSGL?: boolean
-    cantDBL?: boolean
-    cantTPL?: boolean
-    cantQUAD?: boolean
-    cantCHD?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
-    precioCHD?: boolean
     precioBoleto?: boolean
+    boletoTotal?: boolean
     subtotal?: boolean
     markup?: boolean
     total?: boolean
@@ -7978,8 +17703,8 @@ export namespace Prisma {
     fechaVencimiento?: boolean
     agencia?: boolean | AgenciaDefaultArgs<ExtArgs>
     creadoPor?: boolean | UsuarioAgenciaDefaultArgs<ExtArgs>
-    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
+    detalles?: boolean | Cotizacion$detallesArgs<ExtArgs>
     historial?: boolean | Cotizacion$historialArgs<ExtArgs>
     _count?: boolean | CotizacionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cotizacion"]>
@@ -7989,24 +17714,15 @@ export namespace Prisma {
     codigo?: boolean
     agenciaId?: boolean
     creadoPorId?: boolean
-    paqueteId?: boolean
     clienteId?: boolean
-    paqueteNombre?: boolean
-    paqueteDuracion?: boolean
-    paqueteDestino?: boolean
-    paqueteIncluye?: boolean
+    paqueteId?: boolean
+    snapshotNombre?: boolean
+    snapshotDestino?: boolean
+    snapshotDuracion?: boolean
+    snapshotIncluye?: boolean
     incluyeBoleto?: boolean
-    cantSGL?: boolean
-    cantDBL?: boolean
-    cantTPL?: boolean
-    cantQUAD?: boolean
-    cantCHD?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
-    precioCHD?: boolean
     precioBoleto?: boolean
+    boletoTotal?: boolean
     subtotal?: boolean
     markup?: boolean
     total?: boolean
@@ -8021,7 +17737,6 @@ export namespace Prisma {
     fechaVencimiento?: boolean
     agencia?: boolean | AgenciaDefaultArgs<ExtArgs>
     creadoPor?: boolean | UsuarioAgenciaDefaultArgs<ExtArgs>
-    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cotizacion"]>
 
@@ -8030,24 +17745,15 @@ export namespace Prisma {
     codigo?: boolean
     agenciaId?: boolean
     creadoPorId?: boolean
-    paqueteId?: boolean
     clienteId?: boolean
-    paqueteNombre?: boolean
-    paqueteDuracion?: boolean
-    paqueteDestino?: boolean
-    paqueteIncluye?: boolean
+    paqueteId?: boolean
+    snapshotNombre?: boolean
+    snapshotDestino?: boolean
+    snapshotDuracion?: boolean
+    snapshotIncluye?: boolean
     incluyeBoleto?: boolean
-    cantSGL?: boolean
-    cantDBL?: boolean
-    cantTPL?: boolean
-    cantQUAD?: boolean
-    cantCHD?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
-    precioCHD?: boolean
     precioBoleto?: boolean
+    boletoTotal?: boolean
     subtotal?: boolean
     markup?: boolean
     total?: boolean
@@ -8062,7 +17768,6 @@ export namespace Prisma {
     fechaVencimiento?: boolean
     agencia?: boolean | AgenciaDefaultArgs<ExtArgs>
     creadoPor?: boolean | UsuarioAgenciaDefaultArgs<ExtArgs>
-    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cotizacion"]>
 
@@ -8071,24 +17776,15 @@ export namespace Prisma {
     codigo?: boolean
     agenciaId?: boolean
     creadoPorId?: boolean
-    paqueteId?: boolean
     clienteId?: boolean
-    paqueteNombre?: boolean
-    paqueteDuracion?: boolean
-    paqueteDestino?: boolean
-    paqueteIncluye?: boolean
+    paqueteId?: boolean
+    snapshotNombre?: boolean
+    snapshotDestino?: boolean
+    snapshotDuracion?: boolean
+    snapshotIncluye?: boolean
     incluyeBoleto?: boolean
-    cantSGL?: boolean
-    cantDBL?: boolean
-    cantTPL?: boolean
-    cantQUAD?: boolean
-    cantCHD?: boolean
-    precioSGL?: boolean
-    precioDBL?: boolean
-    precioTPL?: boolean
-    precioQUAD?: boolean
-    precioCHD?: boolean
     precioBoleto?: boolean
+    boletoTotal?: boolean
     subtotal?: boolean
     markup?: boolean
     total?: boolean
@@ -8103,25 +17799,23 @@ export namespace Prisma {
     fechaVencimiento?: boolean
   }
 
-  export type CotizacionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "codigo" | "agenciaId" | "creadoPorId" | "paqueteId" | "clienteId" | "paqueteNombre" | "paqueteDuracion" | "paqueteDestino" | "paqueteIncluye" | "incluyeBoleto" | "cantSGL" | "cantDBL" | "cantTPL" | "cantQUAD" | "cantCHD" | "precioSGL" | "precioDBL" | "precioTPL" | "precioQUAD" | "precioCHD" | "precioBoleto" | "subtotal" | "markup" | "total" | "fechaViaje" | "fechaRetorno" | "status" | "notas" | "tokenAprobacion" | "fechaCreacion" | "fechaEnvio" | "fechaAprobacion" | "fechaVencimiento", ExtArgs["result"]["cotizacion"]>
+  export type CotizacionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "codigo" | "agenciaId" | "creadoPorId" | "clienteId" | "paqueteId" | "snapshotNombre" | "snapshotDestino" | "snapshotDuracion" | "snapshotIncluye" | "incluyeBoleto" | "precioBoleto" | "boletoTotal" | "subtotal" | "markup" | "total" | "fechaViaje" | "fechaRetorno" | "status" | "notas" | "tokenAprobacion" | "fechaCreacion" | "fechaEnvio" | "fechaAprobacion" | "fechaVencimiento", ExtArgs["result"]["cotizacion"]>
   export type CotizacionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     agencia?: boolean | AgenciaDefaultArgs<ExtArgs>
     creadoPor?: boolean | UsuarioAgenciaDefaultArgs<ExtArgs>
-    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
+    detalles?: boolean | Cotizacion$detallesArgs<ExtArgs>
     historial?: boolean | Cotizacion$historialArgs<ExtArgs>
     _count?: boolean | CotizacionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CotizacionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     agencia?: boolean | AgenciaDefaultArgs<ExtArgs>
     creadoPor?: boolean | UsuarioAgenciaDefaultArgs<ExtArgs>
-    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
   }
   export type CotizacionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     agencia?: boolean | AgenciaDefaultArgs<ExtArgs>
     creadoPor?: boolean | UsuarioAgenciaDefaultArgs<ExtArgs>
-    paquete?: boolean | PaqueteRefDefaultArgs<ExtArgs>
     cliente?: boolean | ClienteDefaultArgs<ExtArgs>
   }
 
@@ -8130,36 +17824,24 @@ export namespace Prisma {
     objects: {
       agencia: Prisma.$AgenciaPayload<ExtArgs>
       creadoPor: Prisma.$UsuarioAgenciaPayload<ExtArgs>
-      paquete: Prisma.$PaqueteRefPayload<ExtArgs>
       cliente: Prisma.$ClientePayload<ExtArgs>
+      detalles: Prisma.$CotizacionDetallePayload<ExtArgs>[]
       historial: Prisma.$HistorialCotizacionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      /**
-       * Código legible: COT-YYYYMMDD-NNN (generado en la Server Action)
-       */
       codigo: string
       agenciaId: string
       creadoPorId: string
-      paqueteId: number
       clienteId: string
-      paqueteNombre: string
-      paqueteDuracion: string
-      paqueteDestino: string
-      paqueteIncluye: string[]
+      paqueteId: number | null
+      snapshotNombre: string
+      snapshotDestino: string
+      snapshotDuracion: string
+      snapshotIncluye: string[]
       incluyeBoleto: boolean
-      cantSGL: number
-      cantDBL: number
-      cantTPL: number
-      cantQUAD: number
-      cantCHD: number
-      precioSGL: number | null
-      precioDBL: number | null
-      precioTPL: number | null
-      precioQUAD: number | null
-      precioCHD: number | null
       precioBoleto: number | null
+      boletoTotal: number
       subtotal: number
       markup: number
       total: number
@@ -8167,9 +17849,6 @@ export namespace Prisma {
       fechaRetorno: Date | null
       status: $Enums.CotizacionStatus
       notas: string | null
-      /**
-       * Token UUID enviado al cliente por email para aprobar/rechazar
-       */
       tokenAprobacion: string | null
       fechaCreacion: Date
       fechaEnvio: Date | null
@@ -8571,8 +18250,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     agencia<T extends AgenciaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgenciaDefaultArgs<ExtArgs>>): Prisma__AgenciaClient<$Result.GetResult<Prisma.$AgenciaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     creadoPor<T extends UsuarioAgenciaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioAgenciaDefaultArgs<ExtArgs>>): Prisma__UsuarioAgenciaClient<$Result.GetResult<Prisma.$UsuarioAgenciaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    paquete<T extends PaqueteRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaqueteRefDefaultArgs<ExtArgs>>): Prisma__PaqueteRefClient<$Result.GetResult<Prisma.$PaqueteRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     cliente<T extends ClienteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClienteDefaultArgs<ExtArgs>>): Prisma__ClienteClient<$Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    detalles<T extends Cotizacion$detallesArgs<ExtArgs> = {}>(args?: Subset<T, Cotizacion$detallesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     historial<T extends Cotizacion$historialArgs<ExtArgs> = {}>(args?: Subset<T, Cotizacion$historialArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistorialCotizacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -8607,24 +18286,15 @@ export namespace Prisma {
     readonly codigo: FieldRef<"Cotizacion", 'String'>
     readonly agenciaId: FieldRef<"Cotizacion", 'String'>
     readonly creadoPorId: FieldRef<"Cotizacion", 'String'>
-    readonly paqueteId: FieldRef<"Cotizacion", 'Int'>
     readonly clienteId: FieldRef<"Cotizacion", 'String'>
-    readonly paqueteNombre: FieldRef<"Cotizacion", 'String'>
-    readonly paqueteDuracion: FieldRef<"Cotizacion", 'String'>
-    readonly paqueteDestino: FieldRef<"Cotizacion", 'String'>
-    readonly paqueteIncluye: FieldRef<"Cotizacion", 'String[]'>
+    readonly paqueteId: FieldRef<"Cotizacion", 'Int'>
+    readonly snapshotNombre: FieldRef<"Cotizacion", 'String'>
+    readonly snapshotDestino: FieldRef<"Cotizacion", 'String'>
+    readonly snapshotDuracion: FieldRef<"Cotizacion", 'String'>
+    readonly snapshotIncluye: FieldRef<"Cotizacion", 'String[]'>
     readonly incluyeBoleto: FieldRef<"Cotizacion", 'Boolean'>
-    readonly cantSGL: FieldRef<"Cotizacion", 'Int'>
-    readonly cantDBL: FieldRef<"Cotizacion", 'Int'>
-    readonly cantTPL: FieldRef<"Cotizacion", 'Int'>
-    readonly cantQUAD: FieldRef<"Cotizacion", 'Int'>
-    readonly cantCHD: FieldRef<"Cotizacion", 'Int'>
-    readonly precioSGL: FieldRef<"Cotizacion", 'Float'>
-    readonly precioDBL: FieldRef<"Cotizacion", 'Float'>
-    readonly precioTPL: FieldRef<"Cotizacion", 'Float'>
-    readonly precioQUAD: FieldRef<"Cotizacion", 'Float'>
-    readonly precioCHD: FieldRef<"Cotizacion", 'Float'>
     readonly precioBoleto: FieldRef<"Cotizacion", 'Float'>
+    readonly boletoTotal: FieldRef<"Cotizacion", 'Float'>
     readonly subtotal: FieldRef<"Cotizacion", 'Float'>
     readonly markup: FieldRef<"Cotizacion", 'Float'>
     readonly total: FieldRef<"Cotizacion", 'Float'>
@@ -9038,6 +18708,30 @@ export namespace Prisma {
   }
 
   /**
+   * Cotizacion.detalles
+   */
+  export type Cotizacion$detallesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    where?: CotizacionDetalleWhereInput
+    orderBy?: CotizacionDetalleOrderByWithRelationInput | CotizacionDetalleOrderByWithRelationInput[]
+    cursor?: CotizacionDetalleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CotizacionDetalleScalarFieldEnum | CotizacionDetalleScalarFieldEnum[]
+  }
+
+  /**
    * Cotizacion.historial
    */
   export type Cotizacion$historialArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9077,6 +18771,1175 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CotizacionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CotizacionDetalle
+   */
+
+  export type AggregateCotizacionDetalle = {
+    _count: CotizacionDetalleCountAggregateOutputType | null
+    _avg: CotizacionDetalleAvgAggregateOutputType | null
+    _sum: CotizacionDetalleSumAggregateOutputType | null
+    _min: CotizacionDetalleMinAggregateOutputType | null
+    _max: CotizacionDetalleMaxAggregateOutputType | null
+  }
+
+  export type CotizacionDetalleAvgAggregateOutputType = {
+    versionId: number | null
+    numPax: number | null
+    cantidad: number | null
+    precioPorPersona: number | null
+    precioUnitario: number | null
+    subtotal: number | null
+  }
+
+  export type CotizacionDetalleSumAggregateOutputType = {
+    versionId: number | null
+    numPax: number | null
+    cantidad: number | null
+    precioPorPersona: number | null
+    precioUnitario: number | null
+    subtotal: number | null
+  }
+
+  export type CotizacionDetalleMinAggregateOutputType = {
+    id: string | null
+    cotizacionId: string | null
+    versionId: number | null
+    tipoPax: string | null
+    numPax: number | null
+    cantidad: number | null
+    precioPorPersona: number | null
+    precioUnitario: number | null
+    subtotal: number | null
+  }
+
+  export type CotizacionDetalleMaxAggregateOutputType = {
+    id: string | null
+    cotizacionId: string | null
+    versionId: number | null
+    tipoPax: string | null
+    numPax: number | null
+    cantidad: number | null
+    precioPorPersona: number | null
+    precioUnitario: number | null
+    subtotal: number | null
+  }
+
+  export type CotizacionDetalleCountAggregateOutputType = {
+    id: number
+    cotizacionId: number
+    versionId: number
+    tipoPax: number
+    numPax: number
+    cantidad: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+    _all: number
+  }
+
+
+  export type CotizacionDetalleAvgAggregateInputType = {
+    versionId?: true
+    numPax?: true
+    cantidad?: true
+    precioPorPersona?: true
+    precioUnitario?: true
+    subtotal?: true
+  }
+
+  export type CotizacionDetalleSumAggregateInputType = {
+    versionId?: true
+    numPax?: true
+    cantidad?: true
+    precioPorPersona?: true
+    precioUnitario?: true
+    subtotal?: true
+  }
+
+  export type CotizacionDetalleMinAggregateInputType = {
+    id?: true
+    cotizacionId?: true
+    versionId?: true
+    tipoPax?: true
+    numPax?: true
+    cantidad?: true
+    precioPorPersona?: true
+    precioUnitario?: true
+    subtotal?: true
+  }
+
+  export type CotizacionDetalleMaxAggregateInputType = {
+    id?: true
+    cotizacionId?: true
+    versionId?: true
+    tipoPax?: true
+    numPax?: true
+    cantidad?: true
+    precioPorPersona?: true
+    precioUnitario?: true
+    subtotal?: true
+  }
+
+  export type CotizacionDetalleCountAggregateInputType = {
+    id?: true
+    cotizacionId?: true
+    versionId?: true
+    tipoPax?: true
+    numPax?: true
+    cantidad?: true
+    precioPorPersona?: true
+    precioUnitario?: true
+    subtotal?: true
+    _all?: true
+  }
+
+  export type CotizacionDetalleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CotizacionDetalle to aggregate.
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CotizacionDetalles to fetch.
+     */
+    orderBy?: CotizacionDetalleOrderByWithRelationInput | CotizacionDetalleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CotizacionDetalleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CotizacionDetalles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CotizacionDetalles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CotizacionDetalles
+    **/
+    _count?: true | CotizacionDetalleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CotizacionDetalleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CotizacionDetalleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CotizacionDetalleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CotizacionDetalleMaxAggregateInputType
+  }
+
+  export type GetCotizacionDetalleAggregateType<T extends CotizacionDetalleAggregateArgs> = {
+        [P in keyof T & keyof AggregateCotizacionDetalle]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCotizacionDetalle[P]>
+      : GetScalarType<T[P], AggregateCotizacionDetalle[P]>
+  }
+
+
+
+
+  export type CotizacionDetalleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CotizacionDetalleWhereInput
+    orderBy?: CotizacionDetalleOrderByWithAggregationInput | CotizacionDetalleOrderByWithAggregationInput[]
+    by: CotizacionDetalleScalarFieldEnum[] | CotizacionDetalleScalarFieldEnum
+    having?: CotizacionDetalleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CotizacionDetalleCountAggregateInputType | true
+    _avg?: CotizacionDetalleAvgAggregateInputType
+    _sum?: CotizacionDetalleSumAggregateInputType
+    _min?: CotizacionDetalleMinAggregateInputType
+    _max?: CotizacionDetalleMaxAggregateInputType
+  }
+
+  export type CotizacionDetalleGroupByOutputType = {
+    id: string
+    cotizacionId: string
+    versionId: number | null
+    tipoPax: string
+    numPax: number
+    cantidad: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+    _count: CotizacionDetalleCountAggregateOutputType | null
+    _avg: CotizacionDetalleAvgAggregateOutputType | null
+    _sum: CotizacionDetalleSumAggregateOutputType | null
+    _min: CotizacionDetalleMinAggregateOutputType | null
+    _max: CotizacionDetalleMaxAggregateOutputType | null
+  }
+
+  type GetCotizacionDetalleGroupByPayload<T extends CotizacionDetalleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CotizacionDetalleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CotizacionDetalleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CotizacionDetalleGroupByOutputType[P]>
+            : GetScalarType<T[P], CotizacionDetalleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CotizacionDetalleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cotizacionId?: boolean
+    versionId?: boolean
+    tipoPax?: boolean
+    numPax?: boolean
+    cantidad?: boolean
+    precioPorPersona?: boolean
+    precioUnitario?: boolean
+    subtotal?: boolean
+    cotizacion?: boolean | CotizacionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cotizacionDetalle"]>
+
+  export type CotizacionDetalleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cotizacionId?: boolean
+    versionId?: boolean
+    tipoPax?: boolean
+    numPax?: boolean
+    cantidad?: boolean
+    precioPorPersona?: boolean
+    precioUnitario?: boolean
+    subtotal?: boolean
+    cotizacion?: boolean | CotizacionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cotizacionDetalle"]>
+
+  export type CotizacionDetalleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cotizacionId?: boolean
+    versionId?: boolean
+    tipoPax?: boolean
+    numPax?: boolean
+    cantidad?: boolean
+    precioPorPersona?: boolean
+    precioUnitario?: boolean
+    subtotal?: boolean
+    cotizacion?: boolean | CotizacionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cotizacionDetalle"]>
+
+  export type CotizacionDetalleSelectScalar = {
+    id?: boolean
+    cotizacionId?: boolean
+    versionId?: boolean
+    tipoPax?: boolean
+    numPax?: boolean
+    cantidad?: boolean
+    precioPorPersona?: boolean
+    precioUnitario?: boolean
+    subtotal?: boolean
+  }
+
+  export type CotizacionDetalleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cotizacionId" | "versionId" | "tipoPax" | "numPax" | "cantidad" | "precioPorPersona" | "precioUnitario" | "subtotal", ExtArgs["result"]["cotizacionDetalle"]>
+  export type CotizacionDetalleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cotizacion?: boolean | CotizacionDefaultArgs<ExtArgs>
+  }
+  export type CotizacionDetalleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cotizacion?: boolean | CotizacionDefaultArgs<ExtArgs>
+  }
+  export type CotizacionDetalleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cotizacion?: boolean | CotizacionDefaultArgs<ExtArgs>
+  }
+
+  export type $CotizacionDetallePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CotizacionDetalle"
+    objects: {
+      cotizacion: Prisma.$CotizacionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      cotizacionId: string
+      versionId: number | null
+      tipoPax: string
+      numPax: number
+      cantidad: number
+      precioPorPersona: number
+      precioUnitario: number
+      subtotal: number
+    }, ExtArgs["result"]["cotizacionDetalle"]>
+    composites: {}
+  }
+
+  type CotizacionDetalleGetPayload<S extends boolean | null | undefined | CotizacionDetalleDefaultArgs> = $Result.GetResult<Prisma.$CotizacionDetallePayload, S>
+
+  type CotizacionDetalleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CotizacionDetalleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CotizacionDetalleCountAggregateInputType | true
+    }
+
+  export interface CotizacionDetalleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CotizacionDetalle'], meta: { name: 'CotizacionDetalle' } }
+    /**
+     * Find zero or one CotizacionDetalle that matches the filter.
+     * @param {CotizacionDetalleFindUniqueArgs} args - Arguments to find a CotizacionDetalle
+     * @example
+     * // Get one CotizacionDetalle
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CotizacionDetalleFindUniqueArgs>(args: SelectSubset<T, CotizacionDetalleFindUniqueArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CotizacionDetalle that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CotizacionDetalleFindUniqueOrThrowArgs} args - Arguments to find a CotizacionDetalle
+     * @example
+     * // Get one CotizacionDetalle
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CotizacionDetalleFindUniqueOrThrowArgs>(args: SelectSubset<T, CotizacionDetalleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CotizacionDetalle that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleFindFirstArgs} args - Arguments to find a CotizacionDetalle
+     * @example
+     * // Get one CotizacionDetalle
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CotizacionDetalleFindFirstArgs>(args?: SelectSubset<T, CotizacionDetalleFindFirstArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CotizacionDetalle that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleFindFirstOrThrowArgs} args - Arguments to find a CotizacionDetalle
+     * @example
+     * // Get one CotizacionDetalle
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CotizacionDetalleFindFirstOrThrowArgs>(args?: SelectSubset<T, CotizacionDetalleFindFirstOrThrowArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CotizacionDetalles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CotizacionDetalles
+     * const cotizacionDetalles = await prisma.cotizacionDetalle.findMany()
+     * 
+     * // Get first 10 CotizacionDetalles
+     * const cotizacionDetalles = await prisma.cotizacionDetalle.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const cotizacionDetalleWithIdOnly = await prisma.cotizacionDetalle.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CotizacionDetalleFindManyArgs>(args?: SelectSubset<T, CotizacionDetalleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CotizacionDetalle.
+     * @param {CotizacionDetalleCreateArgs} args - Arguments to create a CotizacionDetalle.
+     * @example
+     * // Create one CotizacionDetalle
+     * const CotizacionDetalle = await prisma.cotizacionDetalle.create({
+     *   data: {
+     *     // ... data to create a CotizacionDetalle
+     *   }
+     * })
+     * 
+     */
+    create<T extends CotizacionDetalleCreateArgs>(args: SelectSubset<T, CotizacionDetalleCreateArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CotizacionDetalles.
+     * @param {CotizacionDetalleCreateManyArgs} args - Arguments to create many CotizacionDetalles.
+     * @example
+     * // Create many CotizacionDetalles
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CotizacionDetalleCreateManyArgs>(args?: SelectSubset<T, CotizacionDetalleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CotizacionDetalles and returns the data saved in the database.
+     * @param {CotizacionDetalleCreateManyAndReturnArgs} args - Arguments to create many CotizacionDetalles.
+     * @example
+     * // Create many CotizacionDetalles
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CotizacionDetalles and only return the `id`
+     * const cotizacionDetalleWithIdOnly = await prisma.cotizacionDetalle.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CotizacionDetalleCreateManyAndReturnArgs>(args?: SelectSubset<T, CotizacionDetalleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CotizacionDetalle.
+     * @param {CotizacionDetalleDeleteArgs} args - Arguments to delete one CotizacionDetalle.
+     * @example
+     * // Delete one CotizacionDetalle
+     * const CotizacionDetalle = await prisma.cotizacionDetalle.delete({
+     *   where: {
+     *     // ... filter to delete one CotizacionDetalle
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CotizacionDetalleDeleteArgs>(args: SelectSubset<T, CotizacionDetalleDeleteArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CotizacionDetalle.
+     * @param {CotizacionDetalleUpdateArgs} args - Arguments to update one CotizacionDetalle.
+     * @example
+     * // Update one CotizacionDetalle
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CotizacionDetalleUpdateArgs>(args: SelectSubset<T, CotizacionDetalleUpdateArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CotizacionDetalles.
+     * @param {CotizacionDetalleDeleteManyArgs} args - Arguments to filter CotizacionDetalles to delete.
+     * @example
+     * // Delete a few CotizacionDetalles
+     * const { count } = await prisma.cotizacionDetalle.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CotizacionDetalleDeleteManyArgs>(args?: SelectSubset<T, CotizacionDetalleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CotizacionDetalles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CotizacionDetalles
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CotizacionDetalleUpdateManyArgs>(args: SelectSubset<T, CotizacionDetalleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CotizacionDetalles and returns the data updated in the database.
+     * @param {CotizacionDetalleUpdateManyAndReturnArgs} args - Arguments to update many CotizacionDetalles.
+     * @example
+     * // Update many CotizacionDetalles
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CotizacionDetalles and only return the `id`
+     * const cotizacionDetalleWithIdOnly = await prisma.cotizacionDetalle.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CotizacionDetalleUpdateManyAndReturnArgs>(args: SelectSubset<T, CotizacionDetalleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CotizacionDetalle.
+     * @param {CotizacionDetalleUpsertArgs} args - Arguments to update or create a CotizacionDetalle.
+     * @example
+     * // Update or create a CotizacionDetalle
+     * const cotizacionDetalle = await prisma.cotizacionDetalle.upsert({
+     *   create: {
+     *     // ... data to create a CotizacionDetalle
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CotizacionDetalle we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CotizacionDetalleUpsertArgs>(args: SelectSubset<T, CotizacionDetalleUpsertArgs<ExtArgs>>): Prisma__CotizacionDetalleClient<$Result.GetResult<Prisma.$CotizacionDetallePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CotizacionDetalles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleCountArgs} args - Arguments to filter CotizacionDetalles to count.
+     * @example
+     * // Count the number of CotizacionDetalles
+     * const count = await prisma.cotizacionDetalle.count({
+     *   where: {
+     *     // ... the filter for the CotizacionDetalles we want to count
+     *   }
+     * })
+    **/
+    count<T extends CotizacionDetalleCountArgs>(
+      args?: Subset<T, CotizacionDetalleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CotizacionDetalleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CotizacionDetalle.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CotizacionDetalleAggregateArgs>(args: Subset<T, CotizacionDetalleAggregateArgs>): Prisma.PrismaPromise<GetCotizacionDetalleAggregateType<T>>
+
+    /**
+     * Group by CotizacionDetalle.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CotizacionDetalleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CotizacionDetalleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CotizacionDetalleGroupByArgs['orderBy'] }
+        : { orderBy?: CotizacionDetalleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CotizacionDetalleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCotizacionDetalleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CotizacionDetalle model
+   */
+  readonly fields: CotizacionDetalleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CotizacionDetalle.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CotizacionDetalleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    cotizacion<T extends CotizacionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CotizacionDefaultArgs<ExtArgs>>): Prisma__CotizacionClient<$Result.GetResult<Prisma.$CotizacionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CotizacionDetalle model
+   */
+  interface CotizacionDetalleFieldRefs {
+    readonly id: FieldRef<"CotizacionDetalle", 'String'>
+    readonly cotizacionId: FieldRef<"CotizacionDetalle", 'String'>
+    readonly versionId: FieldRef<"CotizacionDetalle", 'Int'>
+    readonly tipoPax: FieldRef<"CotizacionDetalle", 'String'>
+    readonly numPax: FieldRef<"CotizacionDetalle", 'Int'>
+    readonly cantidad: FieldRef<"CotizacionDetalle", 'Int'>
+    readonly precioPorPersona: FieldRef<"CotizacionDetalle", 'Float'>
+    readonly precioUnitario: FieldRef<"CotizacionDetalle", 'Float'>
+    readonly subtotal: FieldRef<"CotizacionDetalle", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CotizacionDetalle findUnique
+   */
+  export type CotizacionDetalleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * Filter, which CotizacionDetalle to fetch.
+     */
+    where: CotizacionDetalleWhereUniqueInput
+  }
+
+  /**
+   * CotizacionDetalle findUniqueOrThrow
+   */
+  export type CotizacionDetalleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * Filter, which CotizacionDetalle to fetch.
+     */
+    where: CotizacionDetalleWhereUniqueInput
+  }
+
+  /**
+   * CotizacionDetalle findFirst
+   */
+  export type CotizacionDetalleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * Filter, which CotizacionDetalle to fetch.
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CotizacionDetalles to fetch.
+     */
+    orderBy?: CotizacionDetalleOrderByWithRelationInput | CotizacionDetalleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CotizacionDetalles.
+     */
+    cursor?: CotizacionDetalleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CotizacionDetalles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CotizacionDetalles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CotizacionDetalles.
+     */
+    distinct?: CotizacionDetalleScalarFieldEnum | CotizacionDetalleScalarFieldEnum[]
+  }
+
+  /**
+   * CotizacionDetalle findFirstOrThrow
+   */
+  export type CotizacionDetalleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * Filter, which CotizacionDetalle to fetch.
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CotizacionDetalles to fetch.
+     */
+    orderBy?: CotizacionDetalleOrderByWithRelationInput | CotizacionDetalleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CotizacionDetalles.
+     */
+    cursor?: CotizacionDetalleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CotizacionDetalles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CotizacionDetalles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CotizacionDetalles.
+     */
+    distinct?: CotizacionDetalleScalarFieldEnum | CotizacionDetalleScalarFieldEnum[]
+  }
+
+  /**
+   * CotizacionDetalle findMany
+   */
+  export type CotizacionDetalleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * Filter, which CotizacionDetalles to fetch.
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CotizacionDetalles to fetch.
+     */
+    orderBy?: CotizacionDetalleOrderByWithRelationInput | CotizacionDetalleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CotizacionDetalles.
+     */
+    cursor?: CotizacionDetalleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CotizacionDetalles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CotizacionDetalles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CotizacionDetalles.
+     */
+    distinct?: CotizacionDetalleScalarFieldEnum | CotizacionDetalleScalarFieldEnum[]
+  }
+
+  /**
+   * CotizacionDetalle create
+   */
+  export type CotizacionDetalleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CotizacionDetalle.
+     */
+    data: XOR<CotizacionDetalleCreateInput, CotizacionDetalleUncheckedCreateInput>
+  }
+
+  /**
+   * CotizacionDetalle createMany
+   */
+  export type CotizacionDetalleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CotizacionDetalles.
+     */
+    data: CotizacionDetalleCreateManyInput | CotizacionDetalleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CotizacionDetalle createManyAndReturn
+   */
+  export type CotizacionDetalleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * The data used to create many CotizacionDetalles.
+     */
+    data: CotizacionDetalleCreateManyInput | CotizacionDetalleCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CotizacionDetalle update
+   */
+  export type CotizacionDetalleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CotizacionDetalle.
+     */
+    data: XOR<CotizacionDetalleUpdateInput, CotizacionDetalleUncheckedUpdateInput>
+    /**
+     * Choose, which CotizacionDetalle to update.
+     */
+    where: CotizacionDetalleWhereUniqueInput
+  }
+
+  /**
+   * CotizacionDetalle updateMany
+   */
+  export type CotizacionDetalleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CotizacionDetalles.
+     */
+    data: XOR<CotizacionDetalleUpdateManyMutationInput, CotizacionDetalleUncheckedUpdateManyInput>
+    /**
+     * Filter which CotizacionDetalles to update
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * Limit how many CotizacionDetalles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CotizacionDetalle updateManyAndReturn
+   */
+  export type CotizacionDetalleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * The data used to update CotizacionDetalles.
+     */
+    data: XOR<CotizacionDetalleUpdateManyMutationInput, CotizacionDetalleUncheckedUpdateManyInput>
+    /**
+     * Filter which CotizacionDetalles to update
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * Limit how many CotizacionDetalles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CotizacionDetalle upsert
+   */
+  export type CotizacionDetalleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CotizacionDetalle to update in case it exists.
+     */
+    where: CotizacionDetalleWhereUniqueInput
+    /**
+     * In case the CotizacionDetalle found by the `where` argument doesn't exist, create a new CotizacionDetalle with this data.
+     */
+    create: XOR<CotizacionDetalleCreateInput, CotizacionDetalleUncheckedCreateInput>
+    /**
+     * In case the CotizacionDetalle was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CotizacionDetalleUpdateInput, CotizacionDetalleUncheckedUpdateInput>
+  }
+
+  /**
+   * CotizacionDetalle delete
+   */
+  export type CotizacionDetalleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
+    /**
+     * Filter which CotizacionDetalle to delete.
+     */
+    where: CotizacionDetalleWhereUniqueInput
+  }
+
+  /**
+   * CotizacionDetalle deleteMany
+   */
+  export type CotizacionDetalleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CotizacionDetalles to delete
+     */
+    where?: CotizacionDetalleWhereInput
+    /**
+     * Limit how many CotizacionDetalles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CotizacionDetalle without action
+   */
+  export type CotizacionDetalleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CotizacionDetalle
+     */
+    select?: CotizacionDetalleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CotizacionDetalle
+     */
+    omit?: CotizacionDetalleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CotizacionDetalleInclude<ExtArgs> | null
   }
 
 
@@ -10194,8 +21057,10 @@ export namespace Prisma {
   export const AgenciaScalarFieldEnum: {
     id: 'id',
     nombre: 'nombre',
+    descripcion: 'descripcion',
     correo: 'correo',
-    telefono: 'telefono'
+    telefono: 'telefono',
+    fechaAlta: 'fechaAlta'
   };
 
   export type AgenciaScalarFieldEnum = (typeof AgenciaScalarFieldEnum)[keyof typeof AgenciaScalarFieldEnum]
@@ -10217,34 +21082,104 @@ export namespace Prisma {
     id: 'id',
     pais: 'pais',
     ciudad: 'ciudad',
-    tagline: 'tagline',
     descripcion: 'descripcion',
-    imagen: 'imagen',
-    color: 'color'
+    imagen: 'imagen'
   };
 
   export type DestinoRefScalarFieldEnum = (typeof DestinoRefScalarFieldEnum)[keyof typeof DestinoRefScalarFieldEnum]
+
+
+  export const HotelRefScalarFieldEnum: {
+    id: 'id',
+    destinoId: 'destinoId',
+    nombre: 'nombre',
+    estrellas: 'estrellas'
+  };
+
+  export type HotelRefScalarFieldEnum = (typeof HotelRefScalarFieldEnum)[keyof typeof HotelRefScalarFieldEnum]
 
 
   export const PaqueteRefScalarFieldEnum: {
     id: 'id',
     nombre: 'nombre',
     descripcion: 'descripcion',
-    imagen: 'imagen',
-    categoria: 'categoria',
-    diasEstancia: 'diasEstancia',
-    nochesBase: 'nochesBase',
     incluyeBoleto: 'incluyeBoleto',
     precioBoleto: 'precioBoleto',
-    precioSGL: 'precioSGL',
-    precioDBL: 'precioDBL',
-    precioTPL: 'precioTPL',
-    precioQUAD: 'precioQUAD',
-    precioPorPersona: 'precioPorPersona',
-    destinoId: 'destinoId'
+    numPax: 'numPax',
+    diasEstancia: 'diasEstancia',
+    nochesBase: 'nochesBase',
+    precioTotal: 'precioTotal',
+    precioPorPersona: 'precioPorPersona'
   };
 
   export type PaqueteRefScalarFieldEnum = (typeof PaqueteRefScalarFieldEnum)[keyof typeof PaqueteRefScalarFieldEnum]
+
+
+  export const PaqueteHotelRefScalarFieldEnum: {
+    paqueteId: 'paqueteId',
+    hotelId: 'hotelId',
+    tipoHabitacion: 'tipoHabitacion',
+    cantidad: 'cantidad'
+  };
+
+  export type PaqueteHotelRefScalarFieldEnum = (typeof PaqueteHotelRefScalarFieldEnum)[keyof typeof PaqueteHotelRefScalarFieldEnum]
+
+
+  export const ActividadRefScalarFieldEnum: {
+    id: 'id',
+    destinoId: 'destinoId',
+    nombre: 'nombre',
+    descripcion: 'descripcion'
+  };
+
+  export type ActividadRefScalarFieldEnum = (typeof ActividadRefScalarFieldEnum)[keyof typeof ActividadRefScalarFieldEnum]
+
+
+  export const TrasladoRefScalarFieldEnum: {
+    id: 'id',
+    destinoId: 'destinoId',
+    tipo: 'tipo'
+  };
+
+  export type TrasladoRefScalarFieldEnum = (typeof TrasladoRefScalarFieldEnum)[keyof typeof TrasladoRefScalarFieldEnum]
+
+
+  export const PaqueteActividadRefScalarFieldEnum: {
+    paqueteId: 'paqueteId',
+    actividadId: 'actividadId'
+  };
+
+  export type PaqueteActividadRefScalarFieldEnum = (typeof PaqueteActividadRefScalarFieldEnum)[keyof typeof PaqueteActividadRefScalarFieldEnum]
+
+
+  export const PaqueteTrasladoRefScalarFieldEnum: {
+    paqueteId: 'paqueteId',
+    trasladoId: 'trasladoId'
+  };
+
+  export type PaqueteTrasladoRefScalarFieldEnum = (typeof PaqueteTrasladoRefScalarFieldEnum)[keyof typeof PaqueteTrasladoRefScalarFieldEnum]
+
+
+  export const VersionPaqueteRefScalarFieldEnum: {
+    id: 'id',
+    paqueteId: 'paqueteId',
+    numPax: 'numPax',
+    tipoPax: 'tipoPax',
+    precioTotal: 'precioTotal',
+    precioPorPersona: 'precioPorPersona'
+  };
+
+  export type VersionPaqueteRefScalarFieldEnum = (typeof VersionPaqueteRefScalarFieldEnum)[keyof typeof VersionPaqueteRefScalarFieldEnum]
+
+
+  export const ImagenPaqueteRefScalarFieldEnum: {
+    id: 'id',
+    paqueteId: 'paqueteId',
+    url: 'url',
+    orden: 'orden'
+  };
+
+  export type ImagenPaqueteRefScalarFieldEnum = (typeof ImagenPaqueteRefScalarFieldEnum)[keyof typeof ImagenPaqueteRefScalarFieldEnum]
 
 
   export const ClienteScalarFieldEnum: {
@@ -10266,24 +21201,15 @@ export namespace Prisma {
     codigo: 'codigo',
     agenciaId: 'agenciaId',
     creadoPorId: 'creadoPorId',
-    paqueteId: 'paqueteId',
     clienteId: 'clienteId',
-    paqueteNombre: 'paqueteNombre',
-    paqueteDuracion: 'paqueteDuracion',
-    paqueteDestino: 'paqueteDestino',
-    paqueteIncluye: 'paqueteIncluye',
+    paqueteId: 'paqueteId',
+    snapshotNombre: 'snapshotNombre',
+    snapshotDestino: 'snapshotDestino',
+    snapshotDuracion: 'snapshotDuracion',
+    snapshotIncluye: 'snapshotIncluye',
     incluyeBoleto: 'incluyeBoleto',
-    cantSGL: 'cantSGL',
-    cantDBL: 'cantDBL',
-    cantTPL: 'cantTPL',
-    cantQUAD: 'cantQUAD',
-    cantCHD: 'cantCHD',
-    precioSGL: 'precioSGL',
-    precioDBL: 'precioDBL',
-    precioTPL: 'precioTPL',
-    precioQUAD: 'precioQUAD',
-    precioCHD: 'precioCHD',
     precioBoleto: 'precioBoleto',
+    boletoTotal: 'boletoTotal',
     subtotal: 'subtotal',
     markup: 'markup',
     total: 'total',
@@ -10299,6 +21225,21 @@ export namespace Prisma {
   };
 
   export type CotizacionScalarFieldEnum = (typeof CotizacionScalarFieldEnum)[keyof typeof CotizacionScalarFieldEnum]
+
+
+  export const CotizacionDetalleScalarFieldEnum: {
+    id: 'id',
+    cotizacionId: 'cotizacionId',
+    versionId: 'versionId',
+    tipoPax: 'tipoPax',
+    numPax: 'numPax',
+    cantidad: 'cantidad',
+    precioPorPersona: 'precioPorPersona',
+    precioUnitario: 'precioUnitario',
+    subtotal: 'subtotal'
+  };
+
+  export type CotizacionDetalleScalarFieldEnum = (typeof CotizacionDetalleScalarFieldEnum)[keyof typeof CotizacionDetalleScalarFieldEnum]
 
 
   export const HistorialCotizacionScalarFieldEnum: {
@@ -10358,6 +21299,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -10393,20 +21348,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'DateTime'
-   */
-  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime[]'
-   */
-  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-  /**
    * Reference to a field of type 'CotizacionStatus'
    */
   export type EnumCotizacionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CotizacionStatus'>
@@ -10429,8 +21370,10 @@ export namespace Prisma {
     NOT?: AgenciaWhereInput | AgenciaWhereInput[]
     id?: StringFilter<"Agencia"> | string
     nombre?: StringFilter<"Agencia"> | string
+    descripcion?: StringNullableFilter<"Agencia"> | string | null
     correo?: StringNullableFilter<"Agencia"> | string | null
     telefono?: StringNullableFilter<"Agencia"> | string | null
+    fechaAlta?: DateTimeFilter<"Agencia"> | Date | string
     usuarios?: UsuarioAgenciaListRelationFilter
     clientes?: ClienteListRelationFilter
     cotizaciones?: CotizacionListRelationFilter
@@ -10439,8 +21382,10 @@ export namespace Prisma {
   export type AgenciaOrderByWithRelationInput = {
     id?: SortOrder
     nombre?: SortOrder
+    descripcion?: SortOrderInput | SortOrder
     correo?: SortOrderInput | SortOrder
     telefono?: SortOrderInput | SortOrder
+    fechaAlta?: SortOrder
     usuarios?: UsuarioAgenciaOrderByRelationAggregateInput
     clientes?: ClienteOrderByRelationAggregateInput
     cotizaciones?: CotizacionOrderByRelationAggregateInput
@@ -10452,8 +21397,10 @@ export namespace Prisma {
     OR?: AgenciaWhereInput[]
     NOT?: AgenciaWhereInput | AgenciaWhereInput[]
     nombre?: StringFilter<"Agencia"> | string
+    descripcion?: StringNullableFilter<"Agencia"> | string | null
     correo?: StringNullableFilter<"Agencia"> | string | null
     telefono?: StringNullableFilter<"Agencia"> | string | null
+    fechaAlta?: DateTimeFilter<"Agencia"> | Date | string
     usuarios?: UsuarioAgenciaListRelationFilter
     clientes?: ClienteListRelationFilter
     cotizaciones?: CotizacionListRelationFilter
@@ -10462,8 +21409,10 @@ export namespace Prisma {
   export type AgenciaOrderByWithAggregationInput = {
     id?: SortOrder
     nombre?: SortOrder
+    descripcion?: SortOrderInput | SortOrder
     correo?: SortOrderInput | SortOrder
     telefono?: SortOrderInput | SortOrder
+    fechaAlta?: SortOrder
     _count?: AgenciaCountOrderByAggregateInput
     _max?: AgenciaMaxOrderByAggregateInput
     _min?: AgenciaMinOrderByAggregateInput
@@ -10475,8 +21424,10 @@ export namespace Prisma {
     NOT?: AgenciaScalarWhereWithAggregatesInput | AgenciaScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Agencia"> | string
     nombre?: StringWithAggregatesFilter<"Agencia"> | string
+    descripcion?: StringNullableWithAggregatesFilter<"Agencia"> | string | null
     correo?: StringNullableWithAggregatesFilter<"Agencia"> | string | null
     telefono?: StringNullableWithAggregatesFilter<"Agencia"> | string | null
+    fechaAlta?: DateTimeWithAggregatesFilter<"Agencia"> | Date | string
   }
 
   export type UsuarioAgenciaWhereInput = {
@@ -10552,22 +21503,22 @@ export namespace Prisma {
     id?: IntFilter<"DestinoRef"> | number
     pais?: StringFilter<"DestinoRef"> | string
     ciudad?: StringFilter<"DestinoRef"> | string
-    tagline?: StringNullableFilter<"DestinoRef"> | string | null
     descripcion?: StringNullableFilter<"DestinoRef"> | string | null
     imagen?: StringNullableFilter<"DestinoRef"> | string | null
-    color?: StringNullableFilter<"DestinoRef"> | string | null
-    paquetes?: PaqueteRefListRelationFilter
+    hoteles?: HotelRefListRelationFilter
+    actividades?: ActividadRefListRelationFilter
+    traslados?: TrasladoRefListRelationFilter
   }
 
   export type DestinoRefOrderByWithRelationInput = {
     id?: SortOrder
     pais?: SortOrder
     ciudad?: SortOrder
-    tagline?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     imagen?: SortOrderInput | SortOrder
-    color?: SortOrderInput | SortOrder
-    paquetes?: PaqueteRefOrderByRelationAggregateInput
+    hoteles?: HotelRefOrderByRelationAggregateInput
+    actividades?: ActividadRefOrderByRelationAggregateInput
+    traslados?: TrasladoRefOrderByRelationAggregateInput
   }
 
   export type DestinoRefWhereUniqueInput = Prisma.AtLeast<{
@@ -10577,21 +21528,19 @@ export namespace Prisma {
     NOT?: DestinoRefWhereInput | DestinoRefWhereInput[]
     pais?: StringFilter<"DestinoRef"> | string
     ciudad?: StringFilter<"DestinoRef"> | string
-    tagline?: StringNullableFilter<"DestinoRef"> | string | null
     descripcion?: StringNullableFilter<"DestinoRef"> | string | null
     imagen?: StringNullableFilter<"DestinoRef"> | string | null
-    color?: StringNullableFilter<"DestinoRef"> | string | null
-    paquetes?: PaqueteRefListRelationFilter
+    hoteles?: HotelRefListRelationFilter
+    actividades?: ActividadRefListRelationFilter
+    traslados?: TrasladoRefListRelationFilter
   }, "id">
 
   export type DestinoRefOrderByWithAggregationInput = {
     id?: SortOrder
     pais?: SortOrder
     ciudad?: SortOrder
-    tagline?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     imagen?: SortOrderInput | SortOrder
-    color?: SortOrderInput | SortOrder
     _count?: DestinoRefCountOrderByAggregateInput
     _avg?: DestinoRefAvgOrderByAggregateInput
     _max?: DestinoRefMaxOrderByAggregateInput
@@ -10606,10 +21555,63 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"DestinoRef"> | number
     pais?: StringWithAggregatesFilter<"DestinoRef"> | string
     ciudad?: StringWithAggregatesFilter<"DestinoRef"> | string
-    tagline?: StringNullableWithAggregatesFilter<"DestinoRef"> | string | null
     descripcion?: StringNullableWithAggregatesFilter<"DestinoRef"> | string | null
     imagen?: StringNullableWithAggregatesFilter<"DestinoRef"> | string | null
-    color?: StringNullableWithAggregatesFilter<"DestinoRef"> | string | null
+  }
+
+  export type HotelRefWhereInput = {
+    AND?: HotelRefWhereInput | HotelRefWhereInput[]
+    OR?: HotelRefWhereInput[]
+    NOT?: HotelRefWhereInput | HotelRefWhereInput[]
+    id?: IntFilter<"HotelRef"> | number
+    destinoId?: IntFilter<"HotelRef"> | number
+    nombre?: StringFilter<"HotelRef"> | string
+    estrellas?: IntFilter<"HotelRef"> | number
+    destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
+    paquetes?: PaqueteHotelRefListRelationFilter
+  }
+
+  export type HotelRefOrderByWithRelationInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    estrellas?: SortOrder
+    destino?: DestinoRefOrderByWithRelationInput
+    paquetes?: PaqueteHotelRefOrderByRelationAggregateInput
+  }
+
+  export type HotelRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: HotelRefWhereInput | HotelRefWhereInput[]
+    OR?: HotelRefWhereInput[]
+    NOT?: HotelRefWhereInput | HotelRefWhereInput[]
+    destinoId?: IntFilter<"HotelRef"> | number
+    nombre?: StringFilter<"HotelRef"> | string
+    estrellas?: IntFilter<"HotelRef"> | number
+    destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
+    paquetes?: PaqueteHotelRefListRelationFilter
+  }, "id">
+
+  export type HotelRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    estrellas?: SortOrder
+    _count?: HotelRefCountOrderByAggregateInput
+    _avg?: HotelRefAvgOrderByAggregateInput
+    _max?: HotelRefMaxOrderByAggregateInput
+    _min?: HotelRefMinOrderByAggregateInput
+    _sum?: HotelRefSumOrderByAggregateInput
+  }
+
+  export type HotelRefScalarWhereWithAggregatesInput = {
+    AND?: HotelRefScalarWhereWithAggregatesInput | HotelRefScalarWhereWithAggregatesInput[]
+    OR?: HotelRefScalarWhereWithAggregatesInput[]
+    NOT?: HotelRefScalarWhereWithAggregatesInput | HotelRefScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"HotelRef"> | number
+    destinoId?: IntWithAggregatesFilter<"HotelRef"> | number
+    nombre?: StringWithAggregatesFilter<"HotelRef"> | string
+    estrellas?: IntWithAggregatesFilter<"HotelRef"> | number
   }
 
   export type PaqueteRefWhereInput = {
@@ -10619,40 +21621,36 @@ export namespace Prisma {
     id?: IntFilter<"PaqueteRef"> | number
     nombre?: StringFilter<"PaqueteRef"> | string
     descripcion?: StringNullableFilter<"PaqueteRef"> | string | null
-    imagen?: StringNullableFilter<"PaqueteRef"> | string | null
-    categoria?: StringNullableFilter<"PaqueteRef"> | string | null
-    diasEstancia?: IntFilter<"PaqueteRef"> | number
-    nochesBase?: IntFilter<"PaqueteRef"> | number
     incluyeBoleto?: BoolFilter<"PaqueteRef"> | boolean
     precioBoleto?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioSGL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioDBL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioTPL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioQUAD?: FloatNullableFilter<"PaqueteRef"> | number | null
+    numPax?: IntFilter<"PaqueteRef"> | number
+    diasEstancia?: IntFilter<"PaqueteRef"> | number
+    nochesBase?: IntFilter<"PaqueteRef"> | number
+    precioTotal?: FloatNullableFilter<"PaqueteRef"> | number | null
     precioPorPersona?: FloatNullableFilter<"PaqueteRef"> | number | null
-    destinoId?: IntNullableFilter<"PaqueteRef"> | number | null
-    destino?: XOR<DestinoRefNullableScalarRelationFilter, DestinoRefWhereInput> | null
-    cotizaciones?: CotizacionListRelationFilter
+    hoteles?: PaqueteHotelRefListRelationFilter
+    versiones?: VersionPaqueteRefListRelationFilter
+    imagenes?: ImagenPaqueteRefListRelationFilter
+    actividades?: PaqueteActividadRefListRelationFilter
+    traslados?: PaqueteTrasladoRefListRelationFilter
   }
 
   export type PaqueteRefOrderByWithRelationInput = {
     id?: SortOrder
     nombre?: SortOrder
     descripcion?: SortOrderInput | SortOrder
-    imagen?: SortOrderInput | SortOrder
-    categoria?: SortOrderInput | SortOrder
-    diasEstancia?: SortOrder
-    nochesBase?: SortOrder
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrderInput | SortOrder
-    precioSGL?: SortOrderInput | SortOrder
-    precioDBL?: SortOrderInput | SortOrder
-    precioTPL?: SortOrderInput | SortOrder
-    precioQUAD?: SortOrderInput | SortOrder
+    numPax?: SortOrder
+    diasEstancia?: SortOrder
+    nochesBase?: SortOrder
+    precioTotal?: SortOrderInput | SortOrder
     precioPorPersona?: SortOrderInput | SortOrder
-    destinoId?: SortOrderInput | SortOrder
-    destino?: DestinoRefOrderByWithRelationInput
-    cotizaciones?: CotizacionOrderByRelationAggregateInput
+    hoteles?: PaqueteHotelRefOrderByRelationAggregateInput
+    versiones?: VersionPaqueteRefOrderByRelationAggregateInput
+    imagenes?: ImagenPaqueteRefOrderByRelationAggregateInput
+    actividades?: PaqueteActividadRefOrderByRelationAggregateInput
+    traslados?: PaqueteTrasladoRefOrderByRelationAggregateInput
   }
 
   export type PaqueteRefWhereUniqueInput = Prisma.AtLeast<{
@@ -10662,38 +21660,31 @@ export namespace Prisma {
     NOT?: PaqueteRefWhereInput | PaqueteRefWhereInput[]
     nombre?: StringFilter<"PaqueteRef"> | string
     descripcion?: StringNullableFilter<"PaqueteRef"> | string | null
-    imagen?: StringNullableFilter<"PaqueteRef"> | string | null
-    categoria?: StringNullableFilter<"PaqueteRef"> | string | null
-    diasEstancia?: IntFilter<"PaqueteRef"> | number
-    nochesBase?: IntFilter<"PaqueteRef"> | number
     incluyeBoleto?: BoolFilter<"PaqueteRef"> | boolean
     precioBoleto?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioSGL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioDBL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioTPL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioQUAD?: FloatNullableFilter<"PaqueteRef"> | number | null
+    numPax?: IntFilter<"PaqueteRef"> | number
+    diasEstancia?: IntFilter<"PaqueteRef"> | number
+    nochesBase?: IntFilter<"PaqueteRef"> | number
+    precioTotal?: FloatNullableFilter<"PaqueteRef"> | number | null
     precioPorPersona?: FloatNullableFilter<"PaqueteRef"> | number | null
-    destinoId?: IntNullableFilter<"PaqueteRef"> | number | null
-    destino?: XOR<DestinoRefNullableScalarRelationFilter, DestinoRefWhereInput> | null
-    cotizaciones?: CotizacionListRelationFilter
+    hoteles?: PaqueteHotelRefListRelationFilter
+    versiones?: VersionPaqueteRefListRelationFilter
+    imagenes?: ImagenPaqueteRefListRelationFilter
+    actividades?: PaqueteActividadRefListRelationFilter
+    traslados?: PaqueteTrasladoRefListRelationFilter
   }, "id">
 
   export type PaqueteRefOrderByWithAggregationInput = {
     id?: SortOrder
     nombre?: SortOrder
     descripcion?: SortOrderInput | SortOrder
-    imagen?: SortOrderInput | SortOrder
-    categoria?: SortOrderInput | SortOrder
-    diasEstancia?: SortOrder
-    nochesBase?: SortOrder
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrderInput | SortOrder
-    precioSGL?: SortOrderInput | SortOrder
-    precioDBL?: SortOrderInput | SortOrder
-    precioTPL?: SortOrderInput | SortOrder
-    precioQUAD?: SortOrderInput | SortOrder
+    numPax?: SortOrder
+    diasEstancia?: SortOrder
+    nochesBase?: SortOrder
+    precioTotal?: SortOrderInput | SortOrder
     precioPorPersona?: SortOrderInput | SortOrder
-    destinoId?: SortOrderInput | SortOrder
     _count?: PaqueteRefCountOrderByAggregateInput
     _avg?: PaqueteRefAvgOrderByAggregateInput
     _max?: PaqueteRefMaxOrderByAggregateInput
@@ -10708,18 +21699,381 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"PaqueteRef"> | number
     nombre?: StringWithAggregatesFilter<"PaqueteRef"> | string
     descripcion?: StringNullableWithAggregatesFilter<"PaqueteRef"> | string | null
-    imagen?: StringNullableWithAggregatesFilter<"PaqueteRef"> | string | null
-    categoria?: StringNullableWithAggregatesFilter<"PaqueteRef"> | string | null
-    diasEstancia?: IntWithAggregatesFilter<"PaqueteRef"> | number
-    nochesBase?: IntWithAggregatesFilter<"PaqueteRef"> | number
     incluyeBoleto?: BoolWithAggregatesFilter<"PaqueteRef"> | boolean
     precioBoleto?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
-    precioSGL?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
-    precioDBL?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
-    precioTPL?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
-    precioQUAD?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
+    numPax?: IntWithAggregatesFilter<"PaqueteRef"> | number
+    diasEstancia?: IntWithAggregatesFilter<"PaqueteRef"> | number
+    nochesBase?: IntWithAggregatesFilter<"PaqueteRef"> | number
+    precioTotal?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
     precioPorPersona?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
-    destinoId?: IntNullableWithAggregatesFilter<"PaqueteRef"> | number | null
+  }
+
+  export type PaqueteHotelRefWhereInput = {
+    AND?: PaqueteHotelRefWhereInput | PaqueteHotelRefWhereInput[]
+    OR?: PaqueteHotelRefWhereInput[]
+    NOT?: PaqueteHotelRefWhereInput | PaqueteHotelRefWhereInput[]
+    paqueteId?: IntFilter<"PaqueteHotelRef"> | number
+    hotelId?: IntFilter<"PaqueteHotelRef"> | number
+    tipoHabitacion?: StringFilter<"PaqueteHotelRef"> | string
+    cantidad?: IntFilter<"PaqueteHotelRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+    hotel?: XOR<HotelRefScalarRelationFilter, HotelRefWhereInput>
+  }
+
+  export type PaqueteHotelRefOrderByWithRelationInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    cantidad?: SortOrder
+    paquete?: PaqueteRefOrderByWithRelationInput
+    hotel?: HotelRefOrderByWithRelationInput
+  }
+
+  export type PaqueteHotelRefWhereUniqueInput = Prisma.AtLeast<{
+    paqueteId_hotelId_tipoHabitacion?: PaqueteHotelRefPaqueteIdHotelIdTipoHabitacionCompoundUniqueInput
+    AND?: PaqueteHotelRefWhereInput | PaqueteHotelRefWhereInput[]
+    OR?: PaqueteHotelRefWhereInput[]
+    NOT?: PaqueteHotelRefWhereInput | PaqueteHotelRefWhereInput[]
+    paqueteId?: IntFilter<"PaqueteHotelRef"> | number
+    hotelId?: IntFilter<"PaqueteHotelRef"> | number
+    tipoHabitacion?: StringFilter<"PaqueteHotelRef"> | string
+    cantidad?: IntFilter<"PaqueteHotelRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+    hotel?: XOR<HotelRefScalarRelationFilter, HotelRefWhereInput>
+  }, "paqueteId_hotelId_tipoHabitacion">
+
+  export type PaqueteHotelRefOrderByWithAggregationInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    cantidad?: SortOrder
+    _count?: PaqueteHotelRefCountOrderByAggregateInput
+    _avg?: PaqueteHotelRefAvgOrderByAggregateInput
+    _max?: PaqueteHotelRefMaxOrderByAggregateInput
+    _min?: PaqueteHotelRefMinOrderByAggregateInput
+    _sum?: PaqueteHotelRefSumOrderByAggregateInput
+  }
+
+  export type PaqueteHotelRefScalarWhereWithAggregatesInput = {
+    AND?: PaqueteHotelRefScalarWhereWithAggregatesInput | PaqueteHotelRefScalarWhereWithAggregatesInput[]
+    OR?: PaqueteHotelRefScalarWhereWithAggregatesInput[]
+    NOT?: PaqueteHotelRefScalarWhereWithAggregatesInput | PaqueteHotelRefScalarWhereWithAggregatesInput[]
+    paqueteId?: IntWithAggregatesFilter<"PaqueteHotelRef"> | number
+    hotelId?: IntWithAggregatesFilter<"PaqueteHotelRef"> | number
+    tipoHabitacion?: StringWithAggregatesFilter<"PaqueteHotelRef"> | string
+    cantidad?: IntWithAggregatesFilter<"PaqueteHotelRef"> | number
+  }
+
+  export type ActividadRefWhereInput = {
+    AND?: ActividadRefWhereInput | ActividadRefWhereInput[]
+    OR?: ActividadRefWhereInput[]
+    NOT?: ActividadRefWhereInput | ActividadRefWhereInput[]
+    id?: IntFilter<"ActividadRef"> | number
+    destinoId?: IntFilter<"ActividadRef"> | number
+    nombre?: StringFilter<"ActividadRef"> | string
+    descripcion?: StringNullableFilter<"ActividadRef"> | string | null
+    destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
+    paquetes?: PaqueteActividadRefListRelationFilter
+  }
+
+  export type ActividadRefOrderByWithRelationInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    descripcion?: SortOrderInput | SortOrder
+    destino?: DestinoRefOrderByWithRelationInput
+    paquetes?: PaqueteActividadRefOrderByRelationAggregateInput
+  }
+
+  export type ActividadRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ActividadRefWhereInput | ActividadRefWhereInput[]
+    OR?: ActividadRefWhereInput[]
+    NOT?: ActividadRefWhereInput | ActividadRefWhereInput[]
+    destinoId?: IntFilter<"ActividadRef"> | number
+    nombre?: StringFilter<"ActividadRef"> | string
+    descripcion?: StringNullableFilter<"ActividadRef"> | string | null
+    destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
+    paquetes?: PaqueteActividadRefListRelationFilter
+  }, "id">
+
+  export type ActividadRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    descripcion?: SortOrderInput | SortOrder
+    _count?: ActividadRefCountOrderByAggregateInput
+    _avg?: ActividadRefAvgOrderByAggregateInput
+    _max?: ActividadRefMaxOrderByAggregateInput
+    _min?: ActividadRefMinOrderByAggregateInput
+    _sum?: ActividadRefSumOrderByAggregateInput
+  }
+
+  export type ActividadRefScalarWhereWithAggregatesInput = {
+    AND?: ActividadRefScalarWhereWithAggregatesInput | ActividadRefScalarWhereWithAggregatesInput[]
+    OR?: ActividadRefScalarWhereWithAggregatesInput[]
+    NOT?: ActividadRefScalarWhereWithAggregatesInput | ActividadRefScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ActividadRef"> | number
+    destinoId?: IntWithAggregatesFilter<"ActividadRef"> | number
+    nombre?: StringWithAggregatesFilter<"ActividadRef"> | string
+    descripcion?: StringNullableWithAggregatesFilter<"ActividadRef"> | string | null
+  }
+
+  export type TrasladoRefWhereInput = {
+    AND?: TrasladoRefWhereInput | TrasladoRefWhereInput[]
+    OR?: TrasladoRefWhereInput[]
+    NOT?: TrasladoRefWhereInput | TrasladoRefWhereInput[]
+    id?: IntFilter<"TrasladoRef"> | number
+    destinoId?: IntFilter<"TrasladoRef"> | number
+    tipo?: StringFilter<"TrasladoRef"> | string
+    destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
+    paquetes?: PaqueteTrasladoRefListRelationFilter
+  }
+
+  export type TrasladoRefOrderByWithRelationInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    tipo?: SortOrder
+    destino?: DestinoRefOrderByWithRelationInput
+    paquetes?: PaqueteTrasladoRefOrderByRelationAggregateInput
+  }
+
+  export type TrasladoRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: TrasladoRefWhereInput | TrasladoRefWhereInput[]
+    OR?: TrasladoRefWhereInput[]
+    NOT?: TrasladoRefWhereInput | TrasladoRefWhereInput[]
+    destinoId?: IntFilter<"TrasladoRef"> | number
+    tipo?: StringFilter<"TrasladoRef"> | string
+    destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
+    paquetes?: PaqueteTrasladoRefListRelationFilter
+  }, "id">
+
+  export type TrasladoRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    tipo?: SortOrder
+    _count?: TrasladoRefCountOrderByAggregateInput
+    _avg?: TrasladoRefAvgOrderByAggregateInput
+    _max?: TrasladoRefMaxOrderByAggregateInput
+    _min?: TrasladoRefMinOrderByAggregateInput
+    _sum?: TrasladoRefSumOrderByAggregateInput
+  }
+
+  export type TrasladoRefScalarWhereWithAggregatesInput = {
+    AND?: TrasladoRefScalarWhereWithAggregatesInput | TrasladoRefScalarWhereWithAggregatesInput[]
+    OR?: TrasladoRefScalarWhereWithAggregatesInput[]
+    NOT?: TrasladoRefScalarWhereWithAggregatesInput | TrasladoRefScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TrasladoRef"> | number
+    destinoId?: IntWithAggregatesFilter<"TrasladoRef"> | number
+    tipo?: StringWithAggregatesFilter<"TrasladoRef"> | string
+  }
+
+  export type PaqueteActividadRefWhereInput = {
+    AND?: PaqueteActividadRefWhereInput | PaqueteActividadRefWhereInput[]
+    OR?: PaqueteActividadRefWhereInput[]
+    NOT?: PaqueteActividadRefWhereInput | PaqueteActividadRefWhereInput[]
+    paqueteId?: IntFilter<"PaqueteActividadRef"> | number
+    actividadId?: IntFilter<"PaqueteActividadRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+    actividad?: XOR<ActividadRefScalarRelationFilter, ActividadRefWhereInput>
+  }
+
+  export type PaqueteActividadRefOrderByWithRelationInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+    paquete?: PaqueteRefOrderByWithRelationInput
+    actividad?: ActividadRefOrderByWithRelationInput
+  }
+
+  export type PaqueteActividadRefWhereUniqueInput = Prisma.AtLeast<{
+    paqueteId_actividadId?: PaqueteActividadRefPaqueteIdActividadIdCompoundUniqueInput
+    AND?: PaqueteActividadRefWhereInput | PaqueteActividadRefWhereInput[]
+    OR?: PaqueteActividadRefWhereInput[]
+    NOT?: PaqueteActividadRefWhereInput | PaqueteActividadRefWhereInput[]
+    paqueteId?: IntFilter<"PaqueteActividadRef"> | number
+    actividadId?: IntFilter<"PaqueteActividadRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+    actividad?: XOR<ActividadRefScalarRelationFilter, ActividadRefWhereInput>
+  }, "paqueteId_actividadId">
+
+  export type PaqueteActividadRefOrderByWithAggregationInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+    _count?: PaqueteActividadRefCountOrderByAggregateInput
+    _avg?: PaqueteActividadRefAvgOrderByAggregateInput
+    _max?: PaqueteActividadRefMaxOrderByAggregateInput
+    _min?: PaqueteActividadRefMinOrderByAggregateInput
+    _sum?: PaqueteActividadRefSumOrderByAggregateInput
+  }
+
+  export type PaqueteActividadRefScalarWhereWithAggregatesInput = {
+    AND?: PaqueteActividadRefScalarWhereWithAggregatesInput | PaqueteActividadRefScalarWhereWithAggregatesInput[]
+    OR?: PaqueteActividadRefScalarWhereWithAggregatesInput[]
+    NOT?: PaqueteActividadRefScalarWhereWithAggregatesInput | PaqueteActividadRefScalarWhereWithAggregatesInput[]
+    paqueteId?: IntWithAggregatesFilter<"PaqueteActividadRef"> | number
+    actividadId?: IntWithAggregatesFilter<"PaqueteActividadRef"> | number
+  }
+
+  export type PaqueteTrasladoRefWhereInput = {
+    AND?: PaqueteTrasladoRefWhereInput | PaqueteTrasladoRefWhereInput[]
+    OR?: PaqueteTrasladoRefWhereInput[]
+    NOT?: PaqueteTrasladoRefWhereInput | PaqueteTrasladoRefWhereInput[]
+    paqueteId?: IntFilter<"PaqueteTrasladoRef"> | number
+    trasladoId?: IntFilter<"PaqueteTrasladoRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+    traslado?: XOR<TrasladoRefScalarRelationFilter, TrasladoRefWhereInput>
+  }
+
+  export type PaqueteTrasladoRefOrderByWithRelationInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+    paquete?: PaqueteRefOrderByWithRelationInput
+    traslado?: TrasladoRefOrderByWithRelationInput
+  }
+
+  export type PaqueteTrasladoRefWhereUniqueInput = Prisma.AtLeast<{
+    paqueteId_trasladoId?: PaqueteTrasladoRefPaqueteIdTrasladoIdCompoundUniqueInput
+    AND?: PaqueteTrasladoRefWhereInput | PaqueteTrasladoRefWhereInput[]
+    OR?: PaqueteTrasladoRefWhereInput[]
+    NOT?: PaqueteTrasladoRefWhereInput | PaqueteTrasladoRefWhereInput[]
+    paqueteId?: IntFilter<"PaqueteTrasladoRef"> | number
+    trasladoId?: IntFilter<"PaqueteTrasladoRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+    traslado?: XOR<TrasladoRefScalarRelationFilter, TrasladoRefWhereInput>
+  }, "paqueteId_trasladoId">
+
+  export type PaqueteTrasladoRefOrderByWithAggregationInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+    _count?: PaqueteTrasladoRefCountOrderByAggregateInput
+    _avg?: PaqueteTrasladoRefAvgOrderByAggregateInput
+    _max?: PaqueteTrasladoRefMaxOrderByAggregateInput
+    _min?: PaqueteTrasladoRefMinOrderByAggregateInput
+    _sum?: PaqueteTrasladoRefSumOrderByAggregateInput
+  }
+
+  export type PaqueteTrasladoRefScalarWhereWithAggregatesInput = {
+    AND?: PaqueteTrasladoRefScalarWhereWithAggregatesInput | PaqueteTrasladoRefScalarWhereWithAggregatesInput[]
+    OR?: PaqueteTrasladoRefScalarWhereWithAggregatesInput[]
+    NOT?: PaqueteTrasladoRefScalarWhereWithAggregatesInput | PaqueteTrasladoRefScalarWhereWithAggregatesInput[]
+    paqueteId?: IntWithAggregatesFilter<"PaqueteTrasladoRef"> | number
+    trasladoId?: IntWithAggregatesFilter<"PaqueteTrasladoRef"> | number
+  }
+
+  export type VersionPaqueteRefWhereInput = {
+    AND?: VersionPaqueteRefWhereInput | VersionPaqueteRefWhereInput[]
+    OR?: VersionPaqueteRefWhereInput[]
+    NOT?: VersionPaqueteRefWhereInput | VersionPaqueteRefWhereInput[]
+    id?: IntFilter<"VersionPaqueteRef"> | number
+    paqueteId?: IntFilter<"VersionPaqueteRef"> | number
+    numPax?: IntFilter<"VersionPaqueteRef"> | number
+    tipoPax?: StringFilter<"VersionPaqueteRef"> | string
+    precioTotal?: FloatNullableFilter<"VersionPaqueteRef"> | number | null
+    precioPorPersona?: FloatNullableFilter<"VersionPaqueteRef"> | number | null
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+  }
+
+  export type VersionPaqueteRefOrderByWithRelationInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    tipoPax?: SortOrder
+    precioTotal?: SortOrderInput | SortOrder
+    precioPorPersona?: SortOrderInput | SortOrder
+    paquete?: PaqueteRefOrderByWithRelationInput
+  }
+
+  export type VersionPaqueteRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    paqueteId_tipoPax?: VersionPaqueteRefPaqueteIdTipoPaxCompoundUniqueInput
+    AND?: VersionPaqueteRefWhereInput | VersionPaqueteRefWhereInput[]
+    OR?: VersionPaqueteRefWhereInput[]
+    NOT?: VersionPaqueteRefWhereInput | VersionPaqueteRefWhereInput[]
+    paqueteId?: IntFilter<"VersionPaqueteRef"> | number
+    numPax?: IntFilter<"VersionPaqueteRef"> | number
+    tipoPax?: StringFilter<"VersionPaqueteRef"> | string
+    precioTotal?: FloatNullableFilter<"VersionPaqueteRef"> | number | null
+    precioPorPersona?: FloatNullableFilter<"VersionPaqueteRef"> | number | null
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+  }, "id" | "paqueteId_tipoPax">
+
+  export type VersionPaqueteRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    tipoPax?: SortOrder
+    precioTotal?: SortOrderInput | SortOrder
+    precioPorPersona?: SortOrderInput | SortOrder
+    _count?: VersionPaqueteRefCountOrderByAggregateInput
+    _avg?: VersionPaqueteRefAvgOrderByAggregateInput
+    _max?: VersionPaqueteRefMaxOrderByAggregateInput
+    _min?: VersionPaqueteRefMinOrderByAggregateInput
+    _sum?: VersionPaqueteRefSumOrderByAggregateInput
+  }
+
+  export type VersionPaqueteRefScalarWhereWithAggregatesInput = {
+    AND?: VersionPaqueteRefScalarWhereWithAggregatesInput | VersionPaqueteRefScalarWhereWithAggregatesInput[]
+    OR?: VersionPaqueteRefScalarWhereWithAggregatesInput[]
+    NOT?: VersionPaqueteRefScalarWhereWithAggregatesInput | VersionPaqueteRefScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"VersionPaqueteRef"> | number
+    paqueteId?: IntWithAggregatesFilter<"VersionPaqueteRef"> | number
+    numPax?: IntWithAggregatesFilter<"VersionPaqueteRef"> | number
+    tipoPax?: StringWithAggregatesFilter<"VersionPaqueteRef"> | string
+    precioTotal?: FloatNullableWithAggregatesFilter<"VersionPaqueteRef"> | number | null
+    precioPorPersona?: FloatNullableWithAggregatesFilter<"VersionPaqueteRef"> | number | null
+  }
+
+  export type ImagenPaqueteRefWhereInput = {
+    AND?: ImagenPaqueteRefWhereInput | ImagenPaqueteRefWhereInput[]
+    OR?: ImagenPaqueteRefWhereInput[]
+    NOT?: ImagenPaqueteRefWhereInput | ImagenPaqueteRefWhereInput[]
+    id?: IntFilter<"ImagenPaqueteRef"> | number
+    paqueteId?: IntFilter<"ImagenPaqueteRef"> | number
+    url?: StringFilter<"ImagenPaqueteRef"> | string
+    orden?: IntFilter<"ImagenPaqueteRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+  }
+
+  export type ImagenPaqueteRefOrderByWithRelationInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    url?: SortOrder
+    orden?: SortOrder
+    paquete?: PaqueteRefOrderByWithRelationInput
+  }
+
+  export type ImagenPaqueteRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ImagenPaqueteRefWhereInput | ImagenPaqueteRefWhereInput[]
+    OR?: ImagenPaqueteRefWhereInput[]
+    NOT?: ImagenPaqueteRefWhereInput | ImagenPaqueteRefWhereInput[]
+    paqueteId?: IntFilter<"ImagenPaqueteRef"> | number
+    url?: StringFilter<"ImagenPaqueteRef"> | string
+    orden?: IntFilter<"ImagenPaqueteRef"> | number
+    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
+  }, "id">
+
+  export type ImagenPaqueteRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    url?: SortOrder
+    orden?: SortOrder
+    _count?: ImagenPaqueteRefCountOrderByAggregateInput
+    _avg?: ImagenPaqueteRefAvgOrderByAggregateInput
+    _max?: ImagenPaqueteRefMaxOrderByAggregateInput
+    _min?: ImagenPaqueteRefMinOrderByAggregateInput
+    _sum?: ImagenPaqueteRefSumOrderByAggregateInput
+  }
+
+  export type ImagenPaqueteRefScalarWhereWithAggregatesInput = {
+    AND?: ImagenPaqueteRefScalarWhereWithAggregatesInput | ImagenPaqueteRefScalarWhereWithAggregatesInput[]
+    OR?: ImagenPaqueteRefScalarWhereWithAggregatesInput[]
+    NOT?: ImagenPaqueteRefScalarWhereWithAggregatesInput | ImagenPaqueteRefScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ImagenPaqueteRef"> | number
+    paqueteId?: IntWithAggregatesFilter<"ImagenPaqueteRef"> | number
+    url?: StringWithAggregatesFilter<"ImagenPaqueteRef"> | string
+    orden?: IntWithAggregatesFilter<"ImagenPaqueteRef"> | number
   }
 
   export type ClienteWhereInput = {
@@ -10805,24 +22159,15 @@ export namespace Prisma {
     codigo?: StringFilter<"Cotizacion"> | string
     agenciaId?: StringFilter<"Cotizacion"> | string
     creadoPorId?: StringFilter<"Cotizacion"> | string
-    paqueteId?: IntFilter<"Cotizacion"> | number
     clienteId?: StringFilter<"Cotizacion"> | string
-    paqueteNombre?: StringFilter<"Cotizacion"> | string
-    paqueteDuracion?: StringFilter<"Cotizacion"> | string
-    paqueteDestino?: StringFilter<"Cotizacion"> | string
-    paqueteIncluye?: StringNullableListFilter<"Cotizacion">
+    paqueteId?: IntNullableFilter<"Cotizacion"> | number | null
+    snapshotNombre?: StringFilter<"Cotizacion"> | string
+    snapshotDestino?: StringFilter<"Cotizacion"> | string
+    snapshotDuracion?: StringFilter<"Cotizacion"> | string
+    snapshotIncluye?: StringNullableListFilter<"Cotizacion">
     incluyeBoleto?: BoolFilter<"Cotizacion"> | boolean
-    cantSGL?: IntFilter<"Cotizacion"> | number
-    cantDBL?: IntFilter<"Cotizacion"> | number
-    cantTPL?: IntFilter<"Cotizacion"> | number
-    cantQUAD?: IntFilter<"Cotizacion"> | number
-    cantCHD?: IntFilter<"Cotizacion"> | number
-    precioSGL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioDBL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioTPL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioQUAD?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioCHD?: FloatNullableFilter<"Cotizacion"> | number | null
     precioBoleto?: FloatNullableFilter<"Cotizacion"> | number | null
+    boletoTotal?: FloatFilter<"Cotizacion"> | number
     subtotal?: FloatFilter<"Cotizacion"> | number
     markup?: FloatFilter<"Cotizacion"> | number
     total?: FloatFilter<"Cotizacion"> | number
@@ -10837,8 +22182,8 @@ export namespace Prisma {
     fechaVencimiento?: DateTimeNullableFilter<"Cotizacion"> | Date | string | null
     agencia?: XOR<AgenciaScalarRelationFilter, AgenciaWhereInput>
     creadoPor?: XOR<UsuarioAgenciaScalarRelationFilter, UsuarioAgenciaWhereInput>
-    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
     cliente?: XOR<ClienteScalarRelationFilter, ClienteWhereInput>
+    detalles?: CotizacionDetalleListRelationFilter
     historial?: HistorialCotizacionListRelationFilter
   }
 
@@ -10847,24 +22192,15 @@ export namespace Prisma {
     codigo?: SortOrder
     agenciaId?: SortOrder
     creadoPorId?: SortOrder
-    paqueteId?: SortOrder
     clienteId?: SortOrder
-    paqueteNombre?: SortOrder
-    paqueteDuracion?: SortOrder
-    paqueteDestino?: SortOrder
-    paqueteIncluye?: SortOrder
+    paqueteId?: SortOrderInput | SortOrder
+    snapshotNombre?: SortOrder
+    snapshotDestino?: SortOrder
+    snapshotDuracion?: SortOrder
+    snapshotIncluye?: SortOrder
     incluyeBoleto?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrderInput | SortOrder
-    precioDBL?: SortOrderInput | SortOrder
-    precioTPL?: SortOrderInput | SortOrder
-    precioQUAD?: SortOrderInput | SortOrder
-    precioCHD?: SortOrderInput | SortOrder
     precioBoleto?: SortOrderInput | SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
@@ -10879,8 +22215,8 @@ export namespace Prisma {
     fechaVencimiento?: SortOrderInput | SortOrder
     agencia?: AgenciaOrderByWithRelationInput
     creadoPor?: UsuarioAgenciaOrderByWithRelationInput
-    paquete?: PaqueteRefOrderByWithRelationInput
     cliente?: ClienteOrderByWithRelationInput
+    detalles?: CotizacionDetalleOrderByRelationAggregateInput
     historial?: HistorialCotizacionOrderByRelationAggregateInput
   }
 
@@ -10893,24 +22229,15 @@ export namespace Prisma {
     NOT?: CotizacionWhereInput | CotizacionWhereInput[]
     agenciaId?: StringFilter<"Cotizacion"> | string
     creadoPorId?: StringFilter<"Cotizacion"> | string
-    paqueteId?: IntFilter<"Cotizacion"> | number
     clienteId?: StringFilter<"Cotizacion"> | string
-    paqueteNombre?: StringFilter<"Cotizacion"> | string
-    paqueteDuracion?: StringFilter<"Cotizacion"> | string
-    paqueteDestino?: StringFilter<"Cotizacion"> | string
-    paqueteIncluye?: StringNullableListFilter<"Cotizacion">
+    paqueteId?: IntNullableFilter<"Cotizacion"> | number | null
+    snapshotNombre?: StringFilter<"Cotizacion"> | string
+    snapshotDestino?: StringFilter<"Cotizacion"> | string
+    snapshotDuracion?: StringFilter<"Cotizacion"> | string
+    snapshotIncluye?: StringNullableListFilter<"Cotizacion">
     incluyeBoleto?: BoolFilter<"Cotizacion"> | boolean
-    cantSGL?: IntFilter<"Cotizacion"> | number
-    cantDBL?: IntFilter<"Cotizacion"> | number
-    cantTPL?: IntFilter<"Cotizacion"> | number
-    cantQUAD?: IntFilter<"Cotizacion"> | number
-    cantCHD?: IntFilter<"Cotizacion"> | number
-    precioSGL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioDBL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioTPL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioQUAD?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioCHD?: FloatNullableFilter<"Cotizacion"> | number | null
     precioBoleto?: FloatNullableFilter<"Cotizacion"> | number | null
+    boletoTotal?: FloatFilter<"Cotizacion"> | number
     subtotal?: FloatFilter<"Cotizacion"> | number
     markup?: FloatFilter<"Cotizacion"> | number
     total?: FloatFilter<"Cotizacion"> | number
@@ -10924,8 +22251,8 @@ export namespace Prisma {
     fechaVencimiento?: DateTimeNullableFilter<"Cotizacion"> | Date | string | null
     agencia?: XOR<AgenciaScalarRelationFilter, AgenciaWhereInput>
     creadoPor?: XOR<UsuarioAgenciaScalarRelationFilter, UsuarioAgenciaWhereInput>
-    paquete?: XOR<PaqueteRefScalarRelationFilter, PaqueteRefWhereInput>
     cliente?: XOR<ClienteScalarRelationFilter, ClienteWhereInput>
+    detalles?: CotizacionDetalleListRelationFilter
     historial?: HistorialCotizacionListRelationFilter
   }, "id" | "codigo" | "tokenAprobacion">
 
@@ -10934,24 +22261,15 @@ export namespace Prisma {
     codigo?: SortOrder
     agenciaId?: SortOrder
     creadoPorId?: SortOrder
-    paqueteId?: SortOrder
     clienteId?: SortOrder
-    paqueteNombre?: SortOrder
-    paqueteDuracion?: SortOrder
-    paqueteDestino?: SortOrder
-    paqueteIncluye?: SortOrder
+    paqueteId?: SortOrderInput | SortOrder
+    snapshotNombre?: SortOrder
+    snapshotDestino?: SortOrder
+    snapshotDuracion?: SortOrder
+    snapshotIncluye?: SortOrder
     incluyeBoleto?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrderInput | SortOrder
-    precioDBL?: SortOrderInput | SortOrder
-    precioTPL?: SortOrderInput | SortOrder
-    precioQUAD?: SortOrderInput | SortOrder
-    precioCHD?: SortOrderInput | SortOrder
     precioBoleto?: SortOrderInput | SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
@@ -10979,24 +22297,15 @@ export namespace Prisma {
     codigo?: StringWithAggregatesFilter<"Cotizacion"> | string
     agenciaId?: StringWithAggregatesFilter<"Cotizacion"> | string
     creadoPorId?: StringWithAggregatesFilter<"Cotizacion"> | string
-    paqueteId?: IntWithAggregatesFilter<"Cotizacion"> | number
     clienteId?: StringWithAggregatesFilter<"Cotizacion"> | string
-    paqueteNombre?: StringWithAggregatesFilter<"Cotizacion"> | string
-    paqueteDuracion?: StringWithAggregatesFilter<"Cotizacion"> | string
-    paqueteDestino?: StringWithAggregatesFilter<"Cotizacion"> | string
-    paqueteIncluye?: StringNullableListFilter<"Cotizacion">
+    paqueteId?: IntNullableWithAggregatesFilter<"Cotizacion"> | number | null
+    snapshotNombre?: StringWithAggregatesFilter<"Cotizacion"> | string
+    snapshotDestino?: StringWithAggregatesFilter<"Cotizacion"> | string
+    snapshotDuracion?: StringWithAggregatesFilter<"Cotizacion"> | string
+    snapshotIncluye?: StringNullableListFilter<"Cotizacion">
     incluyeBoleto?: BoolWithAggregatesFilter<"Cotizacion"> | boolean
-    cantSGL?: IntWithAggregatesFilter<"Cotizacion"> | number
-    cantDBL?: IntWithAggregatesFilter<"Cotizacion"> | number
-    cantTPL?: IntWithAggregatesFilter<"Cotizacion"> | number
-    cantQUAD?: IntWithAggregatesFilter<"Cotizacion"> | number
-    cantCHD?: IntWithAggregatesFilter<"Cotizacion"> | number
-    precioSGL?: FloatNullableWithAggregatesFilter<"Cotizacion"> | number | null
-    precioDBL?: FloatNullableWithAggregatesFilter<"Cotizacion"> | number | null
-    precioTPL?: FloatNullableWithAggregatesFilter<"Cotizacion"> | number | null
-    precioQUAD?: FloatNullableWithAggregatesFilter<"Cotizacion"> | number | null
-    precioCHD?: FloatNullableWithAggregatesFilter<"Cotizacion"> | number | null
     precioBoleto?: FloatNullableWithAggregatesFilter<"Cotizacion"> | number | null
+    boletoTotal?: FloatWithAggregatesFilter<"Cotizacion"> | number
     subtotal?: FloatWithAggregatesFilter<"Cotizacion"> | number
     markup?: FloatWithAggregatesFilter<"Cotizacion"> | number
     total?: FloatWithAggregatesFilter<"Cotizacion"> | number
@@ -11009,6 +22318,83 @@ export namespace Prisma {
     fechaEnvio?: DateTimeNullableWithAggregatesFilter<"Cotizacion"> | Date | string | null
     fechaAprobacion?: DateTimeNullableWithAggregatesFilter<"Cotizacion"> | Date | string | null
     fechaVencimiento?: DateTimeNullableWithAggregatesFilter<"Cotizacion"> | Date | string | null
+  }
+
+  export type CotizacionDetalleWhereInput = {
+    AND?: CotizacionDetalleWhereInput | CotizacionDetalleWhereInput[]
+    OR?: CotizacionDetalleWhereInput[]
+    NOT?: CotizacionDetalleWhereInput | CotizacionDetalleWhereInput[]
+    id?: StringFilter<"CotizacionDetalle"> | string
+    cotizacionId?: StringFilter<"CotizacionDetalle"> | string
+    versionId?: IntNullableFilter<"CotizacionDetalle"> | number | null
+    tipoPax?: StringFilter<"CotizacionDetalle"> | string
+    numPax?: IntFilter<"CotizacionDetalle"> | number
+    cantidad?: IntFilter<"CotizacionDetalle"> | number
+    precioPorPersona?: FloatFilter<"CotizacionDetalle"> | number
+    precioUnitario?: FloatFilter<"CotizacionDetalle"> | number
+    subtotal?: FloatFilter<"CotizacionDetalle"> | number
+    cotizacion?: XOR<CotizacionScalarRelationFilter, CotizacionWhereInput>
+  }
+
+  export type CotizacionDetalleOrderByWithRelationInput = {
+    id?: SortOrder
+    cotizacionId?: SortOrder
+    versionId?: SortOrderInput | SortOrder
+    tipoPax?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+    cotizacion?: CotizacionOrderByWithRelationInput
+  }
+
+  export type CotizacionDetalleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CotizacionDetalleWhereInput | CotizacionDetalleWhereInput[]
+    OR?: CotizacionDetalleWhereInput[]
+    NOT?: CotizacionDetalleWhereInput | CotizacionDetalleWhereInput[]
+    cotizacionId?: StringFilter<"CotizacionDetalle"> | string
+    versionId?: IntNullableFilter<"CotizacionDetalle"> | number | null
+    tipoPax?: StringFilter<"CotizacionDetalle"> | string
+    numPax?: IntFilter<"CotizacionDetalle"> | number
+    cantidad?: IntFilter<"CotizacionDetalle"> | number
+    precioPorPersona?: FloatFilter<"CotizacionDetalle"> | number
+    precioUnitario?: FloatFilter<"CotizacionDetalle"> | number
+    subtotal?: FloatFilter<"CotizacionDetalle"> | number
+    cotizacion?: XOR<CotizacionScalarRelationFilter, CotizacionWhereInput>
+  }, "id">
+
+  export type CotizacionDetalleOrderByWithAggregationInput = {
+    id?: SortOrder
+    cotizacionId?: SortOrder
+    versionId?: SortOrderInput | SortOrder
+    tipoPax?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+    _count?: CotizacionDetalleCountOrderByAggregateInput
+    _avg?: CotizacionDetalleAvgOrderByAggregateInput
+    _max?: CotizacionDetalleMaxOrderByAggregateInput
+    _min?: CotizacionDetalleMinOrderByAggregateInput
+    _sum?: CotizacionDetalleSumOrderByAggregateInput
+  }
+
+  export type CotizacionDetalleScalarWhereWithAggregatesInput = {
+    AND?: CotizacionDetalleScalarWhereWithAggregatesInput | CotizacionDetalleScalarWhereWithAggregatesInput[]
+    OR?: CotizacionDetalleScalarWhereWithAggregatesInput[]
+    NOT?: CotizacionDetalleScalarWhereWithAggregatesInput | CotizacionDetalleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CotizacionDetalle"> | string
+    cotizacionId?: StringWithAggregatesFilter<"CotizacionDetalle"> | string
+    versionId?: IntNullableWithAggregatesFilter<"CotizacionDetalle"> | number | null
+    tipoPax?: StringWithAggregatesFilter<"CotizacionDetalle"> | string
+    numPax?: IntWithAggregatesFilter<"CotizacionDetalle"> | number
+    cantidad?: IntWithAggregatesFilter<"CotizacionDetalle"> | number
+    precioPorPersona?: FloatWithAggregatesFilter<"CotizacionDetalle"> | number
+    precioUnitario?: FloatWithAggregatesFilter<"CotizacionDetalle"> | number
+    subtotal?: FloatWithAggregatesFilter<"CotizacionDetalle"> | number
   }
 
   export type HistorialCotizacionWhereInput = {
@@ -11082,8 +22468,10 @@ export namespace Prisma {
   export type AgenciaCreateInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     usuarios?: UsuarioAgenciaCreateNestedManyWithoutAgenciaInput
     clientes?: ClienteCreateNestedManyWithoutAgenciaInput
     cotizaciones?: CotizacionCreateNestedManyWithoutAgenciaInput
@@ -11092,8 +22480,10 @@ export namespace Prisma {
   export type AgenciaUncheckedCreateInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     usuarios?: UsuarioAgenciaUncheckedCreateNestedManyWithoutAgenciaInput
     clientes?: ClienteUncheckedCreateNestedManyWithoutAgenciaInput
     cotizaciones?: CotizacionUncheckedCreateNestedManyWithoutAgenciaInput
@@ -11102,8 +22492,10 @@ export namespace Prisma {
   export type AgenciaUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     usuarios?: UsuarioAgenciaUpdateManyWithoutAgenciaNestedInput
     clientes?: ClienteUpdateManyWithoutAgenciaNestedInput
     cotizaciones?: CotizacionUpdateManyWithoutAgenciaNestedInput
@@ -11112,8 +22504,10 @@ export namespace Prisma {
   export type AgenciaUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     usuarios?: UsuarioAgenciaUncheckedUpdateManyWithoutAgenciaNestedInput
     clientes?: ClienteUncheckedUpdateManyWithoutAgenciaNestedInput
     cotizaciones?: CotizacionUncheckedUpdateManyWithoutAgenciaNestedInput
@@ -11122,22 +22516,28 @@ export namespace Prisma {
   export type AgenciaCreateManyInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
   }
 
   export type AgenciaUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AgenciaUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioAgenciaCreateInput = {
@@ -11214,184 +22614,217 @@ export namespace Prisma {
     id: number
     pais: string
     ciudad: string
-    tagline?: string | null
     descripcion?: string | null
     imagen?: string | null
-    color?: string | null
-    paquetes?: PaqueteRefCreateNestedManyWithoutDestinoInput
+    hoteles?: HotelRefCreateNestedManyWithoutDestinoInput
+    actividades?: ActividadRefCreateNestedManyWithoutDestinoInput
+    traslados?: TrasladoRefCreateNestedManyWithoutDestinoInput
   }
 
   export type DestinoRefUncheckedCreateInput = {
     id: number
     pais: string
     ciudad: string
-    tagline?: string | null
     descripcion?: string | null
     imagen?: string | null
-    color?: string | null
-    paquetes?: PaqueteRefUncheckedCreateNestedManyWithoutDestinoInput
+    hoteles?: HotelRefUncheckedCreateNestedManyWithoutDestinoInput
+    actividades?: ActividadRefUncheckedCreateNestedManyWithoutDestinoInput
+    traslados?: TrasladoRefUncheckedCreateNestedManyWithoutDestinoInput
   }
 
   export type DestinoRefUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     pais?: StringFieldUpdateOperationsInput | string
     ciudad?: StringFieldUpdateOperationsInput | string
-    tagline?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    paquetes?: PaqueteRefUpdateManyWithoutDestinoNestedInput
+    hoteles?: HotelRefUpdateManyWithoutDestinoNestedInput
+    actividades?: ActividadRefUpdateManyWithoutDestinoNestedInput
+    traslados?: TrasladoRefUpdateManyWithoutDestinoNestedInput
   }
 
   export type DestinoRefUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     pais?: StringFieldUpdateOperationsInput | string
     ciudad?: StringFieldUpdateOperationsInput | string
-    tagline?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    paquetes?: PaqueteRefUncheckedUpdateManyWithoutDestinoNestedInput
+    hoteles?: HotelRefUncheckedUpdateManyWithoutDestinoNestedInput
+    actividades?: ActividadRefUncheckedUpdateManyWithoutDestinoNestedInput
+    traslados?: TrasladoRefUncheckedUpdateManyWithoutDestinoNestedInput
   }
 
   export type DestinoRefCreateManyInput = {
     id: number
     pais: string
     ciudad: string
-    tagline?: string | null
     descripcion?: string | null
     imagen?: string | null
-    color?: string | null
   }
 
   export type DestinoRefUpdateManyMutationInput = {
     id?: IntFieldUpdateOperationsInput | number
     pais?: StringFieldUpdateOperationsInput | string
     ciudad?: StringFieldUpdateOperationsInput | string
-    tagline?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DestinoRefUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     pais?: StringFieldUpdateOperationsInput | string
     ciudad?: StringFieldUpdateOperationsInput | string
-    tagline?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HotelRefCreateInput = {
+    id: number
+    nombre: string
+    estrellas: number
+    destino: DestinoRefCreateNestedOneWithoutHotelesInput
+    paquetes?: PaqueteHotelRefCreateNestedManyWithoutHotelInput
+  }
+
+  export type HotelRefUncheckedCreateInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    estrellas: number
+    paquetes?: PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput
+  }
+
+  export type HotelRefUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    destino?: DestinoRefUpdateOneRequiredWithoutHotelesNestedInput
+    paquetes?: PaqueteHotelRefUpdateManyWithoutHotelNestedInput
+  }
+
+  export type HotelRefUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    paquetes?: PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput
+  }
+
+  export type HotelRefCreateManyInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    estrellas: number
+  }
+
+  export type HotelRefUpdateManyMutationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type HotelRefUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
   }
 
   export type PaqueteRefCreateInput = {
     id: number
     nombre: string
     descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
     incluyeBoleto: boolean
     precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
     precioPorPersona?: number | null
-    destino?: DestinoRefCreateNestedOneWithoutPaquetesInput
-    cotizaciones?: CotizacionCreateNestedManyWithoutPaqueteInput
+    hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefCreateNestedManyWithoutPaqueteInput
   }
 
   export type PaqueteRefUncheckedCreateInput = {
     id: number
     nombre: string
     descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
     incluyeBoleto: boolean
     precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
     precioPorPersona?: number | null
-    destinoId?: number | null
-    cotizaciones?: CotizacionUncheckedCreateNestedManyWithoutPaqueteInput
+    hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutPaqueteInput
   }
 
   export type PaqueteRefUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    destino?: DestinoRefUpdateOneWithoutPaquetesNestedInput
-    cotizaciones?: CotizacionUpdateManyWithoutPaqueteNestedInput
+    hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUpdateManyWithoutPaqueteNestedInput
   }
 
   export type PaqueteRefUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    destinoId?: NullableIntFieldUpdateOperationsInput | number | null
-    cotizaciones?: CotizacionUncheckedUpdateManyWithoutPaqueteNestedInput
+    hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput
   }
 
   export type PaqueteRefCreateManyInput = {
     id: number
     nombre: string
     descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
     incluyeBoleto: boolean
     precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
     precioPorPersona?: number | null
-    destinoId?: number | null
   }
 
   export type PaqueteRefUpdateManyMutationInput = {
     id?: IntFieldUpdateOperationsInput | number
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
@@ -11399,18 +22832,335 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    destinoId?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type PaqueteHotelRefCreateInput = {
+    tipoHabitacion: string
+    cantidad: number
+    paquete: PaqueteRefCreateNestedOneWithoutHotelesInput
+    hotel: HotelRefCreateNestedOneWithoutPaquetesInput
+  }
+
+  export type PaqueteHotelRefUncheckedCreateInput = {
+    paqueteId: number
+    hotelId: number
+    tipoHabitacion: string
+    cantidad: number
+  }
+
+  export type PaqueteHotelRefUpdateInput = {
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+    paquete?: PaqueteRefUpdateOneRequiredWithoutHotelesNestedInput
+    hotel?: HotelRefUpdateOneRequiredWithoutPaquetesNestedInput
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    hotelId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteHotelRefCreateManyInput = {
+    paqueteId: number
+    hotelId: number
+    tipoHabitacion: string
+    cantidad: number
+  }
+
+  export type PaqueteHotelRefUpdateManyMutationInput = {
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateManyInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    hotelId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ActividadRefCreateInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    destino: DestinoRefCreateNestedOneWithoutActividadesInput
+    paquetes?: PaqueteActividadRefCreateNestedManyWithoutActividadInput
+  }
+
+  export type ActividadRefUncheckedCreateInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    descripcion?: string | null
+    paquetes?: PaqueteActividadRefUncheckedCreateNestedManyWithoutActividadInput
+  }
+
+  export type ActividadRefUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    destino?: DestinoRefUpdateOneRequiredWithoutActividadesNestedInput
+    paquetes?: PaqueteActividadRefUpdateManyWithoutActividadNestedInput
+  }
+
+  export type ActividadRefUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    paquetes?: PaqueteActividadRefUncheckedUpdateManyWithoutActividadNestedInput
+  }
+
+  export type ActividadRefCreateManyInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    descripcion?: string | null
+  }
+
+  export type ActividadRefUpdateManyMutationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ActividadRefUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrasladoRefCreateInput = {
+    id: number
+    tipo: string
+    destino: DestinoRefCreateNestedOneWithoutTrasladosInput
+    paquetes?: PaqueteTrasladoRefCreateNestedManyWithoutTrasladoInput
+  }
+
+  export type TrasladoRefUncheckedCreateInput = {
+    id: number
+    destinoId: number
+    tipo: string
+    paquetes?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutTrasladoInput
+  }
+
+  export type TrasladoRefUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+    destino?: DestinoRefUpdateOneRequiredWithoutTrasladosNestedInput
+    paquetes?: PaqueteTrasladoRefUpdateManyWithoutTrasladoNestedInput
+  }
+
+  export type TrasladoRefUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+    paquetes?: PaqueteTrasladoRefUncheckedUpdateManyWithoutTrasladoNestedInput
+  }
+
+  export type TrasladoRefCreateManyInput = {
+    id: number
+    destinoId: number
+    tipo: string
+  }
+
+  export type TrasladoRefUpdateManyMutationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TrasladoRefUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PaqueteActividadRefCreateInput = {
+    paquete: PaqueteRefCreateNestedOneWithoutActividadesInput
+    actividad: ActividadRefCreateNestedOneWithoutPaquetesInput
+  }
+
+  export type PaqueteActividadRefUncheckedCreateInput = {
+    paqueteId: number
+    actividadId: number
+  }
+
+  export type PaqueteActividadRefUpdateInput = {
+    paquete?: PaqueteRefUpdateOneRequiredWithoutActividadesNestedInput
+    actividad?: ActividadRefUpdateOneRequiredWithoutPaquetesNestedInput
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    actividadId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteActividadRefCreateManyInput = {
+    paqueteId: number
+    actividadId: number
+  }
+
+  export type PaqueteActividadRefUpdateManyMutationInput = {
+
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateManyInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    actividadId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteTrasladoRefCreateInput = {
+    paquete: PaqueteRefCreateNestedOneWithoutTrasladosInput
+    traslado: TrasladoRefCreateNestedOneWithoutPaquetesInput
+  }
+
+  export type PaqueteTrasladoRefUncheckedCreateInput = {
+    paqueteId: number
+    trasladoId: number
+  }
+
+  export type PaqueteTrasladoRefUpdateInput = {
+    paquete?: PaqueteRefUpdateOneRequiredWithoutTrasladosNestedInput
+    traslado?: TrasladoRefUpdateOneRequiredWithoutPaquetesNestedInput
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    trasladoId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteTrasladoRefCreateManyInput = {
+    paqueteId: number
+    trasladoId: number
+  }
+
+  export type PaqueteTrasladoRefUpdateManyMutationInput = {
+
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateManyInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    trasladoId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type VersionPaqueteRefCreateInput = {
+    id: number
+    numPax: number
+    tipoPax: string
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    paquete: PaqueteRefCreateNestedOneWithoutVersionesInput
+  }
+
+  export type VersionPaqueteRefUncheckedCreateInput = {
+    id: number
+    paqueteId: number
+    numPax: number
+    tipoPax: string
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+  }
+
+  export type VersionPaqueteRefUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    paquete?: PaqueteRefUpdateOneRequiredWithoutVersionesNestedInput
+  }
+
+  export type VersionPaqueteRefUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type VersionPaqueteRefCreateManyInput = {
+    id: number
+    paqueteId: number
+    numPax: number
+    tipoPax: string
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+  }
+
+  export type VersionPaqueteRefUpdateManyMutationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type VersionPaqueteRefUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type ImagenPaqueteRefCreateInput = {
+    id: number
+    url: string
+    orden: number
+    paquete: PaqueteRefCreateNestedOneWithoutImagenesInput
+  }
+
+  export type ImagenPaqueteRefUncheckedCreateInput = {
+    id: number
+    paqueteId: number
+    url: string
+    orden: number
+  }
+
+  export type ImagenPaqueteRefUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
+    paquete?: PaqueteRefUpdateOneRequiredWithoutImagenesNestedInput
+  }
+
+  export type ImagenPaqueteRefUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ImagenPaqueteRefCreateManyInput = {
+    id: number
+    paqueteId: number
+    url: string
+    orden: number
+  }
+
+  export type ImagenPaqueteRefUpdateManyMutationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ImagenPaqueteRefUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
   }
 
   export type ClienteCreateInput = {
@@ -11496,22 +23246,14 @@ export namespace Prisma {
   export type CotizacionCreateInput = {
     id?: string
     codigo: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -11526,8 +23268,8 @@ export namespace Prisma {
     fechaVencimiento?: Date | string | null
     agencia: AgenciaCreateNestedOneWithoutCotizacionesInput
     creadoPor: UsuarioAgenciaCreateNestedOneWithoutCotizacionesInput
-    paquete: PaqueteRefCreateNestedOneWithoutCotizacionesInput
     cliente: ClienteCreateNestedOneWithoutCotizacionesInput
+    detalles?: CotizacionDetalleCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionCreateNestedManyWithoutCotizacionInput
   }
 
@@ -11536,24 +23278,15 @@ export namespace Prisma {
     codigo: string
     agenciaId: string
     creadoPorId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -11566,28 +23299,21 @@ export namespace Prisma {
     fechaEnvio?: Date | string | null
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
+    detalles?: CotizacionDetalleUncheckedCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput
   }
 
   export type CotizacionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -11602,8 +23328,8 @@ export namespace Prisma {
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agencia?: AgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
     creadoPor?: UsuarioAgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    paquete?: PaqueteRefUpdateOneRequiredWithoutCotizacionesNestedInput
     cliente?: ClienteUpdateOneRequiredWithoutCotizacionesNestedInput
+    detalles?: CotizacionDetalleUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -11612,24 +23338,15 @@ export namespace Prisma {
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -11642,6 +23359,7 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    detalles?: CotizacionDetalleUncheckedUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -11650,24 +23368,15 @@ export namespace Prisma {
     codigo: string
     agenciaId: string
     creadoPorId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -11685,22 +23394,14 @@ export namespace Prisma {
   export type CotizacionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -11720,24 +23421,15 @@ export namespace Prisma {
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -11750,6 +23442,89 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CotizacionDetalleCreateInput = {
+    id?: string
+    versionId?: number | null
+    tipoPax: string
+    numPax: number
+    cantidad?: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+    cotizacion: CotizacionCreateNestedOneWithoutDetallesInput
+  }
+
+  export type CotizacionDetalleUncheckedCreateInput = {
+    id?: string
+    cotizacionId: string
+    versionId?: number | null
+    tipoPax: string
+    numPax: number
+    cantidad?: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+  }
+
+  export type CotizacionDetalleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+    cotizacion?: CotizacionUpdateOneRequiredWithoutDetallesNestedInput
+  }
+
+  export type CotizacionDetalleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cotizacionId?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type CotizacionDetalleCreateManyInput = {
+    id?: string
+    cotizacionId: string
+    versionId?: number | null
+    tipoPax: string
+    numPax: number
+    cantidad?: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+  }
+
+  export type CotizacionDetalleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type CotizacionDetalleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cotizacionId?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
   }
 
   export type HistorialCotizacionCreateInput = {
@@ -11850,6 +23625,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
   export type UsuarioAgenciaListRelationFilter = {
     every?: UsuarioAgenciaWhereInput
     some?: UsuarioAgenciaWhereInput
@@ -11888,22 +23674,28 @@ export namespace Prisma {
   export type AgenciaCountOrderByAggregateInput = {
     id?: SortOrder
     nombre?: SortOrder
+    descripcion?: SortOrder
     correo?: SortOrder
     telefono?: SortOrder
+    fechaAlta?: SortOrder
   }
 
   export type AgenciaMaxOrderByAggregateInput = {
     id?: SortOrder
     nombre?: SortOrder
+    descripcion?: SortOrder
     correo?: SortOrder
     telefono?: SortOrder
+    fechaAlta?: SortOrder
   }
 
   export type AgenciaMinOrderByAggregateInput = {
     id?: SortOrder
     nombre?: SortOrder
+    descripcion?: SortOrder
     correo?: SortOrder
     telefono?: SortOrder
+    fechaAlta?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -11940,6 +23732,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type AgenciaNullableScalarRelationFilter = {
@@ -11995,13 +23801,33 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type PaqueteRefListRelationFilter = {
-    every?: PaqueteRefWhereInput
-    some?: PaqueteRefWhereInput
-    none?: PaqueteRefWhereInput
+  export type HotelRefListRelationFilter = {
+    every?: HotelRefWhereInput
+    some?: HotelRefWhereInput
+    none?: HotelRefWhereInput
   }
 
-  export type PaqueteRefOrderByRelationAggregateInput = {
+  export type ActividadRefListRelationFilter = {
+    every?: ActividadRefWhereInput
+    some?: ActividadRefWhereInput
+    none?: ActividadRefWhereInput
+  }
+
+  export type TrasladoRefListRelationFilter = {
+    every?: TrasladoRefWhereInput
+    some?: TrasladoRefWhereInput
+    none?: TrasladoRefWhereInput
+  }
+
+  export type HotelRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ActividadRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TrasladoRefOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12009,10 +23835,8 @@ export namespace Prisma {
     id?: SortOrder
     pais?: SortOrder
     ciudad?: SortOrder
-    tagline?: SortOrder
     descripcion?: SortOrder
     imagen?: SortOrder
-    color?: SortOrder
   }
 
   export type DestinoRefAvgOrderByAggregateInput = {
@@ -12023,20 +23847,16 @@ export namespace Prisma {
     id?: SortOrder
     pais?: SortOrder
     ciudad?: SortOrder
-    tagline?: SortOrder
     descripcion?: SortOrder
     imagen?: SortOrder
-    color?: SortOrder
   }
 
   export type DestinoRefMinOrderByAggregateInput = {
     id?: SortOrder
     pais?: SortOrder
     ciudad?: SortOrder
-    tagline?: SortOrder
     descripcion?: SortOrder
     imagen?: SortOrder
-    color?: SortOrder
   }
 
   export type DestinoRefSumOrderByAggregateInput = {
@@ -12059,6 +23879,54 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type DestinoRefScalarRelationFilter = {
+    is?: DestinoRefWhereInput
+    isNot?: DestinoRefWhereInput
+  }
+
+  export type PaqueteHotelRefListRelationFilter = {
+    every?: PaqueteHotelRefWhereInput
+    some?: PaqueteHotelRefWhereInput
+    none?: PaqueteHotelRefWhereInput
+  }
+
+  export type PaqueteHotelRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type HotelRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    estrellas?: SortOrder
+  }
+
+  export type HotelRefAvgOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    estrellas?: SortOrder
+  }
+
+  export type HotelRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    estrellas?: SortOrder
+  }
+
+  export type HotelRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    estrellas?: SortOrder
+  }
+
+  export type HotelRefSumOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    estrellas?: SortOrder
+  }
+
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -12075,100 +23943,103 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  export type VersionPaqueteRefListRelationFilter = {
+    every?: VersionPaqueteRefWhereInput
+    some?: VersionPaqueteRefWhereInput
+    none?: VersionPaqueteRefWhereInput
   }
 
-  export type DestinoRefNullableScalarRelationFilter = {
-    is?: DestinoRefWhereInput | null
-    isNot?: DestinoRefWhereInput | null
+  export type ImagenPaqueteRefListRelationFilter = {
+    every?: ImagenPaqueteRefWhereInput
+    some?: ImagenPaqueteRefWhereInput
+    none?: ImagenPaqueteRefWhereInput
+  }
+
+  export type PaqueteActividadRefListRelationFilter = {
+    every?: PaqueteActividadRefWhereInput
+    some?: PaqueteActividadRefWhereInput
+    none?: PaqueteActividadRefWhereInput
+  }
+
+  export type PaqueteTrasladoRefListRelationFilter = {
+    every?: PaqueteTrasladoRefWhereInput
+    some?: PaqueteTrasladoRefWhereInput
+    none?: PaqueteTrasladoRefWhereInput
+  }
+
+  export type VersionPaqueteRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ImagenPaqueteRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaqueteActividadRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaqueteTrasladoRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type PaqueteRefCountOrderByAggregateInput = {
     id?: SortOrder
     nombre?: SortOrder
     descripcion?: SortOrder
-    imagen?: SortOrder
-    categoria?: SortOrder
-    diasEstancia?: SortOrder
-    nochesBase?: SortOrder
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
+    numPax?: SortOrder
+    diasEstancia?: SortOrder
+    nochesBase?: SortOrder
+    precioTotal?: SortOrder
     precioPorPersona?: SortOrder
-    destinoId?: SortOrder
   }
 
   export type PaqueteRefAvgOrderByAggregateInput = {
     id?: SortOrder
+    precioBoleto?: SortOrder
+    numPax?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
-    precioBoleto?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
+    precioTotal?: SortOrder
     precioPorPersona?: SortOrder
-    destinoId?: SortOrder
   }
 
   export type PaqueteRefMaxOrderByAggregateInput = {
     id?: SortOrder
     nombre?: SortOrder
     descripcion?: SortOrder
-    imagen?: SortOrder
-    categoria?: SortOrder
-    diasEstancia?: SortOrder
-    nochesBase?: SortOrder
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
+    numPax?: SortOrder
+    diasEstancia?: SortOrder
+    nochesBase?: SortOrder
+    precioTotal?: SortOrder
     precioPorPersona?: SortOrder
-    destinoId?: SortOrder
   }
 
   export type PaqueteRefMinOrderByAggregateInput = {
     id?: SortOrder
     nombre?: SortOrder
     descripcion?: SortOrder
-    imagen?: SortOrder
-    categoria?: SortOrder
-    diasEstancia?: SortOrder
-    nochesBase?: SortOrder
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
+    numPax?: SortOrder
+    diasEstancia?: SortOrder
+    nochesBase?: SortOrder
+    precioTotal?: SortOrder
     precioPorPersona?: SortOrder
-    destinoId?: SortOrder
   }
 
   export type PaqueteRefSumOrderByAggregateInput = {
     id?: SortOrder
+    precioBoleto?: SortOrder
+    numPax?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
-    precioBoleto?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
+    precioTotal?: SortOrder
     precioPorPersona?: SortOrder
-    destinoId?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -12195,31 +24066,263 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
+  export type PaqueteRefScalarRelationFilter = {
+    is?: PaqueteRefWhereInput
+    isNot?: PaqueteRefWhereInput
   }
 
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  export type HotelRefScalarRelationFilter = {
+    is?: HotelRefWhereInput
+    isNot?: HotelRefWhereInput
+  }
+
+  export type PaqueteHotelRefPaqueteIdHotelIdTipoHabitacionCompoundUniqueInput = {
+    paqueteId: number
+    hotelId: number
+    tipoHabitacion: string
+  }
+
+  export type PaqueteHotelRefCountOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    cantidad?: SortOrder
+  }
+
+  export type PaqueteHotelRefAvgOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    cantidad?: SortOrder
+  }
+
+  export type PaqueteHotelRefMaxOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    cantidad?: SortOrder
+  }
+
+  export type PaqueteHotelRefMinOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    cantidad?: SortOrder
+  }
+
+  export type PaqueteHotelRefSumOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    hotelId?: SortOrder
+    cantidad?: SortOrder
+  }
+
+  export type ActividadRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    descripcion?: SortOrder
+  }
+
+  export type ActividadRefAvgOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+  }
+
+  export type ActividadRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    descripcion?: SortOrder
+  }
+
+  export type ActividadRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    nombre?: SortOrder
+    descripcion?: SortOrder
+  }
+
+  export type ActividadRefSumOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+  }
+
+  export type TrasladoRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    tipo?: SortOrder
+  }
+
+  export type TrasladoRefAvgOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+  }
+
+  export type TrasladoRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    tipo?: SortOrder
+  }
+
+  export type TrasladoRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+    tipo?: SortOrder
+  }
+
+  export type TrasladoRefSumOrderByAggregateInput = {
+    id?: SortOrder
+    destinoId?: SortOrder
+  }
+
+  export type ActividadRefScalarRelationFilter = {
+    is?: ActividadRefWhereInput
+    isNot?: ActividadRefWhereInput
+  }
+
+  export type PaqueteActividadRefPaqueteIdActividadIdCompoundUniqueInput = {
+    paqueteId: number
+    actividadId: number
+  }
+
+  export type PaqueteActividadRefCountOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+  }
+
+  export type PaqueteActividadRefAvgOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+  }
+
+  export type PaqueteActividadRefMaxOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+  }
+
+  export type PaqueteActividadRefMinOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+  }
+
+  export type PaqueteActividadRefSumOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    actividadId?: SortOrder
+  }
+
+  export type TrasladoRefScalarRelationFilter = {
+    is?: TrasladoRefWhereInput
+    isNot?: TrasladoRefWhereInput
+  }
+
+  export type PaqueteTrasladoRefPaqueteIdTrasladoIdCompoundUniqueInput = {
+    paqueteId: number
+    trasladoId: number
+  }
+
+  export type PaqueteTrasladoRefCountOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+  }
+
+  export type PaqueteTrasladoRefAvgOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+  }
+
+  export type PaqueteTrasladoRefMaxOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+  }
+
+  export type PaqueteTrasladoRefMinOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+  }
+
+  export type PaqueteTrasladoRefSumOrderByAggregateInput = {
+    paqueteId?: SortOrder
+    trasladoId?: SortOrder
+  }
+
+  export type VersionPaqueteRefPaqueteIdTipoPaxCompoundUniqueInput = {
+    paqueteId: number
+    tipoPax: string
+  }
+
+  export type VersionPaqueteRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    tipoPax?: SortOrder
+    precioTotal?: SortOrder
+    precioPorPersona?: SortOrder
+  }
+
+  export type VersionPaqueteRefAvgOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    precioTotal?: SortOrder
+    precioPorPersona?: SortOrder
+  }
+
+  export type VersionPaqueteRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    tipoPax?: SortOrder
+    precioTotal?: SortOrder
+    precioPorPersona?: SortOrder
+  }
+
+  export type VersionPaqueteRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    tipoPax?: SortOrder
+    precioTotal?: SortOrder
+    precioPorPersona?: SortOrder
+  }
+
+  export type VersionPaqueteRefSumOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    numPax?: SortOrder
+    precioTotal?: SortOrder
+    precioPorPersona?: SortOrder
+  }
+
+  export type ImagenPaqueteRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    url?: SortOrder
+    orden?: SortOrder
+  }
+
+  export type ImagenPaqueteRefAvgOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    orden?: SortOrder
+  }
+
+  export type ImagenPaqueteRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    url?: SortOrder
+    orden?: SortOrder
+  }
+
+  export type ImagenPaqueteRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    url?: SortOrder
+    orden?: SortOrder
+  }
+
+  export type ImagenPaqueteRefSumOrderByAggregateInput = {
+    id?: SortOrder
+    paqueteId?: SortOrder
+    orden?: SortOrder
   }
 
   export type AgenciaScalarRelationFilter = {
@@ -12270,18 +24373,15 @@ export namespace Prisma {
     fechaAlta?: SortOrder
   }
 
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -12326,14 +24426,19 @@ export namespace Prisma {
     isNot?: UsuarioAgenciaWhereInput
   }
 
-  export type PaqueteRefScalarRelationFilter = {
-    is?: PaqueteRefWhereInput
-    isNot?: PaqueteRefWhereInput
-  }
-
   export type ClienteScalarRelationFilter = {
     is?: ClienteWhereInput
     isNot?: ClienteWhereInput
+  }
+
+  export type CotizacionDetalleListRelationFilter = {
+    every?: CotizacionDetalleWhereInput
+    some?: CotizacionDetalleWhereInput
+    none?: CotizacionDetalleWhereInput
+  }
+
+  export type CotizacionDetalleOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type CotizacionCountOrderByAggregateInput = {
@@ -12341,24 +24446,15 @@ export namespace Prisma {
     codigo?: SortOrder
     agenciaId?: SortOrder
     creadoPorId?: SortOrder
-    paqueteId?: SortOrder
     clienteId?: SortOrder
-    paqueteNombre?: SortOrder
-    paqueteDuracion?: SortOrder
-    paqueteDestino?: SortOrder
-    paqueteIncluye?: SortOrder
+    paqueteId?: SortOrder
+    snapshotNombre?: SortOrder
+    snapshotDestino?: SortOrder
+    snapshotDuracion?: SortOrder
+    snapshotIncluye?: SortOrder
     incluyeBoleto?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
-    precioCHD?: SortOrder
     precioBoleto?: SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
@@ -12375,17 +24471,8 @@ export namespace Prisma {
 
   export type CotizacionAvgOrderByAggregateInput = {
     paqueteId?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
-    precioCHD?: SortOrder
     precioBoleto?: SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
@@ -12396,23 +24483,14 @@ export namespace Prisma {
     codigo?: SortOrder
     agenciaId?: SortOrder
     creadoPorId?: SortOrder
-    paqueteId?: SortOrder
     clienteId?: SortOrder
-    paqueteNombre?: SortOrder
-    paqueteDuracion?: SortOrder
-    paqueteDestino?: SortOrder
+    paqueteId?: SortOrder
+    snapshotNombre?: SortOrder
+    snapshotDestino?: SortOrder
+    snapshotDuracion?: SortOrder
     incluyeBoleto?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
-    precioCHD?: SortOrder
     precioBoleto?: SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
@@ -12432,23 +24510,14 @@ export namespace Prisma {
     codigo?: SortOrder
     agenciaId?: SortOrder
     creadoPorId?: SortOrder
-    paqueteId?: SortOrder
     clienteId?: SortOrder
-    paqueteNombre?: SortOrder
-    paqueteDuracion?: SortOrder
-    paqueteDestino?: SortOrder
+    paqueteId?: SortOrder
+    snapshotNombre?: SortOrder
+    snapshotDestino?: SortOrder
+    snapshotDuracion?: SortOrder
     incluyeBoleto?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
-    precioCHD?: SortOrder
     precioBoleto?: SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
@@ -12465,20 +24534,27 @@ export namespace Prisma {
 
   export type CotizacionSumOrderByAggregateInput = {
     paqueteId?: SortOrder
-    cantSGL?: SortOrder
-    cantDBL?: SortOrder
-    cantTPL?: SortOrder
-    cantQUAD?: SortOrder
-    cantCHD?: SortOrder
-    precioSGL?: SortOrder
-    precioDBL?: SortOrder
-    precioTPL?: SortOrder
-    precioQUAD?: SortOrder
-    precioCHD?: SortOrder
     precioBoleto?: SortOrder
+    boletoTotal?: SortOrder
     subtotal?: SortOrder
     markup?: SortOrder
     total?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -12521,16 +24597,70 @@ export namespace Prisma {
     _max?: NestedEnumCotizacionStatusFilter<$PrismaModel>
   }
 
+  export type CotizacionScalarRelationFilter = {
+    is?: CotizacionWhereInput
+    isNot?: CotizacionWhereInput
+  }
+
+  export type CotizacionDetalleCountOrderByAggregateInput = {
+    id?: SortOrder
+    cotizacionId?: SortOrder
+    versionId?: SortOrder
+    tipoPax?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+  }
+
+  export type CotizacionDetalleAvgOrderByAggregateInput = {
+    versionId?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+  }
+
+  export type CotizacionDetalleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cotizacionId?: SortOrder
+    versionId?: SortOrder
+    tipoPax?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+  }
+
+  export type CotizacionDetalleMinOrderByAggregateInput = {
+    id?: SortOrder
+    cotizacionId?: SortOrder
+    versionId?: SortOrder
+    tipoPax?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+  }
+
+  export type CotizacionDetalleSumOrderByAggregateInput = {
+    versionId?: SortOrder
+    numPax?: SortOrder
+    cantidad?: SortOrder
+    precioPorPersona?: SortOrder
+    precioUnitario?: SortOrder
+    subtotal?: SortOrder
+  }
+
   export type EnumCotizacionStatusNullableFilter<$PrismaModel = never> = {
     equals?: $Enums.CotizacionStatus | EnumCotizacionStatusFieldRefInput<$PrismaModel> | null
     in?: $Enums.CotizacionStatus[] | ListEnumCotizacionStatusFieldRefInput<$PrismaModel> | null
     notIn?: $Enums.CotizacionStatus[] | ListEnumCotizacionStatusFieldRefInput<$PrismaModel> | null
     not?: NestedEnumCotizacionStatusNullableFilter<$PrismaModel> | $Enums.CotizacionStatus | null
-  }
-
-  export type CotizacionScalarRelationFilter = {
-    is?: CotizacionWhereInput
-    isNot?: CotizacionWhereInput
   }
 
   export type HistorialCotizacionCountOrderByAggregateInput = {
@@ -12621,6 +24751,10 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type UsuarioAgenciaUpdateManyWithoutAgenciaNestedInput = {
@@ -12807,18 +24941,46 @@ export namespace Prisma {
     deleteMany?: HistorialCotizacionScalarWhereInput | HistorialCotizacionScalarWhereInput[]
   }
 
-  export type PaqueteRefCreateNestedManyWithoutDestinoInput = {
-    create?: XOR<PaqueteRefCreateWithoutDestinoInput, PaqueteRefUncheckedCreateWithoutDestinoInput> | PaqueteRefCreateWithoutDestinoInput[] | PaqueteRefUncheckedCreateWithoutDestinoInput[]
-    connectOrCreate?: PaqueteRefCreateOrConnectWithoutDestinoInput | PaqueteRefCreateOrConnectWithoutDestinoInput[]
-    createMany?: PaqueteRefCreateManyDestinoInputEnvelope
-    connect?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
+  export type HotelRefCreateNestedManyWithoutDestinoInput = {
+    create?: XOR<HotelRefCreateWithoutDestinoInput, HotelRefUncheckedCreateWithoutDestinoInput> | HotelRefCreateWithoutDestinoInput[] | HotelRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: HotelRefCreateOrConnectWithoutDestinoInput | HotelRefCreateOrConnectWithoutDestinoInput[]
+    createMany?: HotelRefCreateManyDestinoInputEnvelope
+    connect?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
   }
 
-  export type PaqueteRefUncheckedCreateNestedManyWithoutDestinoInput = {
-    create?: XOR<PaqueteRefCreateWithoutDestinoInput, PaqueteRefUncheckedCreateWithoutDestinoInput> | PaqueteRefCreateWithoutDestinoInput[] | PaqueteRefUncheckedCreateWithoutDestinoInput[]
-    connectOrCreate?: PaqueteRefCreateOrConnectWithoutDestinoInput | PaqueteRefCreateOrConnectWithoutDestinoInput[]
-    createMany?: PaqueteRefCreateManyDestinoInputEnvelope
-    connect?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
+  export type ActividadRefCreateNestedManyWithoutDestinoInput = {
+    create?: XOR<ActividadRefCreateWithoutDestinoInput, ActividadRefUncheckedCreateWithoutDestinoInput> | ActividadRefCreateWithoutDestinoInput[] | ActividadRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: ActividadRefCreateOrConnectWithoutDestinoInput | ActividadRefCreateOrConnectWithoutDestinoInput[]
+    createMany?: ActividadRefCreateManyDestinoInputEnvelope
+    connect?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+  }
+
+  export type TrasladoRefCreateNestedManyWithoutDestinoInput = {
+    create?: XOR<TrasladoRefCreateWithoutDestinoInput, TrasladoRefUncheckedCreateWithoutDestinoInput> | TrasladoRefCreateWithoutDestinoInput[] | TrasladoRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: TrasladoRefCreateOrConnectWithoutDestinoInput | TrasladoRefCreateOrConnectWithoutDestinoInput[]
+    createMany?: TrasladoRefCreateManyDestinoInputEnvelope
+    connect?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+  }
+
+  export type HotelRefUncheckedCreateNestedManyWithoutDestinoInput = {
+    create?: XOR<HotelRefCreateWithoutDestinoInput, HotelRefUncheckedCreateWithoutDestinoInput> | HotelRefCreateWithoutDestinoInput[] | HotelRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: HotelRefCreateOrConnectWithoutDestinoInput | HotelRefCreateOrConnectWithoutDestinoInput[]
+    createMany?: HotelRefCreateManyDestinoInputEnvelope
+    connect?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+  }
+
+  export type ActividadRefUncheckedCreateNestedManyWithoutDestinoInput = {
+    create?: XOR<ActividadRefCreateWithoutDestinoInput, ActividadRefUncheckedCreateWithoutDestinoInput> | ActividadRefCreateWithoutDestinoInput[] | ActividadRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: ActividadRefCreateOrConnectWithoutDestinoInput | ActividadRefCreateOrConnectWithoutDestinoInput[]
+    createMany?: ActividadRefCreateManyDestinoInputEnvelope
+    connect?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+  }
+
+  export type TrasladoRefUncheckedCreateNestedManyWithoutDestinoInput = {
+    create?: XOR<TrasladoRefCreateWithoutDestinoInput, TrasladoRefUncheckedCreateWithoutDestinoInput> | TrasladoRefCreateWithoutDestinoInput[] | TrasladoRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: TrasladoRefCreateOrConnectWithoutDestinoInput | TrasladoRefCreateOrConnectWithoutDestinoInput[]
+    createMany?: TrasladoRefCreateManyDestinoInputEnvelope
+    connect?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -12829,52 +24991,214 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type PaqueteRefUpdateManyWithoutDestinoNestedInput = {
-    create?: XOR<PaqueteRefCreateWithoutDestinoInput, PaqueteRefUncheckedCreateWithoutDestinoInput> | PaqueteRefCreateWithoutDestinoInput[] | PaqueteRefUncheckedCreateWithoutDestinoInput[]
-    connectOrCreate?: PaqueteRefCreateOrConnectWithoutDestinoInput | PaqueteRefCreateOrConnectWithoutDestinoInput[]
-    upsert?: PaqueteRefUpsertWithWhereUniqueWithoutDestinoInput | PaqueteRefUpsertWithWhereUniqueWithoutDestinoInput[]
-    createMany?: PaqueteRefCreateManyDestinoInputEnvelope
-    set?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    disconnect?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    delete?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    connect?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    update?: PaqueteRefUpdateWithWhereUniqueWithoutDestinoInput | PaqueteRefUpdateWithWhereUniqueWithoutDestinoInput[]
-    updateMany?: PaqueteRefUpdateManyWithWhereWithoutDestinoInput | PaqueteRefUpdateManyWithWhereWithoutDestinoInput[]
-    deleteMany?: PaqueteRefScalarWhereInput | PaqueteRefScalarWhereInput[]
+  export type HotelRefUpdateManyWithoutDestinoNestedInput = {
+    create?: XOR<HotelRefCreateWithoutDestinoInput, HotelRefUncheckedCreateWithoutDestinoInput> | HotelRefCreateWithoutDestinoInput[] | HotelRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: HotelRefCreateOrConnectWithoutDestinoInput | HotelRefCreateOrConnectWithoutDestinoInput[]
+    upsert?: HotelRefUpsertWithWhereUniqueWithoutDestinoInput | HotelRefUpsertWithWhereUniqueWithoutDestinoInput[]
+    createMany?: HotelRefCreateManyDestinoInputEnvelope
+    set?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    disconnect?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    delete?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    connect?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    update?: HotelRefUpdateWithWhereUniqueWithoutDestinoInput | HotelRefUpdateWithWhereUniqueWithoutDestinoInput[]
+    updateMany?: HotelRefUpdateManyWithWhereWithoutDestinoInput | HotelRefUpdateManyWithWhereWithoutDestinoInput[]
+    deleteMany?: HotelRefScalarWhereInput | HotelRefScalarWhereInput[]
   }
 
-  export type PaqueteRefUncheckedUpdateManyWithoutDestinoNestedInput = {
-    create?: XOR<PaqueteRefCreateWithoutDestinoInput, PaqueteRefUncheckedCreateWithoutDestinoInput> | PaqueteRefCreateWithoutDestinoInput[] | PaqueteRefUncheckedCreateWithoutDestinoInput[]
-    connectOrCreate?: PaqueteRefCreateOrConnectWithoutDestinoInput | PaqueteRefCreateOrConnectWithoutDestinoInput[]
-    upsert?: PaqueteRefUpsertWithWhereUniqueWithoutDestinoInput | PaqueteRefUpsertWithWhereUniqueWithoutDestinoInput[]
-    createMany?: PaqueteRefCreateManyDestinoInputEnvelope
-    set?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    disconnect?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    delete?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    connect?: PaqueteRefWhereUniqueInput | PaqueteRefWhereUniqueInput[]
-    update?: PaqueteRefUpdateWithWhereUniqueWithoutDestinoInput | PaqueteRefUpdateWithWhereUniqueWithoutDestinoInput[]
-    updateMany?: PaqueteRefUpdateManyWithWhereWithoutDestinoInput | PaqueteRefUpdateManyWithWhereWithoutDestinoInput[]
-    deleteMany?: PaqueteRefScalarWhereInput | PaqueteRefScalarWhereInput[]
+  export type ActividadRefUpdateManyWithoutDestinoNestedInput = {
+    create?: XOR<ActividadRefCreateWithoutDestinoInput, ActividadRefUncheckedCreateWithoutDestinoInput> | ActividadRefCreateWithoutDestinoInput[] | ActividadRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: ActividadRefCreateOrConnectWithoutDestinoInput | ActividadRefCreateOrConnectWithoutDestinoInput[]
+    upsert?: ActividadRefUpsertWithWhereUniqueWithoutDestinoInput | ActividadRefUpsertWithWhereUniqueWithoutDestinoInput[]
+    createMany?: ActividadRefCreateManyDestinoInputEnvelope
+    set?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    disconnect?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    delete?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    connect?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    update?: ActividadRefUpdateWithWhereUniqueWithoutDestinoInput | ActividadRefUpdateWithWhereUniqueWithoutDestinoInput[]
+    updateMany?: ActividadRefUpdateManyWithWhereWithoutDestinoInput | ActividadRefUpdateManyWithWhereWithoutDestinoInput[]
+    deleteMany?: ActividadRefScalarWhereInput | ActividadRefScalarWhereInput[]
   }
 
-  export type DestinoRefCreateNestedOneWithoutPaquetesInput = {
-    create?: XOR<DestinoRefCreateWithoutPaquetesInput, DestinoRefUncheckedCreateWithoutPaquetesInput>
-    connectOrCreate?: DestinoRefCreateOrConnectWithoutPaquetesInput
+  export type TrasladoRefUpdateManyWithoutDestinoNestedInput = {
+    create?: XOR<TrasladoRefCreateWithoutDestinoInput, TrasladoRefUncheckedCreateWithoutDestinoInput> | TrasladoRefCreateWithoutDestinoInput[] | TrasladoRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: TrasladoRefCreateOrConnectWithoutDestinoInput | TrasladoRefCreateOrConnectWithoutDestinoInput[]
+    upsert?: TrasladoRefUpsertWithWhereUniqueWithoutDestinoInput | TrasladoRefUpsertWithWhereUniqueWithoutDestinoInput[]
+    createMany?: TrasladoRefCreateManyDestinoInputEnvelope
+    set?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    disconnect?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    delete?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    connect?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    update?: TrasladoRefUpdateWithWhereUniqueWithoutDestinoInput | TrasladoRefUpdateWithWhereUniqueWithoutDestinoInput[]
+    updateMany?: TrasladoRefUpdateManyWithWhereWithoutDestinoInput | TrasladoRefUpdateManyWithWhereWithoutDestinoInput[]
+    deleteMany?: TrasladoRefScalarWhereInput | TrasladoRefScalarWhereInput[]
+  }
+
+  export type HotelRefUncheckedUpdateManyWithoutDestinoNestedInput = {
+    create?: XOR<HotelRefCreateWithoutDestinoInput, HotelRefUncheckedCreateWithoutDestinoInput> | HotelRefCreateWithoutDestinoInput[] | HotelRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: HotelRefCreateOrConnectWithoutDestinoInput | HotelRefCreateOrConnectWithoutDestinoInput[]
+    upsert?: HotelRefUpsertWithWhereUniqueWithoutDestinoInput | HotelRefUpsertWithWhereUniqueWithoutDestinoInput[]
+    createMany?: HotelRefCreateManyDestinoInputEnvelope
+    set?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    disconnect?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    delete?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    connect?: HotelRefWhereUniqueInput | HotelRefWhereUniqueInput[]
+    update?: HotelRefUpdateWithWhereUniqueWithoutDestinoInput | HotelRefUpdateWithWhereUniqueWithoutDestinoInput[]
+    updateMany?: HotelRefUpdateManyWithWhereWithoutDestinoInput | HotelRefUpdateManyWithWhereWithoutDestinoInput[]
+    deleteMany?: HotelRefScalarWhereInput | HotelRefScalarWhereInput[]
+  }
+
+  export type ActividadRefUncheckedUpdateManyWithoutDestinoNestedInput = {
+    create?: XOR<ActividadRefCreateWithoutDestinoInput, ActividadRefUncheckedCreateWithoutDestinoInput> | ActividadRefCreateWithoutDestinoInput[] | ActividadRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: ActividadRefCreateOrConnectWithoutDestinoInput | ActividadRefCreateOrConnectWithoutDestinoInput[]
+    upsert?: ActividadRefUpsertWithWhereUniqueWithoutDestinoInput | ActividadRefUpsertWithWhereUniqueWithoutDestinoInput[]
+    createMany?: ActividadRefCreateManyDestinoInputEnvelope
+    set?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    disconnect?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    delete?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    connect?: ActividadRefWhereUniqueInput | ActividadRefWhereUniqueInput[]
+    update?: ActividadRefUpdateWithWhereUniqueWithoutDestinoInput | ActividadRefUpdateWithWhereUniqueWithoutDestinoInput[]
+    updateMany?: ActividadRefUpdateManyWithWhereWithoutDestinoInput | ActividadRefUpdateManyWithWhereWithoutDestinoInput[]
+    deleteMany?: ActividadRefScalarWhereInput | ActividadRefScalarWhereInput[]
+  }
+
+  export type TrasladoRefUncheckedUpdateManyWithoutDestinoNestedInput = {
+    create?: XOR<TrasladoRefCreateWithoutDestinoInput, TrasladoRefUncheckedCreateWithoutDestinoInput> | TrasladoRefCreateWithoutDestinoInput[] | TrasladoRefUncheckedCreateWithoutDestinoInput[]
+    connectOrCreate?: TrasladoRefCreateOrConnectWithoutDestinoInput | TrasladoRefCreateOrConnectWithoutDestinoInput[]
+    upsert?: TrasladoRefUpsertWithWhereUniqueWithoutDestinoInput | TrasladoRefUpsertWithWhereUniqueWithoutDestinoInput[]
+    createMany?: TrasladoRefCreateManyDestinoInputEnvelope
+    set?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    disconnect?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    delete?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    connect?: TrasladoRefWhereUniqueInput | TrasladoRefWhereUniqueInput[]
+    update?: TrasladoRefUpdateWithWhereUniqueWithoutDestinoInput | TrasladoRefUpdateWithWhereUniqueWithoutDestinoInput[]
+    updateMany?: TrasladoRefUpdateManyWithWhereWithoutDestinoInput | TrasladoRefUpdateManyWithWhereWithoutDestinoInput[]
+    deleteMany?: TrasladoRefScalarWhereInput | TrasladoRefScalarWhereInput[]
+  }
+
+  export type DestinoRefCreateNestedOneWithoutHotelesInput = {
+    create?: XOR<DestinoRefCreateWithoutHotelesInput, DestinoRefUncheckedCreateWithoutHotelesInput>
+    connectOrCreate?: DestinoRefCreateOrConnectWithoutHotelesInput
     connect?: DestinoRefWhereUniqueInput
   }
 
-  export type CotizacionCreateNestedManyWithoutPaqueteInput = {
-    create?: XOR<CotizacionCreateWithoutPaqueteInput, CotizacionUncheckedCreateWithoutPaqueteInput> | CotizacionCreateWithoutPaqueteInput[] | CotizacionUncheckedCreateWithoutPaqueteInput[]
-    connectOrCreate?: CotizacionCreateOrConnectWithoutPaqueteInput | CotizacionCreateOrConnectWithoutPaqueteInput[]
-    createMany?: CotizacionCreateManyPaqueteInputEnvelope
-    connect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
+  export type PaqueteHotelRefCreateNestedManyWithoutHotelInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput> | PaqueteHotelRefCreateWithoutHotelInput[] | PaqueteHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutHotelInput | PaqueteHotelRefCreateOrConnectWithoutHotelInput[]
+    createMany?: PaqueteHotelRefCreateManyHotelInputEnvelope
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
   }
 
-  export type CotizacionUncheckedCreateNestedManyWithoutPaqueteInput = {
-    create?: XOR<CotizacionCreateWithoutPaqueteInput, CotizacionUncheckedCreateWithoutPaqueteInput> | CotizacionCreateWithoutPaqueteInput[] | CotizacionUncheckedCreateWithoutPaqueteInput[]
-    connectOrCreate?: CotizacionCreateOrConnectWithoutPaqueteInput | CotizacionCreateOrConnectWithoutPaqueteInput[]
-    createMany?: CotizacionCreateManyPaqueteInputEnvelope
-    connect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
+  export type PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput> | PaqueteHotelRefCreateWithoutHotelInput[] | PaqueteHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutHotelInput | PaqueteHotelRefCreateOrConnectWithoutHotelInput[]
+    createMany?: PaqueteHotelRefCreateManyHotelInputEnvelope
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+  }
+
+  export type DestinoRefUpdateOneRequiredWithoutHotelesNestedInput = {
+    create?: XOR<DestinoRefCreateWithoutHotelesInput, DestinoRefUncheckedCreateWithoutHotelesInput>
+    connectOrCreate?: DestinoRefCreateOrConnectWithoutHotelesInput
+    upsert?: DestinoRefUpsertWithoutHotelesInput
+    connect?: DestinoRefWhereUniqueInput
+    update?: XOR<XOR<DestinoRefUpdateToOneWithWhereWithoutHotelesInput, DestinoRefUpdateWithoutHotelesInput>, DestinoRefUncheckedUpdateWithoutHotelesInput>
+  }
+
+  export type PaqueteHotelRefUpdateManyWithoutHotelNestedInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput> | PaqueteHotelRefCreateWithoutHotelInput[] | PaqueteHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutHotelInput | PaqueteHotelRefCreateOrConnectWithoutHotelInput[]
+    upsert?: PaqueteHotelRefUpsertWithWhereUniqueWithoutHotelInput | PaqueteHotelRefUpsertWithWhereUniqueWithoutHotelInput[]
+    createMany?: PaqueteHotelRefCreateManyHotelInputEnvelope
+    set?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    disconnect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    delete?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    update?: PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput | PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput[]
+    updateMany?: PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput | PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput[]
+    deleteMany?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput> | PaqueteHotelRefCreateWithoutHotelInput[] | PaqueteHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutHotelInput | PaqueteHotelRefCreateOrConnectWithoutHotelInput[]
+    upsert?: PaqueteHotelRefUpsertWithWhereUniqueWithoutHotelInput | PaqueteHotelRefUpsertWithWhereUniqueWithoutHotelInput[]
+    createMany?: PaqueteHotelRefCreateManyHotelInputEnvelope
+    set?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    disconnect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    delete?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    update?: PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput | PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput[]
+    updateMany?: PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput | PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput[]
+    deleteMany?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+  }
+
+  export type PaqueteHotelRefCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutPaqueteInput, PaqueteHotelRefUncheckedCreateWithoutPaqueteInput> | PaqueteHotelRefCreateWithoutPaqueteInput[] | PaqueteHotelRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutPaqueteInput | PaqueteHotelRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: PaqueteHotelRefCreateManyPaqueteInputEnvelope
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+  }
+
+  export type VersionPaqueteRefCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<VersionPaqueteRefCreateWithoutPaqueteInput, VersionPaqueteRefUncheckedCreateWithoutPaqueteInput> | VersionPaqueteRefCreateWithoutPaqueteInput[] | VersionPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: VersionPaqueteRefCreateOrConnectWithoutPaqueteInput | VersionPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: VersionPaqueteRefCreateManyPaqueteInputEnvelope
+    connect?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+  }
+
+  export type ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<ImagenPaqueteRefCreateWithoutPaqueteInput, ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput> | ImagenPaqueteRefCreateWithoutPaqueteInput[] | ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput | ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: ImagenPaqueteRefCreateManyPaqueteInputEnvelope
+    connect?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+  }
+
+  export type PaqueteActividadRefCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutPaqueteInput, PaqueteActividadRefUncheckedCreateWithoutPaqueteInput> | PaqueteActividadRefCreateWithoutPaqueteInput[] | PaqueteActividadRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutPaqueteInput | PaqueteActividadRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: PaqueteActividadRefCreateManyPaqueteInputEnvelope
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+  }
+
+  export type PaqueteTrasladoRefCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput> | PaqueteTrasladoRefCreateWithoutPaqueteInput[] | PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput | PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: PaqueteTrasladoRefCreateManyPaqueteInputEnvelope
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+  }
+
+  export type PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutPaqueteInput, PaqueteHotelRefUncheckedCreateWithoutPaqueteInput> | PaqueteHotelRefCreateWithoutPaqueteInput[] | PaqueteHotelRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutPaqueteInput | PaqueteHotelRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: PaqueteHotelRefCreateManyPaqueteInputEnvelope
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+  }
+
+  export type VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<VersionPaqueteRefCreateWithoutPaqueteInput, VersionPaqueteRefUncheckedCreateWithoutPaqueteInput> | VersionPaqueteRefCreateWithoutPaqueteInput[] | VersionPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: VersionPaqueteRefCreateOrConnectWithoutPaqueteInput | VersionPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: VersionPaqueteRefCreateManyPaqueteInputEnvelope
+    connect?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+  }
+
+  export type ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<ImagenPaqueteRefCreateWithoutPaqueteInput, ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput> | ImagenPaqueteRefCreateWithoutPaqueteInput[] | ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput | ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: ImagenPaqueteRefCreateManyPaqueteInputEnvelope
+    connect?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+  }
+
+  export type PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutPaqueteInput, PaqueteActividadRefUncheckedCreateWithoutPaqueteInput> | PaqueteActividadRefCreateWithoutPaqueteInput[] | PaqueteActividadRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutPaqueteInput | PaqueteActividadRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: PaqueteActividadRefCreateManyPaqueteInputEnvelope
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+  }
+
+  export type PaqueteTrasladoRefUncheckedCreateNestedManyWithoutPaqueteInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput> | PaqueteTrasladoRefCreateWithoutPaqueteInput[] | PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput | PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput[]
+    createMany?: PaqueteTrasladoRefCreateManyPaqueteInputEnvelope
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -12889,50 +25213,368 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type DestinoRefUpdateOneWithoutPaquetesNestedInput = {
-    create?: XOR<DestinoRefCreateWithoutPaquetesInput, DestinoRefUncheckedCreateWithoutPaquetesInput>
-    connectOrCreate?: DestinoRefCreateOrConnectWithoutPaquetesInput
-    upsert?: DestinoRefUpsertWithoutPaquetesInput
-    disconnect?: DestinoRefWhereInput | boolean
-    delete?: DestinoRefWhereInput | boolean
+  export type PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutPaqueteInput, PaqueteHotelRefUncheckedCreateWithoutPaqueteInput> | PaqueteHotelRefCreateWithoutPaqueteInput[] | PaqueteHotelRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutPaqueteInput | PaqueteHotelRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: PaqueteHotelRefUpsertWithWhereUniqueWithoutPaqueteInput | PaqueteHotelRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: PaqueteHotelRefCreateManyPaqueteInputEnvelope
+    set?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    disconnect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    delete?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    update?: PaqueteHotelRefUpdateWithWhereUniqueWithoutPaqueteInput | PaqueteHotelRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: PaqueteHotelRefUpdateManyWithWhereWithoutPaqueteInput | PaqueteHotelRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+  }
+
+  export type VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<VersionPaqueteRefCreateWithoutPaqueteInput, VersionPaqueteRefUncheckedCreateWithoutPaqueteInput> | VersionPaqueteRefCreateWithoutPaqueteInput[] | VersionPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: VersionPaqueteRefCreateOrConnectWithoutPaqueteInput | VersionPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: VersionPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput | VersionPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: VersionPaqueteRefCreateManyPaqueteInputEnvelope
+    set?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    disconnect?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    delete?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    connect?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    update?: VersionPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput | VersionPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: VersionPaqueteRefUpdateManyWithWhereWithoutPaqueteInput | VersionPaqueteRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: VersionPaqueteRefScalarWhereInput | VersionPaqueteRefScalarWhereInput[]
+  }
+
+  export type ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<ImagenPaqueteRefCreateWithoutPaqueteInput, ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput> | ImagenPaqueteRefCreateWithoutPaqueteInput[] | ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput | ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: ImagenPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput | ImagenPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: ImagenPaqueteRefCreateManyPaqueteInputEnvelope
+    set?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    disconnect?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    delete?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    connect?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    update?: ImagenPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput | ImagenPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: ImagenPaqueteRefUpdateManyWithWhereWithoutPaqueteInput | ImagenPaqueteRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: ImagenPaqueteRefScalarWhereInput | ImagenPaqueteRefScalarWhereInput[]
+  }
+
+  export type PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutPaqueteInput, PaqueteActividadRefUncheckedCreateWithoutPaqueteInput> | PaqueteActividadRefCreateWithoutPaqueteInput[] | PaqueteActividadRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutPaqueteInput | PaqueteActividadRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: PaqueteActividadRefUpsertWithWhereUniqueWithoutPaqueteInput | PaqueteActividadRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: PaqueteActividadRefCreateManyPaqueteInputEnvelope
+    set?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    disconnect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    delete?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    update?: PaqueteActividadRefUpdateWithWhereUniqueWithoutPaqueteInput | PaqueteActividadRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: PaqueteActividadRefUpdateManyWithWhereWithoutPaqueteInput | PaqueteActividadRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: PaqueteActividadRefScalarWhereInput | PaqueteActividadRefScalarWhereInput[]
+  }
+
+  export type PaqueteTrasladoRefUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput> | PaqueteTrasladoRefCreateWithoutPaqueteInput[] | PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput | PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: PaqueteTrasladoRefUpsertWithWhereUniqueWithoutPaqueteInput | PaqueteTrasladoRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: PaqueteTrasladoRefCreateManyPaqueteInputEnvelope
+    set?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    disconnect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    delete?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    update?: PaqueteTrasladoRefUpdateWithWhereUniqueWithoutPaqueteInput | PaqueteTrasladoRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: PaqueteTrasladoRefUpdateManyWithWhereWithoutPaqueteInput | PaqueteTrasladoRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: PaqueteTrasladoRefScalarWhereInput | PaqueteTrasladoRefScalarWhereInput[]
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<PaqueteHotelRefCreateWithoutPaqueteInput, PaqueteHotelRefUncheckedCreateWithoutPaqueteInput> | PaqueteHotelRefCreateWithoutPaqueteInput[] | PaqueteHotelRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutPaqueteInput | PaqueteHotelRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: PaqueteHotelRefUpsertWithWhereUniqueWithoutPaqueteInput | PaqueteHotelRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: PaqueteHotelRefCreateManyPaqueteInputEnvelope
+    set?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    disconnect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    delete?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+    update?: PaqueteHotelRefUpdateWithWhereUniqueWithoutPaqueteInput | PaqueteHotelRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: PaqueteHotelRefUpdateManyWithWhereWithoutPaqueteInput | PaqueteHotelRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+  }
+
+  export type VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<VersionPaqueteRefCreateWithoutPaqueteInput, VersionPaqueteRefUncheckedCreateWithoutPaqueteInput> | VersionPaqueteRefCreateWithoutPaqueteInput[] | VersionPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: VersionPaqueteRefCreateOrConnectWithoutPaqueteInput | VersionPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: VersionPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput | VersionPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: VersionPaqueteRefCreateManyPaqueteInputEnvelope
+    set?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    disconnect?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    delete?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    connect?: VersionPaqueteRefWhereUniqueInput | VersionPaqueteRefWhereUniqueInput[]
+    update?: VersionPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput | VersionPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: VersionPaqueteRefUpdateManyWithWhereWithoutPaqueteInput | VersionPaqueteRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: VersionPaqueteRefScalarWhereInput | VersionPaqueteRefScalarWhereInput[]
+  }
+
+  export type ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<ImagenPaqueteRefCreateWithoutPaqueteInput, ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput> | ImagenPaqueteRefCreateWithoutPaqueteInput[] | ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput | ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: ImagenPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput | ImagenPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: ImagenPaqueteRefCreateManyPaqueteInputEnvelope
+    set?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    disconnect?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    delete?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    connect?: ImagenPaqueteRefWhereUniqueInput | ImagenPaqueteRefWhereUniqueInput[]
+    update?: ImagenPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput | ImagenPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: ImagenPaqueteRefUpdateManyWithWhereWithoutPaqueteInput | ImagenPaqueteRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: ImagenPaqueteRefScalarWhereInput | ImagenPaqueteRefScalarWhereInput[]
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutPaqueteInput, PaqueteActividadRefUncheckedCreateWithoutPaqueteInput> | PaqueteActividadRefCreateWithoutPaqueteInput[] | PaqueteActividadRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutPaqueteInput | PaqueteActividadRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: PaqueteActividadRefUpsertWithWhereUniqueWithoutPaqueteInput | PaqueteActividadRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: PaqueteActividadRefCreateManyPaqueteInputEnvelope
+    set?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    disconnect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    delete?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    update?: PaqueteActividadRefUpdateWithWhereUniqueWithoutPaqueteInput | PaqueteActividadRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: PaqueteActividadRefUpdateManyWithWhereWithoutPaqueteInput | PaqueteActividadRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: PaqueteActividadRefScalarWhereInput | PaqueteActividadRefScalarWhereInput[]
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput> | PaqueteTrasladoRefCreateWithoutPaqueteInput[] | PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput | PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput[]
+    upsert?: PaqueteTrasladoRefUpsertWithWhereUniqueWithoutPaqueteInput | PaqueteTrasladoRefUpsertWithWhereUniqueWithoutPaqueteInput[]
+    createMany?: PaqueteTrasladoRefCreateManyPaqueteInputEnvelope
+    set?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    disconnect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    delete?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    update?: PaqueteTrasladoRefUpdateWithWhereUniqueWithoutPaqueteInput | PaqueteTrasladoRefUpdateWithWhereUniqueWithoutPaqueteInput[]
+    updateMany?: PaqueteTrasladoRefUpdateManyWithWhereWithoutPaqueteInput | PaqueteTrasladoRefUpdateManyWithWhereWithoutPaqueteInput[]
+    deleteMany?: PaqueteTrasladoRefScalarWhereInput | PaqueteTrasladoRefScalarWhereInput[]
+  }
+
+  export type PaqueteRefCreateNestedOneWithoutHotelesInput = {
+    create?: XOR<PaqueteRefCreateWithoutHotelesInput, PaqueteRefUncheckedCreateWithoutHotelesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutHotelesInput
+    connect?: PaqueteRefWhereUniqueInput
+  }
+
+  export type HotelRefCreateNestedOneWithoutPaquetesInput = {
+    create?: XOR<HotelRefCreateWithoutPaquetesInput, HotelRefUncheckedCreateWithoutPaquetesInput>
+    connectOrCreate?: HotelRefCreateOrConnectWithoutPaquetesInput
+    connect?: HotelRefWhereUniqueInput
+  }
+
+  export type PaqueteRefUpdateOneRequiredWithoutHotelesNestedInput = {
+    create?: XOR<PaqueteRefCreateWithoutHotelesInput, PaqueteRefUncheckedCreateWithoutHotelesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutHotelesInput
+    upsert?: PaqueteRefUpsertWithoutHotelesInput
+    connect?: PaqueteRefWhereUniqueInput
+    update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutHotelesInput, PaqueteRefUpdateWithoutHotelesInput>, PaqueteRefUncheckedUpdateWithoutHotelesInput>
+  }
+
+  export type HotelRefUpdateOneRequiredWithoutPaquetesNestedInput = {
+    create?: XOR<HotelRefCreateWithoutPaquetesInput, HotelRefUncheckedCreateWithoutPaquetesInput>
+    connectOrCreate?: HotelRefCreateOrConnectWithoutPaquetesInput
+    upsert?: HotelRefUpsertWithoutPaquetesInput
+    connect?: HotelRefWhereUniqueInput
+    update?: XOR<XOR<HotelRefUpdateToOneWithWhereWithoutPaquetesInput, HotelRefUpdateWithoutPaquetesInput>, HotelRefUncheckedUpdateWithoutPaquetesInput>
+  }
+
+  export type DestinoRefCreateNestedOneWithoutActividadesInput = {
+    create?: XOR<DestinoRefCreateWithoutActividadesInput, DestinoRefUncheckedCreateWithoutActividadesInput>
+    connectOrCreate?: DestinoRefCreateOrConnectWithoutActividadesInput
     connect?: DestinoRefWhereUniqueInput
-    update?: XOR<XOR<DestinoRefUpdateToOneWithWhereWithoutPaquetesInput, DestinoRefUpdateWithoutPaquetesInput>, DestinoRefUncheckedUpdateWithoutPaquetesInput>
   }
 
-  export type CotizacionUpdateManyWithoutPaqueteNestedInput = {
-    create?: XOR<CotizacionCreateWithoutPaqueteInput, CotizacionUncheckedCreateWithoutPaqueteInput> | CotizacionCreateWithoutPaqueteInput[] | CotizacionUncheckedCreateWithoutPaqueteInput[]
-    connectOrCreate?: CotizacionCreateOrConnectWithoutPaqueteInput | CotizacionCreateOrConnectWithoutPaqueteInput[]
-    upsert?: CotizacionUpsertWithWhereUniqueWithoutPaqueteInput | CotizacionUpsertWithWhereUniqueWithoutPaqueteInput[]
-    createMany?: CotizacionCreateManyPaqueteInputEnvelope
-    set?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    disconnect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    delete?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    connect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    update?: CotizacionUpdateWithWhereUniqueWithoutPaqueteInput | CotizacionUpdateWithWhereUniqueWithoutPaqueteInput[]
-    updateMany?: CotizacionUpdateManyWithWhereWithoutPaqueteInput | CotizacionUpdateManyWithWhereWithoutPaqueteInput[]
-    deleteMany?: CotizacionScalarWhereInput | CotizacionScalarWhereInput[]
+  export type PaqueteActividadRefCreateNestedManyWithoutActividadInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutActividadInput, PaqueteActividadRefUncheckedCreateWithoutActividadInput> | PaqueteActividadRefCreateWithoutActividadInput[] | PaqueteActividadRefUncheckedCreateWithoutActividadInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutActividadInput | PaqueteActividadRefCreateOrConnectWithoutActividadInput[]
+    createMany?: PaqueteActividadRefCreateManyActividadInputEnvelope
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
   }
 
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
+  export type PaqueteActividadRefUncheckedCreateNestedManyWithoutActividadInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutActividadInput, PaqueteActividadRefUncheckedCreateWithoutActividadInput> | PaqueteActividadRefCreateWithoutActividadInput[] | PaqueteActividadRefUncheckedCreateWithoutActividadInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutActividadInput | PaqueteActividadRefCreateOrConnectWithoutActividadInput[]
+    createMany?: PaqueteActividadRefCreateManyActividadInputEnvelope
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
   }
 
-  export type CotizacionUncheckedUpdateManyWithoutPaqueteNestedInput = {
-    create?: XOR<CotizacionCreateWithoutPaqueteInput, CotizacionUncheckedCreateWithoutPaqueteInput> | CotizacionCreateWithoutPaqueteInput[] | CotizacionUncheckedCreateWithoutPaqueteInput[]
-    connectOrCreate?: CotizacionCreateOrConnectWithoutPaqueteInput | CotizacionCreateOrConnectWithoutPaqueteInput[]
-    upsert?: CotizacionUpsertWithWhereUniqueWithoutPaqueteInput | CotizacionUpsertWithWhereUniqueWithoutPaqueteInput[]
-    createMany?: CotizacionCreateManyPaqueteInputEnvelope
-    set?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    disconnect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    delete?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    connect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-    update?: CotizacionUpdateWithWhereUniqueWithoutPaqueteInput | CotizacionUpdateWithWhereUniqueWithoutPaqueteInput[]
-    updateMany?: CotizacionUpdateManyWithWhereWithoutPaqueteInput | CotizacionUpdateManyWithWhereWithoutPaqueteInput[]
-    deleteMany?: CotizacionScalarWhereInput | CotizacionScalarWhereInput[]
+  export type DestinoRefUpdateOneRequiredWithoutActividadesNestedInput = {
+    create?: XOR<DestinoRefCreateWithoutActividadesInput, DestinoRefUncheckedCreateWithoutActividadesInput>
+    connectOrCreate?: DestinoRefCreateOrConnectWithoutActividadesInput
+    upsert?: DestinoRefUpsertWithoutActividadesInput
+    connect?: DestinoRefWhereUniqueInput
+    update?: XOR<XOR<DestinoRefUpdateToOneWithWhereWithoutActividadesInput, DestinoRefUpdateWithoutActividadesInput>, DestinoRefUncheckedUpdateWithoutActividadesInput>
+  }
+
+  export type PaqueteActividadRefUpdateManyWithoutActividadNestedInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutActividadInput, PaqueteActividadRefUncheckedCreateWithoutActividadInput> | PaqueteActividadRefCreateWithoutActividadInput[] | PaqueteActividadRefUncheckedCreateWithoutActividadInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutActividadInput | PaqueteActividadRefCreateOrConnectWithoutActividadInput[]
+    upsert?: PaqueteActividadRefUpsertWithWhereUniqueWithoutActividadInput | PaqueteActividadRefUpsertWithWhereUniqueWithoutActividadInput[]
+    createMany?: PaqueteActividadRefCreateManyActividadInputEnvelope
+    set?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    disconnect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    delete?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    update?: PaqueteActividadRefUpdateWithWhereUniqueWithoutActividadInput | PaqueteActividadRefUpdateWithWhereUniqueWithoutActividadInput[]
+    updateMany?: PaqueteActividadRefUpdateManyWithWhereWithoutActividadInput | PaqueteActividadRefUpdateManyWithWhereWithoutActividadInput[]
+    deleteMany?: PaqueteActividadRefScalarWhereInput | PaqueteActividadRefScalarWhereInput[]
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateManyWithoutActividadNestedInput = {
+    create?: XOR<PaqueteActividadRefCreateWithoutActividadInput, PaqueteActividadRefUncheckedCreateWithoutActividadInput> | PaqueteActividadRefCreateWithoutActividadInput[] | PaqueteActividadRefUncheckedCreateWithoutActividadInput[]
+    connectOrCreate?: PaqueteActividadRefCreateOrConnectWithoutActividadInput | PaqueteActividadRefCreateOrConnectWithoutActividadInput[]
+    upsert?: PaqueteActividadRefUpsertWithWhereUniqueWithoutActividadInput | PaqueteActividadRefUpsertWithWhereUniqueWithoutActividadInput[]
+    createMany?: PaqueteActividadRefCreateManyActividadInputEnvelope
+    set?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    disconnect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    delete?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    connect?: PaqueteActividadRefWhereUniqueInput | PaqueteActividadRefWhereUniqueInput[]
+    update?: PaqueteActividadRefUpdateWithWhereUniqueWithoutActividadInput | PaqueteActividadRefUpdateWithWhereUniqueWithoutActividadInput[]
+    updateMany?: PaqueteActividadRefUpdateManyWithWhereWithoutActividadInput | PaqueteActividadRefUpdateManyWithWhereWithoutActividadInput[]
+    deleteMany?: PaqueteActividadRefScalarWhereInput | PaqueteActividadRefScalarWhereInput[]
+  }
+
+  export type DestinoRefCreateNestedOneWithoutTrasladosInput = {
+    create?: XOR<DestinoRefCreateWithoutTrasladosInput, DestinoRefUncheckedCreateWithoutTrasladosInput>
+    connectOrCreate?: DestinoRefCreateOrConnectWithoutTrasladosInput
+    connect?: DestinoRefWhereUniqueInput
+  }
+
+  export type PaqueteTrasladoRefCreateNestedManyWithoutTrasladoInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput> | PaqueteTrasladoRefCreateWithoutTrasladoInput[] | PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput | PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput[]
+    createMany?: PaqueteTrasladoRefCreateManyTrasladoInputEnvelope
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+  }
+
+  export type PaqueteTrasladoRefUncheckedCreateNestedManyWithoutTrasladoInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput> | PaqueteTrasladoRefCreateWithoutTrasladoInput[] | PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput | PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput[]
+    createMany?: PaqueteTrasladoRefCreateManyTrasladoInputEnvelope
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+  }
+
+  export type DestinoRefUpdateOneRequiredWithoutTrasladosNestedInput = {
+    create?: XOR<DestinoRefCreateWithoutTrasladosInput, DestinoRefUncheckedCreateWithoutTrasladosInput>
+    connectOrCreate?: DestinoRefCreateOrConnectWithoutTrasladosInput
+    upsert?: DestinoRefUpsertWithoutTrasladosInput
+    connect?: DestinoRefWhereUniqueInput
+    update?: XOR<XOR<DestinoRefUpdateToOneWithWhereWithoutTrasladosInput, DestinoRefUpdateWithoutTrasladosInput>, DestinoRefUncheckedUpdateWithoutTrasladosInput>
+  }
+
+  export type PaqueteTrasladoRefUpdateManyWithoutTrasladoNestedInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput> | PaqueteTrasladoRefCreateWithoutTrasladoInput[] | PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput | PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput[]
+    upsert?: PaqueteTrasladoRefUpsertWithWhereUniqueWithoutTrasladoInput | PaqueteTrasladoRefUpsertWithWhereUniqueWithoutTrasladoInput[]
+    createMany?: PaqueteTrasladoRefCreateManyTrasladoInputEnvelope
+    set?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    disconnect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    delete?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    update?: PaqueteTrasladoRefUpdateWithWhereUniqueWithoutTrasladoInput | PaqueteTrasladoRefUpdateWithWhereUniqueWithoutTrasladoInput[]
+    updateMany?: PaqueteTrasladoRefUpdateManyWithWhereWithoutTrasladoInput | PaqueteTrasladoRefUpdateManyWithWhereWithoutTrasladoInput[]
+    deleteMany?: PaqueteTrasladoRefScalarWhereInput | PaqueteTrasladoRefScalarWhereInput[]
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateManyWithoutTrasladoNestedInput = {
+    create?: XOR<PaqueteTrasladoRefCreateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput> | PaqueteTrasladoRefCreateWithoutTrasladoInput[] | PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput[]
+    connectOrCreate?: PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput | PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput[]
+    upsert?: PaqueteTrasladoRefUpsertWithWhereUniqueWithoutTrasladoInput | PaqueteTrasladoRefUpsertWithWhereUniqueWithoutTrasladoInput[]
+    createMany?: PaqueteTrasladoRefCreateManyTrasladoInputEnvelope
+    set?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    disconnect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    delete?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    connect?: PaqueteTrasladoRefWhereUniqueInput | PaqueteTrasladoRefWhereUniqueInput[]
+    update?: PaqueteTrasladoRefUpdateWithWhereUniqueWithoutTrasladoInput | PaqueteTrasladoRefUpdateWithWhereUniqueWithoutTrasladoInput[]
+    updateMany?: PaqueteTrasladoRefUpdateManyWithWhereWithoutTrasladoInput | PaqueteTrasladoRefUpdateManyWithWhereWithoutTrasladoInput[]
+    deleteMany?: PaqueteTrasladoRefScalarWhereInput | PaqueteTrasladoRefScalarWhereInput[]
+  }
+
+  export type PaqueteRefCreateNestedOneWithoutActividadesInput = {
+    create?: XOR<PaqueteRefCreateWithoutActividadesInput, PaqueteRefUncheckedCreateWithoutActividadesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutActividadesInput
+    connect?: PaqueteRefWhereUniqueInput
+  }
+
+  export type ActividadRefCreateNestedOneWithoutPaquetesInput = {
+    create?: XOR<ActividadRefCreateWithoutPaquetesInput, ActividadRefUncheckedCreateWithoutPaquetesInput>
+    connectOrCreate?: ActividadRefCreateOrConnectWithoutPaquetesInput
+    connect?: ActividadRefWhereUniqueInput
+  }
+
+  export type PaqueteRefUpdateOneRequiredWithoutActividadesNestedInput = {
+    create?: XOR<PaqueteRefCreateWithoutActividadesInput, PaqueteRefUncheckedCreateWithoutActividadesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutActividadesInput
+    upsert?: PaqueteRefUpsertWithoutActividadesInput
+    connect?: PaqueteRefWhereUniqueInput
+    update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutActividadesInput, PaqueteRefUpdateWithoutActividadesInput>, PaqueteRefUncheckedUpdateWithoutActividadesInput>
+  }
+
+  export type ActividadRefUpdateOneRequiredWithoutPaquetesNestedInput = {
+    create?: XOR<ActividadRefCreateWithoutPaquetesInput, ActividadRefUncheckedCreateWithoutPaquetesInput>
+    connectOrCreate?: ActividadRefCreateOrConnectWithoutPaquetesInput
+    upsert?: ActividadRefUpsertWithoutPaquetesInput
+    connect?: ActividadRefWhereUniqueInput
+    update?: XOR<XOR<ActividadRefUpdateToOneWithWhereWithoutPaquetesInput, ActividadRefUpdateWithoutPaquetesInput>, ActividadRefUncheckedUpdateWithoutPaquetesInput>
+  }
+
+  export type PaqueteRefCreateNestedOneWithoutTrasladosInput = {
+    create?: XOR<PaqueteRefCreateWithoutTrasladosInput, PaqueteRefUncheckedCreateWithoutTrasladosInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutTrasladosInput
+    connect?: PaqueteRefWhereUniqueInput
+  }
+
+  export type TrasladoRefCreateNestedOneWithoutPaquetesInput = {
+    create?: XOR<TrasladoRefCreateWithoutPaquetesInput, TrasladoRefUncheckedCreateWithoutPaquetesInput>
+    connectOrCreate?: TrasladoRefCreateOrConnectWithoutPaquetesInput
+    connect?: TrasladoRefWhereUniqueInput
+  }
+
+  export type PaqueteRefUpdateOneRequiredWithoutTrasladosNestedInput = {
+    create?: XOR<PaqueteRefCreateWithoutTrasladosInput, PaqueteRefUncheckedCreateWithoutTrasladosInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutTrasladosInput
+    upsert?: PaqueteRefUpsertWithoutTrasladosInput
+    connect?: PaqueteRefWhereUniqueInput
+    update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutTrasladosInput, PaqueteRefUpdateWithoutTrasladosInput>, PaqueteRefUncheckedUpdateWithoutTrasladosInput>
+  }
+
+  export type TrasladoRefUpdateOneRequiredWithoutPaquetesNestedInput = {
+    create?: XOR<TrasladoRefCreateWithoutPaquetesInput, TrasladoRefUncheckedCreateWithoutPaquetesInput>
+    connectOrCreate?: TrasladoRefCreateOrConnectWithoutPaquetesInput
+    upsert?: TrasladoRefUpsertWithoutPaquetesInput
+    connect?: TrasladoRefWhereUniqueInput
+    update?: XOR<XOR<TrasladoRefUpdateToOneWithWhereWithoutPaquetesInput, TrasladoRefUpdateWithoutPaquetesInput>, TrasladoRefUncheckedUpdateWithoutPaquetesInput>
+  }
+
+  export type PaqueteRefCreateNestedOneWithoutVersionesInput = {
+    create?: XOR<PaqueteRefCreateWithoutVersionesInput, PaqueteRefUncheckedCreateWithoutVersionesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutVersionesInput
+    connect?: PaqueteRefWhereUniqueInput
+  }
+
+  export type PaqueteRefUpdateOneRequiredWithoutVersionesNestedInput = {
+    create?: XOR<PaqueteRefCreateWithoutVersionesInput, PaqueteRefUncheckedCreateWithoutVersionesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutVersionesInput
+    upsert?: PaqueteRefUpsertWithoutVersionesInput
+    connect?: PaqueteRefWhereUniqueInput
+    update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutVersionesInput, PaqueteRefUpdateWithoutVersionesInput>, PaqueteRefUncheckedUpdateWithoutVersionesInput>
+  }
+
+  export type PaqueteRefCreateNestedOneWithoutImagenesInput = {
+    create?: XOR<PaqueteRefCreateWithoutImagenesInput, PaqueteRefUncheckedCreateWithoutImagenesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutImagenesInput
+    connect?: PaqueteRefWhereUniqueInput
+  }
+
+  export type PaqueteRefUpdateOneRequiredWithoutImagenesNestedInput = {
+    create?: XOR<PaqueteRefCreateWithoutImagenesInput, PaqueteRefUncheckedCreateWithoutImagenesInput>
+    connectOrCreate?: PaqueteRefCreateOrConnectWithoutImagenesInput
+    upsert?: PaqueteRefUpsertWithoutImagenesInput
+    connect?: PaqueteRefWhereUniqueInput
+    update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutImagenesInput, PaqueteRefUpdateWithoutImagenesInput>, PaqueteRefUncheckedUpdateWithoutImagenesInput>
   }
 
   export type AgenciaCreateNestedOneWithoutClientesInput = {
@@ -12953,10 +25595,6 @@ export namespace Prisma {
     connectOrCreate?: CotizacionCreateOrConnectWithoutClienteInput | CotizacionCreateOrConnectWithoutClienteInput[]
     createMany?: CotizacionCreateManyClienteInputEnvelope
     connect?: CotizacionWhereUniqueInput | CotizacionWhereUniqueInput[]
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
   }
 
   export type AgenciaUpdateOneRequiredWithoutClientesNestedInput = {
@@ -12995,7 +25633,7 @@ export namespace Prisma {
     deleteMany?: CotizacionScalarWhereInput | CotizacionScalarWhereInput[]
   }
 
-  export type CotizacionCreatepaqueteIncluyeInput = {
+  export type CotizacionCreatesnapshotIncluyeInput = {
     set: string[]
   }
 
@@ -13011,16 +25649,17 @@ export namespace Prisma {
     connect?: UsuarioAgenciaWhereUniqueInput
   }
 
-  export type PaqueteRefCreateNestedOneWithoutCotizacionesInput = {
-    create?: XOR<PaqueteRefCreateWithoutCotizacionesInput, PaqueteRefUncheckedCreateWithoutCotizacionesInput>
-    connectOrCreate?: PaqueteRefCreateOrConnectWithoutCotizacionesInput
-    connect?: PaqueteRefWhereUniqueInput
-  }
-
   export type ClienteCreateNestedOneWithoutCotizacionesInput = {
     create?: XOR<ClienteCreateWithoutCotizacionesInput, ClienteUncheckedCreateWithoutCotizacionesInput>
     connectOrCreate?: ClienteCreateOrConnectWithoutCotizacionesInput
     connect?: ClienteWhereUniqueInput
+  }
+
+  export type CotizacionDetalleCreateNestedManyWithoutCotizacionInput = {
+    create?: XOR<CotizacionDetalleCreateWithoutCotizacionInput, CotizacionDetalleUncheckedCreateWithoutCotizacionInput> | CotizacionDetalleCreateWithoutCotizacionInput[] | CotizacionDetalleUncheckedCreateWithoutCotizacionInput[]
+    connectOrCreate?: CotizacionDetalleCreateOrConnectWithoutCotizacionInput | CotizacionDetalleCreateOrConnectWithoutCotizacionInput[]
+    createMany?: CotizacionDetalleCreateManyCotizacionInputEnvelope
+    connect?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
   }
 
   export type HistorialCotizacionCreateNestedManyWithoutCotizacionInput = {
@@ -13030,6 +25669,13 @@ export namespace Prisma {
     connect?: HistorialCotizacionWhereUniqueInput | HistorialCotizacionWhereUniqueInput[]
   }
 
+  export type CotizacionDetalleUncheckedCreateNestedManyWithoutCotizacionInput = {
+    create?: XOR<CotizacionDetalleCreateWithoutCotizacionInput, CotizacionDetalleUncheckedCreateWithoutCotizacionInput> | CotizacionDetalleCreateWithoutCotizacionInput[] | CotizacionDetalleUncheckedCreateWithoutCotizacionInput[]
+    connectOrCreate?: CotizacionDetalleCreateOrConnectWithoutCotizacionInput | CotizacionDetalleCreateOrConnectWithoutCotizacionInput[]
+    createMany?: CotizacionDetalleCreateManyCotizacionInputEnvelope
+    connect?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+  }
+
   export type HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput = {
     create?: XOR<HistorialCotizacionCreateWithoutCotizacionInput, HistorialCotizacionUncheckedCreateWithoutCotizacionInput> | HistorialCotizacionCreateWithoutCotizacionInput[] | HistorialCotizacionUncheckedCreateWithoutCotizacionInput[]
     connectOrCreate?: HistorialCotizacionCreateOrConnectWithoutCotizacionInput | HistorialCotizacionCreateOrConnectWithoutCotizacionInput[]
@@ -13037,7 +25683,15 @@ export namespace Prisma {
     connect?: HistorialCotizacionWhereUniqueInput | HistorialCotizacionWhereUniqueInput[]
   }
 
-  export type CotizacionUpdatepaqueteIncluyeInput = {
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type CotizacionUpdatesnapshotIncluyeInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -13074,20 +25728,26 @@ export namespace Prisma {
     update?: XOR<XOR<UsuarioAgenciaUpdateToOneWithWhereWithoutCotizacionesInput, UsuarioAgenciaUpdateWithoutCotizacionesInput>, UsuarioAgenciaUncheckedUpdateWithoutCotizacionesInput>
   }
 
-  export type PaqueteRefUpdateOneRequiredWithoutCotizacionesNestedInput = {
-    create?: XOR<PaqueteRefCreateWithoutCotizacionesInput, PaqueteRefUncheckedCreateWithoutCotizacionesInput>
-    connectOrCreate?: PaqueteRefCreateOrConnectWithoutCotizacionesInput
-    upsert?: PaqueteRefUpsertWithoutCotizacionesInput
-    connect?: PaqueteRefWhereUniqueInput
-    update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutCotizacionesInput, PaqueteRefUpdateWithoutCotizacionesInput>, PaqueteRefUncheckedUpdateWithoutCotizacionesInput>
-  }
-
   export type ClienteUpdateOneRequiredWithoutCotizacionesNestedInput = {
     create?: XOR<ClienteCreateWithoutCotizacionesInput, ClienteUncheckedCreateWithoutCotizacionesInput>
     connectOrCreate?: ClienteCreateOrConnectWithoutCotizacionesInput
     upsert?: ClienteUpsertWithoutCotizacionesInput
     connect?: ClienteWhereUniqueInput
     update?: XOR<XOR<ClienteUpdateToOneWithWhereWithoutCotizacionesInput, ClienteUpdateWithoutCotizacionesInput>, ClienteUncheckedUpdateWithoutCotizacionesInput>
+  }
+
+  export type CotizacionDetalleUpdateManyWithoutCotizacionNestedInput = {
+    create?: XOR<CotizacionDetalleCreateWithoutCotizacionInput, CotizacionDetalleUncheckedCreateWithoutCotizacionInput> | CotizacionDetalleCreateWithoutCotizacionInput[] | CotizacionDetalleUncheckedCreateWithoutCotizacionInput[]
+    connectOrCreate?: CotizacionDetalleCreateOrConnectWithoutCotizacionInput | CotizacionDetalleCreateOrConnectWithoutCotizacionInput[]
+    upsert?: CotizacionDetalleUpsertWithWhereUniqueWithoutCotizacionInput | CotizacionDetalleUpsertWithWhereUniqueWithoutCotizacionInput[]
+    createMany?: CotizacionDetalleCreateManyCotizacionInputEnvelope
+    set?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    disconnect?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    delete?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    connect?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    update?: CotizacionDetalleUpdateWithWhereUniqueWithoutCotizacionInput | CotizacionDetalleUpdateWithWhereUniqueWithoutCotizacionInput[]
+    updateMany?: CotizacionDetalleUpdateManyWithWhereWithoutCotizacionInput | CotizacionDetalleUpdateManyWithWhereWithoutCotizacionInput[]
+    deleteMany?: CotizacionDetalleScalarWhereInput | CotizacionDetalleScalarWhereInput[]
   }
 
   export type HistorialCotizacionUpdateManyWithoutCotizacionNestedInput = {
@@ -13104,6 +25764,20 @@ export namespace Prisma {
     deleteMany?: HistorialCotizacionScalarWhereInput | HistorialCotizacionScalarWhereInput[]
   }
 
+  export type CotizacionDetalleUncheckedUpdateManyWithoutCotizacionNestedInput = {
+    create?: XOR<CotizacionDetalleCreateWithoutCotizacionInput, CotizacionDetalleUncheckedCreateWithoutCotizacionInput> | CotizacionDetalleCreateWithoutCotizacionInput[] | CotizacionDetalleUncheckedCreateWithoutCotizacionInput[]
+    connectOrCreate?: CotizacionDetalleCreateOrConnectWithoutCotizacionInput | CotizacionDetalleCreateOrConnectWithoutCotizacionInput[]
+    upsert?: CotizacionDetalleUpsertWithWhereUniqueWithoutCotizacionInput | CotizacionDetalleUpsertWithWhereUniqueWithoutCotizacionInput[]
+    createMany?: CotizacionDetalleCreateManyCotizacionInputEnvelope
+    set?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    disconnect?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    delete?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    connect?: CotizacionDetalleWhereUniqueInput | CotizacionDetalleWhereUniqueInput[]
+    update?: CotizacionDetalleUpdateWithWhereUniqueWithoutCotizacionInput | CotizacionDetalleUpdateWithWhereUniqueWithoutCotizacionInput[]
+    updateMany?: CotizacionDetalleUpdateManyWithWhereWithoutCotizacionInput | CotizacionDetalleUpdateManyWithWhereWithoutCotizacionInput[]
+    deleteMany?: CotizacionDetalleScalarWhereInput | CotizacionDetalleScalarWhereInput[]
+  }
+
   export type HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput = {
     create?: XOR<HistorialCotizacionCreateWithoutCotizacionInput, HistorialCotizacionUncheckedCreateWithoutCotizacionInput> | HistorialCotizacionCreateWithoutCotizacionInput[] | HistorialCotizacionUncheckedCreateWithoutCotizacionInput[]
     connectOrCreate?: HistorialCotizacionCreateOrConnectWithoutCotizacionInput | HistorialCotizacionCreateOrConnectWithoutCotizacionInput[]
@@ -13116,6 +25790,20 @@ export namespace Prisma {
     update?: HistorialCotizacionUpdateWithWhereUniqueWithoutCotizacionInput | HistorialCotizacionUpdateWithWhereUniqueWithoutCotizacionInput[]
     updateMany?: HistorialCotizacionUpdateManyWithWhereWithoutCotizacionInput | HistorialCotizacionUpdateManyWithWhereWithoutCotizacionInput[]
     deleteMany?: HistorialCotizacionScalarWhereInput | HistorialCotizacionScalarWhereInput[]
+  }
+
+  export type CotizacionCreateNestedOneWithoutDetallesInput = {
+    create?: XOR<CotizacionCreateWithoutDetallesInput, CotizacionUncheckedCreateWithoutDetallesInput>
+    connectOrCreate?: CotizacionCreateOrConnectWithoutDetallesInput
+    connect?: CotizacionWhereUniqueInput
+  }
+
+  export type CotizacionUpdateOneRequiredWithoutDetallesNestedInput = {
+    create?: XOR<CotizacionCreateWithoutDetallesInput, CotizacionUncheckedCreateWithoutDetallesInput>
+    connectOrCreate?: CotizacionCreateOrConnectWithoutDetallesInput
+    upsert?: CotizacionUpsertWithoutDetallesInput
+    connect?: CotizacionWhereUniqueInput
+    update?: XOR<XOR<CotizacionUpdateToOneWithWhereWithoutDetallesInput, CotizacionUpdateWithoutDetallesInput>, CotizacionUncheckedUpdateWithoutDetallesInput>
   }
 
   export type CotizacionCreateNestedOneWithoutHistorialInput = {
@@ -13178,6 +25866,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -13232,6 +25931,20 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -13301,47 +26014,6 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -13358,6 +26030,22 @@ export namespace Prisma {
     in?: $Enums.CotizacionStatus[] | ListEnumCotizacionStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.CotizacionStatus[] | ListEnumCotizacionStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumCotizacionStatusFilter<$PrismaModel> | $Enums.CotizacionStatus
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -13482,22 +26170,14 @@ export namespace Prisma {
   export type CotizacionCreateWithoutAgenciaInput = {
     id?: string
     codigo: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -13511,8 +26191,8 @@ export namespace Prisma {
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
     creadoPor: UsuarioAgenciaCreateNestedOneWithoutCotizacionesInput
-    paquete: PaqueteRefCreateNestedOneWithoutCotizacionesInput
     cliente: ClienteCreateNestedOneWithoutCotizacionesInput
+    detalles?: CotizacionDetalleCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionCreateNestedManyWithoutCotizacionInput
   }
 
@@ -13520,24 +26200,15 @@ export namespace Prisma {
     id?: string
     codigo: string
     creadoPorId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -13550,6 +26221,7 @@ export namespace Prisma {
     fechaEnvio?: Date | string | null
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
+    detalles?: CotizacionDetalleUncheckedCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput
   }
 
@@ -13645,24 +26317,15 @@ export namespace Prisma {
     codigo?: StringFilter<"Cotizacion"> | string
     agenciaId?: StringFilter<"Cotizacion"> | string
     creadoPorId?: StringFilter<"Cotizacion"> | string
-    paqueteId?: IntFilter<"Cotizacion"> | number
     clienteId?: StringFilter<"Cotizacion"> | string
-    paqueteNombre?: StringFilter<"Cotizacion"> | string
-    paqueteDuracion?: StringFilter<"Cotizacion"> | string
-    paqueteDestino?: StringFilter<"Cotizacion"> | string
-    paqueteIncluye?: StringNullableListFilter<"Cotizacion">
+    paqueteId?: IntNullableFilter<"Cotizacion"> | number | null
+    snapshotNombre?: StringFilter<"Cotizacion"> | string
+    snapshotDestino?: StringFilter<"Cotizacion"> | string
+    snapshotDuracion?: StringFilter<"Cotizacion"> | string
+    snapshotIncluye?: StringNullableListFilter<"Cotizacion">
     incluyeBoleto?: BoolFilter<"Cotizacion"> | boolean
-    cantSGL?: IntFilter<"Cotizacion"> | number
-    cantDBL?: IntFilter<"Cotizacion"> | number
-    cantTPL?: IntFilter<"Cotizacion"> | number
-    cantQUAD?: IntFilter<"Cotizacion"> | number
-    cantCHD?: IntFilter<"Cotizacion"> | number
-    precioSGL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioDBL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioTPL?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioQUAD?: FloatNullableFilter<"Cotizacion"> | number | null
-    precioCHD?: FloatNullableFilter<"Cotizacion"> | number | null
     precioBoleto?: FloatNullableFilter<"Cotizacion"> | number | null
+    boletoTotal?: FloatFilter<"Cotizacion"> | number
     subtotal?: FloatFilter<"Cotizacion"> | number
     markup?: FloatFilter<"Cotizacion"> | number
     total?: FloatFilter<"Cotizacion"> | number
@@ -13680,8 +26343,10 @@ export namespace Prisma {
   export type AgenciaCreateWithoutUsuariosInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     clientes?: ClienteCreateNestedManyWithoutAgenciaInput
     cotizaciones?: CotizacionCreateNestedManyWithoutAgenciaInput
   }
@@ -13689,8 +26354,10 @@ export namespace Prisma {
   export type AgenciaUncheckedCreateWithoutUsuariosInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     clientes?: ClienteUncheckedCreateNestedManyWithoutAgenciaInput
     cotizaciones?: CotizacionUncheckedCreateNestedManyWithoutAgenciaInput
   }
@@ -13703,22 +26370,14 @@ export namespace Prisma {
   export type CotizacionCreateWithoutCreadoPorInput = {
     id?: string
     codigo: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -13732,8 +26391,8 @@ export namespace Prisma {
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
     agencia: AgenciaCreateNestedOneWithoutCotizacionesInput
-    paquete: PaqueteRefCreateNestedOneWithoutCotizacionesInput
     cliente: ClienteCreateNestedOneWithoutCotizacionesInput
+    detalles?: CotizacionDetalleCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionCreateNestedManyWithoutCotizacionInput
   }
 
@@ -13741,24 +26400,15 @@ export namespace Prisma {
     id?: string
     codigo: string
     agenciaId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -13771,6 +26421,7 @@ export namespace Prisma {
     fechaEnvio?: Date | string | null
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
+    detalles?: CotizacionDetalleUncheckedCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput
   }
 
@@ -13826,8 +26477,10 @@ export namespace Prisma {
   export type AgenciaUpdateWithoutUsuariosInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     clientes?: ClienteUpdateManyWithoutAgenciaNestedInput
     cotizaciones?: CotizacionUpdateManyWithoutAgenciaNestedInput
   }
@@ -13835,8 +26488,10 @@ export namespace Prisma {
   export type AgenciaUncheckedUpdateWithoutUsuariosInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     clientes?: ClienteUncheckedUpdateManyWithoutAgenciaNestedInput
     cotizaciones?: CotizacionUncheckedUpdateManyWithoutAgenciaNestedInput
   }
@@ -13886,250 +26541,1216 @@ export namespace Prisma {
     fecha?: DateTimeFilter<"HistorialCotizacion"> | Date | string
   }
 
-  export type PaqueteRefCreateWithoutDestinoInput = {
+  export type HotelRefCreateWithoutDestinoInput = {
     id: number
     nombre: string
-    descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
-    incluyeBoleto: boolean
-    precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioPorPersona?: number | null
-    cotizaciones?: CotizacionCreateNestedManyWithoutPaqueteInput
+    estrellas: number
+    paquetes?: PaqueteHotelRefCreateNestedManyWithoutHotelInput
   }
 
-  export type PaqueteRefUncheckedCreateWithoutDestinoInput = {
+  export type HotelRefUncheckedCreateWithoutDestinoInput = {
     id: number
     nombre: string
-    descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
-    incluyeBoleto: boolean
-    precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioPorPersona?: number | null
-    cotizaciones?: CotizacionUncheckedCreateNestedManyWithoutPaqueteInput
+    estrellas: number
+    paquetes?: PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput
   }
 
-  export type PaqueteRefCreateOrConnectWithoutDestinoInput = {
-    where: PaqueteRefWhereUniqueInput
-    create: XOR<PaqueteRefCreateWithoutDestinoInput, PaqueteRefUncheckedCreateWithoutDestinoInput>
+  export type HotelRefCreateOrConnectWithoutDestinoInput = {
+    where: HotelRefWhereUniqueInput
+    create: XOR<HotelRefCreateWithoutDestinoInput, HotelRefUncheckedCreateWithoutDestinoInput>
   }
 
-  export type PaqueteRefCreateManyDestinoInputEnvelope = {
-    data: PaqueteRefCreateManyDestinoInput | PaqueteRefCreateManyDestinoInput[]
+  export type HotelRefCreateManyDestinoInputEnvelope = {
+    data: HotelRefCreateManyDestinoInput | HotelRefCreateManyDestinoInput[]
     skipDuplicates?: boolean
   }
 
-  export type PaqueteRefUpsertWithWhereUniqueWithoutDestinoInput = {
-    where: PaqueteRefWhereUniqueInput
-    update: XOR<PaqueteRefUpdateWithoutDestinoInput, PaqueteRefUncheckedUpdateWithoutDestinoInput>
-    create: XOR<PaqueteRefCreateWithoutDestinoInput, PaqueteRefUncheckedCreateWithoutDestinoInput>
+  export type ActividadRefCreateWithoutDestinoInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    paquetes?: PaqueteActividadRefCreateNestedManyWithoutActividadInput
   }
 
-  export type PaqueteRefUpdateWithWhereUniqueWithoutDestinoInput = {
-    where: PaqueteRefWhereUniqueInput
-    data: XOR<PaqueteRefUpdateWithoutDestinoInput, PaqueteRefUncheckedUpdateWithoutDestinoInput>
+  export type ActividadRefUncheckedCreateWithoutDestinoInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    paquetes?: PaqueteActividadRefUncheckedCreateNestedManyWithoutActividadInput
   }
 
-  export type PaqueteRefUpdateManyWithWhereWithoutDestinoInput = {
-    where: PaqueteRefScalarWhereInput
-    data: XOR<PaqueteRefUpdateManyMutationInput, PaqueteRefUncheckedUpdateManyWithoutDestinoInput>
+  export type ActividadRefCreateOrConnectWithoutDestinoInput = {
+    where: ActividadRefWhereUniqueInput
+    create: XOR<ActividadRefCreateWithoutDestinoInput, ActividadRefUncheckedCreateWithoutDestinoInput>
   }
 
-  export type PaqueteRefScalarWhereInput = {
-    AND?: PaqueteRefScalarWhereInput | PaqueteRefScalarWhereInput[]
-    OR?: PaqueteRefScalarWhereInput[]
-    NOT?: PaqueteRefScalarWhereInput | PaqueteRefScalarWhereInput[]
-    id?: IntFilter<"PaqueteRef"> | number
-    nombre?: StringFilter<"PaqueteRef"> | string
-    descripcion?: StringNullableFilter<"PaqueteRef"> | string | null
-    imagen?: StringNullableFilter<"PaqueteRef"> | string | null
-    categoria?: StringNullableFilter<"PaqueteRef"> | string | null
-    diasEstancia?: IntFilter<"PaqueteRef"> | number
-    nochesBase?: IntFilter<"PaqueteRef"> | number
-    incluyeBoleto?: BoolFilter<"PaqueteRef"> | boolean
-    precioBoleto?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioSGL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioDBL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioTPL?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioQUAD?: FloatNullableFilter<"PaqueteRef"> | number | null
-    precioPorPersona?: FloatNullableFilter<"PaqueteRef"> | number | null
-    destinoId?: IntNullableFilter<"PaqueteRef"> | number | null
+  export type ActividadRefCreateManyDestinoInputEnvelope = {
+    data: ActividadRefCreateManyDestinoInput | ActividadRefCreateManyDestinoInput[]
+    skipDuplicates?: boolean
   }
 
-  export type DestinoRefCreateWithoutPaquetesInput = {
+  export type TrasladoRefCreateWithoutDestinoInput = {
+    id: number
+    tipo: string
+    paquetes?: PaqueteTrasladoRefCreateNestedManyWithoutTrasladoInput
+  }
+
+  export type TrasladoRefUncheckedCreateWithoutDestinoInput = {
+    id: number
+    tipo: string
+    paquetes?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutTrasladoInput
+  }
+
+  export type TrasladoRefCreateOrConnectWithoutDestinoInput = {
+    where: TrasladoRefWhereUniqueInput
+    create: XOR<TrasladoRefCreateWithoutDestinoInput, TrasladoRefUncheckedCreateWithoutDestinoInput>
+  }
+
+  export type TrasladoRefCreateManyDestinoInputEnvelope = {
+    data: TrasladoRefCreateManyDestinoInput | TrasladoRefCreateManyDestinoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type HotelRefUpsertWithWhereUniqueWithoutDestinoInput = {
+    where: HotelRefWhereUniqueInput
+    update: XOR<HotelRefUpdateWithoutDestinoInput, HotelRefUncheckedUpdateWithoutDestinoInput>
+    create: XOR<HotelRefCreateWithoutDestinoInput, HotelRefUncheckedCreateWithoutDestinoInput>
+  }
+
+  export type HotelRefUpdateWithWhereUniqueWithoutDestinoInput = {
+    where: HotelRefWhereUniqueInput
+    data: XOR<HotelRefUpdateWithoutDestinoInput, HotelRefUncheckedUpdateWithoutDestinoInput>
+  }
+
+  export type HotelRefUpdateManyWithWhereWithoutDestinoInput = {
+    where: HotelRefScalarWhereInput
+    data: XOR<HotelRefUpdateManyMutationInput, HotelRefUncheckedUpdateManyWithoutDestinoInput>
+  }
+
+  export type HotelRefScalarWhereInput = {
+    AND?: HotelRefScalarWhereInput | HotelRefScalarWhereInput[]
+    OR?: HotelRefScalarWhereInput[]
+    NOT?: HotelRefScalarWhereInput | HotelRefScalarWhereInput[]
+    id?: IntFilter<"HotelRef"> | number
+    destinoId?: IntFilter<"HotelRef"> | number
+    nombre?: StringFilter<"HotelRef"> | string
+    estrellas?: IntFilter<"HotelRef"> | number
+  }
+
+  export type ActividadRefUpsertWithWhereUniqueWithoutDestinoInput = {
+    where: ActividadRefWhereUniqueInput
+    update: XOR<ActividadRefUpdateWithoutDestinoInput, ActividadRefUncheckedUpdateWithoutDestinoInput>
+    create: XOR<ActividadRefCreateWithoutDestinoInput, ActividadRefUncheckedCreateWithoutDestinoInput>
+  }
+
+  export type ActividadRefUpdateWithWhereUniqueWithoutDestinoInput = {
+    where: ActividadRefWhereUniqueInput
+    data: XOR<ActividadRefUpdateWithoutDestinoInput, ActividadRefUncheckedUpdateWithoutDestinoInput>
+  }
+
+  export type ActividadRefUpdateManyWithWhereWithoutDestinoInput = {
+    where: ActividadRefScalarWhereInput
+    data: XOR<ActividadRefUpdateManyMutationInput, ActividadRefUncheckedUpdateManyWithoutDestinoInput>
+  }
+
+  export type ActividadRefScalarWhereInput = {
+    AND?: ActividadRefScalarWhereInput | ActividadRefScalarWhereInput[]
+    OR?: ActividadRefScalarWhereInput[]
+    NOT?: ActividadRefScalarWhereInput | ActividadRefScalarWhereInput[]
+    id?: IntFilter<"ActividadRef"> | number
+    destinoId?: IntFilter<"ActividadRef"> | number
+    nombre?: StringFilter<"ActividadRef"> | string
+    descripcion?: StringNullableFilter<"ActividadRef"> | string | null
+  }
+
+  export type TrasladoRefUpsertWithWhereUniqueWithoutDestinoInput = {
+    where: TrasladoRefWhereUniqueInput
+    update: XOR<TrasladoRefUpdateWithoutDestinoInput, TrasladoRefUncheckedUpdateWithoutDestinoInput>
+    create: XOR<TrasladoRefCreateWithoutDestinoInput, TrasladoRefUncheckedCreateWithoutDestinoInput>
+  }
+
+  export type TrasladoRefUpdateWithWhereUniqueWithoutDestinoInput = {
+    where: TrasladoRefWhereUniqueInput
+    data: XOR<TrasladoRefUpdateWithoutDestinoInput, TrasladoRefUncheckedUpdateWithoutDestinoInput>
+  }
+
+  export type TrasladoRefUpdateManyWithWhereWithoutDestinoInput = {
+    where: TrasladoRefScalarWhereInput
+    data: XOR<TrasladoRefUpdateManyMutationInput, TrasladoRefUncheckedUpdateManyWithoutDestinoInput>
+  }
+
+  export type TrasladoRefScalarWhereInput = {
+    AND?: TrasladoRefScalarWhereInput | TrasladoRefScalarWhereInput[]
+    OR?: TrasladoRefScalarWhereInput[]
+    NOT?: TrasladoRefScalarWhereInput | TrasladoRefScalarWhereInput[]
+    id?: IntFilter<"TrasladoRef"> | number
+    destinoId?: IntFilter<"TrasladoRef"> | number
+    tipo?: StringFilter<"TrasladoRef"> | string
+  }
+
+  export type DestinoRefCreateWithoutHotelesInput = {
     id: number
     pais: string
     ciudad: string
-    tagline?: string | null
     descripcion?: string | null
     imagen?: string | null
-    color?: string | null
+    actividades?: ActividadRefCreateNestedManyWithoutDestinoInput
+    traslados?: TrasladoRefCreateNestedManyWithoutDestinoInput
   }
 
-  export type DestinoRefUncheckedCreateWithoutPaquetesInput = {
+  export type DestinoRefUncheckedCreateWithoutHotelesInput = {
     id: number
     pais: string
     ciudad: string
-    tagline?: string | null
     descripcion?: string | null
     imagen?: string | null
-    color?: string | null
+    actividades?: ActividadRefUncheckedCreateNestedManyWithoutDestinoInput
+    traslados?: TrasladoRefUncheckedCreateNestedManyWithoutDestinoInput
   }
 
-  export type DestinoRefCreateOrConnectWithoutPaquetesInput = {
+  export type DestinoRefCreateOrConnectWithoutHotelesInput = {
     where: DestinoRefWhereUniqueInput
-    create: XOR<DestinoRefCreateWithoutPaquetesInput, DestinoRefUncheckedCreateWithoutPaquetesInput>
+    create: XOR<DestinoRefCreateWithoutHotelesInput, DestinoRefUncheckedCreateWithoutHotelesInput>
   }
 
-  export type CotizacionCreateWithoutPaqueteInput = {
-    id?: string
-    codigo: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
-    incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
-    precioBoleto?: number | null
-    subtotal: number
-    markup?: number
-    total: number
-    fechaViaje?: Date | string | null
-    fechaRetorno?: Date | string | null
-    status?: $Enums.CotizacionStatus
-    notas?: string | null
-    tokenAprobacion?: string | null
-    fechaCreacion?: Date | string
-    fechaEnvio?: Date | string | null
-    fechaAprobacion?: Date | string | null
-    fechaVencimiento?: Date | string | null
-    agencia: AgenciaCreateNestedOneWithoutCotizacionesInput
-    creadoPor: UsuarioAgenciaCreateNestedOneWithoutCotizacionesInput
-    cliente: ClienteCreateNestedOneWithoutCotizacionesInput
-    historial?: HistorialCotizacionCreateNestedManyWithoutCotizacionInput
+  export type PaqueteHotelRefCreateWithoutHotelInput = {
+    tipoHabitacion: string
+    cantidad: number
+    paquete: PaqueteRefCreateNestedOneWithoutHotelesInput
   }
 
-  export type CotizacionUncheckedCreateWithoutPaqueteInput = {
-    id?: string
-    codigo: string
-    agenciaId: string
-    creadoPorId: string
-    clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
-    incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
-    precioBoleto?: number | null
-    subtotal: number
-    markup?: number
-    total: number
-    fechaViaje?: Date | string | null
-    fechaRetorno?: Date | string | null
-    status?: $Enums.CotizacionStatus
-    notas?: string | null
-    tokenAprobacion?: string | null
-    fechaCreacion?: Date | string
-    fechaEnvio?: Date | string | null
-    fechaAprobacion?: Date | string | null
-    fechaVencimiento?: Date | string | null
-    historial?: HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput
+  export type PaqueteHotelRefUncheckedCreateWithoutHotelInput = {
+    paqueteId: number
+    tipoHabitacion: string
+    cantidad: number
   }
 
-  export type CotizacionCreateOrConnectWithoutPaqueteInput = {
-    where: CotizacionWhereUniqueInput
-    create: XOR<CotizacionCreateWithoutPaqueteInput, CotizacionUncheckedCreateWithoutPaqueteInput>
+  export type PaqueteHotelRefCreateOrConnectWithoutHotelInput = {
+    where: PaqueteHotelRefWhereUniqueInput
+    create: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput>
   }
 
-  export type CotizacionCreateManyPaqueteInputEnvelope = {
-    data: CotizacionCreateManyPaqueteInput | CotizacionCreateManyPaqueteInput[]
+  export type PaqueteHotelRefCreateManyHotelInputEnvelope = {
+    data: PaqueteHotelRefCreateManyHotelInput | PaqueteHotelRefCreateManyHotelInput[]
     skipDuplicates?: boolean
   }
 
-  export type DestinoRefUpsertWithoutPaquetesInput = {
-    update: XOR<DestinoRefUpdateWithoutPaquetesInput, DestinoRefUncheckedUpdateWithoutPaquetesInput>
-    create: XOR<DestinoRefCreateWithoutPaquetesInput, DestinoRefUncheckedCreateWithoutPaquetesInput>
+  export type DestinoRefUpsertWithoutHotelesInput = {
+    update: XOR<DestinoRefUpdateWithoutHotelesInput, DestinoRefUncheckedUpdateWithoutHotelesInput>
+    create: XOR<DestinoRefCreateWithoutHotelesInput, DestinoRefUncheckedCreateWithoutHotelesInput>
     where?: DestinoRefWhereInput
   }
 
-  export type DestinoRefUpdateToOneWithWhereWithoutPaquetesInput = {
+  export type DestinoRefUpdateToOneWithWhereWithoutHotelesInput = {
     where?: DestinoRefWhereInput
-    data: XOR<DestinoRefUpdateWithoutPaquetesInput, DestinoRefUncheckedUpdateWithoutPaquetesInput>
+    data: XOR<DestinoRefUpdateWithoutHotelesInput, DestinoRefUncheckedUpdateWithoutHotelesInput>
   }
 
-  export type DestinoRefUpdateWithoutPaquetesInput = {
+  export type DestinoRefUpdateWithoutHotelesInput = {
     id?: IntFieldUpdateOperationsInput | number
     pais?: StringFieldUpdateOperationsInput | string
     ciudad?: StringFieldUpdateOperationsInput | string
-    tagline?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
+    actividades?: ActividadRefUpdateManyWithoutDestinoNestedInput
+    traslados?: TrasladoRefUpdateManyWithoutDestinoNestedInput
   }
 
-  export type DestinoRefUncheckedUpdateWithoutPaquetesInput = {
+  export type DestinoRefUncheckedUpdateWithoutHotelesInput = {
     id?: IntFieldUpdateOperationsInput | number
     pais?: StringFieldUpdateOperationsInput | string
     ciudad?: StringFieldUpdateOperationsInput | string
-    tagline?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
+    actividades?: ActividadRefUncheckedUpdateManyWithoutDestinoNestedInput
+    traslados?: TrasladoRefUncheckedUpdateManyWithoutDestinoNestedInput
   }
 
-  export type CotizacionUpsertWithWhereUniqueWithoutPaqueteInput = {
-    where: CotizacionWhereUniqueInput
-    update: XOR<CotizacionUpdateWithoutPaqueteInput, CotizacionUncheckedUpdateWithoutPaqueteInput>
-    create: XOR<CotizacionCreateWithoutPaqueteInput, CotizacionUncheckedCreateWithoutPaqueteInput>
+  export type PaqueteHotelRefUpsertWithWhereUniqueWithoutHotelInput = {
+    where: PaqueteHotelRefWhereUniqueInput
+    update: XOR<PaqueteHotelRefUpdateWithoutHotelInput, PaqueteHotelRefUncheckedUpdateWithoutHotelInput>
+    create: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput>
   }
 
-  export type CotizacionUpdateWithWhereUniqueWithoutPaqueteInput = {
-    where: CotizacionWhereUniqueInput
-    data: XOR<CotizacionUpdateWithoutPaqueteInput, CotizacionUncheckedUpdateWithoutPaqueteInput>
+  export type PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput = {
+    where: PaqueteHotelRefWhereUniqueInput
+    data: XOR<PaqueteHotelRefUpdateWithoutHotelInput, PaqueteHotelRefUncheckedUpdateWithoutHotelInput>
   }
 
-  export type CotizacionUpdateManyWithWhereWithoutPaqueteInput = {
-    where: CotizacionScalarWhereInput
-    data: XOR<CotizacionUpdateManyMutationInput, CotizacionUncheckedUpdateManyWithoutPaqueteInput>
+  export type PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput = {
+    where: PaqueteHotelRefScalarWhereInput
+    data: XOR<PaqueteHotelRefUpdateManyMutationInput, PaqueteHotelRefUncheckedUpdateManyWithoutHotelInput>
+  }
+
+  export type PaqueteHotelRefScalarWhereInput = {
+    AND?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+    OR?: PaqueteHotelRefScalarWhereInput[]
+    NOT?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+    paqueteId?: IntFilter<"PaqueteHotelRef"> | number
+    hotelId?: IntFilter<"PaqueteHotelRef"> | number
+    tipoHabitacion?: StringFilter<"PaqueteHotelRef"> | string
+    cantidad?: IntFilter<"PaqueteHotelRef"> | number
+  }
+
+  export type PaqueteHotelRefCreateWithoutPaqueteInput = {
+    tipoHabitacion: string
+    cantidad: number
+    hotel: HotelRefCreateNestedOneWithoutPaquetesInput
+  }
+
+  export type PaqueteHotelRefUncheckedCreateWithoutPaqueteInput = {
+    hotelId: number
+    tipoHabitacion: string
+    cantidad: number
+  }
+
+  export type PaqueteHotelRefCreateOrConnectWithoutPaqueteInput = {
+    where: PaqueteHotelRefWhereUniqueInput
+    create: XOR<PaqueteHotelRefCreateWithoutPaqueteInput, PaqueteHotelRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type PaqueteHotelRefCreateManyPaqueteInputEnvelope = {
+    data: PaqueteHotelRefCreateManyPaqueteInput | PaqueteHotelRefCreateManyPaqueteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type VersionPaqueteRefCreateWithoutPaqueteInput = {
+    id: number
+    numPax: number
+    tipoPax: string
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+  }
+
+  export type VersionPaqueteRefUncheckedCreateWithoutPaqueteInput = {
+    id: number
+    numPax: number
+    tipoPax: string
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+  }
+
+  export type VersionPaqueteRefCreateOrConnectWithoutPaqueteInput = {
+    where: VersionPaqueteRefWhereUniqueInput
+    create: XOR<VersionPaqueteRefCreateWithoutPaqueteInput, VersionPaqueteRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type VersionPaqueteRefCreateManyPaqueteInputEnvelope = {
+    data: VersionPaqueteRefCreateManyPaqueteInput | VersionPaqueteRefCreateManyPaqueteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ImagenPaqueteRefCreateWithoutPaqueteInput = {
+    id: number
+    url: string
+    orden: number
+  }
+
+  export type ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput = {
+    id: number
+    url: string
+    orden: number
+  }
+
+  export type ImagenPaqueteRefCreateOrConnectWithoutPaqueteInput = {
+    where: ImagenPaqueteRefWhereUniqueInput
+    create: XOR<ImagenPaqueteRefCreateWithoutPaqueteInput, ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type ImagenPaqueteRefCreateManyPaqueteInputEnvelope = {
+    data: ImagenPaqueteRefCreateManyPaqueteInput | ImagenPaqueteRefCreateManyPaqueteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaqueteActividadRefCreateWithoutPaqueteInput = {
+    actividad: ActividadRefCreateNestedOneWithoutPaquetesInput
+  }
+
+  export type PaqueteActividadRefUncheckedCreateWithoutPaqueteInput = {
+    actividadId: number
+  }
+
+  export type PaqueteActividadRefCreateOrConnectWithoutPaqueteInput = {
+    where: PaqueteActividadRefWhereUniqueInput
+    create: XOR<PaqueteActividadRefCreateWithoutPaqueteInput, PaqueteActividadRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type PaqueteActividadRefCreateManyPaqueteInputEnvelope = {
+    data: PaqueteActividadRefCreateManyPaqueteInput | PaqueteActividadRefCreateManyPaqueteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaqueteTrasladoRefCreateWithoutPaqueteInput = {
+    traslado: TrasladoRefCreateNestedOneWithoutPaquetesInput
+  }
+
+  export type PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput = {
+    trasladoId: number
+  }
+
+  export type PaqueteTrasladoRefCreateOrConnectWithoutPaqueteInput = {
+    where: PaqueteTrasladoRefWhereUniqueInput
+    create: XOR<PaqueteTrasladoRefCreateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type PaqueteTrasladoRefCreateManyPaqueteInputEnvelope = {
+    data: PaqueteTrasladoRefCreateManyPaqueteInput | PaqueteTrasladoRefCreateManyPaqueteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaqueteHotelRefUpsertWithWhereUniqueWithoutPaqueteInput = {
+    where: PaqueteHotelRefWhereUniqueInput
+    update: XOR<PaqueteHotelRefUpdateWithoutPaqueteInput, PaqueteHotelRefUncheckedUpdateWithoutPaqueteInput>
+    create: XOR<PaqueteHotelRefCreateWithoutPaqueteInput, PaqueteHotelRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type PaqueteHotelRefUpdateWithWhereUniqueWithoutPaqueteInput = {
+    where: PaqueteHotelRefWhereUniqueInput
+    data: XOR<PaqueteHotelRefUpdateWithoutPaqueteInput, PaqueteHotelRefUncheckedUpdateWithoutPaqueteInput>
+  }
+
+  export type PaqueteHotelRefUpdateManyWithWhereWithoutPaqueteInput = {
+    where: PaqueteHotelRefScalarWhereInput
+    data: XOR<PaqueteHotelRefUpdateManyMutationInput, PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteInput>
+  }
+
+  export type VersionPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput = {
+    where: VersionPaqueteRefWhereUniqueInput
+    update: XOR<VersionPaqueteRefUpdateWithoutPaqueteInput, VersionPaqueteRefUncheckedUpdateWithoutPaqueteInput>
+    create: XOR<VersionPaqueteRefCreateWithoutPaqueteInput, VersionPaqueteRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type VersionPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput = {
+    where: VersionPaqueteRefWhereUniqueInput
+    data: XOR<VersionPaqueteRefUpdateWithoutPaqueteInput, VersionPaqueteRefUncheckedUpdateWithoutPaqueteInput>
+  }
+
+  export type VersionPaqueteRefUpdateManyWithWhereWithoutPaqueteInput = {
+    where: VersionPaqueteRefScalarWhereInput
+    data: XOR<VersionPaqueteRefUpdateManyMutationInput, VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteInput>
+  }
+
+  export type VersionPaqueteRefScalarWhereInput = {
+    AND?: VersionPaqueteRefScalarWhereInput | VersionPaqueteRefScalarWhereInput[]
+    OR?: VersionPaqueteRefScalarWhereInput[]
+    NOT?: VersionPaqueteRefScalarWhereInput | VersionPaqueteRefScalarWhereInput[]
+    id?: IntFilter<"VersionPaqueteRef"> | number
+    paqueteId?: IntFilter<"VersionPaqueteRef"> | number
+    numPax?: IntFilter<"VersionPaqueteRef"> | number
+    tipoPax?: StringFilter<"VersionPaqueteRef"> | string
+    precioTotal?: FloatNullableFilter<"VersionPaqueteRef"> | number | null
+    precioPorPersona?: FloatNullableFilter<"VersionPaqueteRef"> | number | null
+  }
+
+  export type ImagenPaqueteRefUpsertWithWhereUniqueWithoutPaqueteInput = {
+    where: ImagenPaqueteRefWhereUniqueInput
+    update: XOR<ImagenPaqueteRefUpdateWithoutPaqueteInput, ImagenPaqueteRefUncheckedUpdateWithoutPaqueteInput>
+    create: XOR<ImagenPaqueteRefCreateWithoutPaqueteInput, ImagenPaqueteRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type ImagenPaqueteRefUpdateWithWhereUniqueWithoutPaqueteInput = {
+    where: ImagenPaqueteRefWhereUniqueInput
+    data: XOR<ImagenPaqueteRefUpdateWithoutPaqueteInput, ImagenPaqueteRefUncheckedUpdateWithoutPaqueteInput>
+  }
+
+  export type ImagenPaqueteRefUpdateManyWithWhereWithoutPaqueteInput = {
+    where: ImagenPaqueteRefScalarWhereInput
+    data: XOR<ImagenPaqueteRefUpdateManyMutationInput, ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteInput>
+  }
+
+  export type ImagenPaqueteRefScalarWhereInput = {
+    AND?: ImagenPaqueteRefScalarWhereInput | ImagenPaqueteRefScalarWhereInput[]
+    OR?: ImagenPaqueteRefScalarWhereInput[]
+    NOT?: ImagenPaqueteRefScalarWhereInput | ImagenPaqueteRefScalarWhereInput[]
+    id?: IntFilter<"ImagenPaqueteRef"> | number
+    paqueteId?: IntFilter<"ImagenPaqueteRef"> | number
+    url?: StringFilter<"ImagenPaqueteRef"> | string
+    orden?: IntFilter<"ImagenPaqueteRef"> | number
+  }
+
+  export type PaqueteActividadRefUpsertWithWhereUniqueWithoutPaqueteInput = {
+    where: PaqueteActividadRefWhereUniqueInput
+    update: XOR<PaqueteActividadRefUpdateWithoutPaqueteInput, PaqueteActividadRefUncheckedUpdateWithoutPaqueteInput>
+    create: XOR<PaqueteActividadRefCreateWithoutPaqueteInput, PaqueteActividadRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type PaqueteActividadRefUpdateWithWhereUniqueWithoutPaqueteInput = {
+    where: PaqueteActividadRefWhereUniqueInput
+    data: XOR<PaqueteActividadRefUpdateWithoutPaqueteInput, PaqueteActividadRefUncheckedUpdateWithoutPaqueteInput>
+  }
+
+  export type PaqueteActividadRefUpdateManyWithWhereWithoutPaqueteInput = {
+    where: PaqueteActividadRefScalarWhereInput
+    data: XOR<PaqueteActividadRefUpdateManyMutationInput, PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteInput>
+  }
+
+  export type PaqueteActividadRefScalarWhereInput = {
+    AND?: PaqueteActividadRefScalarWhereInput | PaqueteActividadRefScalarWhereInput[]
+    OR?: PaqueteActividadRefScalarWhereInput[]
+    NOT?: PaqueteActividadRefScalarWhereInput | PaqueteActividadRefScalarWhereInput[]
+    paqueteId?: IntFilter<"PaqueteActividadRef"> | number
+    actividadId?: IntFilter<"PaqueteActividadRef"> | number
+  }
+
+  export type PaqueteTrasladoRefUpsertWithWhereUniqueWithoutPaqueteInput = {
+    where: PaqueteTrasladoRefWhereUniqueInput
+    update: XOR<PaqueteTrasladoRefUpdateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedUpdateWithoutPaqueteInput>
+    create: XOR<PaqueteTrasladoRefCreateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedCreateWithoutPaqueteInput>
+  }
+
+  export type PaqueteTrasladoRefUpdateWithWhereUniqueWithoutPaqueteInput = {
+    where: PaqueteTrasladoRefWhereUniqueInput
+    data: XOR<PaqueteTrasladoRefUpdateWithoutPaqueteInput, PaqueteTrasladoRefUncheckedUpdateWithoutPaqueteInput>
+  }
+
+  export type PaqueteTrasladoRefUpdateManyWithWhereWithoutPaqueteInput = {
+    where: PaqueteTrasladoRefScalarWhereInput
+    data: XOR<PaqueteTrasladoRefUpdateManyMutationInput, PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteInput>
+  }
+
+  export type PaqueteTrasladoRefScalarWhereInput = {
+    AND?: PaqueteTrasladoRefScalarWhereInput | PaqueteTrasladoRefScalarWhereInput[]
+    OR?: PaqueteTrasladoRefScalarWhereInput[]
+    NOT?: PaqueteTrasladoRefScalarWhereInput | PaqueteTrasladoRefScalarWhereInput[]
+    paqueteId?: IntFilter<"PaqueteTrasladoRef"> | number
+    trasladoId?: IntFilter<"PaqueteTrasladoRef"> | number
+  }
+
+  export type PaqueteRefCreateWithoutHotelesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefUncheckedCreateWithoutHotelesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefCreateOrConnectWithoutHotelesInput = {
+    where: PaqueteRefWhereUniqueInput
+    create: XOR<PaqueteRefCreateWithoutHotelesInput, PaqueteRefUncheckedCreateWithoutHotelesInput>
+  }
+
+  export type HotelRefCreateWithoutPaquetesInput = {
+    id: number
+    nombre: string
+    estrellas: number
+    destino: DestinoRefCreateNestedOneWithoutHotelesInput
+  }
+
+  export type HotelRefUncheckedCreateWithoutPaquetesInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    estrellas: number
+  }
+
+  export type HotelRefCreateOrConnectWithoutPaquetesInput = {
+    where: HotelRefWhereUniqueInput
+    create: XOR<HotelRefCreateWithoutPaquetesInput, HotelRefUncheckedCreateWithoutPaquetesInput>
+  }
+
+  export type PaqueteRefUpsertWithoutHotelesInput = {
+    update: XOR<PaqueteRefUpdateWithoutHotelesInput, PaqueteRefUncheckedUpdateWithoutHotelesInput>
+    create: XOR<PaqueteRefCreateWithoutHotelesInput, PaqueteRefUncheckedCreateWithoutHotelesInput>
+    where?: PaqueteRefWhereInput
+  }
+
+  export type PaqueteRefUpdateToOneWithWhereWithoutHotelesInput = {
+    where?: PaqueteRefWhereInput
+    data: XOR<PaqueteRefUpdateWithoutHotelesInput, PaqueteRefUncheckedUpdateWithoutHotelesInput>
+  }
+
+  export type PaqueteRefUpdateWithoutHotelesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type PaqueteRefUncheckedUpdateWithoutHotelesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type HotelRefUpsertWithoutPaquetesInput = {
+    update: XOR<HotelRefUpdateWithoutPaquetesInput, HotelRefUncheckedUpdateWithoutPaquetesInput>
+    create: XOR<HotelRefCreateWithoutPaquetesInput, HotelRefUncheckedCreateWithoutPaquetesInput>
+    where?: HotelRefWhereInput
+  }
+
+  export type HotelRefUpdateToOneWithWhereWithoutPaquetesInput = {
+    where?: HotelRefWhereInput
+    data: XOR<HotelRefUpdateWithoutPaquetesInput, HotelRefUncheckedUpdateWithoutPaquetesInput>
+  }
+
+  export type HotelRefUpdateWithoutPaquetesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    destino?: DestinoRefUpdateOneRequiredWithoutHotelesNestedInput
+  }
+
+  export type HotelRefUncheckedUpdateWithoutPaquetesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DestinoRefCreateWithoutActividadesInput = {
+    id: number
+    pais: string
+    ciudad: string
+    descripcion?: string | null
+    imagen?: string | null
+    hoteles?: HotelRefCreateNestedManyWithoutDestinoInput
+    traslados?: TrasladoRefCreateNestedManyWithoutDestinoInput
+  }
+
+  export type DestinoRefUncheckedCreateWithoutActividadesInput = {
+    id: number
+    pais: string
+    ciudad: string
+    descripcion?: string | null
+    imagen?: string | null
+    hoteles?: HotelRefUncheckedCreateNestedManyWithoutDestinoInput
+    traslados?: TrasladoRefUncheckedCreateNestedManyWithoutDestinoInput
+  }
+
+  export type DestinoRefCreateOrConnectWithoutActividadesInput = {
+    where: DestinoRefWhereUniqueInput
+    create: XOR<DestinoRefCreateWithoutActividadesInput, DestinoRefUncheckedCreateWithoutActividadesInput>
+  }
+
+  export type PaqueteActividadRefCreateWithoutActividadInput = {
+    paquete: PaqueteRefCreateNestedOneWithoutActividadesInput
+  }
+
+  export type PaqueteActividadRefUncheckedCreateWithoutActividadInput = {
+    paqueteId: number
+  }
+
+  export type PaqueteActividadRefCreateOrConnectWithoutActividadInput = {
+    where: PaqueteActividadRefWhereUniqueInput
+    create: XOR<PaqueteActividadRefCreateWithoutActividadInput, PaqueteActividadRefUncheckedCreateWithoutActividadInput>
+  }
+
+  export type PaqueteActividadRefCreateManyActividadInputEnvelope = {
+    data: PaqueteActividadRefCreateManyActividadInput | PaqueteActividadRefCreateManyActividadInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DestinoRefUpsertWithoutActividadesInput = {
+    update: XOR<DestinoRefUpdateWithoutActividadesInput, DestinoRefUncheckedUpdateWithoutActividadesInput>
+    create: XOR<DestinoRefCreateWithoutActividadesInput, DestinoRefUncheckedCreateWithoutActividadesInput>
+    where?: DestinoRefWhereInput
+  }
+
+  export type DestinoRefUpdateToOneWithWhereWithoutActividadesInput = {
+    where?: DestinoRefWhereInput
+    data: XOR<DestinoRefUpdateWithoutActividadesInput, DestinoRefUncheckedUpdateWithoutActividadesInput>
+  }
+
+  export type DestinoRefUpdateWithoutActividadesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    pais?: StringFieldUpdateOperationsInput | string
+    ciudad?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    imagen?: NullableStringFieldUpdateOperationsInput | string | null
+    hoteles?: HotelRefUpdateManyWithoutDestinoNestedInput
+    traslados?: TrasladoRefUpdateManyWithoutDestinoNestedInput
+  }
+
+  export type DestinoRefUncheckedUpdateWithoutActividadesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    pais?: StringFieldUpdateOperationsInput | string
+    ciudad?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    imagen?: NullableStringFieldUpdateOperationsInput | string | null
+    hoteles?: HotelRefUncheckedUpdateManyWithoutDestinoNestedInput
+    traslados?: TrasladoRefUncheckedUpdateManyWithoutDestinoNestedInput
+  }
+
+  export type PaqueteActividadRefUpsertWithWhereUniqueWithoutActividadInput = {
+    where: PaqueteActividadRefWhereUniqueInput
+    update: XOR<PaqueteActividadRefUpdateWithoutActividadInput, PaqueteActividadRefUncheckedUpdateWithoutActividadInput>
+    create: XOR<PaqueteActividadRefCreateWithoutActividadInput, PaqueteActividadRefUncheckedCreateWithoutActividadInput>
+  }
+
+  export type PaqueteActividadRefUpdateWithWhereUniqueWithoutActividadInput = {
+    where: PaqueteActividadRefWhereUniqueInput
+    data: XOR<PaqueteActividadRefUpdateWithoutActividadInput, PaqueteActividadRefUncheckedUpdateWithoutActividadInput>
+  }
+
+  export type PaqueteActividadRefUpdateManyWithWhereWithoutActividadInput = {
+    where: PaqueteActividadRefScalarWhereInput
+    data: XOR<PaqueteActividadRefUpdateManyMutationInput, PaqueteActividadRefUncheckedUpdateManyWithoutActividadInput>
+  }
+
+  export type DestinoRefCreateWithoutTrasladosInput = {
+    id: number
+    pais: string
+    ciudad: string
+    descripcion?: string | null
+    imagen?: string | null
+    hoteles?: HotelRefCreateNestedManyWithoutDestinoInput
+    actividades?: ActividadRefCreateNestedManyWithoutDestinoInput
+  }
+
+  export type DestinoRefUncheckedCreateWithoutTrasladosInput = {
+    id: number
+    pais: string
+    ciudad: string
+    descripcion?: string | null
+    imagen?: string | null
+    hoteles?: HotelRefUncheckedCreateNestedManyWithoutDestinoInput
+    actividades?: ActividadRefUncheckedCreateNestedManyWithoutDestinoInput
+  }
+
+  export type DestinoRefCreateOrConnectWithoutTrasladosInput = {
+    where: DestinoRefWhereUniqueInput
+    create: XOR<DestinoRefCreateWithoutTrasladosInput, DestinoRefUncheckedCreateWithoutTrasladosInput>
+  }
+
+  export type PaqueteTrasladoRefCreateWithoutTrasladoInput = {
+    paquete: PaqueteRefCreateNestedOneWithoutTrasladosInput
+  }
+
+  export type PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput = {
+    paqueteId: number
+  }
+
+  export type PaqueteTrasladoRefCreateOrConnectWithoutTrasladoInput = {
+    where: PaqueteTrasladoRefWhereUniqueInput
+    create: XOR<PaqueteTrasladoRefCreateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput>
+  }
+
+  export type PaqueteTrasladoRefCreateManyTrasladoInputEnvelope = {
+    data: PaqueteTrasladoRefCreateManyTrasladoInput | PaqueteTrasladoRefCreateManyTrasladoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DestinoRefUpsertWithoutTrasladosInput = {
+    update: XOR<DestinoRefUpdateWithoutTrasladosInput, DestinoRefUncheckedUpdateWithoutTrasladosInput>
+    create: XOR<DestinoRefCreateWithoutTrasladosInput, DestinoRefUncheckedCreateWithoutTrasladosInput>
+    where?: DestinoRefWhereInput
+  }
+
+  export type DestinoRefUpdateToOneWithWhereWithoutTrasladosInput = {
+    where?: DestinoRefWhereInput
+    data: XOR<DestinoRefUpdateWithoutTrasladosInput, DestinoRefUncheckedUpdateWithoutTrasladosInput>
+  }
+
+  export type DestinoRefUpdateWithoutTrasladosInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    pais?: StringFieldUpdateOperationsInput | string
+    ciudad?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    imagen?: NullableStringFieldUpdateOperationsInput | string | null
+    hoteles?: HotelRefUpdateManyWithoutDestinoNestedInput
+    actividades?: ActividadRefUpdateManyWithoutDestinoNestedInput
+  }
+
+  export type DestinoRefUncheckedUpdateWithoutTrasladosInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    pais?: StringFieldUpdateOperationsInput | string
+    ciudad?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    imagen?: NullableStringFieldUpdateOperationsInput | string | null
+    hoteles?: HotelRefUncheckedUpdateManyWithoutDestinoNestedInput
+    actividades?: ActividadRefUncheckedUpdateManyWithoutDestinoNestedInput
+  }
+
+  export type PaqueteTrasladoRefUpsertWithWhereUniqueWithoutTrasladoInput = {
+    where: PaqueteTrasladoRefWhereUniqueInput
+    update: XOR<PaqueteTrasladoRefUpdateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedUpdateWithoutTrasladoInput>
+    create: XOR<PaqueteTrasladoRefCreateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedCreateWithoutTrasladoInput>
+  }
+
+  export type PaqueteTrasladoRefUpdateWithWhereUniqueWithoutTrasladoInput = {
+    where: PaqueteTrasladoRefWhereUniqueInput
+    data: XOR<PaqueteTrasladoRefUpdateWithoutTrasladoInput, PaqueteTrasladoRefUncheckedUpdateWithoutTrasladoInput>
+  }
+
+  export type PaqueteTrasladoRefUpdateManyWithWhereWithoutTrasladoInput = {
+    where: PaqueteTrasladoRefScalarWhereInput
+    data: XOR<PaqueteTrasladoRefUpdateManyMutationInput, PaqueteTrasladoRefUncheckedUpdateManyWithoutTrasladoInput>
+  }
+
+  export type PaqueteRefCreateWithoutActividadesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefUncheckedCreateWithoutActividadesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefCreateOrConnectWithoutActividadesInput = {
+    where: PaqueteRefWhereUniqueInput
+    create: XOR<PaqueteRefCreateWithoutActividadesInput, PaqueteRefUncheckedCreateWithoutActividadesInput>
+  }
+
+  export type ActividadRefCreateWithoutPaquetesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    destino: DestinoRefCreateNestedOneWithoutActividadesInput
+  }
+
+  export type ActividadRefUncheckedCreateWithoutPaquetesInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    descripcion?: string | null
+  }
+
+  export type ActividadRefCreateOrConnectWithoutPaquetesInput = {
+    where: ActividadRefWhereUniqueInput
+    create: XOR<ActividadRefCreateWithoutPaquetesInput, ActividadRefUncheckedCreateWithoutPaquetesInput>
+  }
+
+  export type PaqueteRefUpsertWithoutActividadesInput = {
+    update: XOR<PaqueteRefUpdateWithoutActividadesInput, PaqueteRefUncheckedUpdateWithoutActividadesInput>
+    create: XOR<PaqueteRefCreateWithoutActividadesInput, PaqueteRefUncheckedCreateWithoutActividadesInput>
+    where?: PaqueteRefWhereInput
+  }
+
+  export type PaqueteRefUpdateToOneWithWhereWithoutActividadesInput = {
+    where?: PaqueteRefWhereInput
+    data: XOR<PaqueteRefUpdateWithoutActividadesInput, PaqueteRefUncheckedUpdateWithoutActividadesInput>
+  }
+
+  export type PaqueteRefUpdateWithoutActividadesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type PaqueteRefUncheckedUpdateWithoutActividadesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type ActividadRefUpsertWithoutPaquetesInput = {
+    update: XOR<ActividadRefUpdateWithoutPaquetesInput, ActividadRefUncheckedUpdateWithoutPaquetesInput>
+    create: XOR<ActividadRefCreateWithoutPaquetesInput, ActividadRefUncheckedCreateWithoutPaquetesInput>
+    where?: ActividadRefWhereInput
+  }
+
+  export type ActividadRefUpdateToOneWithWhereWithoutPaquetesInput = {
+    where?: ActividadRefWhereInput
+    data: XOR<ActividadRefUpdateWithoutPaquetesInput, ActividadRefUncheckedUpdateWithoutPaquetesInput>
+  }
+
+  export type ActividadRefUpdateWithoutPaquetesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    destino?: DestinoRefUpdateOneRequiredWithoutActividadesNestedInput
+  }
+
+  export type ActividadRefUncheckedUpdateWithoutPaquetesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PaqueteRefCreateWithoutTrasladosInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefUncheckedCreateWithoutTrasladosInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefCreateOrConnectWithoutTrasladosInput = {
+    where: PaqueteRefWhereUniqueInput
+    create: XOR<PaqueteRefCreateWithoutTrasladosInput, PaqueteRefUncheckedCreateWithoutTrasladosInput>
+  }
+
+  export type TrasladoRefCreateWithoutPaquetesInput = {
+    id: number
+    tipo: string
+    destino: DestinoRefCreateNestedOneWithoutTrasladosInput
+  }
+
+  export type TrasladoRefUncheckedCreateWithoutPaquetesInput = {
+    id: number
+    destinoId: number
+    tipo: string
+  }
+
+  export type TrasladoRefCreateOrConnectWithoutPaquetesInput = {
+    where: TrasladoRefWhereUniqueInput
+    create: XOR<TrasladoRefCreateWithoutPaquetesInput, TrasladoRefUncheckedCreateWithoutPaquetesInput>
+  }
+
+  export type PaqueteRefUpsertWithoutTrasladosInput = {
+    update: XOR<PaqueteRefUpdateWithoutTrasladosInput, PaqueteRefUncheckedUpdateWithoutTrasladosInput>
+    create: XOR<PaqueteRefCreateWithoutTrasladosInput, PaqueteRefUncheckedCreateWithoutTrasladosInput>
+    where?: PaqueteRefWhereInput
+  }
+
+  export type PaqueteRefUpdateToOneWithWhereWithoutTrasladosInput = {
+    where?: PaqueteRefWhereInput
+    data: XOR<PaqueteRefUpdateWithoutTrasladosInput, PaqueteRefUncheckedUpdateWithoutTrasladosInput>
+  }
+
+  export type PaqueteRefUpdateWithoutTrasladosInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type PaqueteRefUncheckedUpdateWithoutTrasladosInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type TrasladoRefUpsertWithoutPaquetesInput = {
+    update: XOR<TrasladoRefUpdateWithoutPaquetesInput, TrasladoRefUncheckedUpdateWithoutPaquetesInput>
+    create: XOR<TrasladoRefCreateWithoutPaquetesInput, TrasladoRefUncheckedCreateWithoutPaquetesInput>
+    where?: TrasladoRefWhereInput
+  }
+
+  export type TrasladoRefUpdateToOneWithWhereWithoutPaquetesInput = {
+    where?: TrasladoRefWhereInput
+    data: XOR<TrasladoRefUpdateWithoutPaquetesInput, TrasladoRefUncheckedUpdateWithoutPaquetesInput>
+  }
+
+  export type TrasladoRefUpdateWithoutPaquetesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+    destino?: DestinoRefUpdateOneRequiredWithoutTrasladosNestedInput
+  }
+
+  export type TrasladoRefUncheckedUpdateWithoutPaquetesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PaqueteRefCreateWithoutVersionesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefUncheckedCreateWithoutVersionesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
+    imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefCreateOrConnectWithoutVersionesInput = {
+    where: PaqueteRefWhereUniqueInput
+    create: XOR<PaqueteRefCreateWithoutVersionesInput, PaqueteRefUncheckedCreateWithoutVersionesInput>
+  }
+
+  export type PaqueteRefUpsertWithoutVersionesInput = {
+    update: XOR<PaqueteRefUpdateWithoutVersionesInput, PaqueteRefUncheckedUpdateWithoutVersionesInput>
+    create: XOR<PaqueteRefCreateWithoutVersionesInput, PaqueteRefUncheckedCreateWithoutVersionesInput>
+    where?: PaqueteRefWhereInput
+  }
+
+  export type PaqueteRefUpdateToOneWithWhereWithoutVersionesInput = {
+    where?: PaqueteRefWhereInput
+    data: XOR<PaqueteRefUpdateWithoutVersionesInput, PaqueteRefUncheckedUpdateWithoutVersionesInput>
+  }
+
+  export type PaqueteRefUpdateWithoutVersionesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type PaqueteRefUncheckedUpdateWithoutVersionesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type PaqueteRefCreateWithoutImagenesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefUncheckedCreateWithoutImagenesInput = {
+    id: number
+    nombre: string
+    descripcion?: string | null
+    incluyeBoleto: boolean
+    precioBoleto?: number | null
+    numPax: number
+    diasEstancia: number
+    nochesBase: number
+    precioTotal?: number | null
+    precioPorPersona?: number | null
+    hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
+    versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
+    actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
+    traslados?: PaqueteTrasladoRefUncheckedCreateNestedManyWithoutPaqueteInput
+  }
+
+  export type PaqueteRefCreateOrConnectWithoutImagenesInput = {
+    where: PaqueteRefWhereUniqueInput
+    create: XOR<PaqueteRefCreateWithoutImagenesInput, PaqueteRefUncheckedCreateWithoutImagenesInput>
+  }
+
+  export type PaqueteRefUpsertWithoutImagenesInput = {
+    update: XOR<PaqueteRefUpdateWithoutImagenesInput, PaqueteRefUncheckedUpdateWithoutImagenesInput>
+    create: XOR<PaqueteRefCreateWithoutImagenesInput, PaqueteRefUncheckedCreateWithoutImagenesInput>
+    where?: PaqueteRefWhereInput
+  }
+
+  export type PaqueteRefUpdateToOneWithWhereWithoutImagenesInput = {
+    where?: PaqueteRefWhereInput
+    data: XOR<PaqueteRefUpdateWithoutImagenesInput, PaqueteRefUncheckedUpdateWithoutImagenesInput>
+  }
+
+  export type PaqueteRefUpdateWithoutImagenesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type PaqueteRefUncheckedUpdateWithoutImagenesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    diasEstancia?: IntFieldUpdateOperationsInput | number
+    nochesBase?: IntFieldUpdateOperationsInput | number
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
+    traslados?: PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput
   }
 
   export type AgenciaCreateWithoutClientesInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     usuarios?: UsuarioAgenciaCreateNestedManyWithoutAgenciaInput
     cotizaciones?: CotizacionCreateNestedManyWithoutAgenciaInput
   }
@@ -14137,8 +27758,10 @@ export namespace Prisma {
   export type AgenciaUncheckedCreateWithoutClientesInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     usuarios?: UsuarioAgenciaUncheckedCreateNestedManyWithoutAgenciaInput
     cotizaciones?: CotizacionUncheckedCreateNestedManyWithoutAgenciaInput
   }
@@ -14151,22 +27774,14 @@ export namespace Prisma {
   export type CotizacionCreateWithoutClienteInput = {
     id?: string
     codigo: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -14181,7 +27796,7 @@ export namespace Prisma {
     fechaVencimiento?: Date | string | null
     agencia: AgenciaCreateNestedOneWithoutCotizacionesInput
     creadoPor: UsuarioAgenciaCreateNestedOneWithoutCotizacionesInput
-    paquete: PaqueteRefCreateNestedOneWithoutCotizacionesInput
+    detalles?: CotizacionDetalleCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionCreateNestedManyWithoutCotizacionInput
   }
 
@@ -14190,23 +27805,14 @@ export namespace Prisma {
     codigo: string
     agenciaId: string
     creadoPorId: string
-    paqueteId: number
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -14219,6 +27825,7 @@ export namespace Prisma {
     fechaEnvio?: Date | string | null
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
+    detalles?: CotizacionDetalleUncheckedCreateNestedManyWithoutCotizacionInput
     historial?: HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput
   }
 
@@ -14246,8 +27853,10 @@ export namespace Prisma {
   export type AgenciaUpdateWithoutClientesInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     usuarios?: UsuarioAgenciaUpdateManyWithoutAgenciaNestedInput
     cotizaciones?: CotizacionUpdateManyWithoutAgenciaNestedInput
   }
@@ -14255,8 +27864,10 @@ export namespace Prisma {
   export type AgenciaUncheckedUpdateWithoutClientesInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     usuarios?: UsuarioAgenciaUncheckedUpdateManyWithoutAgenciaNestedInput
     cotizaciones?: CotizacionUncheckedUpdateManyWithoutAgenciaNestedInput
   }
@@ -14280,8 +27891,10 @@ export namespace Prisma {
   export type AgenciaCreateWithoutCotizacionesInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     usuarios?: UsuarioAgenciaCreateNestedManyWithoutAgenciaInput
     clientes?: ClienteCreateNestedManyWithoutAgenciaInput
   }
@@ -14289,8 +27902,10 @@ export namespace Prisma {
   export type AgenciaUncheckedCreateWithoutCotizacionesInput = {
     id: string
     nombre: string
+    descripcion?: string | null
     correo?: string | null
     telefono?: string | null
+    fechaAlta: Date | string
     usuarios?: UsuarioAgenciaUncheckedCreateNestedManyWithoutAgenciaInput
     clientes?: ClienteUncheckedCreateNestedManyWithoutAgenciaInput
   }
@@ -14325,47 +27940,6 @@ export namespace Prisma {
     create: XOR<UsuarioAgenciaCreateWithoutCotizacionesInput, UsuarioAgenciaUncheckedCreateWithoutCotizacionesInput>
   }
 
-  export type PaqueteRefCreateWithoutCotizacionesInput = {
-    id: number
-    nombre: string
-    descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
-    incluyeBoleto: boolean
-    precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioPorPersona?: number | null
-    destino?: DestinoRefCreateNestedOneWithoutPaquetesInput
-  }
-
-  export type PaqueteRefUncheckedCreateWithoutCotizacionesInput = {
-    id: number
-    nombre: string
-    descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
-    incluyeBoleto: boolean
-    precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioPorPersona?: number | null
-    destinoId?: number | null
-  }
-
-  export type PaqueteRefCreateOrConnectWithoutCotizacionesInput = {
-    where: PaqueteRefWhereUniqueInput
-    create: XOR<PaqueteRefCreateWithoutCotizacionesInput, PaqueteRefUncheckedCreateWithoutCotizacionesInput>
-  }
-
   export type ClienteCreateWithoutCotizacionesInput = {
     id?: string
     nombre: string
@@ -14391,6 +27965,38 @@ export namespace Prisma {
   export type ClienteCreateOrConnectWithoutCotizacionesInput = {
     where: ClienteWhereUniqueInput
     create: XOR<ClienteCreateWithoutCotizacionesInput, ClienteUncheckedCreateWithoutCotizacionesInput>
+  }
+
+  export type CotizacionDetalleCreateWithoutCotizacionInput = {
+    id?: string
+    versionId?: number | null
+    tipoPax: string
+    numPax: number
+    cantidad?: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+  }
+
+  export type CotizacionDetalleUncheckedCreateWithoutCotizacionInput = {
+    id?: string
+    versionId?: number | null
+    tipoPax: string
+    numPax: number
+    cantidad?: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
+  }
+
+  export type CotizacionDetalleCreateOrConnectWithoutCotizacionInput = {
+    where: CotizacionDetalleWhereUniqueInput
+    create: XOR<CotizacionDetalleCreateWithoutCotizacionInput, CotizacionDetalleUncheckedCreateWithoutCotizacionInput>
+  }
+
+  export type CotizacionDetalleCreateManyCotizacionInputEnvelope = {
+    data: CotizacionDetalleCreateManyCotizacionInput | CotizacionDetalleCreateManyCotizacionInput[]
+    skipDuplicates?: boolean
   }
 
   export type HistorialCotizacionCreateWithoutCotizacionInput = {
@@ -14435,8 +28041,10 @@ export namespace Prisma {
   export type AgenciaUpdateWithoutCotizacionesInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     usuarios?: UsuarioAgenciaUpdateManyWithoutAgenciaNestedInput
     clientes?: ClienteUpdateManyWithoutAgenciaNestedInput
   }
@@ -14444,8 +28052,10 @@ export namespace Prisma {
   export type AgenciaUncheckedUpdateWithoutCotizacionesInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     correo?: NullableStringFieldUpdateOperationsInput | string | null
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
     usuarios?: UsuarioAgenciaUncheckedUpdateManyWithoutAgenciaNestedInput
     clientes?: ClienteUncheckedUpdateManyWithoutAgenciaNestedInput
   }
@@ -14481,53 +28091,6 @@ export namespace Prisma {
     historialCambios?: HistorialCotizacionUncheckedUpdateManyWithoutCambiadoPorNestedInput
   }
 
-  export type PaqueteRefUpsertWithoutCotizacionesInput = {
-    update: XOR<PaqueteRefUpdateWithoutCotizacionesInput, PaqueteRefUncheckedUpdateWithoutCotizacionesInput>
-    create: XOR<PaqueteRefCreateWithoutCotizacionesInput, PaqueteRefUncheckedCreateWithoutCotizacionesInput>
-    where?: PaqueteRefWhereInput
-  }
-
-  export type PaqueteRefUpdateToOneWithWhereWithoutCotizacionesInput = {
-    where?: PaqueteRefWhereInput
-    data: XOR<PaqueteRefUpdateWithoutCotizacionesInput, PaqueteRefUncheckedUpdateWithoutCotizacionesInput>
-  }
-
-  export type PaqueteRefUpdateWithoutCotizacionesInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nombre?: StringFieldUpdateOperationsInput | string
-    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    destino?: DestinoRefUpdateOneWithoutPaquetesNestedInput
-  }
-
-  export type PaqueteRefUncheckedUpdateWithoutCotizacionesInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nombre?: StringFieldUpdateOperationsInput | string
-    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    destinoId?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
   export type ClienteUpsertWithoutCotizacionesInput = {
     update: XOR<ClienteUpdateWithoutCotizacionesInput, ClienteUncheckedUpdateWithoutCotizacionesInput>
     create: XOR<ClienteCreateWithoutCotizacionesInput, ClienteUncheckedCreateWithoutCotizacionesInput>
@@ -14561,6 +28124,37 @@ export namespace Prisma {
     fechaAlta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CotizacionDetalleUpsertWithWhereUniqueWithoutCotizacionInput = {
+    where: CotizacionDetalleWhereUniqueInput
+    update: XOR<CotizacionDetalleUpdateWithoutCotizacionInput, CotizacionDetalleUncheckedUpdateWithoutCotizacionInput>
+    create: XOR<CotizacionDetalleCreateWithoutCotizacionInput, CotizacionDetalleUncheckedCreateWithoutCotizacionInput>
+  }
+
+  export type CotizacionDetalleUpdateWithWhereUniqueWithoutCotizacionInput = {
+    where: CotizacionDetalleWhereUniqueInput
+    data: XOR<CotizacionDetalleUpdateWithoutCotizacionInput, CotizacionDetalleUncheckedUpdateWithoutCotizacionInput>
+  }
+
+  export type CotizacionDetalleUpdateManyWithWhereWithoutCotizacionInput = {
+    where: CotizacionDetalleScalarWhereInput
+    data: XOR<CotizacionDetalleUpdateManyMutationInput, CotizacionDetalleUncheckedUpdateManyWithoutCotizacionInput>
+  }
+
+  export type CotizacionDetalleScalarWhereInput = {
+    AND?: CotizacionDetalleScalarWhereInput | CotizacionDetalleScalarWhereInput[]
+    OR?: CotizacionDetalleScalarWhereInput[]
+    NOT?: CotizacionDetalleScalarWhereInput | CotizacionDetalleScalarWhereInput[]
+    id?: StringFilter<"CotizacionDetalle"> | string
+    cotizacionId?: StringFilter<"CotizacionDetalle"> | string
+    versionId?: IntNullableFilter<"CotizacionDetalle"> | number | null
+    tipoPax?: StringFilter<"CotizacionDetalle"> | string
+    numPax?: IntFilter<"CotizacionDetalle"> | number
+    cantidad?: IntFilter<"CotizacionDetalle"> | number
+    precioPorPersona?: FloatFilter<"CotizacionDetalle"> | number
+    precioUnitario?: FloatFilter<"CotizacionDetalle"> | number
+    subtotal?: FloatFilter<"CotizacionDetalle"> | number
+  }
+
   export type HistorialCotizacionUpsertWithWhereUniqueWithoutCotizacionInput = {
     where: HistorialCotizacionWhereUniqueInput
     update: XOR<HistorialCotizacionUpdateWithoutCotizacionInput, HistorialCotizacionUncheckedUpdateWithoutCotizacionInput>
@@ -14577,25 +28171,17 @@ export namespace Prisma {
     data: XOR<HistorialCotizacionUpdateManyMutationInput, HistorialCotizacionUncheckedUpdateManyWithoutCotizacionInput>
   }
 
-  export type CotizacionCreateWithoutHistorialInput = {
+  export type CotizacionCreateWithoutDetallesInput = {
     id?: string
     codigo: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -14610,33 +28196,24 @@ export namespace Prisma {
     fechaVencimiento?: Date | string | null
     agencia: AgenciaCreateNestedOneWithoutCotizacionesInput
     creadoPor: UsuarioAgenciaCreateNestedOneWithoutCotizacionesInput
-    paquete: PaqueteRefCreateNestedOneWithoutCotizacionesInput
     cliente: ClienteCreateNestedOneWithoutCotizacionesInput
+    historial?: HistorialCotizacionCreateNestedManyWithoutCotizacionInput
   }
 
-  export type CotizacionUncheckedCreateWithoutHistorialInput = {
+  export type CotizacionUncheckedCreateWithoutDetallesInput = {
     id?: string
     codigo: string
     agenciaId: string
     creadoPorId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -14649,6 +28226,139 @@ export namespace Prisma {
     fechaEnvio?: Date | string | null
     fechaAprobacion?: Date | string | null
     fechaVencimiento?: Date | string | null
+    historial?: HistorialCotizacionUncheckedCreateNestedManyWithoutCotizacionInput
+  }
+
+  export type CotizacionCreateOrConnectWithoutDetallesInput = {
+    where: CotizacionWhereUniqueInput
+    create: XOR<CotizacionCreateWithoutDetallesInput, CotizacionUncheckedCreateWithoutDetallesInput>
+  }
+
+  export type CotizacionUpsertWithoutDetallesInput = {
+    update: XOR<CotizacionUpdateWithoutDetallesInput, CotizacionUncheckedUpdateWithoutDetallesInput>
+    create: XOR<CotizacionCreateWithoutDetallesInput, CotizacionUncheckedCreateWithoutDetallesInput>
+    where?: CotizacionWhereInput
+  }
+
+  export type CotizacionUpdateToOneWithWhereWithoutDetallesInput = {
+    where?: CotizacionWhereInput
+    data: XOR<CotizacionUpdateWithoutDetallesInput, CotizacionUncheckedUpdateWithoutDetallesInput>
+  }
+
+  export type CotizacionUpdateWithoutDetallesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+    markup?: FloatFieldUpdateOperationsInput | number
+    total?: FloatFieldUpdateOperationsInput | number
+    fechaViaje?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaRetorno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumCotizacionStatusFieldUpdateOperationsInput | $Enums.CotizacionStatus
+    notas?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaCreacion?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agencia?: AgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
+    creadoPor?: UsuarioAgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
+    cliente?: ClienteUpdateOneRequiredWithoutCotizacionesNestedInput
+    historial?: HistorialCotizacionUpdateManyWithoutCotizacionNestedInput
+  }
+
+  export type CotizacionUncheckedUpdateWithoutDetallesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    agenciaId?: StringFieldUpdateOperationsInput | string
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    clienteId?: StringFieldUpdateOperationsInput | string
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
+    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
+    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+    markup?: FloatFieldUpdateOperationsInput | number
+    total?: FloatFieldUpdateOperationsInput | number
+    fechaViaje?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaRetorno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumCotizacionStatusFieldUpdateOperationsInput | $Enums.CotizacionStatus
+    notas?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaCreacion?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    historial?: HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput
+  }
+
+  export type CotizacionCreateWithoutHistorialInput = {
+    id?: string
+    codigo: string
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
+    incluyeBoleto?: boolean
+    precioBoleto?: number | null
+    boletoTotal?: number
+    subtotal: number
+    markup?: number
+    total: number
+    fechaViaje?: Date | string | null
+    fechaRetorno?: Date | string | null
+    status?: $Enums.CotizacionStatus
+    notas?: string | null
+    tokenAprobacion?: string | null
+    fechaCreacion?: Date | string
+    fechaEnvio?: Date | string | null
+    fechaAprobacion?: Date | string | null
+    fechaVencimiento?: Date | string | null
+    agencia: AgenciaCreateNestedOneWithoutCotizacionesInput
+    creadoPor: UsuarioAgenciaCreateNestedOneWithoutCotizacionesInput
+    cliente: ClienteCreateNestedOneWithoutCotizacionesInput
+    detalles?: CotizacionDetalleCreateNestedManyWithoutCotizacionInput
+  }
+
+  export type CotizacionUncheckedCreateWithoutHistorialInput = {
+    id?: string
+    codigo: string
+    agenciaId: string
+    creadoPorId: string
+    clienteId: string
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
+    incluyeBoleto?: boolean
+    precioBoleto?: number | null
+    boletoTotal?: number
+    subtotal: number
+    markup?: number
+    total: number
+    fechaViaje?: Date | string | null
+    fechaRetorno?: Date | string | null
+    status?: $Enums.CotizacionStatus
+    notas?: string | null
+    tokenAprobacion?: string | null
+    fechaCreacion?: Date | string
+    fechaEnvio?: Date | string | null
+    fechaAprobacion?: Date | string | null
+    fechaVencimiento?: Date | string | null
+    detalles?: CotizacionDetalleUncheckedCreateNestedManyWithoutCotizacionInput
   }
 
   export type CotizacionCreateOrConnectWithoutHistorialInput = {
@@ -14695,22 +28405,14 @@ export namespace Prisma {
   export type CotizacionUpdateWithoutHistorialInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -14725,8 +28427,8 @@ export namespace Prisma {
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agencia?: AgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
     creadoPor?: UsuarioAgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    paquete?: PaqueteRefUpdateOneRequiredWithoutCotizacionesNestedInput
     cliente?: ClienteUpdateOneRequiredWithoutCotizacionesNestedInput
+    detalles?: CotizacionDetalleUpdateManyWithoutCotizacionNestedInput
   }
 
   export type CotizacionUncheckedUpdateWithoutHistorialInput = {
@@ -14734,24 +28436,15 @@ export namespace Prisma {
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -14764,6 +28457,7 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    detalles?: CotizacionDetalleUncheckedUpdateManyWithoutCotizacionNestedInput
   }
 
   export type UsuarioAgenciaUpsertWithoutHistorialCambiosInput = {
@@ -14819,24 +28513,15 @@ export namespace Prisma {
     id?: string
     codigo: string
     creadoPorId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -14914,22 +28599,14 @@ export namespace Prisma {
   export type CotizacionUpdateWithoutAgenciaInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -14943,8 +28620,8 @@ export namespace Prisma {
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creadoPor?: UsuarioAgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    paquete?: PaqueteRefUpdateOneRequiredWithoutCotizacionesNestedInput
     cliente?: ClienteUpdateOneRequiredWithoutCotizacionesNestedInput
+    detalles?: CotizacionDetalleUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -14952,24 +28629,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -14982,6 +28650,7 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    detalles?: CotizacionDetalleUncheckedUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -14989,24 +28658,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15025,24 +28685,15 @@ export namespace Prisma {
     id?: string
     codigo: string
     agenciaId: string
-    paqueteId: number
     clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -15069,22 +28720,14 @@ export namespace Prisma {
   export type CotizacionUpdateWithoutCreadoPorInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15098,8 +28741,8 @@ export namespace Prisma {
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agencia?: AgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    paquete?: PaqueteRefUpdateOneRequiredWithoutCotizacionesNestedInput
     cliente?: ClienteUpdateOneRequiredWithoutCotizacionesNestedInput
+    detalles?: CotizacionDetalleUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -15107,24 +28750,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15137,6 +28771,7 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    detalles?: CotizacionDetalleUncheckedUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -15144,24 +28779,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
     clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15203,220 +28829,246 @@ export namespace Prisma {
     fecha?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PaqueteRefCreateManyDestinoInput = {
+  export type HotelRefCreateManyDestinoInput = {
+    id: number
+    nombre: string
+    estrellas: number
+  }
+
+  export type ActividadRefCreateManyDestinoInput = {
     id: number
     nombre: string
     descripcion?: string | null
-    imagen?: string | null
-    categoria?: string | null
-    diasEstancia: number
-    nochesBase: number
-    incluyeBoleto: boolean
-    precioBoleto?: number | null
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
+  }
+
+  export type TrasladoRefCreateManyDestinoInput = {
+    id: number
+    tipo: string
+  }
+
+  export type HotelRefUpdateWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    paquetes?: PaqueteHotelRefUpdateManyWithoutHotelNestedInput
+  }
+
+  export type HotelRefUncheckedUpdateWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    paquetes?: PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput
+  }
+
+  export type HotelRefUncheckedUpdateManyWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ActividadRefUpdateWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    paquetes?: PaqueteActividadRefUpdateManyWithoutActividadNestedInput
+  }
+
+  export type ActividadRefUncheckedUpdateWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    paquetes?: PaqueteActividadRefUncheckedUpdateManyWithoutActividadNestedInput
+  }
+
+  export type ActividadRefUncheckedUpdateManyWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TrasladoRefUpdateWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+    paquetes?: PaqueteTrasladoRefUpdateManyWithoutTrasladoNestedInput
+  }
+
+  export type TrasladoRefUncheckedUpdateWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+    paquetes?: PaqueteTrasladoRefUncheckedUpdateManyWithoutTrasladoNestedInput
+  }
+
+  export type TrasladoRefUncheckedUpdateManyWithoutDestinoInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipo?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PaqueteHotelRefCreateManyHotelInput = {
+    paqueteId: number
+    tipoHabitacion: string
+    cantidad: number
+  }
+
+  export type PaqueteHotelRefUpdateWithoutHotelInput = {
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+    paquete?: PaqueteRefUpdateOneRequiredWithoutHotelesNestedInput
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateWithoutHotelInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateManyWithoutHotelInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteHotelRefCreateManyPaqueteInput = {
+    hotelId: number
+    tipoHabitacion: string
+    cantidad: number
+  }
+
+  export type VersionPaqueteRefCreateManyPaqueteInput = {
+    id: number
+    numPax: number
+    tipoPax: string
+    precioTotal?: number | null
     precioPorPersona?: number | null
   }
 
-  export type PaqueteRefUpdateWithoutDestinoInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nombre?: StringFieldUpdateOperationsInput | string
-    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    cotizaciones?: CotizacionUpdateManyWithoutPaqueteNestedInput
+  export type ImagenPaqueteRefCreateManyPaqueteInput = {
+    id: number
+    url: string
+    orden: number
   }
 
-  export type PaqueteRefUncheckedUpdateWithoutDestinoInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nombre?: StringFieldUpdateOperationsInput | string
-    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
-    cotizaciones?: CotizacionUncheckedUpdateManyWithoutPaqueteNestedInput
+  export type PaqueteActividadRefCreateManyPaqueteInput = {
+    actividadId: number
   }
 
-  export type PaqueteRefUncheckedUpdateManyWithoutDestinoInput = {
+  export type PaqueteTrasladoRefCreateManyPaqueteInput = {
+    trasladoId: number
+  }
+
+  export type PaqueteHotelRefUpdateWithoutPaqueteInput = {
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+    hotel?: HotelRefUpdateOneRequiredWithoutPaquetesNestedInput
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateWithoutPaqueteInput = {
+    hotelId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteInput = {
+    hotelId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type VersionPaqueteRefUpdateWithoutPaqueteInput = {
     id?: IntFieldUpdateOperationsInput | number
-    nombre?: StringFieldUpdateOperationsInput | string
-    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
-    imagen?: NullableStringFieldUpdateOperationsInput | string | null
-    categoria?: NullableStringFieldUpdateOperationsInput | string | null
-    diasEstancia?: IntFieldUpdateOperationsInput | number
-    nochesBase?: IntFieldUpdateOperationsInput | number
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
-  export type CotizacionCreateManyPaqueteInput = {
-    id?: string
-    codigo: string
-    agenciaId: string
-    creadoPorId: string
-    clienteId: string
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
-    incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
-    precioBoleto?: number | null
-    subtotal: number
-    markup?: number
-    total: number
-    fechaViaje?: Date | string | null
-    fechaRetorno?: Date | string | null
-    status?: $Enums.CotizacionStatus
-    notas?: string | null
-    tokenAprobacion?: string | null
-    fechaCreacion?: Date | string
-    fechaEnvio?: Date | string | null
-    fechaAprobacion?: Date | string | null
-    fechaVencimiento?: Date | string | null
+  export type VersionPaqueteRefUncheckedUpdateWithoutPaqueteInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
-  export type CotizacionUpdateWithoutPaqueteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    markup?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
-    fechaViaje?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaRetorno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumCotizacionStatusFieldUpdateOperationsInput | $Enums.CotizacionStatus
-    notas?: NullableStringFieldUpdateOperationsInput | string | null
-    tokenAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
-    fechaCreacion?: DateTimeFieldUpdateOperationsInput | Date | string
-    fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    agencia?: AgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    creadoPor?: UsuarioAgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    cliente?: ClienteUpdateOneRequiredWithoutCotizacionesNestedInput
-    historial?: HistorialCotizacionUpdateManyWithoutCotizacionNestedInput
+  export type VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    numPax?: IntFieldUpdateOperationsInput | number
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
-  export type CotizacionUncheckedUpdateWithoutPaqueteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    codigo?: StringFieldUpdateOperationsInput | string
-    agenciaId?: StringFieldUpdateOperationsInput | string
-    creadoPorId?: StringFieldUpdateOperationsInput | string
-    clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    markup?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
-    fechaViaje?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaRetorno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumCotizacionStatusFieldUpdateOperationsInput | $Enums.CotizacionStatus
-    notas?: NullableStringFieldUpdateOperationsInput | string | null
-    tokenAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
-    fechaCreacion?: DateTimeFieldUpdateOperationsInput | Date | string
-    fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    historial?: HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput
+  export type ImagenPaqueteRefUpdateWithoutPaqueteInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
   }
 
-  export type CotizacionUncheckedUpdateManyWithoutPaqueteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    codigo?: StringFieldUpdateOperationsInput | string
-    agenciaId?: StringFieldUpdateOperationsInput | string
-    creadoPorId?: StringFieldUpdateOperationsInput | string
-    clienteId?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
-    incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    markup?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
-    fechaViaje?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaRetorno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumCotizacionStatusFieldUpdateOperationsInput | $Enums.CotizacionStatus
-    notas?: NullableStringFieldUpdateOperationsInput | string | null
-    tokenAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
-    fechaCreacion?: DateTimeFieldUpdateOperationsInput | Date | string
-    fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type ImagenPaqueteRefUncheckedUpdateWithoutPaqueteInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    orden?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteActividadRefUpdateWithoutPaqueteInput = {
+    actividad?: ActividadRefUpdateOneRequiredWithoutPaquetesNestedInput
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateWithoutPaqueteInput = {
+    actividadId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteInput = {
+    actividadId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteTrasladoRefUpdateWithoutPaqueteInput = {
+    traslado?: TrasladoRefUpdateOneRequiredWithoutPaquetesNestedInput
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateWithoutPaqueteInput = {
+    trasladoId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteInput = {
+    trasladoId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteActividadRefCreateManyActividadInput = {
+    paqueteId: number
+  }
+
+  export type PaqueteActividadRefUpdateWithoutActividadInput = {
+    paquete?: PaqueteRefUpdateOneRequiredWithoutActividadesNestedInput
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateWithoutActividadInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteActividadRefUncheckedUpdateManyWithoutActividadInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteTrasladoRefCreateManyTrasladoInput = {
+    paqueteId: number
+  }
+
+  export type PaqueteTrasladoRefUpdateWithoutTrasladoInput = {
+    paquete?: PaqueteRefUpdateOneRequiredWithoutTrasladosNestedInput
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateWithoutTrasladoInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PaqueteTrasladoRefUncheckedUpdateManyWithoutTrasladoInput = {
+    paqueteId?: IntFieldUpdateOperationsInput | number
   }
 
   export type CotizacionCreateManyClienteInput = {
@@ -15424,23 +29076,14 @@ export namespace Prisma {
     codigo: string
     agenciaId: string
     creadoPorId: string
-    paqueteId: number
-    paqueteNombre: string
-    paqueteDuracion: string
-    paqueteDestino: string
-    paqueteIncluye?: CotizacionCreatepaqueteIncluyeInput | string[]
+    paqueteId?: number | null
+    snapshotNombre: string
+    snapshotDestino: string
+    snapshotDuracion: string
+    snapshotIncluye?: CotizacionCreatesnapshotIncluyeInput | string[]
     incluyeBoleto?: boolean
-    cantSGL?: number
-    cantDBL?: number
-    cantTPL?: number
-    cantQUAD?: number
-    cantCHD?: number
-    precioSGL?: number | null
-    precioDBL?: number | null
-    precioTPL?: number | null
-    precioQUAD?: number | null
-    precioCHD?: number | null
     precioBoleto?: number | null
+    boletoTotal?: number
     subtotal: number
     markup?: number
     total: number
@@ -15458,22 +29101,14 @@ export namespace Prisma {
   export type CotizacionUpdateWithoutClienteInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15488,7 +29123,7 @@ export namespace Prisma {
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agencia?: AgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
     creadoPor?: UsuarioAgenciaUpdateOneRequiredWithoutCotizacionesNestedInput
-    paquete?: PaqueteRefUpdateOneRequiredWithoutCotizacionesNestedInput
+    detalles?: CotizacionDetalleUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -15497,23 +29132,14 @@ export namespace Prisma {
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15526,6 +29152,7 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    detalles?: CotizacionDetalleUncheckedUpdateManyWithoutCotizacionNestedInput
     historial?: HistorialCotizacionUncheckedUpdateManyWithoutCotizacionNestedInput
   }
 
@@ -15534,23 +29161,14 @@ export namespace Prisma {
     codigo?: StringFieldUpdateOperationsInput | string
     agenciaId?: StringFieldUpdateOperationsInput | string
     creadoPorId?: StringFieldUpdateOperationsInput | string
-    paqueteId?: IntFieldUpdateOperationsInput | number
-    paqueteNombre?: StringFieldUpdateOperationsInput | string
-    paqueteDuracion?: StringFieldUpdateOperationsInput | string
-    paqueteDestino?: StringFieldUpdateOperationsInput | string
-    paqueteIncluye?: CotizacionUpdatepaqueteIncluyeInput | string[]
+    paqueteId?: NullableIntFieldUpdateOperationsInput | number | null
+    snapshotNombre?: StringFieldUpdateOperationsInput | string
+    snapshotDestino?: StringFieldUpdateOperationsInput | string
+    snapshotDuracion?: StringFieldUpdateOperationsInput | string
+    snapshotIncluye?: CotizacionUpdatesnapshotIncluyeInput | string[]
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
-    cantSGL?: IntFieldUpdateOperationsInput | number
-    cantDBL?: IntFieldUpdateOperationsInput | number
-    cantTPL?: IntFieldUpdateOperationsInput | number
-    cantQUAD?: IntFieldUpdateOperationsInput | number
-    cantCHD?: IntFieldUpdateOperationsInput | number
-    precioSGL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioDBL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioTPL?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioQUAD?: NullableFloatFieldUpdateOperationsInput | number | null
-    precioCHD?: NullableFloatFieldUpdateOperationsInput | number | null
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
+    boletoTotal?: FloatFieldUpdateOperationsInput | number
     subtotal?: FloatFieldUpdateOperationsInput | number
     markup?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
@@ -15563,6 +29181,17 @@ export namespace Prisma {
     fechaEnvio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fechaVencimiento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CotizacionDetalleCreateManyCotizacionInput = {
+    id?: string
+    versionId?: number | null
+    tipoPax: string
+    numPax: number
+    cantidad?: number
+    precioPorPersona: number
+    precioUnitario: number
+    subtotal: number
   }
 
   export type HistorialCotizacionCreateManyCotizacionInput = {
@@ -15572,6 +29201,39 @@ export namespace Prisma {
     statusNuevo: $Enums.CotizacionStatus
     nota?: string | null
     fecha?: Date | string
+  }
+
+  export type CotizacionDetalleUpdateWithoutCotizacionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type CotizacionDetalleUncheckedUpdateWithoutCotizacionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type CotizacionDetalleUncheckedUpdateManyWithoutCotizacionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    versionId?: NullableIntFieldUpdateOperationsInput | number | null
+    tipoPax?: StringFieldUpdateOperationsInput | string
+    numPax?: IntFieldUpdateOperationsInput | number
+    cantidad?: IntFieldUpdateOperationsInput | number
+    precioPorPersona?: FloatFieldUpdateOperationsInput | number
+    precioUnitario?: FloatFieldUpdateOperationsInput | number
+    subtotal?: FloatFieldUpdateOperationsInput | number
   }
 
   export type HistorialCotizacionUpdateWithoutCotizacionInput = {

@@ -38,61 +38,6 @@ interface PackageDetailModalProps {
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-const MOCK_PANAMA: PackageDetail = {
-  id: "panama-01",
-  title: "Panamá Ciudad + Playa",
-  location: { city: "Ciudad de Panamá", country: "Panamá" },
-  duration: "5 días / 4 noches",
-  dates: "09 - 13 de Mayo",
-  airline: "COPA Airlines · 10kg de mano",
-  price: 869,
-  reservationFee: 499,
-  childPrice: 500,
-  image: "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=800&q=80",
-  gallery: [
-    "https://images.unsplash.com/photo-1484821582734-6c6c9f99a672?w=800&q=80",
-    "https://images.unsplash.com/photo-1590523278191-995cbcda646b?w=800&q=80",
-    "https://images.unsplash.com/photo-1557899775-24a0957d3895?w=800&q=80",
-  ],
-  highlights: [
-    "Boleto aéreo GYE-PTY-GYE vía COPA",
-    "2 noches en Marriott Panama Hotel 4★",
-    "2 noches en Decameron Panamá 3★ Sup. (Todo Incluido)",
-    "Traslados aeropuerto-hotel en servicio compartido",
-    "City tour, Casco Antiguo y Canal de Panamá",
-    "Cortesía: Botellita de Ron + Chip sin saldo por habitación",
-  ],
-  includes: [
-    "Boleto aéreo GYE-PTY-GYE vía COPA, 10kg de mano",
-    "Traslados aeropuerto-hotel-aeropuerto compartidos",
-    "2 noches Marriott Panama Hotel 4★ con desayuno buffet",
-    "City tour + Casco Antiguo + Canal de Panamá + Albrook Mall",
-    "2 noches Decameron Panamá 3★ Sup. Todo Incluido",
-    "Bebidas alcohólicas y no alcohólicas ilimitadas",
-    "Impuestos hoteleros y aéreos",
-  ],
-  notIncludes: [
-    "Servicios no especificados en el programa",
-    "Excursiones privadas",
-    "Gastos personales y propinas",
-    "Entradas a atracciones turísticas",
-  ],
-  itinerary: [
-    { day: 1, date: "Sáb 09 May", location: "Ciudad de Panamá", title: "Llegada a Panamá", description: "Vuelo CM 313 GYE 06:00 → PTY 08:12. Traslado al Marriott Panama Hotel. Tarde libre." },
-    { day: 2, date: "Dom 10 May", location: "Ciudad de Panamá", title: "City tour + Canal de Panamá", description: "Desayuno buffet. City tour panorámico, caminata por el Casco Antiguo, visita al Canal de Panamá y compras." },
-    { day: 3, date: "Lun 11 May", location: "Ciudad → Playa", title: "Traslado a Playa Decameron", description: "Desayuno y traslado al hotel Decameron Panamá 3★ Sup. Inicio del sistema Todo Incluido." },
-    { day: 4, date: "Mar 12 May", location: "Decameron", title: "Día libre todo incluido", description: "Día completo en el resort: desayunos, almuerzos y cenas buffet, bebidas ilimitadas." },
-    { day: 5, date: "Mié 13 May", location: "Regreso", title: "Retorno a Guayaquil", description: "Desayuno. Traslado al aeropuerto. Vuelo CM 213 PTY 18:40 → GYE 20:52." },
-  ],
-  notes: [
-    "- Todos los servicios terrestres y excursiones son en compartido",
-    "- Todo abono es no reembolsable",
-    "- Esto es un programa, no una reserva confirmada",
-    "- Cambios de fecha aplican penalidad + diferencia tarifaria",
-    "- LT TOURS SAS no se hace responsable por cambios de aerolínea",
-  ],
-};
-
 const AGENCIES = [
   { name: "Viajes Andina Tours", city: "Guayaquil", phone: "+593912345678", email: "ventas@andinatours.com" },
   { name: "Mundo Mágico Travel", city: "Quito",     phone: "+593987654321", email: "info@mundomagico.com"    },
@@ -113,12 +58,12 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
   const [selectedAgency, setSelectedAgency] = useState<typeof AGENCIES[0] | null>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
 
-  const packageData: PackageDetail = { ...MOCK_PANAMA, ...(incomingData ?? {}) };
+  const packageData: PackageDetail = incomingData ?? {};
 
   const effectiveGallery = [
     packageData.image ?? packageData.heroImage,
     ...(packageData.gallery ?? []),
-  ].filter((img, idx, arr): img is string => !!img && arr.indexOf(img) === idx).slice(0, 4);
+  ].filter((img, idx, arr): img is string => !!img && img !== "" && arr.indexOf(img) === idx).slice(0, 4);
 
   const [mainImage, setMainImage] = useState<string | undefined>(effectiveGallery[0]);
   const tabs = ["Resumen", "Itinerario", "Incluye", "Cotizar"];
@@ -296,10 +241,10 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                 <div className="flex flex-col gap-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 shrink-0">
                     {[
-                      { label: "Destino",  value: locationLabel,                   icon: <MapPin      className="text-secondary" size={14} /> },
-                      { label: "Duración", value: packageData.duration,             icon: <Clock       className="text-secondary" size={14} /> },
-                      { label: "Aerolínea",value: packageData.airline,              icon: <Plane       className="text-secondary" size={14} /> },
-                      { label: "Desde",    value: `$${packageData.price} USD / pax`, icon: <CreditCard className="text-secondary" size={14} /> },
+                      { label: "Destino",   value: locationLabel,                          icon: <MapPin      className="text-secondary" size={14} /> },
+                      { label: "Duración",  value: packageData.duration ?? "",              icon: <Clock       className="text-secondary" size={14} /> },
+                      ...(packageData.airline ? [{ label: "Aerolínea", value: packageData.airline, icon: <Plane className="text-secondary" size={14} /> }] : []),
+                      { label: "Desde",     value: `$${packageData.price ?? 0} USD / pax`, icon: <CreditCard  className="text-secondary" size={14} /> },
                     ].map((item, i) => (
                       <div key={i} className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-0.5 sm:gap-1">
                         <span className="text-[9px] sm:text-[10px] font-black uppercase text-gray-400 tracking-tighter flex items-center gap-1">
@@ -332,25 +277,44 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
               {activeTab === "Itinerario" && (
                 <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                   <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Plan de viaje diario</h3>
-                  <div className="space-y-4">
-                    {packageData.itinerary?.map((day) => (
-                      <div key={day.day} className="flex gap-4 group">
-                        <div className="flex flex-col items-center">
+                  {!packageData.actividades?.length && !packageData.traslados?.length ? (
+                    <p className="text-sm text-gray-400 font-medium text-center py-8">No hay información de itinerario disponible.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {packageData.traslados?.[0] && (
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                            <Plane size={14} />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-black text-primary">Traslado de llegada</h4>
+                            <p className="text-[11px] text-gray-500 font-medium leading-relaxed">{packageData.traslados[0]}</p>
+                          </div>
+                        </div>
+                      )}
+                      {packageData.actividades?.map((act, i) => (
+                        <div key={i} className="flex gap-4">
                           <div className="w-8 h-8 rounded-lg bg-primary text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-md">
-                            {day.day}
+                            {i + 1}
                           </div>
-                          <div className="w-0.5 flex-1 bg-gray-100 my-1 rounded-full group-last:hidden" />
-                        </div>
-                        <div className="pb-4">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h4 className="text-sm font-black text-primary">{day.title}</h4>
-                            <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 rounded-full">{day.location}</span>
+                          <div>
+                            <h4 className="text-sm font-black text-primary">{act}</h4>
                           </div>
-                          <p className="text-[11px] text-gray-500 font-medium leading-relaxed max-w-3xl">{day.description}</p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                      {(packageData.traslados?.length ?? 0) > 1 && (
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                            <Plane size={14} className="rotate-180" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-black text-primary">Traslado de regreso</h4>
+                            <p className="text-[11px] text-gray-500 font-medium leading-relaxed">{packageData.traslados![packageData.traslados!.length - 1]}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -500,7 +464,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                             <input type="text" placeholder="Tu Nombre" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
                             <input type="email" placeholder="Tu Email" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
                           </div>
-                          <input type="text" readOnly value={packageData.title} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold outline-none cursor-default text-primary/50" />
+                          <input type="text" readOnly value={packageData.title ?? ""} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold outline-none cursor-default text-primary/50" />
                           <textarea
                             placeholder="Mensaje... (Indica fechas, número de personas, etc)"
                             className="flex-1 w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-xs font-medium focus:border-secondary focus:ring-0 transition-all outline-none resize-none"

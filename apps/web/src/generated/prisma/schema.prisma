@@ -22,15 +22,17 @@ datasource db {
 // REFERENCIAS DE SOLO LECTURA (lt-core-admin)
 // Estos modelos ya existen en la BD. Se declaran aquí para
 // permitir relaciones Prisma y queries de lectura desde el portal.
-// Nunca incluir en migraciones nuevas — usar `prisma db pull` si cambian.
+// Nunca incluir en migraciones nuevas.
 // ==============================================================
 
 /// @readonly — gestionado por lt-core-admin
 model Agencia {
-  id       String  @id
-  nombre   String
-  correo   String?
-  telefono String?
+  id          String   @id
+  nombre      String
+  descripcion String?  @db.Text
+  correo      String?
+  telefono    String?
+  fechaAlta   DateTime
 
   usuarios     UsuarioAgencia[]
   clientes     Cliente[]
@@ -44,8 +46,8 @@ model UsuarioAgencia {
   id        String   @id
   name      String?
   email     String?  @unique
-  password  String? // bcrypt hash — solo lectura para auth
-  role      String // 'ADMIN' | 'COLABORADOR'
+  password  String?
+  role      String
   agenciaId String?
   agencia   Agencia? @relation(fields: [agenciaId], references: [id], onDelete: SetNull)
 
@@ -60,38 +62,139 @@ model DestinoRef {
   id          Int     @id
   pais        String
   ciudad      String
-  tagline     String?
   descripcion String? @db.Text
   imagen      String?
-  color       String?
 
-  paquetes PaqueteRef[]
+  hoteles     HotelRef[]
+  actividades ActividadRef[]
+  traslados   TrasladoRef[]
 
   @@map("Destino")
 }
 
 /// @readonly — gestionado por lt-core-admin
+model HotelRef {
+  id        Int    @id
+  destinoId Int
+  nombre    String
+  estrellas Int
+
+  destino  DestinoRef        @relation(fields: [destinoId], references: [id])
+  paquetes PaqueteHotelRef[]
+
+  @@map("Hotel")
+}
+
+/// @readonly — gestionado por lt-core-admin
 model PaqueteRef {
-  id               Int         @id
+  id               Int     @id
   nombre           String
-  descripcion      String?     @db.Text
-  imagen           String?
-  categoria        String?
-  diasEstancia     Int
-  nochesBase       Int
+  descripcion      String? @db.Text
   incluyeBoleto    Boolean
   precioBoleto     Float?
-  precioSGL        Float?
-  precioDBL        Float?
-  precioTPL        Float?
-  precioQUAD       Float?
+  numPax           Int
+  diasEstancia     Int
+  nochesBase       Int
+  precioTotal      Float?
   precioPorPersona Float?
-  destinoId        Int?
-  destino          DestinoRef? @relation(fields: [destinoId], references: [id])
 
-  cotizaciones Cotizacion[]
+  hoteles     PaqueteHotelRef[]
+  versiones   VersionPaqueteRef[]
+  imagenes    ImagenPaqueteRef[]
+  actividades PaqueteActividadRef[]
+  traslados   PaqueteTrasladoRef[]
 
   @@map("Paquete")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model PaqueteHotelRef {
+  paqueteId      Int
+  hotelId        Int
+  tipoHabitacion String
+  cantidad       Int
+
+  paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
+  hotel   HotelRef   @relation(fields: [hotelId], references: [id])
+
+  @@id([paqueteId, hotelId, tipoHabitacion])
+  @@map("PaqueteHotel")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model ActividadRef {
+  id          Int     @id
+  destinoId   Int
+  nombre      String
+  descripcion String? @db.Text
+
+  destino  DestinoRef            @relation(fields: [destinoId], references: [id])
+  paquetes PaqueteActividadRef[]
+
+  @@map("Actividad")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model TrasladoRef {
+  id        Int    @id
+  destinoId Int
+  tipo      String
+
+  destino  DestinoRef           @relation(fields: [destinoId], references: [id])
+  paquetes PaqueteTrasladoRef[]
+
+  @@map("Traslado")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model PaqueteActividadRef {
+  paqueteId   Int
+  actividadId Int
+
+  paquete   PaqueteRef   @relation(fields: [paqueteId], references: [id])
+  actividad ActividadRef @relation(fields: [actividadId], references: [id])
+
+  @@id([paqueteId, actividadId])
+  @@map("PaqueteActividad")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model PaqueteTrasladoRef {
+  paqueteId  Int
+  trasladoId Int
+
+  paquete  PaqueteRef  @relation(fields: [paqueteId], references: [id])
+  traslado TrasladoRef @relation(fields: [trasladoId], references: [id])
+
+  @@id([paqueteId, trasladoId])
+  @@map("PaqueteTraslado")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model VersionPaqueteRef {
+  id               Int    @id
+  paqueteId        Int
+  numPax           Int
+  tipoPax          String
+  precioTotal      Float?
+  precioPorPersona Float?
+
+  paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
+
+  @@unique([paqueteId, tipoPax])
+  @@map("VersionPaquete")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model ImagenPaqueteRef {
+  id        Int    @id
+  paqueteId Int
+  url       String
+  orden     Int
+
+  paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
+
+  @@map("ImagenPaquete")
 }
 
 // ==============================================================
@@ -108,14 +211,13 @@ model Cliente {
   nombre    String
   email     String?
   telefono  String?
-  documento String? // CC, Pasaporte, RUC
+  documento String?
   direccion String?
 
   fechaAlta DateTime @default(now())
 
   cotizaciones Cotizacion[]
 
-  // Un cliente es único por agencia (no se comparte entre agencias)
   @@unique([agenciaId, email])
   @@unique([agenciaId, documento])
 }
@@ -123,69 +225,81 @@ model Cliente {
 /// Cotización / Proforma generada por la agencia para un cliente.
 model Cotizacion {
   id     String @id @default(cuid())
-  /// Código legible: COT-YYYYMMDD-NNN (generado en la Server Action)
   codigo String @unique
 
-  // ── Relaciones principales ──────────────────────────────────
+  // ── Relaciones principales ──────────────────────────────────────────
   agenciaId String
   agencia   Agencia @relation(fields: [agenciaId], references: [id])
 
   creadoPorId String
   creadoPor   UsuarioAgencia @relation(fields: [creadoPorId], references: [id])
 
-  paqueteId Int
-  paquete   PaqueteRef @relation(fields: [paqueteId], references: [id])
-
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id])
 
-  // ── Snapshot del paquete (congelado al momento de cotizar) ──
-  // Se guarda para que cambios futuros en el paquete no alteren la cotización
-  paqueteNombre   String
-  paqueteDuracion String // "5 Días / 4 Noches"
-  paqueteDestino  String // "Panamá"
-  paqueteIncluye  String[] // Lista de includes en texto
-  incluyeBoleto   Boolean  @default(false)
+  // Referencia escalar al paquete cotizado (sin relación Prisma para no acoplar
+  // el modelo PaqueteRef a la lógica de cotizaciones).
+  paqueteId Int?
 
-  // ── Pasajeros: cuántas habitaciones de cada tipo ─────────────
-  cantSGL  Int @default(0) // Habitaciones simples
-  cantDBL  Int @default(0) // Habitaciones dobles
-  cantTPL  Int @default(0) // Habitaciones triples
-  cantQUAD Int @default(0) // Habitaciones cuádruples
-  cantCHD  Int @default(0) // Niños (agregan al cuarto de un adulto)
+  // ── Snapshot del paquete — inmutable desde el momento de cotizar ────
+  snapshotNombre   String // Nombre del paquete cotizado
+  snapshotDestino  String // "Ciudad, País"
+  snapshotDuracion String // "5 Días / 4 Noches"
+  snapshotIncluye  String[] // Servicios incluidos (texto para la proforma PDF)
 
-  // ── Precios snapshot al cotizar (de Paquete.precioXXX) ───────
-  // Fórmula: subtotal = Σ(cant × precio) por tipo
-  precioSGL    Float?
-  precioDBL    Float?
-  precioTPL    Float?
-  precioQUAD   Float?
-  precioCHD    Float?
-  precioBoleto Float? // Por persona (snapshot de Paquete.precioBoleto)
+  // ── Boleto aéreo (si aplica) ────────────────────────────────────────
+  incluyeBoleto Boolean @default(false)
+  precioBoleto  Float? // Precio neto por persona (snapshot de Paquete.precioBoleto)
+  boletoTotal   Float   @default(0) // precioBoleto × Σ(detalle.numPax × detalle.cantidad)
 
-  // ── Totales ──────────────────────────────────────────────────
-  subtotal Float // Σ(cant × precio) sin markup
-  markup   Float @default(0) // Comisión de la agencia (NO aparece en PDF cliente)
-  total    Float // subtotal + markup
+  // ── Líneas de detalle (una fila por tipoPax cotizado) ───────────────
+  detalles CotizacionDetalle[]
 
-  // ── Fechas de viaje ──────────────────────────────────────────
+  // ── Totales (fórmula: total = subtotal + boletoTotal + markup) ───────
+  subtotal Float // Σ(detalle.subtotal) — precio neto del paquete
+  markup   Float @default(0) // Comisión de la agencia (no visible al cliente en PDF)
+  total    Float // Precio final al cliente
+
+  // ── Fechas de viaje ─────────────────────────────────────────────────
   fechaViaje   DateTime?
   fechaRetorno DateTime?
 
-  // ── Estado del flujo ─────────────────────────────────────────
-  status CotizacionStatus @default(BORRADOR)
-  notas  String?          @db.Text
+  // ── Estado del flujo ────────────────────────────────────────────────
+  status          CotizacionStatus @default(BORRADOR)
+  notas           String?          @db.Text
+  tokenAprobacion String?          @unique @default(cuid())
 
-  /// Token UUID enviado al cliente por email para aprobar/rechazar
-  tokenAprobacion String? @unique @default(cuid())
-
-  // ── Timestamps de transiciones ───────────────────────────────
+  // ── Timestamps ──────────────────────────────────────────────────────
   fechaCreacion    DateTime  @default(now())
   fechaEnvio       DateTime?
   fechaAprobacion  DateTime?
   fechaVencimiento DateTime?
 
   historial HistorialCotizacion[]
+}
+
+/// Una fila por tipo de ocupación dentro de una cotización.
+/// Permite representar grupos mixtos: 2 DBL + 1 SGL en la misma proforma.
+model CotizacionDetalle {
+  id           String     @id @default(cuid())
+  cotizacionId String
+  cotizacion   Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+
+  // Referencia escalar a la versión cotizada (sin relación Prisma para no acoplar
+  // el modelo VersionPaqueteRef a la lógica de cotizaciones).
+  versionId Int?
+
+  // ── Snapshot de la versión al momento de cotizar ────────────────────
+  tipoPax  String // 'SGL' | 'DBL' | 'TPL' | 'QUAD' | 'CHD'
+  numPax   Int // Pasajeros por unidad (habitación). Snapshot de VersionPaquete.numPax.
+  cantidad Int    @default(1) // Número de habitaciones/unidades de este tipoPax
+
+  // ── Precios snapshot — congelados, no cambian aunque cambie VersionPaquete ──
+  precioPorPersona Float // Precio neto mayorista por persona
+  precioUnitario   Float // precioPorPersona × numPax — precio por habitación/unidad
+  subtotal         Float // precioUnitario × cantidad — total para este tipoPax
+
+  @@map("CotizacionDetalle")
 }
 
 /// Auditoría de cada cambio de estado en una cotización.
@@ -210,8 +324,8 @@ model HistorialCotizacion {
 // ==============================================================
 
 enum CotizacionStatus {
-  BORRADOR // En edición — no enviada al cliente
-  ENVIADA // Enviada al cliente, esperando respuesta
-  APROBADA // Cliente aprobó — Kevin crea la liquidación en lt-core-admin
-  RECHAZADA // Cliente rechazó
+  BORRADOR
+  ENVIADA
+  APROBADA
+  RECHAZADA
 }

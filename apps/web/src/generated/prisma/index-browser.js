@@ -123,8 +123,10 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.AgenciaScalarFieldEnum = {
   id: 'id',
   nombre: 'nombre',
+  descripcion: 'descripcion',
   correo: 'correo',
-  telefono: 'telefono'
+  telefono: 'telefono',
+  fechaAlta: 'fechaAlta'
 };
 
 exports.Prisma.UsuarioAgenciaScalarFieldEnum = {
@@ -140,28 +142,74 @@ exports.Prisma.DestinoRefScalarFieldEnum = {
   id: 'id',
   pais: 'pais',
   ciudad: 'ciudad',
-  tagline: 'tagline',
   descripcion: 'descripcion',
-  imagen: 'imagen',
-  color: 'color'
+  imagen: 'imagen'
+};
+
+exports.Prisma.HotelRefScalarFieldEnum = {
+  id: 'id',
+  destinoId: 'destinoId',
+  nombre: 'nombre',
+  estrellas: 'estrellas'
 };
 
 exports.Prisma.PaqueteRefScalarFieldEnum = {
   id: 'id',
   nombre: 'nombre',
   descripcion: 'descripcion',
-  imagen: 'imagen',
-  categoria: 'categoria',
-  diasEstancia: 'diasEstancia',
-  nochesBase: 'nochesBase',
   incluyeBoleto: 'incluyeBoleto',
   precioBoleto: 'precioBoleto',
-  precioSGL: 'precioSGL',
-  precioDBL: 'precioDBL',
-  precioTPL: 'precioTPL',
-  precioQUAD: 'precioQUAD',
-  precioPorPersona: 'precioPorPersona',
-  destinoId: 'destinoId'
+  numPax: 'numPax',
+  diasEstancia: 'diasEstancia',
+  nochesBase: 'nochesBase',
+  precioTotal: 'precioTotal',
+  precioPorPersona: 'precioPorPersona'
+};
+
+exports.Prisma.PaqueteHotelRefScalarFieldEnum = {
+  paqueteId: 'paqueteId',
+  hotelId: 'hotelId',
+  tipoHabitacion: 'tipoHabitacion',
+  cantidad: 'cantidad'
+};
+
+exports.Prisma.ActividadRefScalarFieldEnum = {
+  id: 'id',
+  destinoId: 'destinoId',
+  nombre: 'nombre',
+  descripcion: 'descripcion'
+};
+
+exports.Prisma.TrasladoRefScalarFieldEnum = {
+  id: 'id',
+  destinoId: 'destinoId',
+  tipo: 'tipo'
+};
+
+exports.Prisma.PaqueteActividadRefScalarFieldEnum = {
+  paqueteId: 'paqueteId',
+  actividadId: 'actividadId'
+};
+
+exports.Prisma.PaqueteTrasladoRefScalarFieldEnum = {
+  paqueteId: 'paqueteId',
+  trasladoId: 'trasladoId'
+};
+
+exports.Prisma.VersionPaqueteRefScalarFieldEnum = {
+  id: 'id',
+  paqueteId: 'paqueteId',
+  numPax: 'numPax',
+  tipoPax: 'tipoPax',
+  precioTotal: 'precioTotal',
+  precioPorPersona: 'precioPorPersona'
+};
+
+exports.Prisma.ImagenPaqueteRefScalarFieldEnum = {
+  id: 'id',
+  paqueteId: 'paqueteId',
+  url: 'url',
+  orden: 'orden'
 };
 
 exports.Prisma.ClienteScalarFieldEnum = {
@@ -180,24 +228,15 @@ exports.Prisma.CotizacionScalarFieldEnum = {
   codigo: 'codigo',
   agenciaId: 'agenciaId',
   creadoPorId: 'creadoPorId',
-  paqueteId: 'paqueteId',
   clienteId: 'clienteId',
-  paqueteNombre: 'paqueteNombre',
-  paqueteDuracion: 'paqueteDuracion',
-  paqueteDestino: 'paqueteDestino',
-  paqueteIncluye: 'paqueteIncluye',
+  paqueteId: 'paqueteId',
+  snapshotNombre: 'snapshotNombre',
+  snapshotDestino: 'snapshotDestino',
+  snapshotDuracion: 'snapshotDuracion',
+  snapshotIncluye: 'snapshotIncluye',
   incluyeBoleto: 'incluyeBoleto',
-  cantSGL: 'cantSGL',
-  cantDBL: 'cantDBL',
-  cantTPL: 'cantTPL',
-  cantQUAD: 'cantQUAD',
-  cantCHD: 'cantCHD',
-  precioSGL: 'precioSGL',
-  precioDBL: 'precioDBL',
-  precioTPL: 'precioTPL',
-  precioQUAD: 'precioQUAD',
-  precioCHD: 'precioCHD',
   precioBoleto: 'precioBoleto',
+  boletoTotal: 'boletoTotal',
   subtotal: 'subtotal',
   markup: 'markup',
   total: 'total',
@@ -210,6 +249,18 @@ exports.Prisma.CotizacionScalarFieldEnum = {
   fechaEnvio: 'fechaEnvio',
   fechaAprobacion: 'fechaAprobacion',
   fechaVencimiento: 'fechaVencimiento'
+};
+
+exports.Prisma.CotizacionDetalleScalarFieldEnum = {
+  id: 'id',
+  cotizacionId: 'cotizacionId',
+  versionId: 'versionId',
+  tipoPax: 'tipoPax',
+  numPax: 'numPax',
+  cantidad: 'cantidad',
+  precioPorPersona: 'precioPorPersona',
+  precioUnitario: 'precioUnitario',
+  subtotal: 'subtotal'
 };
 
 exports.Prisma.HistorialCotizacionScalarFieldEnum = {
@@ -247,9 +298,18 @@ exports.Prisma.ModelName = {
   Agencia: 'Agencia',
   UsuarioAgencia: 'UsuarioAgencia',
   DestinoRef: 'DestinoRef',
+  HotelRef: 'HotelRef',
   PaqueteRef: 'PaqueteRef',
+  PaqueteHotelRef: 'PaqueteHotelRef',
+  ActividadRef: 'ActividadRef',
+  TrasladoRef: 'TrasladoRef',
+  PaqueteActividadRef: 'PaqueteActividadRef',
+  PaqueteTrasladoRef: 'PaqueteTrasladoRef',
+  VersionPaqueteRef: 'VersionPaqueteRef',
+  ImagenPaqueteRef: 'ImagenPaqueteRef',
   Cliente: 'Cliente',
   Cotizacion: 'Cotizacion',
+  CotizacionDetalle: 'CotizacionDetalle',
   HistorialCotizacion: 'HistorialCotizacion'
 };
 
