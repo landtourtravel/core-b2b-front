@@ -140,6 +140,7 @@ export default function DashboardPage() {
   const [isLoadingPackages, setLoadingPkg]  = useState(true);
   const [packagesFetchError, setPkgError]   = useState<"DB_FAIL" | "EMPTY" | null>(null);
   const [searchPkgTerm, setSearchPkgTerm]   = useState("");
+  const [activeDestino, setActiveDestino]   = useState<string | null>(null);
 
   useEffect(() => {
     setLoadingPkg(true);
@@ -603,7 +604,7 @@ export default function DashboardPage() {
               <span className="block px-4 text-[10px] font-black uppercase tracking-wider text-white/30">Principal</span>
               {[
                 { id: "dashboard",    icon: <LayoutDashboard size={16} />, label: "Dashboard" },
-                { id: "paquetes",     icon: <Compass size={16} />,         label: "Paquetes Disponibles" },
+                { id: "paquetes",     icon: <Compass size={16} />,         label: "Cotizar Paquetes" },
                 { id: "cotizar",      icon: <Plus size={16} className="stroke-[2.5]" />, label: "Nueva Cotización" },
               ].map((item) => (
                 <button
@@ -682,7 +683,7 @@ export default function DashboardPage() {
           <div className="flex flex-col">
             <h2 className="text-base font-black text-primary uppercase tracking-widest leading-none">
               {activeTab === "dashboard"    && "Dashboard"}
-              {activeTab === "paquetes"     && "Paquetes Disponibles"}
+              {activeTab === "paquetes"     && "Cotizar Paquetes"}
               {activeTab === "cotizar"      && "Nueva Cotización"}
               {activeTab === "cotizaciones" && "Listado de Cotizaciones"}
               {activeTab === "marca-blanca" && "Mi Marca Blanca"}
@@ -691,7 +692,7 @@ export default function DashboardPage() {
               <span>Inicio</span><span>/</span>
               <span className="text-secondary">
                 {activeTab === "dashboard"    && "Dashboard"}
-                {activeTab === "paquetes"     && "Paquetes Disponibles"}
+                {activeTab === "paquetes"     && "Cotizar Paquetes"}
                 {activeTab === "cotizar"      && "Nueva Cotización"}
                 {activeTab === "cotizaciones" && "Listado de Cotizaciones"}
                 {activeTab === "marca-blanca" && "Mi Marca Blanca"}
@@ -784,26 +785,31 @@ export default function DashboardPage() {
           {/* ════════════════════════ PAQUETES ════════════════════════ */}
           {activeTab === "paquetes" && (
             <div className="space-y-6 animate-fade-scale">
+              {/* ── Header con buscador ── */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Catálogo de Programas Turísticos
                   </h3>
-                  <p className="text-[11px] text-primary/50 font-semibold mt-1">Selecciona un programa para cotizar al instante con tus comisiones.</p>
+                  <p className="text-[11px] text-primary/50 font-semibold mt-1">
+                    Selecciona un programa para cotizar al instante con tus comisiones.
+                  </p>
                 </div>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-primary/40"><Search size={14} /></span>
                   <input
-                    type="text" placeholder="Buscar por destino o nombre..."
-                    value={searchPkgTerm} onChange={(e) => setSearchPkgTerm(e.target.value)}
+                    type="text"
+                    placeholder="Buscar por destino o nombre..."
+                    value={searchPkgTerm}
+                    onChange={(e) => { setSearchPkgTerm(e.target.value); setActiveDestino(null); }}
                     className="pl-9 pr-4 py-2.5 bg-light border border-lighter rounded-2xl text-xs font-bold placeholder-primary/30 outline-none w-full md:w-64 focus:border-secondary focus:bg-white transition-all"
                   />
                 </div>
               </div>
-
+              {/* ── Estados: cargando / error / vacío ── */}
               {isLoadingPackages ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
-                  <div className="w-8 h-8 border-3 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
                   <p className="text-primary/50 font-bold text-xs">Cargando programas...</p>
                 </div>
               ) : packagesFetchError === "DB_FAIL" ? (
@@ -817,42 +823,120 @@ export default function DashboardPage() {
                   <p className="text-primary/50 font-bold text-xs">No hay paquetes creados en la base de datos.</p>
                   <p className="text-primary/30 text-[10px]">El administrador debe crear los paquetes desde el panel.</p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredPackages.map((pkg) => (
-                    <div key={pkg.id} className="bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm flex flex-col hover:shadow-md hover:border-secondary/20 transition-all duration-300 group">
-                      <div className="relative w-full h-44 overflow-hidden">
-                        <img src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80"} alt={pkg.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                        <span className="absolute top-3 left-3 px-2 py-0.5 bg-secondary text-primary font-black text-[9px] uppercase rounded-md shadow-sm">{pkg.duration || `${pkg.diasEstancia}d/${pkg.nochesBase}n`}</span>
-                        <span className="absolute bottom-3 left-3 px-2.5 py-0.5 bg-primary/80 backdrop-blur-sm text-white font-black text-[8px] uppercase rounded-md tracking-wider">{pkg.category}</span>
-                      </div>
-                      <div className="p-5 flex flex-col justify-between flex-grow gap-4">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-1 text-[9px] font-black text-primary/40 uppercase tracking-wider">
-                            <MapPin size={9} className="text-secondary" /> {pkg.location?.city}, {pkg.location?.country}
-                          </div>
-                          <h4 className="text-xs font-black text-primary leading-tight group-hover:text-secondary transition-colors line-clamp-2">{pkg.title}</h4>
-                        </div>
-                        <div className="flex items-center justify-between pt-3.5 border-t border-gray-50 mt-auto">
-                          <div>
-                            <span className="text-[8px] font-black uppercase text-gray-400 leading-none">Precio Base</span>
-                            <span className="block text-xs font-black text-primary mt-1">${pkg.price} USD</span>
-                          </div>
-                          <button onClick={() => handleQuickQuote(String(pkg.id))} className="px-3.5 py-2.5 bg-secondary hover:bg-secondary-light text-primary font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-1 cursor-pointer">
-                            <Plus size={10} className="stroke-[2.5]" /> Cotizar
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {filteredPackages.length === 0 && (
-                    <div className="col-span-full py-16 text-center text-primary/40 font-bold text-xs">
+              ) : (() => {
+                const pkgsFiltrados = packages.filter((pkg) => {
+                  if (!searchPkgTerm) return true;
+                  const loc = `${pkg.location?.city || ""} ${pkg.location?.country || ""}`.toLowerCase();
+                  return (
+                    pkg.title.toLowerCase().includes(searchPkgTerm.toLowerCase()) ||
+                    loc.includes(searchPkgTerm.toLowerCase())
+                  );
+                });
+                const byDestino = pkgsFiltrados.reduce<Record<string, { pais: string; pkgs: typeof pkgsFiltrados }>>((acc, pkg) => {
+                  const ciudad = pkg.location?.city || "Sin destino";
+                  const pais   = pkg.location?.country || "";
+                  if (!acc[ciudad]) acc[ciudad] = { pais, pkgs: [] };
+                  acc[ciudad].pkgs.push(pkg);
+                  return acc;
+                }, {});
+                const destinos = Object.keys(byDestino).sort();
+                if (destinos.length === 0) {
+                  return (
+                    <div className="py-16 text-center text-primary/40 font-bold text-xs">
                       No se encontraron paquetes para &quot;{searchPkgTerm}&quot;
                     </div>
-                  )}
-                </div>
-              )}
+                  );
+                }
+                return (
+                  <div className="space-y-3">
+                    {destinos.map((ciudad) => {
+                      const { pais, pkgs } = byDestino[ciudad];
+                      const isOpen = activeDestino === ciudad;
+                      return (
+                        <div key={ciudad} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                          {/* ── Cabecera del destino (acordeón) ── */}
+                          <button
+                            onClick={() => setActiveDestino(isOpen ? null : ciudad)}
+                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-light/60 transition-colors cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                                <MapPin size={14} className="text-secondary" />
+                              </div>
+                              <div className="text-left">
+                                <span className="text-sm font-black text-primary group-hover:text-secondary transition-colors">{ciudad}</span>
+                                <span className="text-[10px] font-bold text-primary/40 ml-2">{pais}</span>
+                              </div>
+                              <span className="ml-2 px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-md">
+                                {pkgs.length} {pkgs.length === 1 ? "programa" : "programas"}
+                              </span>
+                            </div>
+                            {isOpen
+                              ? <ChevronUp size={16} className="text-primary/40 shrink-0" />
+                              : <ChevronDown size={16} className="text-primary/40 shrink-0" />
+                            }
+                          </button>
+                          {/* ── Lista de paquetes desplegable ── */}
+                          {isOpen && (
+                            <div className="border-t border-gray-50 divide-y divide-gray-50">
+                              {pkgs.map((pkg) => (
+                                <div
+                                  key={pkg.id}
+                                  className="flex items-center gap-4 px-6 py-4 hover:bg-light/40 transition-colors group/row"
+                                >
+                                  {/* Miniatura */}
+                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                                    <img
+                                      src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80"}
+                                      alt={pkg.title}
+                                      className="w-full h-full object-cover transition-transform duration-300 group-hover/row:scale-105"
+                                    />
+                                  </div>
+                                  {/* Info */}
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-xs font-black text-primary leading-tight line-clamp-1 group-hover/row:text-secondary transition-colors">
+                                      {pkg.title}
+                                    </h4>
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                                      <span className="flex items-center gap-1 text-[10px] font-bold text-primary/40">
+                                        <Clock size={9} /> {pkg.duration || `${pkg.diasEstancia}d / ${pkg.nochesBase}n`}
+                                      </span>
+                                      {pkg.flightIncluded && (
+                                        <span className="flex items-center gap-1 text-[10px] font-bold text-secondary">
+                                          <Plane size={9} /> Vuelo incluido
+                                        </span>
+                                      )}
+                                    </div>
+                                    {pkg.includes && pkg.includes.length > 0 && (
+                                      <p className="text-[10px] font-medium text-primary/35 mt-1 line-clamp-1">
+                                        Incluye: {pkg.includes.slice(0, 3).join(" · ")}
+                                        {pkg.includes.length > 3 && ` y ${pkg.includes.length - 3} más`}
+                                      </p>
+                                    )}
+                                  </div>
+                                  {/* Precio + Botón */}
+                                  <div className="flex flex-col items-end gap-2 shrink-0">
+                                    <div className="text-right">
+                                      <span className="text-[8px] font-black uppercase text-gray-400 block leading-none">Desde</span>
+                                      <span className="text-sm font-black text-primary">${pkg.price} <span className="text-[9px] font-bold text-primary/40">USD</span></span>
+                                    </div>
+                                    <button
+                                      onClick={() => handleQuickQuote(String(pkg.id))}
+                                      className="px-3.5 py-2 bg-secondary hover:bg-secondary-light text-primary font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                                    >
+                                      <Plus size={10} className="stroke-[2.5]" /> Cotizar
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
