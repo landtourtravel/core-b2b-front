@@ -6,11 +6,11 @@ import Image from "next/image";
 import { ArrowRightToLine, Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "#inicio",      label: "Inicio",       active: true  },
-  { href: "#paquetes",    label: "Paquetes",     active: false },
-  { href: "#destinos",    label: "Destinos",     active: false },
-  { href: "#testimonios", label: "Testimonios",  active: false },
-  { href: "#contacto",    label: "Contáctanos",  active: false },
+  { href: "/#inicio",      label: "Inicio",       active: true  },
+  { href: "/#paquetes",    label: "Paquetes",     active: false },
+  { href: "/#destinos",    label: "Destinos",     active: false },
+  { href: "/#testimonios", label: "Testimonios",  active: false },
+  { href: "/#contacto",    label: "Contáctanos",  active: false },
 ];
 
 export const Navbar = () => {

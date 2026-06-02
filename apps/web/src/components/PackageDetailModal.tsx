@@ -36,14 +36,14 @@ interface PackageDetailModalProps {
   packageData?: PackageDetail | null;
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const AGENCIES = [
-  { name: "Viajes Andina Tours", city: "Guayaquil", phone: "+593912345678", email: "ventas@andinatours.com" },
-  { name: "Mundo Mágico Travel", city: "Quito",     phone: "+593987654321", email: "info@mundomagico.com"    },
-  { name: "Costa Sol Agencia",   city: "Cuenca",    phone: "+593922334455", email: "reservas@costasol.com"   },
-  { name: "Tropical Vacations",  city: "Manta",     phone: "+593933445566", email: "manta@tropical.com"      },
-];
+type Agency = {
+  id: string;
+  nombre: string;
+  correo: string | null;
+  telefono: string | null;
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -55,7 +55,8 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
   const dialogRef    = useRef<HTMLDialogElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("Resumen");
-  const [selectedAgency, setSelectedAgency] = useState<typeof AGENCIES[0] | null>(null);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
 
   const packageData: PackageDetail = incomingData ?? {};
@@ -74,6 +75,13 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/agencies")
+      .then((res) => res.json())
+      .then((data: Agency[]) => setAgencies(data))
+      .catch(() => {});
   }, []);
 
   // Sync image when package changes
@@ -394,40 +402,41 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                   <div className="flex-1 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
                     <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Contacta con una agencia</h3>
                     <div className="space-y-3">
-                      {AGENCIES.map((agency, i) => (
+                      {agencies.map((agency) => (
                         <div
-                          key={i}
+                          key={agency.id}
                           className="p-4 border border-gray-50 rounded-xl bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-white hover:shadow-md hover:border-secondary/20 transition-all"
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-black text-[12px] shrink-0">
-                              {agency.name.split(" ").map((n) => n[0]).join("")}
+                              {agency.nombre.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                             </div>
                             <div>
-                              <h4 className="text-sm font-black text-primary mb-0.5">{agency.name}</h4>
-                              <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1">
-                                <MapPin size={10} className="text-secondary" /> {agency.city}
-                              </p>
+                              <h4 className="text-sm font-black text-primary mb-0.5">{agency.nombre}</h4>
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <a
-                              href={`https://wa.me/${agency.phone.replace(/\D/g, "")}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex-1 sm:flex-none px-4 py-2 bg-[#25D366]/10 text-[#25D366] text-[10px] font-black rounded-lg hover:bg-[#25D366] hover:text-white transition-all flex items-center justify-center gap-1.5"
-                            >
-                              <MessageCircle size={12} /> WhatsApp
-                            </a>
-                            <button
-                              onClick={() => {
-                                scrollableRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                                setSelectedAgency(agency);
-                              }}
-                              className="flex-1 sm:flex-none px-4 py-2 bg-primary/10 text-primary text-[10px] font-black rounded-lg hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-1.5"
-                            >
-                              <Mail size={12} /> Email
-                            </button>
+                            {agency.telefono && (
+                              <a
+                                href={`https://wa.me/${agency.telefono.replace(/\D/g, "")}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 sm:flex-none px-4 py-2 bg-[#25D366]/10 text-[#25D366] text-[10px] font-black rounded-lg hover:bg-[#25D366] hover:text-white transition-all flex items-center justify-center gap-1.5"
+                              >
+                                <MessageCircle size={12} /> WhatsApp
+                              </a>
+                            )}
+                            {agency.correo && (
+                              <button
+                                onClick={() => {
+                                  scrollableRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                                  setSelectedAgency(agency);
+                                }}
+                                className="flex-1 sm:flex-none px-4 py-2 bg-primary/10 text-primary text-[10px] font-black rounded-lg hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-1.5"
+                              >
+                                <Mail size={12} /> Email
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -451,8 +460,8 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                               <ChevronRight size={18} className="rotate-180 text-gray-400" />
                             </button>
                             <div>
-                              <h4 className="text-sm font-black text-primary">Enviar Email a {selectedAgency.name}</h4>
-                              <p className="text-[10px] font-bold text-gray-400">{selectedAgency.email}</p>
+                              <h4 className="text-sm font-black text-primary">Enviar Email a {selectedAgency.nombre}</h4>
+                              <p className="text-[10px] font-bold text-gray-400">{selectedAgency.correo}</p>
                             </div>
                           </div>
                           <button onClick={() => setSelectedAgency(null)} className="text-gray-400 hover:text-primary">

@@ -56,7 +56,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
       {/* ── Image — height fija para uniformidad ── */}
       <div className="relative h-40 sm:h-52 shrink-0 overflow-hidden">
         <img
-          src={image ?? fallbackImage}
+          src={image || fallbackImage}
           alt={`Paquete ${title}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"

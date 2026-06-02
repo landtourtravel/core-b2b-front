@@ -822,7 +822,7 @@ export default function DashboardPage() {
                   {filteredPackages.map((pkg) => (
                     <div key={pkg.id} className="bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm flex flex-col hover:shadow-md hover:border-secondary/20 transition-all duration-300 group">
                       <div className="relative w-full h-44 overflow-hidden">
-                        <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <img src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80"} alt={pkg.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                         <span className="absolute top-3 left-3 px-2 py-0.5 bg-secondary text-primary font-black text-[9px] uppercase rounded-md shadow-sm">{pkg.duration || `${pkg.diasEstancia}d/${pkg.nochesBase}n`}</span>
                         <span className="absolute bottom-3 left-3 px-2.5 py-0.5 bg-primary/80 backdrop-blur-sm text-white font-black text-[8px] uppercase rounded-md tracking-wider">{pkg.category}</span>

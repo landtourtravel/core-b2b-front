@@ -7,11 +7,10 @@ import { Footer } from "@/components/Footer";
 import { PackageCard } from "@/components/PackageCard";
 import { PackageDetailModal } from '@/components/PackageDetailModal';
 import { api } from '@/services/api';
-import { Package } from '@land-tour/shared';
+import { Package, Destino } from '@land-tour/shared';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight, X, AlertTriangle } from 'lucide-react';
 
-const CATEGORIES = ['Todos', 'Playa', 'Ciudad', 'Aventura', 'Naturaleza', 'Cultura'];
 const ITEMS_PER_PAGE = 12;
 
 const SORT_OPTIONS = [
@@ -23,12 +22,30 @@ const SORT_OPTIONS = [
 
 export default function PaquetesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
+  const [destinations, setDestinations] = useState<Destino[]>([]);
+  const [allCities, setAllCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<"DB_FAIL" | "EMPTY" | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Todos');
+
+  // Form state (lo que el usuario edita)
+  const [destination, setDestination] = useState("");
+  const [date, setDate] = useState("");
+  const [adults, setAdults] = useState("2");
+  const [children, setChildren] = useState("0");
+
+  // Active state (lo que realmente filtra — se aplica al hacer clic en Buscar)
+  const [activeDestination, setActiveDestination] = useState("");
+  const [activeDate, setActiveDate] = useState("");
+  const [activeAdults, setActiveAdults] = useState("2");
+  const [activeChildren, setActiveChildren] = useState("0");
+
+  // Filter bar state (reactivo)
+  const [cityFilter, setCityFilter] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [sortBy, setSortBy] = useState('');
   const [isSortOpen, setIsSortOpen] = useState(false);
+
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const sortRef = useRef<HTMLDivElement>(null);
@@ -41,11 +58,28 @@ export default function PaquetesPage() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Read URL params on mount
+  // Carga destinos y ciudades desde /api/destinations en un solo fetch
+  useEffect(() => {
+    fetch("/api/destinations")
+      .then(r => r.json())
+      .then((data: Destino[]) => {
+        setDestinations(data);
+        setAllCities([...new Set(data.map(d => d.ciudad).filter(Boolean))].sort());
+      })
+      .catch(console.error);
+  }, []);
+
+  // Pre-carga params de URL en ambos estados (formulario y activo)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const destino = params.get('destino');
-    if (destino) setSearchTerm(destino);
+    const d = params.get("destino") ?? "";
+    const f = params.get("fecha")   ?? "";
+    const a = params.get("adultos") ?? "2";
+    const n = params.get("ninos")   ?? "0";
+    setDestination(d);  setActiveDestination(d);
+    setDate(f);         setActiveDate(f);
+    setAdults(a);       setActiveAdults(a);
+    setChildren(n);     setActiveChildren(n);
   }, []);
 
   useEffect(() => {
@@ -56,23 +90,26 @@ export default function PaquetesPage() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  // Reset to page 1 when filters change
+  // Resetea página cuando cambian los filtros activos o los filtros reactivos
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, activeCategory, sortBy]);
+  }, [activeDestination, cityFilter, sortBy, minPrice, maxPrice]);
 
   const filtered = packages
     .filter(pkg => {
-      const loc = `${pkg.location.city} ${pkg.location.country}`;
-      const matchSearch = !searchTerm ||
-        pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loc.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchCat = activeCategory === 'Todos' || pkg.category === activeCategory;
-      return matchSearch && matchCat;
+      const loc = `${pkg.location.city} ${pkg.location.country}`.toLowerCase();
+      const matchDestino = !activeDestination ||
+        loc.includes(activeDestination.toLowerCase()) ||
+        pkg.title.toLowerCase().includes(activeDestination.toLowerCase());
+      const matchCity = !cityFilter ||
+        pkg.location.city.toLowerCase() === cityFilter.toLowerCase();
+      const matchMin = !minPrice || pkg.price >= parseFloat(minPrice);
+      const matchMax = !maxPrice || pkg.price <= parseFloat(maxPrice);
+      return matchDestino && matchCity && matchMin && matchMax;
     })
     .sort((a, b) => {
-      if (sortBy === 'precio_asc') return a.price - b.price;
-      if (sortBy === 'precio_desc') return b.price - a.price;
+      if (sortBy === 'precio_asc')   return a.price - b.price;
+      if (sortBy === 'precio_desc')  return b.price - a.price;
       if (sortBy === 'duracion_asc') return a.nochesBase - b.nochesBase;
       if (sortBy === 'duracion_desc') return b.nochesBase - a.nochesBase;
       return 0;
@@ -81,9 +118,29 @@ export default function PaquetesPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  const hasFilters = activeCategory !== 'Todos' || searchTerm || sortBy;
-  const clearAll = () => { setActiveCategory('Todos'); setSearchTerm(''); setSortBy(''); };
+  const hasFilters = !!(activeDestination || cityFilter || sortBy || minPrice || maxPrice || activeDate);
+
+  const clearAll = () => {
+    setDestination("");     setActiveDestination("");
+    setDate("");            setActiveDate("");
+    setAdults("2");         setActiveAdults("2");
+    setChildren("0");       setActiveChildren("0");
+    setCityFilter("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("");
+  };
+
   const activeSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label;
+
+  const handleSearch = () => {
+    setActiveDestination(destination);
+    setActiveDate(date);
+    setActiveAdults(adults);
+    setActiveChildren(children);
+    setCurrentPage(1);
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -106,10 +163,10 @@ export default function PaquetesPage() {
     <main className="min-h-screen bg-light">
       <Navbar />
 
-      {/* ── Hero ── */}
+      {/* ── Hero con buscador compacto ── */}
       <section className="pt-28 pb-14 bg-primary relative overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1470&auto=format&fit=crop"
+          src="/images/hero_paquetes.webp"
           alt="Destinos turísticos"
           fill
           priority
@@ -126,50 +183,178 @@ export default function PaquetesPage() {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-3 leading-tight">
               Paquetes <span className="text-secondary">Turísticos</span>
             </h1>
-            <p className="text-white/50 text-sm sm:text-base max-w-lg leading-relaxed">
+            <p className="text-white/50 text-sm sm:text-base max-w-lg leading-relaxed mb-6">
               Selección exclusiva de destinos para agencias. Precios mayoristas y salidas programadas.
             </p>
+
+            {/* Buscador compacto */}
+            <div className="bg-white rounded-2xl shadow-xl p-4 w-full max-w-4xl">
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_1px_auto_1px_auto_1px_auto_auto] items-end gap-3 sm:gap-0">
+
+                {/* Destino */}
+                <div className="flex flex-col gap-1 sm:pr-3">
+                  <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Destino</label>
+                  <div className="relative">
+                    <select
+                      value={destination}
+                      onChange={e => setDestination(e.target.value)}
+                      className="w-full text-sm text-gray-700 bg-transparent border-b border-gray-200 pb-1.5 outline-none focus:border-secondary transition-colors appearance-none cursor-pointer pr-5"
+                    >
+                      <option value="">Todos los destinos</option>
+                      {destinations.map(d => (
+                        <option key={d.id} value={d.ciudad}>{d.ciudad}, {d.pais}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="absolute right-0 bottom-2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="hidden sm:block self-stretch bg-gray-200 mx-2" aria-hidden="true" />
+
+                {/* Fecha */}
+                <div className="flex flex-col gap-1 sm:px-3">
+                  <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Fecha de salida</label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={e => setDate(e.target.value)}
+                    className="text-sm text-gray-700 bg-transparent border-b border-gray-200 pb-1.5 outline-none focus:border-secondary transition-colors appearance-none w-full"
+                  />
+                </div>
+
+                <div className="hidden sm:block self-stretch bg-gray-200 mx-2" aria-hidden="true" />
+
+                {/* Adultos */}
+                <div className="flex flex-col gap-1 sm:px-3">
+                  <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Adultos</label>
+                  <div className="relative">
+                    <select
+                      value={adults}
+                      onChange={e => setAdults(e.target.value)}
+                      className="w-full text-sm text-gray-700 bg-transparent border-b border-gray-200 pb-1.5 outline-none focus:border-secondary transition-colors appearance-none cursor-pointer pr-5"
+                    >
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                        <option key={n} value={String(n)}>{n} {n === 1 ? 'Adulto' : 'Adultos'}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="absolute right-0 bottom-2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="hidden sm:block self-stretch bg-gray-200 mx-2" aria-hidden="true" />
+
+                {/* Niños */}
+                <div className="flex flex-col gap-1 sm:px-3">
+                  <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Niños</label>
+                  <div className="relative">
+                    <select
+                      value={children}
+                      onChange={e => setChildren(e.target.value)}
+                      className="w-full text-sm text-gray-700 bg-transparent border-b border-gray-200 pb-1.5 outline-none focus:border-secondary transition-colors appearance-none cursor-pointer pr-5"
+                    >
+                      {[0,1,2,3,4,5].map(n => (
+                        <option key={n} value={String(n)}>{n === 0 ? 'Sin niños' : `${n} ${n === 1 ? 'Niño' : 'Niños'}`}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="absolute right-0 bottom-2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Botón */}
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="sm:ml-3 flex items-center justify-center gap-2 bg-primary hover:bg-primary-light active:scale-95 text-white text-sm font-semibold px-6 py-2.5 rounded-full transition-all duration-200 whitespace-nowrap shrink-0"
+                >
+                  <Search size={14} />
+                  Buscar
+                </button>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Filtros sticky ── */}
+      {/* ── Barra de filtros adicionales ── */}
       <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center gap-2 flex-wrap">
 
-          {/* Fila 1: búsqueda + ordenar */}
-          <div className="flex items-center gap-3 pt-3 pb-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/30" size={15} />
-              <input
-                type="text"
-                placeholder="Buscar destino o paquete..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-light py-2.5 pl-10 pr-9 rounded-xl border-none focus:ring-2 focus:ring-secondary/30 outline-none text-sm text-primary font-medium placeholder:text-primary/30"
+            {/* Chip "Todos" */}
+            <button
+              onClick={() => { setCityFilter(""); setMinPrice(""); setMaxPrice(""); }}
+              className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${
+                !cityFilter && !minPrice && !maxPrice
+                  ? 'bg-primary text-white border-primary shadow-sm'
+                  : 'bg-white text-primary/60 border-gray-200 hover:border-primary/40 hover:text-primary'
+              }`}
+            >
+              Todos
+            </button>
+
+            {/* Dropdown Ciudad */}
+            <div className="relative shrink-0">
+              <select
+                value={cityFilter}
+                onChange={e => { setCityFilter(e.target.value); setCurrentPage(1); }}
+                className={`appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border cursor-pointer outline-none ${
+                  cityFilter
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-primary/60 border-gray-200 hover:border-primary/40 hover:text-primary'
+                }`}
+              >
+                <option value="">Ciudad</option>
+                {allCities.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+              <ChevronDown
+                size={12}
+                className={`absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${cityFilter ? 'text-white' : 'text-primary/40'}`}
               />
-              {searchTerm && (
-                <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary/60 transition-colors">
-                  <X size={14} />
+            </div>
+
+            {/* Filtro de precio */}
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all duration-200 ${
+              minPrice || maxPrice ? 'bg-secondary/10 border-secondary' : 'bg-white border-gray-200'
+            }`}>
+              <input
+                type="number"
+                placeholder="$ Mín"
+                value={minPrice}
+                onChange={e => setMinPrice(e.target.value)}
+                className="w-16 text-xs font-bold bg-transparent outline-none text-primary placeholder:text-primary/30"
+              />
+              <span className="text-primary/30 text-xs">—</span>
+              <input
+                type="number"
+                placeholder="$ Máx"
+                value={maxPrice}
+                onChange={e => setMaxPrice(e.target.value)}
+                className="w-16 text-xs font-bold bg-transparent outline-none text-primary placeholder:text-primary/30"
+              />
+              {(minPrice || maxPrice) && (
+                <button onClick={() => { setMinPrice(""); setMaxPrice(""); }} className="text-secondary/60 hover:text-secondary transition-colors">
+                  <X size={10} />
                 </button>
               )}
             </div>
 
-            {/* Dropdown ordenar */}
-            <div className="relative shrink-0" ref={sortRef}>
+            {/* Ordenar */}
+            <div className="ml-auto relative shrink-0" ref={sortRef}>
               <button
                 onClick={() => setIsSortOpen(v => !v)}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border ${
                   sortBy
                     ? 'bg-primary text-white border-primary'
-                    : 'bg-light text-primary/60 border-transparent hover:border-gray-200'
+                    : 'bg-white text-primary/60 border-gray-200 hover:border-primary/40 hover:text-primary'
                 }`}
               >
-                <SlidersHorizontal size={15} />
+                <SlidersHorizontal size={13} />
                 <span className="hidden sm:inline max-w-[110px] truncate">
                   {sortBy ? activeSortLabel?.split(':')[1]?.trim() : 'Ordenar'}
                 </span>
-                <ChevronDown size={13} className={`transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={11} className={`transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
@@ -207,23 +392,6 @@ export default function PaquetesPage() {
               </AnimatePresence>
             </div>
           </div>
-
-          {/* Fila 2: chips de categoría */}
-          <div className="flex gap-2 pb-3 overflow-x-auto scrollbar-hide">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                  activeCategory === cat
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-light text-primary/50 hover:bg-primary/10 hover:text-primary'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -248,13 +416,24 @@ export default function PaquetesPage() {
             </div>
           ) : (
             <>
+              {/* Resumen de búsqueda activa */}
+              {(activeDestination || activeDate || activeAdults !== "2" || activeChildren !== "0") && (
+                <div className="mb-4 flex items-center gap-2 flex-wrap">
+                  <span className="text-xs text-primary/50 font-medium">Buscando:</span>
+                  {activeDestination && <span className="px-2.5 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full">{activeDestination}</span>}
+                  {activeDate && <span className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">{new Date(activeDate + "T00:00:00").toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" })}</span>}
+                  {activeAdults !== "2" && <span className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">{activeAdults} adultos</span>}
+                  {activeChildren !== "0" && <span className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">{activeChildren} niños</span>}
+                  <button onClick={clearAll} className="text-[10px] font-bold text-primary/30 hover:text-primary/60 flex items-center gap-1">
+                    <X size={10} /> Limpiar
+                  </button>
+                </div>
+              )}
+
               {/* Contador + limpiar */}
               <div className="flex items-center justify-between mb-6 sm:mb-8">
                 <p className="text-primary/50 text-sm font-medium">
                   <span className="text-primary font-bold">{filtered.length}</span> paquetes
-                  {activeCategory !== 'Todos' && (
-                    <> en <span className="text-secondary font-bold">{activeCategory}</span></>
-                  )}
                   {totalPages > 1 && (
                     <span className="ml-1.5 text-primary/40">· página {currentPage} de {totalPages}</span>
                   )}
@@ -280,10 +459,7 @@ export default function PaquetesPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.24) }}
                       >
-                        <PackageCard
-                          {...pkg}
-                          onClick={() => setSelectedPackage(pkg)}
-                        />
+                        <PackageCard {...pkg} onClick={() => setSelectedPackage(pkg)} />
                       </motion.div>
                     ))}
                   </div>

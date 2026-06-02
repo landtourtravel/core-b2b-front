@@ -52,7 +52,7 @@ export const Hero = () => {
       className="relative w-full h-screen min-h-[650px] flex flex-col justify-center overflow-hidden"
     >
       <Image
-        src="https://images.unsplash.com/photo-1432889490240-84df33d47091?q=80&w=1632&auto=format&fit=crop"
+        src="/images/playa_hero.jpg"
         alt="Playa tropical - Land Tour & Travel"
         fill
         priority
@@ -174,7 +174,7 @@ export const Hero = () => {
               {/* Niños */}
               <div className="flex flex-col gap-1 md:px-4">
                 <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">
-                  Niños (2-11 años)
+                  Niños
                 </label>
                 <div className="relative">
                   <select

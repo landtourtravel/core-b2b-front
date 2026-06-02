@@ -45,7 +45,7 @@ const DestinationModal: React.FC<ModalProps> = ({ destination, onClose }) => {
           />
 
           {/* Modal card */}
-          <motion.div 
+          <motion.div
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
@@ -55,7 +55,7 @@ const DestinationModal: React.FC<ModalProps> = ({ destination, onClose }) => {
             {/* Hero image */}
             <div className="relative h-56 sm:h-72 overflow-hidden">
               <img
-                src={destination.image}
+                src={destination.image || "/images/default-destination.jpg"}
                 alt={destination.ciudad}
                 className="w-full h-full object-cover"
               />
@@ -165,7 +165,7 @@ const DestinationCard: React.FC<CardProps> = ({
       ].join(" ")}
     >
       <img
-        src={destination.image}
+        src={destination.image || "/images/default-destination.jpg"}
         alt={destination.ciudad}
         className={[
           "absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out",
@@ -248,7 +248,7 @@ interface MobileCardProps {
 const MobileDestinationCard: React.FC<MobileCardProps> = ({ destination, onOpen }) => (
   <div className="relative overflow-hidden rounded-3xl h-52 w-full flex-shrink-0 snap-center">
     <img
-      src={destination.image}
+      src={destination?.image || "/images/default-destination.jpg"}
       alt={destination.ciudad}
       className="absolute inset-0 w-full h-full object-cover"
     />
