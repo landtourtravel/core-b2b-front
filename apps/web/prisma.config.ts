@@ -1,8 +1,9 @@
 import { defineConfig } from "prisma/config";
+import process from "node:process";
 
-// prisma.config.ts — Configuración de Prisma 7 para apps/web
-// En Prisma 7, la URL de conexión se declara aquí (no en schema.prisma).
-// La variable DATABASE_URL se lee de .env.local en desarrollo.
+// Prisma 7 CLI no carga .env automáticamente cuando existe prisma.config.ts.
+// Node.js 20.12+ tiene process.loadEnvFile() nativo — sin dependencias extra.
+try { process.loadEnvFile(".env"); } catch {}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

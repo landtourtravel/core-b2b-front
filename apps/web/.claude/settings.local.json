@@ -3,7 +3,10 @@
     "allow": [
       "Read(//c/Users/Usuario/Documents/PROYECTOS/AGENCIADEVIAJES/ltt-core-admin/land-tour-client/**)",
       "Bash(npm run *)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "PowerShell(cd \"C:\\\\Users\\\\DELL\\\\Documents\\\\GitHub\\\\ltt\\\\land-tour-client\\\\apps\\\\web\"; $dbUrl = \\(Get-Content .env | Select-String \"^DATABASE_URL=\" | ForEach-Object { \\($_ -replace '^DATABASE_URL=\"', ''\\) -replace '\"$', '' }\\); $env:DATABASE_URL = $dbUrl; npx prisma db pull 2>&1)",
+      "PowerShell(node --version)",
+      "PowerShell(claude mcp *)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Package } from "@land-tour/shared";
 import { prisma } from "@/lib/prisma";
+import { MOCK_PACKAGES } from "@/lib/mock-data";
 
 function toPackage(p: {
   id: number;
@@ -77,9 +78,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(packages satisfies Package[]);
   } catch (error) {
     console.error('[/api/packages] Error:', error);
-    return NextResponse.json(
-      { error: "DB_FAIL", message: "No se pudo conectar a la base de datos." },
-      { status: 503 }
-    );
+    let packages = MOCK_PACKAGES;
+    if (country) packages = packages.filter((p) => p.location.country.toLowerCase().includes(country.toLowerCase()));
+    if (city)    packages = packages.filter((p) => p.location.city.toLowerCase().includes(city.toLowerCase()));
+    return NextResponse.json(packages);
   }
 }

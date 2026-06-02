@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Destino } from "@land-tour/shared";
 import { prisma } from "@/lib/prisma";
+import { MOCK_DESTINOS } from "@/lib/mock-data";
 
 export async function GET() {
   try {
@@ -21,9 +22,6 @@ export async function GET() {
     return NextResponse.json(destinos);
   } catch (error) {
     console.error('[/api/destinations] Error:', error);
-    return NextResponse.json(
-      { error: "DB_FAIL", message: "No se pudo conectar a la base de datos." },
-      { status: 503 }
-    );
+    return NextResponse.json(MOCK_DESTINOS);
   }
 }
