@@ -1,27 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { UserPlus, Users } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
-import { AgencyModal } from "./AgencyModal";
 
 const MotionLink = motion.create(Link);
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const AgencyCTA: React.FC = () => {
-  const [isAgencyModalOpen, setIsAgencyModalOpen] = useState(false);
-
   return (
-    <>
-      <section
-        id="agencias"
-        className="
-          relative overflow-hidden
-          bg-gradient-to-br from-primary-dark via-primary to-secondary
-          py-16 sm:py-24
-        "
+    <section
+      id="agencias"
+      className="
+        relative overflow-hidden
+        bg-gradient-to-br from-primary-dark via-primary to-secondary
+        py-8 sm:py-12
+      "
       >
         {/* ── Decorative blurred circles ── */}
         <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full bg-secondary/30 blur-3xl pointer-events-none" />
@@ -58,7 +54,7 @@ export const AgencyCTA: React.FC = () => {
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
-                  href="/login"
+                  href="/login?access=1"
                   className="
                     inline-flex items-center gap-2.5
                     bg-secondary hover:bg-secondary-light
@@ -74,30 +70,9 @@ export const AgencyCTA: React.FC = () => {
                 </Link>
               </motion.div>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="button"
-                onClick={() => setIsAgencyModalOpen(true)}
-                className="
-                  inline-flex items-center gap-2.5
-                  bg-white/10 hover:bg-white/20
-                  text-white font-semibold text-sm sm:text-base
-                  px-8 py-3.5 rounded-full
-                  border border-white/30 hover:border-white/60
-                  transition-all duration-200
-                "
-                aria-label="Ver agencias aliadas"
-              >
-                <Users size={18} strokeWidth={2} />
-                Ver aliadas
-              </motion.button>
             </motion.div>
           </motion.div>
         </div>
-      </section>
-
-      <AgencyModal isOpen={isAgencyModalOpen} onClose={() => setIsAgencyModalOpen(false)} />
-    </>
+    </section>
   );
 };

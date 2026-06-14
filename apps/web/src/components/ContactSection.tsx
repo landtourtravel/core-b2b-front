@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, MapPin, Send } from "lucide-react";
+import { Mail, MapPin, Send, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { AgencyModal } from "./AgencyModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ const inputCls = `
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const ContactSection: React.FC = () => {
+  const [isAgencyModalOpen, setIsAgencyModalOpen] = useState(false);
   const [form, setForm] = useState<FormState>({
     name: "",
     email: "",
@@ -75,7 +77,8 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section className="py-20 sm:py-28 bg-white" id="contacto">
+    <>
+      <section className="py-20 sm:py-28 bg-white" id="contacto">
       <div className="container mx-auto px-4 sm:px-6">
 
         {/* ── Section header (brand standard) ── */}
@@ -130,17 +133,21 @@ export const ContactSection: React.FC = () => {
             </div>
 
             {/* Decorative card */}
-            <div className="hidden lg:block rounded-3xl bg-gradient-to-br from-primary via-primary to-secondary p-8 text-white">
-              <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-2">
-                ¿Eres agencia?
+            <div className="rounded-3xl bg-gradient-to-br from-primary via-primary to-secondary p-8 text-white">
+              <p className="font-extrabold text-xl leading-snug mb-5">
+                Escríbenos o contacta a una de nuestras agencias aliadas
               </p>
-              <p className="font-extrabold text-xl leading-snug mb-3">
-                Accede a tarifas exclusivas de mayorista
-              </p>
-              <p className="text-white/80 text-sm leading-relaxed">
-                Regístrate en nuestra plataforma B2B y empieza a cotizar paquetes
-                al instante con márgenes competitivos.
-              </p>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                type="button"
+                onClick={() => setIsAgencyModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold text-sm px-5 py-3 rounded-2xl border border-white/30 hover:border-white/60 transition-all duration-200"
+                aria-label="Ver agencias aliadas"
+              >
+                <Users size={16} strokeWidth={2} />
+                Ver agencias aliadas
+              </motion.button>
             </div>
           </motion.div>
 
@@ -215,7 +222,9 @@ export const ContactSection: React.FC = () => {
 
         </div>
       </div>
-    </section>
+      </section>
 
+      <AgencyModal isOpen={isAgencyModalOpen} onClose={() => setIsAgencyModalOpen(false)} />
+    </>
   );
 };

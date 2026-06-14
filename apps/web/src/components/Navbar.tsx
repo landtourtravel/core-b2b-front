@@ -6,15 +6,41 @@ import Image from "next/image";
 import { ArrowRightToLine, Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/#inicio",      label: "Inicio",       active: true  },
-  { href: "/#paquetes",    label: "Paquetes",     active: false },
-  { href: "/#destinos",    label: "Destinos",     active: false },
-  { href: "/#testimonios", label: "Testimonios",  active: false },
-  { href: "/#contacto",    label: "Contáctanos",  active: false },
+  { href: "/#inicio",      label: "Inicio"       },
+  { href: "/#paquetes",    label: "Paquetes"     },
+  { href: "/#destinos",    label: "Destinos"     },
+  { href: "/#testimonios", label: "Testimonios"  },
+  { href: "/#contacto",    label: "Contáctanos"  },
 ];
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("inicio");
+
+  // Scroll-spy: find active section on every scroll tick
+  useEffect(() => {
+    const NAVBAR_HEIGHT = 80; // px — accounts for the fixed 68px header + buffer
+    const sectionIds = ["inicio", "paquetes", "destinos", "testimonios", "contacto"];
+    const getActiveSection = () => {
+      // Walk sections in reverse order — last one that has crossed the top threshold wins
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (!el) continue;
+        const { top } = el.getBoundingClientRect();
+        if (top <= NAVBAR_HEIGHT + 40) {
+          return sectionIds[i];
+        }
+      }
+      return "inicio";
+    };
+    const onScroll = () => {
+      setActiveSection(getActiveSection());
+    };
+    // Run once immediately so the initial active state is correct
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -61,18 +87,18 @@ export const Navbar = () => {
                 <Link
                   href={link.href}
                   className={`relative text-sm pb-1 transition-colors duration-200 group ${
-                    link.active
+                    activeSection === link.href.replace("/#", "")
                       ? "font-semibold text-gray-900"
                       : "font-medium text-gray-500 hover:text-gray-900"
                   }`}
                 >
                   {link.label}
                   {/* Underline activo */}
-                  {link.active && (
+                  {activeSection === link.href.replace("/#", "") && (
                     <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gray-900 rounded-full" />
                   )}
                   {/* Underline hover (solo en inactivos) */}
-                  {!link.active && (
+                  {activeSection !== link.href.replace("/#", "") && (
                     <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gray-400 rounded-full group-hover:w-full transition-all duration-200" />
                   )}
                 </Link>
@@ -111,7 +137,11 @@ export const Navbar = () => {
               key={link.href}
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
-              className="py-2 text-base font-medium text-gray-700 hover:text-primary transition-colors"
+              className={`py-2 text-base transition-colors ${
+                activeSection === link.href.replace("/#", "")
+                  ? "font-semibold text-primary"
+                  : "font-medium text-gray-700 hover:text-primary"
+              }`}
             >
               {link.label}
             </Link>

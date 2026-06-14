@@ -293,7 +293,9 @@ export const DestinationsSection: React.FC = () => {
   React.useEffect(() => {
     api.getDestinationsDetailed()
       .then(({ data, error }) => {
-        setDestinations(data);
+        // Shuffle the full list and cap at 6 random destinations
+        const shuffled = [...data].sort(() => Math.random() - 0.5);
+        setDestinations(shuffled.slice(0, 6));
         setFetchError(error);
       })
       .catch(() => setFetchError("DB_FAIL"))

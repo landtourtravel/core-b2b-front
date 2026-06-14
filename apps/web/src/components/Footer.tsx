@@ -40,8 +40,8 @@ export const Footer: React.FC = () => {
     <footer className="bg-primary-dark text-white">
 
       {/* ── Main grid ── */}
-      <div className="container mx-auto px-4 sm:px-6 pt-16 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 border-b border-white/10 pb-12">
+      <div className="container mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-8 sm:pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-12 border-b border-white/10 pb-8 sm:pb-12">
 
           {/* Col 1 — Brand */}
           <div className="flex flex-col gap-5">
@@ -64,62 +64,79 @@ export const Footer: React.FC = () => {
             </p>
           </div>
 
-          {/* Col 2 — Explorar */}
-          <div>
-            <ColTitle>Explorar</ColTitle>
-            <ul className="flex flex-col gap-3">
-              {[
-                { label: "Inicio",    href: "#inicio"   },
-                { label: "Paquetes",  href: "#paquetes" },
-                { label: "Destinos",  href: "#destinos" },
-                { label: "Nosotros",  href: "#nosotros" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className={linkCls}>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 3 — Agencias */}
-          <div>
-            <ColTitle>Agencias</ColTitle>
-            <ul className="flex flex-col gap-3">
-              {[
-                { label: "Ingreso",   href: "#" },
-                { label: "Registro",  href: "#agencias" },
-              ].map((item) => (
-                <li key={item.label}>
-                  <Link href={item.href} className={linkCls}>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Col 2+3 — Explorar & Agencias side by side on mobile */}
+          <div className="grid grid-cols-2 md:contents gap-8">
+            {/* Explorar */}
+            <div>
+              <ColTitle>Explorar</ColTitle>
+              <ul className="flex flex-col gap-3">
+                {[
+                  { label: "Inicio",    href: "#inicio"   },
+                  { label: "Paquetes",  href: "#paquetes" },
+                  { label: "Destinos",  href: "#destinos" },
+                  { label: "Nosotros",  href: "#nosotros" },
+                ].map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className={linkCls}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Agencias */}
+            <div>
+              <ColTitle>Agencias</ColTitle>
+              <ul className="flex flex-col gap-3">
+                {[
+                  { label: "Ingreso",  href: "/login"          },
+                  { label: "Registro", href: "/login?access=1" },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link href={item.href} className={linkCls}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Col 4 — Síguenos */}
           <div>
             <ColTitle>Síguenos</ColTitle>
-            <ul className="flex flex-col gap-3">
+            {/* Mobile: centered icon-only row with white circle backgrounds */}
+            <div className="flex items-center justify-center gap-4 md:hidden">
               {[
-                {
-                  label: "Instagram",
-                  href: "#",
-                  icon: <Instagram size={15} />,
-                },
-                {
-                  label: "Facebook",
-                  href: "#",
-                  icon: <Facebook size={15} />,
-                },
-                {
-                  label: "TikTok",
-                  href: "#",
-                  icon: <TikTokIcon size={15} />,
-                },
+                { label: "Instagram", icon: <Instagram size={18} />, href: "#" },
+                { label: "Facebook",  icon: <Facebook  size={18} />, href: "#" },
+                { label: "TikTok",    icon: <TikTokIcon size={18} />, href: "#" },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.label}
+                  className="
+                    w-10 h-10 rounded-full
+                    bg-white text-primary
+                    flex items-center justify-center
+                    hover:bg-secondary hover:text-white
+                    transition-all duration-200
+                    shadow-sm
+                  "
+                >
+                  {item.icon}
+                </Link>
+              ))}
+            </div>
+            {/* Desktop: icon + text vertical list */}
+            <ul className="hidden md:flex flex-col gap-3">
+              {[
+                { label: "Instagram", href: "#", icon: <Instagram size={15} /> },
+                { label: "Facebook",  href: "#", icon: <Facebook  size={15} /> },
+                { label: "TikTok",    href: "#", icon: <TikTokIcon size={15} /> },
               ].map((item) => (
                 <li key={item.label}>
                   <Link

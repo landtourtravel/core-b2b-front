@@ -23,7 +23,9 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
 
   const [isForgotOpen, setIsForgotOpen] = useState(false);
-  const [isRequestAccessOpen, setIsRequestAccessOpen] = useState(false);
+  const [isRequestAccessOpen, setIsRequestAccessOpen] = useState(
+    () => searchParams.get("access") === "1"
+  );
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

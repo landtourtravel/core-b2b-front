@@ -20,7 +20,7 @@ export const PackagesSection = () => {
   React.useEffect(() => {
     api.getPackagesDetailed()
       .then(({ data, error }) => {
-        setPackages(data.slice(0, 4));
+        setPackages(data.slice(0, 8));
         setFetchError(error);
       })
       .catch(() => setFetchError("DB_FAIL"))
@@ -80,19 +80,56 @@ export const PackagesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {packages.map((pkg, idx) => (
-            <motion.div
-              key={pkg.id}
-              className="h-full"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08, duration: 0.4 }}
-              viewport={{ once: true }}
-            >
-              <PackageCard {...pkg} onClick={() => { setSelectedPackage(pkg); setIsModalOpen(true); }} />
-            </motion.div>
-          ))}
+        {/* ── Carousel ── */}
+        <div className="relative">
+          {/* Scroll track */}
+          <div
+            className="
+              flex gap-4
+              overflow-x-auto
+              snap-x snap-mandatory
+              pb-4
+              scrollbar-hide
+              -mx-4 px-4
+              md:-mx-6 md:px-6 md:pr-16
+            "
+          >
+            {packages.map((pkg, idx) => (
+              <motion.div
+                key={pkg.id}
+                className="
+                  flex-shrink-0 snap-center
+                  w-[calc(100vw-2rem)]
+                  md:w-72
+                  h-full
+                "
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.06, duration: 0.4 }}
+                viewport={{ once: true }}
+              >
+                <PackageCard
+                  {...pkg}
+                  onClick={() => {
+                    setSelectedPackage(pkg);
+                    setIsModalOpen(true);
+                  }}
+                />
+              </motion.div>
+            ))}
+          </div>
+          {/* Dot indicators */}
+          <div className="flex justify-center gap-1.5 mt-5">
+            {packages.map((pkg) => (
+              <span
+                key={pkg.id}
+                className={`
+                  w-1.5 h-1.5 rounded-full transition-colors duration-300
+                  ${selectedPackage?.id === pkg.id ? "bg-secondary" : "bg-primary/20"}
+                `}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="mt-12 text-center">
