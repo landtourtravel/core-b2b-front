@@ -212,6 +212,13 @@ exports.Prisma.ImagenPaqueteRefScalarFieldEnum = {
   orden: 'orden'
 };
 
+exports.Prisma.TarifaHotelRefScalarFieldEnum = {
+  id: 'id',
+  hotelId: 'hotelId',
+  tipoHabitacion: 'tipoHabitacion',
+  precioBase: 'precioBase'
+};
+
 exports.Prisma.ClienteScalarFieldEnum = {
   id: 'id',
   agenciaId: 'agenciaId',
@@ -307,6 +314,7 @@ exports.Prisma.ModelName = {
   PaqueteTrasladoRef: 'PaqueteTrasladoRef',
   VersionPaqueteRef: 'VersionPaqueteRef',
   ImagenPaqueteRef: 'ImagenPaqueteRef',
+  TarifaHotelRef: 'TarifaHotelRef',
   Cliente: 'Cliente',
   Cotizacion: 'Cotizacion',
   CotizacionDetalle: 'CotizacionDetalle',

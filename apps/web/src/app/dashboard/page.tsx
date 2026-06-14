@@ -42,32 +42,21 @@ import {
   Globe,
 } from "lucide-react";
 
-// ─── Hotel comparison types ────────────────────────────────────────────────────
-interface HotelRates {
-  sgl: number; sglExtra: number;
-  dbl: number; dblExtra: number;
-  tpl: number; tplExtra: number;
-  chd: number; chdExtra: number;
-  quad: number; quadExtra: number;
+// ─── Cotizar-datos API types ──────────────────────────────────────────────────
+interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
+interface CotHotel { id: number; nombre: string; estrellas: number; tarifas: CotHotelTarifa[] }
+interface CotDestino { id: number; ciudad: string; pais: string; hoteles: CotHotel[] }
+interface CotPaqueteVersion { tipoPax: string; numPax: number; precioPorPersona: number | null }
+interface CotPaquete {
+  id: number; nombre: string; diasEstancia: number; nochesBase: number;
+  incluyeBoleto: boolean; destinoCiudad: string; destinoPais: string;
+  versiones: CotPaqueteVersion[];
 }
-interface HotelOption {
-  id: string;
-  name: string;
-  quadEnabled: boolean;
-  rates: HotelRates;
-}
-interface HotelComparison {
-  hotel: HotelOption;
-  subtotal: number;
-  extraNightsCost: number;
-  total: number;
-}
+interface CotizarData { destinos: CotDestino[]; paquetes: CotPaquete[] }
+
 type CotizacionExtended = Cotizacion & {
-  hotelsComparison?: HotelComparison[];
+  hotelsComparison?: Array<{ hotel: { id: string; name: string }; subtotal: number; extraNightsCost: number; total: number }>;
   chosenHotelId?: string;
-  extraNights?: number;
-  adultAirfareInput?: number;
-  childAirfareInput?: number;
 };
 
 // ─── Status style maps (must be at file scope for Tailwind scanning) ──────────
@@ -82,30 +71,6 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
   ENVIADA:   "bg-amber-500",
   APROBADA:  "bg-emerald-500",
   RECHAZADA: "bg-rose-500",
-};
-
-// ─── Panama mock hotels ───────────────────────────────────────────────────────
-const PANAMA_HOTELS: HotelOption[] = [
-  {
-    id: "h1", name: "Ramada Via Argentina / Exe Oriental", quadEnabled: false,
-    rates: { sgl: 559, sglExtra: 79, dbl: 429, dblExtra: 37, tpl: 399, tplExtra: 33, chd: 349, chdExtra: 33, quad: 0, quadExtra: 0 },
-  },
-  {
-    id: "h2", name: "Soloy", quadEnabled: false,
-    rates: { sgl: 569, sglExtra: 82, dbl: 439, dblExtra: 40, tpl: 409, tplExtra: 39, chd: 349, chdExtra: 35, quad: 0, quadExtra: 0 },
-  },
-  {
-    id: "h3", name: "The Executive / El Panama", quadEnabled: true,
-    rates: { sgl: 589, sglExtra: 92, dbl: 449, dblExtra: 45, tpl: 419, tplExtra: 41, chd: 349, chdExtra: 35, quad: 419, quadExtra: 41 },
-  },
-  {
-    id: "h4", name: "Holiday Inn Express", quadEnabled: false,
-    rates: { sgl: 599, sglExtra: 98, dbl: 459, dblExtra: 49, tpl: 429, tplExtra: 45, chd: 349, chdExtra: 35, quad: 0, quadExtra: 0 },
-  },
-];
-const HOTELS_BY_PACKAGE: Record<string, HotelOption[]> = {
-  "1": PANAMA_HOTELS,
-  default: PANAMA_HOTELS,
 };
 
 // ─── T&C static text ──────────────────────────────────────────────────────────
@@ -196,23 +161,36 @@ export default function DashboardPage() {
   const [travelDateFrom,   setTravelDateFrom]   = useState("");
   const [travelDateTo,     setTravelDateTo]     = useState("");
 
-  // Hotels
+  // Hotels (legacy — kept for paquetes tab quick-quote flow)
   const [selectedHotelIds, setSelectedHotelIds] = useState<string[]>([]);
 
-  // Rooms
+  // Rooms (legacy)
   const [cantSGL,  setCantSGL]  = useState(0);
   const [cantDBL,  setCantDBL]  = useState(1);
   const [cantTPL,  setCantTPL]  = useState(0);
   const [cantQUAD, setCantQUAD] = useState(0);
   const [cantCHD,  setCantCHD]  = useState(0);
 
-  // Passengers / services
+  // Passengers / services (legacy)
   const [numPasajeros,  setNumPasajeros]  = useState(0);
   const [childAges,     setChildAges]     = useState<number[]>([]);
   const [childAirfare,  setChildAirfare]  = useState(0);
   const [adultAirfare,  setAdultAirfare]  = useState(0);
   const [extraNights,   setExtraNights]   = useState(0);
   const [agencyMarkup,  setAgencyMarkup]  = useState(100);
+
+  // ── Cotizador dual (nuevo sistema) ──────────────────────────────────────────
+  const [cotMode,             setCotMode]             = useState<"catalogo" | "libre">("catalogo");
+  const [cotizarData,         setCotizarData]         = useState<CotizarData | null>(null);
+  const [cotSelectedPkgId,    setCotSelectedPkgId]    = useState<number | null>(null);
+  const [cotSelectedDestinoId,setCotSelectedDestinoId]= useState<number | null>(null);
+  const [cotSelectedHotelIds, setCotSelectedHotelIds] = useState<number[]>([]);
+  const [cotCustomDias,       setCotCustomDias]       = useState(5);
+  const [cotFechaSalida,      setCotFechaSalida]      = useState("");
+  const [cotNumPersonas,      setCotNumPersonas]      = useState(2);
+  const [cotNumNinos,         setCotNumNinos]         = useState(0);
+  const [cotHabs,             setCotHabs]             = useState<Record<string, number>>({ DBL: 1 });
+  const [cotManualServices,   setCotManualServices]   = useState<Array<{ id: string; descripcion: string; costo: number }>>([]);
 
   // Marca blanca (persiste en localStorage)
   const [agencyLogo,    setAgencyLogo]    = useState<string | null>(null);
@@ -288,60 +266,15 @@ export default function DashboardPage() {
     });
   }, [cantCHD]);
 
+  useEffect(() => {
+    fetch("/api/cotizar-datos")
+      .then((r) => r.json())
+      .then((data: CotizarData) => setCotizarData(data))
+      .catch(() => {});
+  }, []);
+
   // ── Derived ──────────────────────────────────────────────────────────────────
   const selectedPkg = packages.find((p) => String(p.id) === String(selectedPkgId)) ?? packages[0];
-
-  const availableHotels: HotelOption[] =
-    HOTELS_BY_PACKAGE[String(selectedPkgId)] ?? HOTELS_BY_PACKAGE["default"];
-
-  const firstSelectedHotel = availableHotels.find((h) => h.id === selectedHotelIds[0]);
-  const quadEnabled = selectedHotelIds.some(
-    (id) => availableHotels.find((h) => h.id === id)?.quadEnabled === true
-  );
-
-  const effectivePrices = firstSelectedHotel
-    ? { sgl: firstSelectedHotel.rates.sgl, dbl: firstSelectedHotel.rates.dbl,
-        tpl: firstSelectedHotel.rates.tpl, quad: firstSelectedHotel.rates.quad, chd: firstSelectedHotel.rates.chd }
-    : { sgl: selectedPkg?.prices?.sgl || 0, dbl: selectedPkg?.prices?.dbl || 0,
-        tpl: selectedPkg?.prices?.tpl || 0, quad: selectedPkg?.prices?.quad || 0, chd: selectedPkg?.prices?.chd || 0 };
-
-  const computedSubtotal = calcularSubtotal(
-    { cantSGL, cantDBL, cantTPL, cantQUAD: quadEnabled ? cantQUAD : 0, cantCHD },
-    { precioSGL: effectivePrices.sgl, precioDBL: effectivePrices.dbl, precioTPL: effectivePrices.tpl,
-      precioQUAD: effectivePrices.quad, precioCHD: effectivePrices.chd }
-  );
-  const totalAdults     = cantSGL + cantDBL + cantTPL + (quadEnabled ? cantQUAD : 0);
-  const airfareCost     = (selectedPkg as any)?.flightIncluded
-    ? 0
-    : adultAirfare * totalAdults + childAirfare * cantCHD;
-  const extraNightsCost = firstSelectedHotel && extraNights > 0
-    ? extraNights * (
-        cantSGL * firstSelectedHotel.rates.sglExtra +
-        cantDBL * firstSelectedHotel.rates.dblExtra +
-        cantTPL * firstSelectedHotel.rates.tplExtra +
-        (quadEnabled ? cantQUAD * firstSelectedHotel.rates.quadExtra : 0) +
-        cantCHD * firstSelectedHotel.rates.chdExtra
-      )
-    : 0;
-  const computedTotal   = computedSubtotal + airfareCost + extraNightsCost + agencyMarkup;
-  const paxResumen      = resumenPasajeros({ cantSGL, cantDBL, cantTPL, cantQUAD: quadEnabled ? cantQUAD : 0, cantCHD });
-  const totalRoomPax    = cantSGL + cantDBL + cantTPL + (quadEnabled ? cantQUAD : 0) + cantCHD;
-  const showPaxWarning  = numPasajeros > 0 && totalRoomPax > 0 && totalRoomPax !== numPasajeros;
-
-  const roomRows = [
-    { label: "Hab. Sencilla (SGL)", qty: cantSGL,                          price: effectivePrices.sgl  },
-    { label: "Hab. Doble (DBL)",    qty: cantDBL,                          price: effectivePrices.dbl  },
-    { label: "Hab. Triple (TPL)",   qty: cantTPL,                          price: effectivePrices.tpl  },
-    { label: "Cuádruple (QUAD)",    qty: quadEnabled ? cantQUAD : 0,       price: effectivePrices.quad },
-    { label: "Niños 2-11 (CHD)",    qty: cantCHD,                          price: effectivePrices.chd  },
-  ].filter((r) => r.qty > 0);
-
-  const selectedPkgLocation = `${selectedPkg?.location?.city || "Destino"}, ${selectedPkg?.location?.country || ""}`;
-  const selectedPkgDuration = selectedPkg?.duration || `${selectedPkg?.diasEstancia ?? "—"} Días / ${selectedPkg?.nochesBase ?? "—"} Noches`;
-  const selectedPkgDates    = travelDateFrom
-    ? `${travelDateFrom}${travelDateTo ? ` → ${travelDateTo}` : ""}`
-    : "Según disponibilidad";
-  const reservationFee = Math.round((effectivePrices.dbl || selectedPkg?.price || 0) * 0.4);
 
   const packagesByCountry = packages.reduce<Record<string, Package[]>>((acc, pkg) => {
     const c = pkg.location?.country || "Otros";
@@ -349,6 +282,71 @@ export default function DashboardPage() {
     acc[c].push(pkg);
     return acc;
   }, {});
+
+  // ── Cotizador derived ─────────────────────────────────────────────────────────
+  const COT_NUM_PAX: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
+
+  const cotSelectedPkg     = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
+  const cotSelectedDestino = cotizarData?.destinos.find((d) => d.id === cotSelectedDestinoId) ?? null;
+  const cotAvailableHotels = cotSelectedDestino?.hoteles ?? [];
+  const cotPrimaryHotel    = cotAvailableHotels.find((h) => cotSelectedHotelIds.includes(h.id)) ?? null;
+
+  const cotNoches = cotMode === "catalogo"
+    ? (cotSelectedPkg?.nochesBase ?? 0)
+    : Math.max(0, cotCustomDias - 1);
+
+  const cotFechaRetorno = cotFechaSalida
+    ? (() => {
+        const d = new Date(cotFechaSalida + "T00:00:00");
+        d.setDate(d.getDate() + cotCustomDias);
+        return d.toISOString().split("T")[0];
+      })()
+    : "";
+
+  const getCotPrice = (tipoPax: string): number => {
+    if (cotMode === "libre" && cotPrimaryHotel) {
+      return cotPrimaryHotel.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
+    }
+    if (cotMode === "catalogo" && cotSelectedPkg) {
+      return cotSelectedPkg.versiones.find((v) => v.tipoPax === tipoPax)?.precioPorPersona ?? 0;
+    }
+    return 0;
+  };
+
+  const cotSubtotalAlojamiento = Object.entries(cotHabs)
+    .filter(([, qty]) => qty > 0)
+    .reduce((sum, [tipoPax, qty]) => {
+      const precio = getCotPrice(tipoPax);
+      const numPax = COT_NUM_PAX[tipoPax] ?? 1;
+      if (cotMode === "libre") return sum + precio * numPax * qty * cotNoches;
+      return sum + precio * numPax * qty;
+    }, 0);
+
+  const cotManualTotal = cotManualServices.reduce((sum, s) => sum + s.costo, 0);
+  const cotTotal       = cotSubtotalAlojamiento + cotManualTotal + agencyMarkup;
+
+  const cotPaxResumen = Object.entries(cotHabs)
+    .filter(([, qty]) => qty > 0)
+    .map(([tipoPax, qty]) => `${qty} ${tipoPax}`)
+    .join(" + ") || "—";
+
+  const cotTotalRoomPax = Object.entries(cotHabs)
+    .reduce((sum, [tipoPax, qty]) => sum + (COT_NUM_PAX[tipoPax] ?? 1) * qty, 0);
+
+  const cotShowPaxWarning = cotNumPersonas > 0 && cotTotalRoomPax > 0 && cotTotalRoomPax !== cotNumPersonas;
+
+  const cotDestinoCiudad = cotMode === "catalogo"
+    ? (cotSelectedPkg?.destinoCiudad ?? "—")
+    : (cotSelectedDestino?.ciudad ?? "—");
+  const cotDestinoPais = cotMode === "catalogo"
+    ? (cotSelectedPkg?.destinoPais ?? "")
+    : (cotSelectedDestino?.pais ?? "");
+  const cotDuracion = cotMode === "catalogo"
+    ? `${cotSelectedPkg?.diasEstancia ?? "—"} Días / ${cotSelectedPkg?.nochesBase ?? "—"} Noches`
+    : `${cotCustomDias} Días / ${cotNoches} Noches`;
+  const cotFechasDisplay = cotFechaSalida
+    ? `${cotFechaSalida}${cotFechaRetorno ? ` → ${cotFechaRetorno}` : ""}`
+    : "Según disponibilidad";
 
   // KPIs
   const kpiTotal      = cotizaciones.length;
@@ -371,12 +369,23 @@ export default function DashboardPage() {
     setNumPasajeros(0); setCantSGL(0); setCantDBL(1); setCantTPL(0); setCantQUAD(0); setCantCHD(0);
     setChildAges([]); setChildAirfare(0); setAdultAirfare(0); setExtraNights(0);
     setAgencyMarkup(parseInt(defaultMarkup) || 100);
+    // Reset cotizador nuevo
+    setCotMode("catalogo");
+    setCotSelectedPkgId(null);
+    setCotSelectedDestinoId(null);
+    setCotSelectedHotelIds([]);
+    setCotCustomDias(5);
+    setCotFechaSalida("");
+    setCotNumPersonas(2);
+    setCotNumNinos(0);
+    setCotHabs({ DBL: 1 });
+    setCotManualServices([]);
   };
 
   const handleQuickQuote = (pkgId: string) => {
     resetForm();
-    setSelectedPkgId(pkgId);
-    setQuoteLocked(true);
+    setCotMode("catalogo");
+    setCotSelectedPkgId(Number(pkgId));
     setActiveTab("cotizar");
   };
 
@@ -412,126 +421,103 @@ export default function DashboardPage() {
   const handleRechazar = (id: string) => patchCotizacionStatus(id, "RECHAZADA");
 
   const handleSaveProforma = async () => {
-    const selHotels = availableHotels.filter((h) => selectedHotelIds.includes(h.id));
-    const adultsPax = cantSGL + cantDBL + cantTPL + (quadEnabled ? cantQUAD : 0);
+    let paqueteId: number | null = null;
+    let paqueteNombre = "";
+    let paqueteDestino = "";
+    let paqueteDuracion = "";
+    let paqueteIncluye: string[] = cotManualServices.map((s) => s.descripcion).filter(Boolean);
+    let incluyeBoleto = false;
 
-    const hotelsComparison: HotelComparison[] = selHotels.map((hotel) => {
-      const sub =
-        cantSGL * hotel.rates.sgl +
-        cantDBL * hotel.rates.dbl +
-        cantTPL * hotel.rates.tpl +
-        (hotel.quadEnabled ? cantQUAD * hotel.rates.quad : 0) +
-        cantCHD * hotel.rates.chd +
-        ((selectedPkg as any).flightIncluded ? 0 : adultAirfare * adultsPax + childAirfare * cantCHD);
-      const extNightsCost = extraNights > 0 ? extraNights * (
-        cantSGL * hotel.rates.sglExtra +
-        cantDBL * hotel.rates.dblExtra +
-        cantTPL * hotel.rates.tplExtra +
-        (hotel.quadEnabled ? cantQUAD * hotel.rates.quadExtra : 0) +
-        cantCHD * hotel.rates.chdExtra
-      ) : 0;
-      return { hotel, subtotal: sub, extraNightsCost: extNightsCost, total: sub + extNightsCost + agencyMarkup };
-    });
+    if (cotMode === "catalogo" && cotSelectedPkg) {
+      paqueteId       = cotSelectedPkg.id;
+      paqueteNombre   = cotSelectedPkg.nombre;
+      paqueteDestino  = `${cotSelectedPkg.destinoCiudad}, ${cotSelectedPkg.destinoPais}`;
+      paqueteDuracion = `${cotSelectedPkg.diasEstancia} Días / ${cotSelectedPkg.nochesBase} Noches`;
+      incluyeBoleto   = cotSelectedPkg.incluyeBoleto;
+    } else if (cotMode === "libre" && cotSelectedDestino) {
+      paqueteNombre   = `Cotización Libre — ${cotSelectedDestino.ciudad}`;
+      paqueteDestino  = `${cotSelectedDestino.ciudad}, ${cotSelectedDestino.pais}`;
+      paqueteDuracion = `${cotCustomDias} Días / ${cotNoches} Noches`;
+    }
 
     const now    = new Date();
     const fecha  = now.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
     const cliId  = `cli-${Date.now()}`;
     const codigo = `PRF-${now.getFullYear()}-${String(cotizaciones.length + 1).padStart(3, "0")}`;
-    const first  = hotelsComparison[0];
+    const notasStr = cotManualServices.length > 0
+      ? cotManualServices.map((s) => `${s.descripcion}: $${s.costo}`).join("; ")
+      : undefined;
 
     const newCot: CotizacionExtended = {
       id: `cot-${Date.now()}`,
       codigo,
-      agenciaId: "agencia-andina",
+      agenciaId:   "agencia-andina",
       creadoPorId: "user-session",
-      paqueteId: Number(selectedPkgId) || 1,
+      paqueteId:   paqueteId ?? 0,
       clienteId: cliId,
       cliente: {
         id: cliId, agenciaId: "agencia-andina",
-        nombre: clientName || "Sin nombre",
-        email: clientEmail || undefined,
-        telefono: clientPhone || undefined,
-        documento: clientId || undefined,
+        nombre:    clientName  || "Sin nombre",
+        email:     clientEmail || undefined,
+        telefono:  clientPhone || undefined,
+        documento: clientId    || undefined,
         direccion: clientAddress || undefined,
       },
-      paqueteNombre:   selectedPkg?.title ?? "",
-      paqueteDuracion: selectedPkgDuration,
-      paqueteDestino:  selectedPkgLocation,
-      paqueteIncluye:  selectedPkg?.includes || [],
-      incluyeBoleto:   (selectedPkg as any)?.flightIncluded || adultAirfare > 0,
-      pasajeros: { cantSGL, cantDBL, cantTPL, cantQUAD: quadEnabled ? cantQUAD : 0, cantCHD },
-      precios: {
-        precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg?.prices?.sgl  || 0,
-        precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg?.prices?.dbl  || 0,
-        precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg?.prices?.tpl  || 0,
-        precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg?.prices?.quad || 0,
-        precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg?.prices?.chd  || 0,
+      paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+      pasajeros: {
+        cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
+        cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotHabs.CHD  ?? 0,
       },
-      subtotal: first?.subtotal ?? computedSubtotal,
-      markup:   agencyMarkup,
-      total:    first?.total    ?? computedTotal,
-      fechaViaje:    selectedPkgDates,
+      precios: {
+        precioSGL:  getCotPrice("SGL"),  precioDBL:  getCotPrice("DBL"),
+        precioTPL:  getCotPrice("TPL"),  precioQUAD: getCotPrice("QUAD"), precioCHD: getCotPrice("CHD"),
+      },
+      subtotal:      cotSubtotalAlojamiento,
+      markup:        agencyMarkup,
+      total:         cotTotal,
+      fechaViaje:    cotFechaSalida || undefined,
       status:        "BORRADOR",
-      notas:         selHotels.length > 0 ? `Proforma: ${selHotels.map((h) => h.name).join(", ")}` : undefined,
+      notas:         notasStr,
       fechaCreacion: fecha,
-      hotelsComparison:   selHotels.length > 0 ? hotelsComparison : undefined,
-      extraNights,
-      adultAirfareInput:  adultAirfare,
-      childAirfareInput:  childAirfare,
     };
 
-    // Actualización optimista de la UI
     setCotizaciones((prev) => [newCot, ...prev]);
     setActiveTab("cotizaciones");
     resetForm();
 
-    // Persistencia en BD (en paralelo, sin bloquear la UI)
     try {
-      // 1. Crear/buscar cliente
       const clientRes = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre:    clientName || "Sin nombre",
+          nombre:    clientName  || "Sin nombre",
           email:     clientEmail || undefined,
           telefono:  clientPhone || undefined,
-          documento: clientId   || undefined,
+          documento: clientId    || undefined,
           direccion: clientAddress || undefined,
         }),
       });
       const clientData = clientRes.ok ? await clientRes.json() : null;
       if (!clientData?.id) return;
 
-      // 2. Crear cotización
       const cotRes = await fetch("/api/cotizaciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clienteId:       clientData.id,
-          paqueteId:       Number(selectedPkgId) || 1,
-          paqueteNombre:   selectedPkg?.title ?? "",
-          paqueteDuracion: selectedPkgDuration,
-          paqueteDestino:  selectedPkgLocation,
-          paqueteIncluye:  selectedPkg?.includes || [],
-          incluyeBoleto:   (selectedPkg as any)?.flightIncluded || adultAirfare > 0,
-          cantSGL, cantDBL, cantTPL,
-          cantQUAD: quadEnabled ? cantQUAD : 0,
-          cantCHD,
-          precioSGL:  firstSelectedHotel?.rates.sgl  || selectedPkg?.prices?.sgl  || 0,
-          precioDBL:  firstSelectedHotel?.rates.dbl  || selectedPkg?.prices?.dbl  || 0,
-          precioTPL:  firstSelectedHotel?.rates.tpl  || selectedPkg?.prices?.tpl  || 0,
-          precioQUAD: firstSelectedHotel?.rates.quad || selectedPkg?.prices?.quad || 0,
-          precioCHD:  firstSelectedHotel?.rates.chd  || selectedPkg?.prices?.chd  || 0,
-          subtotal: first?.subtotal ?? computedSubtotal,
-          markup:   agencyMarkup,
-          total:    first?.total    ?? computedTotal,
-          fechaViaje: travelDateFrom || null,
-          notas: selHotels.length > 0 ? `Proforma: ${selHotels.map((h) => h.name).join(", ")}` : undefined,
+          clienteId: clientData.id, paqueteId,
+          paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+          cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
+          cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotHabs.CHD  ?? 0,
+          precioSGL:  getCotPrice("SGL"),  precioDBL:  getCotPrice("DBL"),
+          precioTPL:  getCotPrice("TPL"),  precioQUAD: getCotPrice("QUAD"), precioCHD: getCotPrice("CHD"),
+          subtotal: cotSubtotalAlojamiento, markup: agencyMarkup, total: cotTotal,
+          fechaViaje:   cotFechaSalida   || null,
+          fechaRetorno: cotFechaRetorno  || null,
+          notas: notasStr,
         }),
       });
       if (cotRes.ok) {
         const saved = await cotRes.json();
-        // Reemplazar el ID temporal con el ID real de BD
         setCotizaciones((prev) =>
           prev.map((c) => c.id === newCot.id ? { ...c, id: saved.id, codigo: saved.codigo } : c)
         );
@@ -944,39 +930,12 @@ export default function DashboardPage() {
           {activeTab === "cotizar" && (
             <div className="space-y-6 animate-fade-scale">
 
-              {/* Sin paquetes disponibles */}
-              {(isLoadingPackages || !selectedPkg) && (
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-20 gap-4 text-center px-6">
-                  {isLoadingPackages ? (
-                    <>
-                      <div className="w-9 h-9 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-                      <p className="text-primary/50 font-bold text-sm">Cargando paquetes disponibles...</p>
-                    </>
-                  ) : packagesFetchError === "DB_FAIL" ? (
-                    <>
-                      <AlertCircle size={32} className="text-amber-400" />
-                      <p className="text-primary/70 font-bold text-sm">No se pudo conectar con la base de datos.</p>
-                      <p className="text-primary/40 text-xs font-semibold">Verifica la conexión e intenta recargar la página.</p>
-                    </>
-                  ) : (
-                    <>
-                      <Globe size={32} className="text-primary/20" />
-                      <p className="text-primary/60 font-bold text-sm">No hay paquetes creados aún.</p>
-                      <p className="text-primary/35 text-xs font-semibold">El administrador debe crear los paquetes desde el panel.</p>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Contenido del cotizador — solo si hay paquetes */}
-              {!isLoadingPackages && selectedPkg && (<>
-
               {/* Stepper progress */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center justify-center max-w-2xl mx-auto">
                   {[
                     { s: 1, label: "Cliente" },
-                    { s: 2, label: "Paquete & Hotel" },
+                    { s: 2, label: "Configuración" },
                     { s: 3, label: "Habitaciones" },
                     { s: 4, label: "Revisión" },
                   ].map((si, i, arr) => {
@@ -1057,170 +1016,205 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {/* ── PASO 2: PAQUETE & HOTEL ── */}
+                  {/* ── PASO 2: CONFIGURACIÓN DEL VIAJE ── */}
                   {step === 2 && (
                     <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
                       <div className="border-b border-gray-50 pb-4 flex justify-between items-center">
                         <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Paquete & Hotel
+                          <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Configuración del Viaje
                         </h3>
                         <span className="text-[10px] font-black uppercase tracking-wider text-secondary">Paso 2 de 4</span>
                       </div>
 
-                      {/* Package section */}
-                      <div className="space-y-3">
-                        <label className={labelCls}>Programa Turístico *</label>
+                      {/* Selector de modo */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {([
+                          { mode: "catalogo" as const, label: "Catálogo DB", desc: "Paquetes con precios del catálogo", icon: <Compass size={18} /> },
+                          { mode: "libre" as const,    label: "Cotización Libre", desc: "Selecciona destino y hotel manualmente", icon: <Globe size={18} /> },
+                        ] as const).map(({ mode, label, desc, icon }) => (
+                          <button
+                            key={mode} type="button" onClick={() => setCotMode(mode)}
+                            className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${cotMode === mode ? "border-secondary bg-secondary/5" : "border-gray-100 hover:border-secondary/30 hover:bg-light/40"}`}
+                          >
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2 ${cotMode === mode ? "bg-secondary text-primary" : "bg-light text-primary/50"}`}>{icon}</div>
+                            <p className="text-xs font-black text-primary">{label}</p>
+                            <p className="text-[10px] text-primary/40 font-bold mt-0.5">{desc}</p>
+                          </button>
+                        ))}
+                      </div>
 
-                        {quoteLocked ? (
-                          /* Locked: show read-only package badge */
-                          <div className="flex items-start gap-3 p-4 bg-secondary/5 border border-secondary/20 rounded-2xl">
-                            <div className="w-8 h-8 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
-                              <Compass size={14} className="text-secondary" />
+                      {/* Modo Catálogo */}
+                      {cotMode === "catalogo" && (
+                        <div className="space-y-4">
+                          <label className={labelCls}>Programa Turístico *</label>
+                          {cotizarData === null ? (
+                            <div className="flex items-center gap-2 py-4 text-primary/40 text-xs font-bold">
+                              <div className="w-4 h-4 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+                              Cargando paquetes...
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-xs font-black text-primary">{selectedPkg?.title}</p>
-                              <p className="text-[10px] text-primary/50 font-bold mt-0.5">
-                                {selectedPkgLocation} · {selectedPkgDuration}
-                              </p>
+                          ) : cotizarData.paquetes.length === 0 ? (
+                            <div className="py-8 text-center">
+                              <Globe size={24} className="text-primary/20 mx-auto mb-2" />
+                              <p className="text-primary/50 font-bold text-xs">No hay paquetes en la base de datos.</p>
                             </div>
-                            <span className="ml-auto px-2 py-0.5 bg-secondary text-primary text-[9px] font-black rounded-md shrink-0">Seleccionado</span>
-                          </div>
-                        ) : packagesFetchError === "DB_FAIL" ? (
-                          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center rounded-2xl border border-amber-100 bg-amber-50/40">
-                            <AlertCircle size={24} className="text-amber-400" />
-                            <p className="text-primary/60 font-bold text-xs">Conexión a DB fallida — no se pudieron cargar los paquetes.</p>
-                          </div>
-                        ) : packagesFetchError === "EMPTY" || packages.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center rounded-2xl border border-gray-100 bg-light/40">
-                            <Globe size={24} className="text-primary/20" />
-                            <p className="text-primary/50 font-bold text-xs">No hay paquetes creados en la base de datos.</p>
-                            <p className="text-primary/30 text-[10px]">El administrador debe crear los paquetes desde el panel.</p>
-                          </div>
-                        ) : (
-                          /* Accordion by destination country */
-                          <div className="space-y-2">
-                            {Object.entries(packagesByCountry).map(([country, pkgs]) => (
-                              <div key={country} className="border border-gray-100 rounded-2xl overflow-hidden">
-                                <button
-                                  onClick={() => setExpandedCountry(expandedCountry === country ? null : country)}
-                                  className="w-full flex items-center justify-between px-5 py-3.5 bg-light hover:bg-secondary/5 transition-all cursor-pointer"
-                                >
-                                  <div className="flex items-center gap-2.5">
-                                    <Globe size={13} className="text-secondary" />
-                                    <span className="text-xs font-black text-primary uppercase tracking-wider">{country}</span>
-                                    <span className="px-2 py-0.5 bg-secondary/15 text-secondary text-[9px] font-black rounded-md">
-                                      {pkgs.length} programa{pkgs.length > 1 ? "s" : ""}
-                                    </span>
-                                  </div>
-                                  {expandedCountry === country ? <ChevronUp size={14} className="text-primary/40" /> : <ChevronDown size={14} className="text-primary/40" />}
-                                </button>
-                                {expandedCountry === country && (
-                                  <div className="divide-y divide-gray-50 bg-white">
-                                    {pkgs.map((pkg) => {
-                                      const isSelected = String(pkg.id) === String(selectedPkgId);
-                                      return (
-                                        <div key={pkg.id} className={`flex items-center justify-between px-5 py-3.5 transition-colors ${isSelected ? "bg-secondary/5 border-l-2 border-secondary" : "hover:bg-light/50"}`}>
-                                          <div className="min-w-0">
-                                            <p className="text-xs font-black text-primary truncate">{pkg.title}</p>
-                                            <p className="text-[10px] text-primary/40 font-bold mt-0.5">
-                                              {pkg.duration || `${pkg.diasEstancia}d / ${pkg.nochesBase}n`} · Desde ${pkg.price} USD
-                                            </p>
+                          ) : (
+                            <div className="space-y-2">
+                              {Object.entries(
+                                cotizarData.paquetes.reduce<Record<string, CotPaquete[]>>((acc, p) => {
+                                  const key = p.destinoPais || "Otros";
+                                  if (!acc[key]) acc[key] = [];
+                                  acc[key].push(p);
+                                  return acc;
+                                }, {})
+                              ).map(([pais, pkgs]) => (
+                                <div key={pais} className="border border-gray-100 rounded-2xl overflow-hidden">
+                                  <button
+                                    onClick={() => setExpandedCountry(expandedCountry === pais ? null : pais)}
+                                    className="w-full flex items-center justify-between px-5 py-3.5 bg-light hover:bg-secondary/5 transition-all cursor-pointer"
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <Globe size={13} className="text-secondary" />
+                                      <span className="text-xs font-black text-primary uppercase tracking-wider">{pais}</span>
+                                      <span className="px-2 py-0.5 bg-secondary/15 text-secondary text-[9px] font-black rounded-md">{pkgs.length} prog.</span>
+                                    </div>
+                                    {expandedCountry === pais ? <ChevronUp size={14} className="text-primary/40" /> : <ChevronDown size={14} className="text-primary/40" />}
+                                  </button>
+                                  {expandedCountry === pais && (
+                                    <div className="divide-y divide-gray-50 bg-white">
+                                      {pkgs.map((pkg) => {
+                                        const isSel = cotSelectedPkgId === pkg.id;
+                                        return (
+                                          <div key={pkg.id} className={`flex items-center justify-between px-5 py-3.5 transition-colors ${isSel ? "bg-secondary/5 border-l-2 border-secondary" : "hover:bg-light/50"}`}>
+                                            <div className="min-w-0">
+                                              <p className="text-xs font-black text-primary truncate">{pkg.nombre}</p>
+                                              <p className="text-[10px] text-primary/40 font-bold mt-0.5">{pkg.destinoCiudad} · {pkg.diasEstancia}d / {pkg.nochesBase}n</p>
+                                            </div>
+                                            <button
+                                              onClick={() => setCotSelectedPkgId(pkg.id)}
+                                              className={`ml-4 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer shrink-0 ${isSel ? "bg-secondary text-primary" : "bg-light border border-lighter text-primary/60 hover:border-secondary/30 hover:text-secondary"}`}
+                                            >
+                                              {isSel ? "✓ Seleccionado" : "Seleccionar"}
+                                            </button>
                                           </div>
-                                          <button
-                                            onClick={() => setSelectedPkgId(String(pkg.id))}
-                                            className={`ml-4 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer shrink-0 ${
-                                              isSelected
-                                                ? "bg-secondary text-primary"
-                                                : "bg-light border border-lighter text-primary/60 hover:border-secondary/30 hover:text-secondary"
-                                            }`}
-                                          >
-                                            {isSelected ? "✓ Seleccionado" : "Seleccionar"}
-                                          </button>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Fechas */}
+                          <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div className="space-y-1.5">
+                              <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Salida</label>
+                              <input type="date" value={cotFechaSalida} onChange={(e) => setCotFechaSalida(e.target.value)} className={inputCls} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
+                              <input type="text" disabled value={cotFechaRetorno || "Calculada automáticamente"} className={inputDisabledCls} />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Modo Libre */}
+                      {cotMode === "libre" && (
+                        <div className="space-y-4">
+                          <div className="space-y-1.5">
+                            <label className={labelCls}>Destino *</label>
+                            {cotizarData === null ? (
+                              <div className="flex items-center gap-2 py-3 text-primary/40 text-xs font-bold">
+                                <div className="w-4 h-4 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+                                Cargando destinos...
+                              </div>
+                            ) : (
+                              <select
+                                value={cotSelectedDestinoId ?? ""}
+                                onChange={(e) => { setCotSelectedDestinoId(Number(e.target.value) || null); setCotSelectedHotelIds([]); }}
+                                className={inputCls}
+                              >
+                                <option value="">Seleccionar destino...</option>
+                                {cotizarData.destinos.map((d) => (
+                                  <option key={d.id} value={d.id}>{d.ciudad}, {d.pais}</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                              <label className={labelCls}>Cantidad de Días</label>
+                              <input type="number" min={2} max={30} value={cotCustomDias} onChange={(e) => setCotCustomDias(Math.max(2, Number(e.target.value)))} className={inputCls} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className={labelCls}>Noches (calculado)</label>
+                              <input type="text" disabled value={`${cotNoches} noches`} className={inputDisabledCls} />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                              <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Salida</label>
+                              <input type="date" value={cotFechaSalida} onChange={(e) => setCotFechaSalida(e.target.value)} className={inputCls} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
+                              <input type="text" disabled value={cotFechaRetorno || "—"} className={inputDisabledCls} />
+                            </div>
+                          </div>
+                          {cotSelectedDestino && (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className={labelCls}>Hoteles del Destino (máx. 4)</label>
+                                {cotSelectedHotelIds.length > 0 && (
+                                  <span className="px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg border border-secondary/20">
+                                    {cotSelectedHotelIds.length} seleccionado{cotSelectedHotelIds.length > 1 ? "s" : ""}
+                                  </span>
                                 )}
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Dates */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Salida</label>
-                          {quoteLocked ? (
-                            <input type="text" disabled value="Según disponibilidad" className={inputDisabledCls} />
-                          ) : (
-                            <input type="date" value={travelDateFrom} onChange={(e) => setTravelDateFrom(e.target.value)} className={inputCls} />
+                              <div className="space-y-2">
+                                {cotAvailableHotels.map((hotel) => {
+                                  const checked  = cotSelectedHotelIds.includes(hotel.id);
+                                  const disabled = !checked && cotSelectedHotelIds.length >= 4;
+                                  const dblRate  = hotel.tarifas.find((t) => t.tipoHabitacion === "DBL")?.precioBase ?? 0;
+                                  const sglRate  = hotel.tarifas.find((t) => t.tipoHabitacion === "SGL")?.precioBase ?? 0;
+                                  return (
+                                    <button
+                                      key={hotel.id} type="button"
+                                      onClick={() => {
+                                        if (disabled) return;
+                                        setCotSelectedHotelIds((prev) =>
+                                          prev.includes(hotel.id) ? prev.filter((id) => id !== hotel.id) : [...prev, hotel.id]
+                                        );
+                                      }}
+                                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left cursor-pointer ${checked ? "border-secondary bg-secondary/5 shadow-sm" : disabled ? "border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed" : "border-gray-100 hover:border-secondary/40 hover:bg-light/60"}`}
+                                    >
+                                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
+                                        {checked && <Check size={11} className="text-primary stroke-[3]" />}
+                                      </div>
+                                      <div className="flex-grow min-w-0">
+                                        <p className="text-xs font-black text-primary">{hotel.nombre}</p>
+                                        <p className="text-[10px] text-primary/40 font-bold mt-0.5">{"★".repeat(hotel.estrellas)} · DBL ${dblRate}/noche · SGL ${sglRate}/noche</p>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {cotSelectedHotelIds.length === 0 && (
+                                <p className="text-[10px] text-amber-600 font-bold flex items-center gap-1.5"><AlertCircle size={11} /> Selecciona al menos un hotel para continuar.</p>
+                              )}
+                            </div>
                           )}
                         </div>
-                        <div className="space-y-1.5">
-                          <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
-                          {quoteLocked ? (
-                            <input type="text" disabled value="Según disponibilidad" className={inputDisabledCls} />
-                          ) : (
-                            <input type="date" value={travelDateTo} onChange={(e) => setTravelDateTo(e.target.value)} className={inputCls} />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Hotel selection */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className={labelCls}>Hoteles para Comparar (máx. 4)</label>
-                          {selectedHotelIds.length > 0 && (
-                            <span className="px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg border border-secondary/20">
-                              {selectedHotelIds.length} seleccionado{selectedHotelIds.length > 1 ? "s" : ""}
-                            </span>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          {availableHotels.map((hotel) => {
-                            const checked  = selectedHotelIds.includes(hotel.id);
-                            const disabled = !checked && selectedHotelIds.length >= 4;
-                            return (
-                              <button
-                                key={hotel.id}
-                                type="button"
-                                onClick={() => !disabled && handleHotelToggle(hotel.id)}
-                                className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left cursor-pointer ${
-                                  checked  ? "border-secondary bg-secondary/5 shadow-sm"
-                                  : disabled ? "border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed"
-                                  : "border-gray-100 hover:border-secondary/40 hover:bg-light/60"
-                                }`}
-                              >
-                                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
-                                  {checked && <Check size={11} className="text-primary stroke-[3]" />}
-                                </div>
-                                <div className="flex-grow min-w-0">
-                                  <p className="text-xs font-black text-primary">{hotel.name}</p>
-                                  <p className="text-[10px] text-primary/40 font-bold mt-0.5">
-                                    DBL ${hotel.rates.dbl} · TPL ${hotel.rates.tpl} · SGL ${hotel.rates.sgl}
-                                    {hotel.quadEnabled ? ` · QUAD $${hotel.rates.quad}` : " · Sin QUAD"}
-                                  </p>
-                                </div>
-                                {hotel.quadEnabled && (
-                                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-md shrink-0">QUAD ✓</span>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {selectedHotelIds.length === 0 && (
-                          <p className="text-[10px] text-amber-600 font-bold flex items-center gap-1.5">
-                            <AlertCircle size={11} /> Selecciona al menos un hotel para continuar.
-                          </p>
-                        )}
-                      </div>
+                      )}
 
                       <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                         <button onClick={() => setStep(1)} className="px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer">Atrás</button>
                         <button
-                          onClick={() => selectedHotelIds.length > 0 && setStep(3)}
-                          disabled={selectedHotelIds.length === 0}
+                          onClick={() => {
+                            const ok = cotMode === "catalogo" ? cotSelectedPkgId !== null : cotSelectedHotelIds.length > 0;
+                            if (ok) setStep(3);
+                          }}
+                          disabled={cotMode === "catalogo" ? cotSelectedPkgId === null : cotSelectedHotelIds.length === 0}
                           className="px-6 py-3 bg-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
                         >
                           Siguiente Paso <ChevronRight size={14} />
@@ -1239,147 +1233,114 @@ export default function DashboardPage() {
                         <span className="text-[10px] font-black uppercase tracking-wider text-secondary">Paso 3 de 4</span>
                       </div>
 
-                      {/* Hotel selected badges */}
-                      {selectedHotelIds.length > 0 && (
+                      {cotSelectedHotelIds.length > 0 && cotAvailableHotels.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                          {availableHotels.filter((h) => selectedHotelIds.includes(h.id)).map((h) => (
+                          {cotAvailableHotels.filter((h) => cotSelectedHotelIds.includes(h.id)).map((h) => (
                             <span key={h.id} className="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg border border-secondary/20 flex items-center gap-1.5">
-                              <Building2 size={10} /> {h.name}
+                              <Building2 size={10} /> {h.nombre}
                             </span>
                           ))}
                         </div>
                       )}
 
-                      {/* numPasajeros */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className={labelCls}>Total de Pasajeros</label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="number" min={1} max={50}
-                              value={numPasajeros || ""}
-                              onChange={(e) => handleNumPasajerosChange(Number(e.target.value))}
-                              placeholder="Ej. 5"
-                              className={`${inputCls} w-28`}
-                            />
-                            {numPasajeros === 5 && (
-                              <span className="text-[10px] text-secondary font-black">Auto-distribuido: 2 DBL + 3 TPL</span>
-                            )}
-                          </div>
+                          <label className={labelCls}>Total de Adultos</label>
+                          <input type="number" min={1} max={50} value={cotNumPersonas || ""} onChange={(e) => setCotNumPersonas(Number(e.target.value))} placeholder="Ej. 4" className={`${inputCls} w-28`} />
                         </div>
-                        {paxResumen !== "—" && (
-                          <div className="space-y-1.5">
-                            <label className={labelCls}>Distribución Actual</label>
-                            <div className="px-4 py-3 bg-secondary/5 border border-secondary/15 rounded-2xl text-xs font-black text-secondary">
-                              {paxResumen}
-                            </div>
-                          </div>
-                        )}
+                        <div className="space-y-1.5">
+                          <label className={labelCls}>Distribución Actual</label>
+                          <div className="px-4 py-3 bg-secondary/5 border border-secondary/15 rounded-2xl text-xs font-black text-secondary">{cotPaxResumen}</div>
+                        </div>
                       </div>
 
-                      {showPaxWarning && (
+                      {cotShowPaxWarning && (
                         <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-2xl text-amber-700 text-[10px] font-bold">
                           <AlertCircle size={13} className="shrink-0" />
-                          El total de habitaciones ({totalRoomPax} pax) no coincide con los pasajeros declarados ({numPasajeros}).
+                          Pax en habitaciones ({cotTotalRoomPax}) no coincide con pasajeros declarados ({cotNumPersonas}).
                         </div>
                       )}
 
-                      {/* Room counters */}
                       <div className="space-y-2">
                         <label className={labelCls}>Distribución por Tipo de Habitación *</label>
-                        <p className="text-[10px] text-primary/40 font-bold -mt-1">
-                          Precios basados en: {firstSelectedHotel?.name ?? "tarifa del paquete"}
-                        </p>
+                        {cotPrimaryHotel && (
+                          <p className="text-[10px] text-primary/40 font-bold -mt-1">
+                            Tarifas: {cotPrimaryHotel.nombre}{cotMode === "libre" ? ` · ${cotNoches} noches` : ""}
+                          </p>
+                        )}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {[
-                            { label: "Sencilla (SGL)", desc: `$${effectivePrices.sgl}/p`, count: cantSGL,  setter: setCantSGL,  avail: true },
-                            { label: "Doble (DBL)",    desc: `$${effectivePrices.dbl}/p`, count: cantDBL,  setter: setCantDBL,  avail: true },
-                            { label: "Triple (TPL)",   desc: `$${effectivePrices.tpl}/p`, count: cantTPL,  setter: setCantTPL,  avail: true },
-                            { label: "Cuádruple (QUAD)", desc: quadEnabled ? `$${effectivePrices.quad}/p` : "No disponible", count: cantQUAD, setter: setCantQUAD, avail: quadEnabled },
-                            { label: "Niños 2-11 (CHD)", desc: `$${effectivePrices.chd}/p`, count: cantCHD, setter: setCantCHD, avail: true },
-                          ].map((room, idx) => (
-                            <div key={idx} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${room.avail ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-50"}`}>
-                              <div className="space-y-0.5 min-w-0">
-                                <span className="text-xs font-black text-primary block">{room.label}</span>
-                                <span className="text-[10px] font-bold text-secondary block">{room.desc}</span>
+                          {([
+                            { tipoPax: "SGL",  label: "Sencilla (SGL)",   numPax: 1 },
+                            { tipoPax: "DBL",  label: "Doble (DBL)",      numPax: 2 },
+                            { tipoPax: "TPL",  label: "Triple (TPL)",     numPax: 3 },
+                            { tipoPax: "QUAD", label: "Cuádruple (QUAD)", numPax: 4 },
+                            { tipoPax: "CHD",  label: "Niños 2-11 (CHD)", numPax: 1 },
+                          ] as const).map(({ tipoPax, label }) => {
+                            const precio = getCotPrice(tipoPax);
+                            const qty    = cotHabs[tipoPax] ?? 0;
+                            const tarifaLabel = precio > 0 ? `$${precio}/p${cotMode === "libre" ? "/noche" : ""}` : "Sin tarifa";
+                            return (
+                              <div key={tipoPax} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${precio > 0 || qty > 0 ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-60"}`}>
+                                <div className="space-y-0.5 min-w-0">
+                                  <span className="text-xs font-black text-primary block">{label}</span>
+                                  <span className={`text-[10px] font-bold block ${precio > 0 ? "text-secondary" : "text-primary/30"}`}>{tarifaLabel}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0 ml-4">
+                                  <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: Math.max(0, (prev[tipoPax] ?? 0) - 1) }))} disabled={qty === 0} className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                                    <Minus size={12} />
+                                  </button>
+                                  <span className="w-6 text-center font-black text-sm text-primary">{qty}</span>
+                                  <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: (prev[tipoPax] ?? 0) + 1 }))} className="w-7 h-7 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm">
+                                    <Plus size={12} />
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2 shrink-0 ml-4">
-                                <button type="button" onClick={() => room.setter(Math.max(0, room.count - 1))} disabled={!room.avail || room.count === 0} className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
-                                  <Minus size={12} />
-                                </button>
-                                <span className="w-6 text-center font-black text-sm text-primary">{room.count}</span>
-                                <button type="button" onClick={() => room.avail && room.setter(room.count + 1)} disabled={!room.avail} className="w-7 h-7 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed">
-                                  <Plus size={12} />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
 
-                      {/* Child ages */}
-                      {cantCHD > 0 && (
-                        <div className="space-y-3 p-4 bg-light border border-lighter rounded-2xl">
-                          <label className={labelCls}>Edades de los Niños (2–11 años)</label>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {childAges.map((age, i) => (
-                              <div key={i} className="space-y-1">
-                                <label className="text-[9px] font-black text-primary/40 uppercase">Niño {i + 1}</label>
-                                <input
-                                  type="number" min={2} max={11} value={age}
-                                  onChange={(e) => handleChildAgeChange(i, Number(e.target.value))}
-                                  className={`${inputCls} py-2`}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className={labelCls}>Servicios Adicionales</label>
+                          <button
+                            type="button"
+                            onClick={() => setCotManualServices((prev) => [...prev, { id: `svc-${Date.now()}`, descripcion: "", costo: 0 }])}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-secondary/20 transition-all cursor-pointer"
+                          >
+                            <Plus size={11} /> Agregar Servicio
+                          </button>
+                        </div>
+                        {cotManualServices.length > 0 && (
+                          <div className="space-y-2">
+                            {cotManualServices.map((svc) => (
+                              <div key={svc.id} className="flex items-center gap-2 p-3 bg-light border border-lighter rounded-2xl">
+                                <input type="text" placeholder="Descripción del servicio..." value={svc.descripcion}
+                                  onChange={(e) => setCotManualServices((prev) => prev.map((s) => s.id === svc.id ? { ...s, descripcion: e.target.value } : s))}
+                                  className="flex-1 px-3 py-2 bg-white border border-lighter text-primary rounded-xl text-xs font-bold outline-none focus:border-secondary transition-all"
                                 />
+                                <div className="relative shrink-0">
+                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30 text-xs font-black">$</span>
+                                  <input type="number" min={0} placeholder="0" value={svc.costo || ""}
+                                    onChange={(e) => setCotManualServices((prev) => prev.map((s) => s.id === svc.id ? { ...s, costo: Number(e.target.value) } : s))}
+                                    className="w-24 pl-6 pr-3 py-2 bg-white border border-lighter text-primary rounded-xl text-xs font-bold outline-none focus:border-secondary transition-all"
+                                  />
+                                </div>
+                                <button type="button" onClick={() => setCotManualServices((prev) => prev.filter((s) => s.id !== svc.id))} className="p-1.5 bg-rose-50 text-rose-400 hover:bg-rose-100 rounded-lg transition-all cursor-pointer shrink-0">
+                                  <X size={12} />
+                                </button>
                               </div>
                             ))}
                           </div>
-                          <div className="space-y-1.5 pt-2 border-t border-lighter">
-                            <label className={labelCls}>Tarifa Aérea Niño (opcional, por niño USD)</label>
-                            <input type="number" min={0} value={childAirfare || ""} onChange={(e) => setChildAirfare(Number(e.target.value))} placeholder="Ej. 280" className={inputCls} />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Adult airfare or flight included badge */}
-                      <div className="space-y-1.5">
-                        <label className={`${labelCls} flex items-center gap-1.5`}><Plane size={10} /> Tarifa Aérea Adulto</label>
-                        {(selectedPkg as any).flightIncluded ? (
-                          <div className="flex items-center gap-2.5 px-4 py-3 bg-secondary/5 border border-secondary/20 rounded-2xl">
-                            <Plane size={13} className="text-secondary" />
-                            <span className="text-xs font-black text-secondary">Vuelo Incluido por Land Tour Travel</span>
-                          </div>
-                        ) : (
-                          <input type="number" min={0} value={adultAirfare || ""} onChange={(e) => setAdultAirfare(Number(e.target.value))} placeholder="USD por adulto (dejar en 0 si no aplica)" className={inputCls} />
                         )}
                       </div>
 
-                      {/* Extra nights */}
-                      <div className="space-y-2">
-                        <label className={labelCls}>Noches Adicionales</label>
-                        <div className="flex items-center gap-3">
-                          <button type="button" onClick={() => setExtraNights(Math.max(0, extraNights - 1))} className="w-8 h-8 rounded-xl bg-light border border-lighter flex items-center justify-center hover:border-secondary hover:text-secondary transition-all cursor-pointer">
-                            <Minus size={13} />
-                          </button>
-                          <span className="w-8 text-center font-black text-sm text-primary">{extraNights}</span>
-                          <button type="button" onClick={() => setExtraNights(extraNights + 1)} className="w-8 h-8 rounded-xl bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm">
-                            <Plus size={13} />
-                          </button>
-                          {extraNights > 0 && firstSelectedHotel && (
-                            <span className="text-[10px] font-bold text-secondary">
-                              ≈ ${extraNightsCost.toLocaleString()} USD extra (1er hotel)
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Markup */}
                       <div className="space-y-1.5">
                         <label className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD)</label>
                         <input type="number" min={0} value={agencyMarkup} onChange={(e) => setAgencyMarkup(Number(e.target.value))} placeholder="Ej. 100" className={inputCls} />
                         <p className="text-[10px] text-primary/40 font-bold">Este valor se suma al total final y no es visible para el cliente.</p>
                       </div>
 
-                      {/* T&C */}
                       <div className="space-y-2">
                         <label className={labelCls}>Términos y Condiciones</label>
                         <div className="p-4 bg-light border border-lighter rounded-2xl max-h-28 overflow-y-auto scrollbar-hide">
@@ -1406,17 +1367,16 @@ export default function DashboardPage() {
                         <span className="text-[10px] font-black uppercase tracking-wider text-secondary">Paso 4 de 4</span>
                       </div>
 
-                      {/* Client summary */}
                       <div className="grid grid-cols-2 gap-3 p-4 bg-light border border-lighter rounded-2xl text-xs">
                         {[
-                          ["Cliente",   clientName  || "—"],
-                          ["Email",     clientEmail || "—"],
-                          ["Teléfono",  clientPhone || "—"],
-                          ["Paquete",   selectedPkg?.title ?? "—"],
-                          ["Destino",   selectedPkgLocation],
-                          ["Duración",  selectedPkgDuration],
-                          ["Fechas",    selectedPkgDates],
-                          ["Pasajeros", paxResumen !== "—" ? paxResumen : "Sin configurar"],
+                          ["Cliente",    clientName  || "—"],
+                          ["Email",      clientEmail || "—"],
+                          ["Teléfono",   clientPhone || "—"],
+                          ["Modo",       cotMode === "catalogo" ? "Catálogo" : "Cotización Libre"],
+                          ["Destino",    `${cotDestinoCiudad}${cotDestinoPais ? `, ${cotDestinoPais}` : ""}`],
+                          ["Duración",   cotDuracion],
+                          ["Fechas",     cotFechasDisplay],
+                          ["Pasajeros",  cotPaxResumen],
                         ].map(([lbl, val]) => (
                           <div key={lbl}>
                             <span className="text-[9px] font-black uppercase text-primary/30 tracking-wider block">{lbl}</span>
@@ -1425,95 +1385,49 @@ export default function DashboardPage() {
                         ))}
                       </div>
 
-                      {/* Hotel comparison table */}
-                      {selectedHotelIds.length > 0 && (() => {
-                        const selH = availableHotels.filter((h) => selectedHotelIds.includes(h.id));
-                        return (
-                          <div className="overflow-x-auto">
-                            <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider mb-2">Comparativa por Hotel</p>
-                            <table className="w-full text-left border-collapse min-w-[500px]">
-                              <thead>
-                                <tr className="border-b border-gray-100">
-                                  <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider w-32">Servicio</th>
-                                  {selH.map((h) => (
-                                    <th key={h.id} className="pb-2 text-[9px] font-black text-primary/60 tracking-wide pl-4">{h.name}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-50 text-xs font-bold text-primary/70">
-                                {[
-                                  { label: `SGL (×${cantSGL})`,  qty: cantSGL,  rate: (h: HotelOption) => h.rates.sgl },
-                                  { label: `DBL (×${cantDBL})`,  qty: cantDBL,  rate: (h: HotelOption) => h.rates.dbl },
-                                  { label: `TPL (×${cantTPL})`,  qty: cantTPL,  rate: (h: HotelOption) => h.rates.tpl },
-                                  { label: `QUAD (×${cantQUAD})`, qty: quadEnabled ? cantQUAD : 0, rate: (h: HotelOption) => h.quadEnabled ? h.rates.quad : 0 },
-                                  { label: `CHD (×${cantCHD})`,  qty: cantCHD,  rate: (h: HotelOption) => h.rates.chd },
-                                ].filter((r) => r.qty > 0).map((row) => (
-                                  <tr key={row.label}>
-                                    <td className="py-2.5 text-[10px] text-primary/50">{row.label}</td>
-                                    {selH.map((h) => (
-                                      <td key={h.id} className="py-2.5 pl-4">${(row.qty * row.rate(h)).toLocaleString()}</td>
-                                    ))}
-                                  </tr>
-                                ))}
-                                {extraNights > 0 && (
-                                  <tr>
-                                    <td className="py-2.5 text-[10px] text-primary/50">Noches extra (×{extraNights})</td>
-                                    {selH.map((h) => {
-                                      const c = extraNights * (
-                                        cantSGL * h.rates.sglExtra + cantDBL * h.rates.dblExtra +
-                                        cantTPL * h.rates.tplExtra + (h.quadEnabled ? cantQUAD * h.rates.quadExtra : 0) +
-                                        cantCHD * h.rates.chdExtra
-                                      );
-                                      return <td key={h.id} className="py-2.5 pl-4">${c.toLocaleString()}</td>;
-                                    })}
-                                  </tr>
-                                )}
-                                {agencyMarkup > 0 && (
-                                  <tr>
-                                    <td className="py-2.5 text-[10px] text-primary/50">Markup agencia</td>
-                                    {selH.map((h) => <td key={h.id} className="py-2.5 pl-4">${agencyMarkup.toLocaleString()}</td>)}
-                                  </tr>
-                                )}
-                                <tr className="border-t-2 border-secondary/30">
-                                  <td className="py-3 text-[10px] font-black text-primary uppercase">TOTAL</td>
-                                  {selH.map((h) => {
-                                    const sub = cantSGL * h.rates.sgl + cantDBL * h.rates.dbl + cantTPL * h.rates.tpl +
-                                      (h.quadEnabled ? cantQUAD * h.rates.quad : 0) + cantCHD * h.rates.chd +
-                                      ((selectedPkg as any).flightIncluded ? 0 : adultAirfare * totalAdults + childAirfare * cantCHD);
-                                    const ext = extraNights > 0 ? extraNights * (
-                                      cantSGL * h.rates.sglExtra + cantDBL * h.rates.dblExtra +
-                                      cantTPL * h.rates.tplExtra + (h.quadEnabled ? cantQUAD * h.rates.quadExtra : 0) +
-                                      cantCHD * h.rates.chdExtra
-                                    ) : 0;
-                                    return <td key={h.id} className="py-3 pl-4 font-black text-secondary text-sm">${(sub + ext + agencyMarkup).toLocaleString()}</td>;
-                                  })}
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        );
-                      })()}
-
-                      {/* No hotel selected fallback */}
-                      {selectedHotelIds.length === 0 && roomRows.length > 0 && (
+                      {Object.entries(cotHabs).some(([, qty]) => qty > 0) && (
                         <div className="overflow-x-auto">
+                          <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider mb-2">Detalle de Habitaciones</p>
                           <table className="w-full text-left border-collapse">
                             <thead>
                               <tr className="border-b border-gray-100">
-                                {["Servicio","Cant.","P. Unit","Total"].map((h) => (
-                                  <th key={h} className={`pb-3 text-[10px] font-black uppercase text-gray-400 tracking-wider ${h !== "Servicio" ? "text-right" : ""}`}>{h}</th>
+                                {["Tipo","Cant.","P. Persona","P. Habitación","Total"].map((h) => (
+                                  <th key={h} className={`pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider ${h !== "Tipo" ? "text-right" : ""}`}>{h}</th>
                                 ))}
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50 text-xs font-bold text-primary/80">
-                              {roomRows.map((row, idx) => (
-                                <tr key={idx}>
-                                  <td className="py-3 text-primary/70">{row.label}</td>
-                                  <td className="py-3 text-right">{row.qty}</td>
-                                  <td className="py-3 text-right">${row.price.toLocaleString()}</td>
-                                  <td className="py-3 text-right font-black text-primary">${(row.qty * row.price).toLocaleString()}</td>
+                            <tbody className="divide-y divide-gray-50 text-xs font-bold text-primary/70">
+                              {Object.entries(cotHabs).filter(([, qty]) => qty > 0).map(([tipoPax, qty]) => {
+                                const precio = getCotPrice(tipoPax);
+                                const numPax = COT_NUM_PAX[tipoPax] ?? 1;
+                                const precioHab = precio * numPax;
+                                const subtotalRow = cotMode === "libre" ? precioHab * qty * cotNoches : precioHab * qty;
+                                return (
+                                  <tr key={tipoPax}>
+                                    <td className="py-2.5 text-primary/50">{tipoPax}</td>
+                                    <td className="py-2.5 text-right">{qty}</td>
+                                    <td className="py-2.5 text-right">${precio.toLocaleString()}</td>
+                                    <td className="py-2.5 text-right">${precioHab.toLocaleString()}</td>
+                                    <td className="py-2.5 text-right font-black text-primary">${subtotalRow.toLocaleString()}</td>
+                                  </tr>
+                                );
+                              })}
+                              {cotManualServices.filter((s) => s.costo > 0).map((svc) => (
+                                <tr key={svc.id}>
+                                  <td className="py-2.5 text-primary/50 text-[10px]" colSpan={4}>{svc.descripcion || "Servicio adicional"}</td>
+                                  <td className="py-2.5 text-right font-black text-primary">${svc.costo.toLocaleString()}</td>
                                 </tr>
                               ))}
+                              {agencyMarkup > 0 && (
+                                <tr>
+                                  <td className="py-2.5 text-[10px] text-primary/50" colSpan={4}>Markup agencia</td>
+                                  <td className="py-2.5 text-right font-black text-secondary">${agencyMarkup.toLocaleString()}</td>
+                                </tr>
+                              )}
+                              <tr className="border-t-2 border-secondary/30">
+                                <td className="py-3 text-[10px] font-black text-primary uppercase" colSpan={4}>TOTAL</td>
+                                <td className="py-3 text-right font-black text-secondary text-sm">${cotTotal.toLocaleString()}</td>
+                              </tr>
                             </tbody>
                           </table>
                         </div>
@@ -1521,11 +1435,8 @@ export default function DashboardPage() {
 
                       <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                         <button onClick={() => setStep(3)} className="px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer">Atrás</button>
-                        <button
-                          onClick={handleSaveProforma}
-                          className="px-6 py-3 bg-secondary hover:bg-secondary-light text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
-                        >
-                          <Star size={14} /> Guardar Proforma
+                        <button onClick={handleSaveProforma} className="px-6 py-3 bg-secondary hover:bg-secondary-light text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer">
+                          <Star size={14} /> Guardar Cotización
                         </button>
                       </div>
                     </div>
@@ -1543,19 +1454,13 @@ export default function DashboardPage() {
                     </div>
                     <div className="space-y-2 text-[11px] border-t border-white/10 pt-4 font-bold text-white/70">
                       <div className="flex justify-between items-center">
-                        <span>Subtotal habitaciones</span>
-                        <span className="font-black text-white">${computedSubtotal.toLocaleString()}</span>
+                        <span>Subtotal alojamiento</span>
+                        <span className="font-black text-white">${cotSubtotalAlojamiento.toLocaleString()}</span>
                       </div>
-                      {airfareCost > 0 && (
+                      {cotManualTotal > 0 && (
                         <div className="flex justify-between items-center">
-                          <span>Tarifa aérea</span>
-                          <span className="font-black text-white">${airfareCost.toLocaleString()}</span>
-                        </div>
-                      )}
-                      {extraNightsCost > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span>Noches extra</span>
-                          <span className="font-black text-white">${extraNightsCost.toLocaleString()}</span>
+                          <span>Servicios adicionales</span>
+                          <span className="font-black text-white">${cotManualTotal.toLocaleString()}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center">
@@ -1566,35 +1471,31 @@ export default function DashboardPage() {
                     <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex justify-between items-center">
                       <div>
                         <span className="text-[8px] font-black uppercase tracking-wider text-secondary">Total Proforma</span>
-                        <span className="block text-2xl font-black text-white">${computedTotal.toLocaleString()}</span>
+                        <span className="block text-2xl font-black text-white">${cotTotal.toLocaleString()}</span>
                       </div>
                       <span className="text-[9px] font-black uppercase tracking-widest bg-white/10 px-2 rounded-lg border border-white/5">USD</span>
                     </div>
                     <div className="border-t border-white/10 pt-3 space-y-2 text-[10px] font-bold text-white/50">
                       <div className="flex justify-between">
-                        <span>Reserva inicial (40%)</span>
-                        <span className="text-secondary">${reservationFee}/p</span>
-                      </div>
-                      <div className="flex justify-between">
                         <span>Pasajeros</span>
-                        <span className="text-white/80">{paxResumen !== "—" ? paxResumen : "Sin definir"}</span>
+                        <span className="text-white/80">{cotPaxResumen}</span>
                       </div>
-                      {selectedHotelIds.length > 0 && (
+                      {cotSelectedHotelIds.length > 0 && (
                         <div className="flex justify-between">
                           <span>Hoteles</span>
-                          <span className="text-white/80">{selectedHotelIds.length} seleccionado{selectedHotelIds.length > 1 ? "s" : ""}</span>
+                          <span className="text-white/80">{cotSelectedHotelIds.length} seleccionado{cotSelectedHotelIds.length > 1 ? "s" : ""}</span>
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3">
-                    <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-wider border-b border-gray-50 pb-2">Info del Paquete</h4>
+                    <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-wider border-b border-gray-50 pb-2">Info del Viaje</h4>
                     <div className="space-y-2 text-xs font-bold text-primary/70">
                       {[
-                        ["Destino",   selectedPkgLocation],
-                        ["Duración",  selectedPkgDuration],
-                        ["Fechas",    selectedPkgDates],
+                        ["Destino",  `${cotDestinoCiudad}${cotDestinoPais ? `, ${cotDestinoPais}` : ""}`],
+                        ["Duración", cotDuracion],
+                        ["Fechas",   cotFechasDisplay],
                       ].map(([lbl, val]) => (
                         <div key={lbl} className="flex justify-between gap-2">
                           <span className="text-primary/40 shrink-0">{lbl}:</span>
@@ -1605,7 +1506,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-              </>)}
             </div>
           )}
 

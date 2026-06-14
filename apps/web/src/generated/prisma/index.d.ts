@@ -74,6 +74,11 @@ export type VersionPaqueteRef = $Result.DefaultSelection<Prisma.$VersionPaqueteR
  */
 export type ImagenPaqueteRef = $Result.DefaultSelection<Prisma.$ImagenPaqueteRefPayload>
 /**
+ * Model TarifaHotelRef
+ * @readonly — gestionado por lt-core-admin
+ */
+export type TarifaHotelRef = $Result.DefaultSelection<Prisma.$TarifaHotelRefPayload>
+/**
  * Model Cliente
  * Cliente final de la agencia (el pasajero / viajero).
  * No es un User del sistema — es el cliente de la agencia minorista.
@@ -355,6 +360,16 @@ export class PrismaClient<
     * ```
     */
   get imagenPaqueteRef(): Prisma.ImagenPaqueteRefDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tarifaHotelRef`: Exposes CRUD operations for the **TarifaHotelRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TarifaHotelRefs
+    * const tarifaHotelRefs = await prisma.tarifaHotelRef.findMany()
+    * ```
+    */
+  get tarifaHotelRef(): Prisma.TarifaHotelRefDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.cliente`: Exposes CRUD operations for the **Cliente** model.
@@ -841,6 +856,7 @@ export namespace Prisma {
     PaqueteTrasladoRef: 'PaqueteTrasladoRef',
     VersionPaqueteRef: 'VersionPaqueteRef',
     ImagenPaqueteRef: 'ImagenPaqueteRef',
+    TarifaHotelRef: 'TarifaHotelRef',
     Cliente: 'Cliente',
     Cotizacion: 'Cotizacion',
     CotizacionDetalle: 'CotizacionDetalle',
@@ -860,7 +876,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "agencia" | "usuarioAgencia" | "destinoRef" | "hotelRef" | "paqueteRef" | "paqueteHotelRef" | "actividadRef" | "trasladoRef" | "paqueteActividadRef" | "paqueteTrasladoRef" | "versionPaqueteRef" | "imagenPaqueteRef" | "cliente" | "cotizacion" | "cotizacionDetalle" | "historialCotizacion"
+      modelProps: "agencia" | "usuarioAgencia" | "destinoRef" | "hotelRef" | "paqueteRef" | "paqueteHotelRef" | "actividadRef" | "trasladoRef" | "paqueteActividadRef" | "paqueteTrasladoRef" | "versionPaqueteRef" | "imagenPaqueteRef" | "tarifaHotelRef" | "cliente" | "cotizacion" | "cotizacionDetalle" | "historialCotizacion"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1752,6 +1768,80 @@ export namespace Prisma {
           }
         }
       }
+      TarifaHotelRef: {
+        payload: Prisma.$TarifaHotelRefPayload<ExtArgs>
+        fields: Prisma.TarifaHotelRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TarifaHotelRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TarifaHotelRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>
+          }
+          findFirst: {
+            args: Prisma.TarifaHotelRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TarifaHotelRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>
+          }
+          findMany: {
+            args: Prisma.TarifaHotelRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>[]
+          }
+          create: {
+            args: Prisma.TarifaHotelRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>
+          }
+          createMany: {
+            args: Prisma.TarifaHotelRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TarifaHotelRefCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>[]
+          }
+          delete: {
+            args: Prisma.TarifaHotelRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>
+          }
+          update: {
+            args: Prisma.TarifaHotelRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.TarifaHotelRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TarifaHotelRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TarifaHotelRefUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>[]
+          }
+          upsert: {
+            args: Prisma.TarifaHotelRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TarifaHotelRefPayload>
+          }
+          aggregate: {
+            args: Prisma.TarifaHotelRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTarifaHotelRef>
+          }
+          groupBy: {
+            args: Prisma.TarifaHotelRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TarifaHotelRefGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TarifaHotelRefCountArgs<ExtArgs>
+            result: $Utils.Optional<TarifaHotelRefCountAggregateOutputType> | number
+          }
+        }
+      }
       Cliente: {
         payload: Prisma.$ClientePayload<ExtArgs>
         fields: Prisma.ClienteFieldRefs
@@ -2168,6 +2258,7 @@ export namespace Prisma {
     paqueteTrasladoRef?: PaqueteTrasladoRefOmit
     versionPaqueteRef?: VersionPaqueteRefOmit
     imagenPaqueteRef?: ImagenPaqueteRefOmit
+    tarifaHotelRef?: TarifaHotelRefOmit
     cliente?: ClienteOmit
     cotizacion?: CotizacionOmit
     cotizacionDetalle?: CotizacionDetalleOmit
@@ -2391,10 +2482,12 @@ export namespace Prisma {
 
   export type HotelRefCountOutputType = {
     paquetes: number
+    tarifas: number
   }
 
   export type HotelRefCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     paquetes?: boolean | HotelRefCountOutputTypeCountPaquetesArgs
+    tarifas?: boolean | HotelRefCountOutputTypeCountTarifasArgs
   }
 
   // Custom InputTypes
@@ -2413,6 +2506,13 @@ export namespace Prisma {
    */
   export type HotelRefCountOutputTypeCountPaquetesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaqueteHotelRefWhereInput
+  }
+
+  /**
+   * HotelRefCountOutputType without action
+   */
+  export type HotelRefCountOutputTypeCountTarifasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TarifaHotelRefWhereInput
   }
 
 
@@ -6282,6 +6382,7 @@ export namespace Prisma {
     estrellas?: boolean
     destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
     paquetes?: boolean | HotelRef$paquetesArgs<ExtArgs>
+    tarifas?: boolean | HotelRef$tarifasArgs<ExtArgs>
     _count?: boolean | HotelRefCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["hotelRef"]>
 
@@ -6312,6 +6413,7 @@ export namespace Prisma {
   export type HotelRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     destino?: boolean | DestinoRefDefaultArgs<ExtArgs>
     paquetes?: boolean | HotelRef$paquetesArgs<ExtArgs>
+    tarifas?: boolean | HotelRef$tarifasArgs<ExtArgs>
     _count?: boolean | HotelRefCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type HotelRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6326,6 +6428,7 @@ export namespace Prisma {
     objects: {
       destino: Prisma.$DestinoRefPayload<ExtArgs>
       paquetes: Prisma.$PaqueteHotelRefPayload<ExtArgs>[]
+      tarifas: Prisma.$TarifaHotelRefPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -6728,6 +6831,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     destino<T extends DestinoRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DestinoRefDefaultArgs<ExtArgs>>): Prisma__DestinoRefClient<$Result.GetResult<Prisma.$DestinoRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     paquetes<T extends HotelRef$paquetesArgs<ExtArgs> = {}>(args?: Subset<T, HotelRef$paquetesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaqueteHotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tarifas<T extends HotelRef$tarifasArgs<ExtArgs> = {}>(args?: Subset<T, HotelRef$tarifasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7183,6 +7287,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaqueteHotelRefScalarFieldEnum | PaqueteHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * HotelRef.tarifas
+   */
+  export type HotelRef$tarifasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    where?: TarifaHotelRefWhereInput
+    orderBy?: TarifaHotelRefOrderByWithRelationInput | TarifaHotelRefOrderByWithRelationInput[]
+    cursor?: TarifaHotelRefWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TarifaHotelRefScalarFieldEnum | TarifaHotelRefScalarFieldEnum[]
   }
 
   /**
@@ -16196,6 +16324,1098 @@ export namespace Prisma {
 
 
   /**
+   * Model TarifaHotelRef
+   */
+
+  export type AggregateTarifaHotelRef = {
+    _count: TarifaHotelRefCountAggregateOutputType | null
+    _avg: TarifaHotelRefAvgAggregateOutputType | null
+    _sum: TarifaHotelRefSumAggregateOutputType | null
+    _min: TarifaHotelRefMinAggregateOutputType | null
+    _max: TarifaHotelRefMaxAggregateOutputType | null
+  }
+
+  export type TarifaHotelRefAvgAggregateOutputType = {
+    id: number | null
+    hotelId: number | null
+    precioBase: number | null
+  }
+
+  export type TarifaHotelRefSumAggregateOutputType = {
+    id: number | null
+    hotelId: number | null
+    precioBase: number | null
+  }
+
+  export type TarifaHotelRefMinAggregateOutputType = {
+    id: number | null
+    hotelId: number | null
+    tipoHabitacion: string | null
+    precioBase: number | null
+  }
+
+  export type TarifaHotelRefMaxAggregateOutputType = {
+    id: number | null
+    hotelId: number | null
+    tipoHabitacion: string | null
+    precioBase: number | null
+  }
+
+  export type TarifaHotelRefCountAggregateOutputType = {
+    id: number
+    hotelId: number
+    tipoHabitacion: number
+    precioBase: number
+    _all: number
+  }
+
+
+  export type TarifaHotelRefAvgAggregateInputType = {
+    id?: true
+    hotelId?: true
+    precioBase?: true
+  }
+
+  export type TarifaHotelRefSumAggregateInputType = {
+    id?: true
+    hotelId?: true
+    precioBase?: true
+  }
+
+  export type TarifaHotelRefMinAggregateInputType = {
+    id?: true
+    hotelId?: true
+    tipoHabitacion?: true
+    precioBase?: true
+  }
+
+  export type TarifaHotelRefMaxAggregateInputType = {
+    id?: true
+    hotelId?: true
+    tipoHabitacion?: true
+    precioBase?: true
+  }
+
+  export type TarifaHotelRefCountAggregateInputType = {
+    id?: true
+    hotelId?: true
+    tipoHabitacion?: true
+    precioBase?: true
+    _all?: true
+  }
+
+  export type TarifaHotelRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TarifaHotelRef to aggregate.
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TarifaHotelRefs to fetch.
+     */
+    orderBy?: TarifaHotelRefOrderByWithRelationInput | TarifaHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TarifaHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TarifaHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TarifaHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TarifaHotelRefs
+    **/
+    _count?: true | TarifaHotelRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TarifaHotelRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TarifaHotelRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TarifaHotelRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TarifaHotelRefMaxAggregateInputType
+  }
+
+  export type GetTarifaHotelRefAggregateType<T extends TarifaHotelRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateTarifaHotelRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTarifaHotelRef[P]>
+      : GetScalarType<T[P], AggregateTarifaHotelRef[P]>
+  }
+
+
+
+
+  export type TarifaHotelRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TarifaHotelRefWhereInput
+    orderBy?: TarifaHotelRefOrderByWithAggregationInput | TarifaHotelRefOrderByWithAggregationInput[]
+    by: TarifaHotelRefScalarFieldEnum[] | TarifaHotelRefScalarFieldEnum
+    having?: TarifaHotelRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TarifaHotelRefCountAggregateInputType | true
+    _avg?: TarifaHotelRefAvgAggregateInputType
+    _sum?: TarifaHotelRefSumAggregateInputType
+    _min?: TarifaHotelRefMinAggregateInputType
+    _max?: TarifaHotelRefMaxAggregateInputType
+  }
+
+  export type TarifaHotelRefGroupByOutputType = {
+    id: number
+    hotelId: number
+    tipoHabitacion: string
+    precioBase: number
+    _count: TarifaHotelRefCountAggregateOutputType | null
+    _avg: TarifaHotelRefAvgAggregateOutputType | null
+    _sum: TarifaHotelRefSumAggregateOutputType | null
+    _min: TarifaHotelRefMinAggregateOutputType | null
+    _max: TarifaHotelRefMaxAggregateOutputType | null
+  }
+
+  type GetTarifaHotelRefGroupByPayload<T extends TarifaHotelRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TarifaHotelRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TarifaHotelRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TarifaHotelRefGroupByOutputType[P]>
+            : GetScalarType<T[P], TarifaHotelRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TarifaHotelRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    precioBase?: boolean
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tarifaHotelRef"]>
+
+  export type TarifaHotelRefSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    precioBase?: boolean
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tarifaHotelRef"]>
+
+  export type TarifaHotelRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    precioBase?: boolean
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tarifaHotelRef"]>
+
+  export type TarifaHotelRefSelectScalar = {
+    id?: boolean
+    hotelId?: boolean
+    tipoHabitacion?: boolean
+    precioBase?: boolean
+  }
+
+  export type TarifaHotelRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "hotelId" | "tipoHabitacion" | "precioBase", ExtArgs["result"]["tarifaHotelRef"]>
+  export type TarifaHotelRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }
+  export type TarifaHotelRefIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }
+  export type TarifaHotelRefIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    hotel?: boolean | HotelRefDefaultArgs<ExtArgs>
+  }
+
+  export type $TarifaHotelRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TarifaHotelRef"
+    objects: {
+      hotel: Prisma.$HotelRefPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      hotelId: number
+      tipoHabitacion: string
+      precioBase: number
+    }, ExtArgs["result"]["tarifaHotelRef"]>
+    composites: {}
+  }
+
+  type TarifaHotelRefGetPayload<S extends boolean | null | undefined | TarifaHotelRefDefaultArgs> = $Result.GetResult<Prisma.$TarifaHotelRefPayload, S>
+
+  type TarifaHotelRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TarifaHotelRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TarifaHotelRefCountAggregateInputType | true
+    }
+
+  export interface TarifaHotelRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TarifaHotelRef'], meta: { name: 'TarifaHotelRef' } }
+    /**
+     * Find zero or one TarifaHotelRef that matches the filter.
+     * @param {TarifaHotelRefFindUniqueArgs} args - Arguments to find a TarifaHotelRef
+     * @example
+     * // Get one TarifaHotelRef
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TarifaHotelRefFindUniqueArgs>(args: SelectSubset<T, TarifaHotelRefFindUniqueArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TarifaHotelRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TarifaHotelRefFindUniqueOrThrowArgs} args - Arguments to find a TarifaHotelRef
+     * @example
+     * // Get one TarifaHotelRef
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TarifaHotelRefFindUniqueOrThrowArgs>(args: SelectSubset<T, TarifaHotelRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TarifaHotelRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefFindFirstArgs} args - Arguments to find a TarifaHotelRef
+     * @example
+     * // Get one TarifaHotelRef
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TarifaHotelRefFindFirstArgs>(args?: SelectSubset<T, TarifaHotelRefFindFirstArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TarifaHotelRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefFindFirstOrThrowArgs} args - Arguments to find a TarifaHotelRef
+     * @example
+     * // Get one TarifaHotelRef
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TarifaHotelRefFindFirstOrThrowArgs>(args?: SelectSubset<T, TarifaHotelRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TarifaHotelRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TarifaHotelRefs
+     * const tarifaHotelRefs = await prisma.tarifaHotelRef.findMany()
+     * 
+     * // Get first 10 TarifaHotelRefs
+     * const tarifaHotelRefs = await prisma.tarifaHotelRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tarifaHotelRefWithIdOnly = await prisma.tarifaHotelRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TarifaHotelRefFindManyArgs>(args?: SelectSubset<T, TarifaHotelRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TarifaHotelRef.
+     * @param {TarifaHotelRefCreateArgs} args - Arguments to create a TarifaHotelRef.
+     * @example
+     * // Create one TarifaHotelRef
+     * const TarifaHotelRef = await prisma.tarifaHotelRef.create({
+     *   data: {
+     *     // ... data to create a TarifaHotelRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends TarifaHotelRefCreateArgs>(args: SelectSubset<T, TarifaHotelRefCreateArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TarifaHotelRefs.
+     * @param {TarifaHotelRefCreateManyArgs} args - Arguments to create many TarifaHotelRefs.
+     * @example
+     * // Create many TarifaHotelRefs
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TarifaHotelRefCreateManyArgs>(args?: SelectSubset<T, TarifaHotelRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TarifaHotelRefs and returns the data saved in the database.
+     * @param {TarifaHotelRefCreateManyAndReturnArgs} args - Arguments to create many TarifaHotelRefs.
+     * @example
+     * // Create many TarifaHotelRefs
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TarifaHotelRefs and only return the `id`
+     * const tarifaHotelRefWithIdOnly = await prisma.tarifaHotelRef.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TarifaHotelRefCreateManyAndReturnArgs>(args?: SelectSubset<T, TarifaHotelRefCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TarifaHotelRef.
+     * @param {TarifaHotelRefDeleteArgs} args - Arguments to delete one TarifaHotelRef.
+     * @example
+     * // Delete one TarifaHotelRef
+     * const TarifaHotelRef = await prisma.tarifaHotelRef.delete({
+     *   where: {
+     *     // ... filter to delete one TarifaHotelRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TarifaHotelRefDeleteArgs>(args: SelectSubset<T, TarifaHotelRefDeleteArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TarifaHotelRef.
+     * @param {TarifaHotelRefUpdateArgs} args - Arguments to update one TarifaHotelRef.
+     * @example
+     * // Update one TarifaHotelRef
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TarifaHotelRefUpdateArgs>(args: SelectSubset<T, TarifaHotelRefUpdateArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TarifaHotelRefs.
+     * @param {TarifaHotelRefDeleteManyArgs} args - Arguments to filter TarifaHotelRefs to delete.
+     * @example
+     * // Delete a few TarifaHotelRefs
+     * const { count } = await prisma.tarifaHotelRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TarifaHotelRefDeleteManyArgs>(args?: SelectSubset<T, TarifaHotelRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TarifaHotelRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TarifaHotelRefs
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TarifaHotelRefUpdateManyArgs>(args: SelectSubset<T, TarifaHotelRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TarifaHotelRefs and returns the data updated in the database.
+     * @param {TarifaHotelRefUpdateManyAndReturnArgs} args - Arguments to update many TarifaHotelRefs.
+     * @example
+     * // Update many TarifaHotelRefs
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TarifaHotelRefs and only return the `id`
+     * const tarifaHotelRefWithIdOnly = await prisma.tarifaHotelRef.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TarifaHotelRefUpdateManyAndReturnArgs>(args: SelectSubset<T, TarifaHotelRefUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TarifaHotelRef.
+     * @param {TarifaHotelRefUpsertArgs} args - Arguments to update or create a TarifaHotelRef.
+     * @example
+     * // Update or create a TarifaHotelRef
+     * const tarifaHotelRef = await prisma.tarifaHotelRef.upsert({
+     *   create: {
+     *     // ... data to create a TarifaHotelRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TarifaHotelRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TarifaHotelRefUpsertArgs>(args: SelectSubset<T, TarifaHotelRefUpsertArgs<ExtArgs>>): Prisma__TarifaHotelRefClient<$Result.GetResult<Prisma.$TarifaHotelRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TarifaHotelRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefCountArgs} args - Arguments to filter TarifaHotelRefs to count.
+     * @example
+     * // Count the number of TarifaHotelRefs
+     * const count = await prisma.tarifaHotelRef.count({
+     *   where: {
+     *     // ... the filter for the TarifaHotelRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends TarifaHotelRefCountArgs>(
+      args?: Subset<T, TarifaHotelRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TarifaHotelRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TarifaHotelRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TarifaHotelRefAggregateArgs>(args: Subset<T, TarifaHotelRefAggregateArgs>): Prisma.PrismaPromise<GetTarifaHotelRefAggregateType<T>>
+
+    /**
+     * Group by TarifaHotelRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TarifaHotelRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TarifaHotelRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TarifaHotelRefGroupByArgs['orderBy'] }
+        : { orderBy?: TarifaHotelRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TarifaHotelRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTarifaHotelRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TarifaHotelRef model
+   */
+  readonly fields: TarifaHotelRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TarifaHotelRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TarifaHotelRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    hotel<T extends HotelRefDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HotelRefDefaultArgs<ExtArgs>>): Prisma__HotelRefClient<$Result.GetResult<Prisma.$HotelRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TarifaHotelRef model
+   */
+  interface TarifaHotelRefFieldRefs {
+    readonly id: FieldRef<"TarifaHotelRef", 'Int'>
+    readonly hotelId: FieldRef<"TarifaHotelRef", 'Int'>
+    readonly tipoHabitacion: FieldRef<"TarifaHotelRef", 'String'>
+    readonly precioBase: FieldRef<"TarifaHotelRef", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TarifaHotelRef findUnique
+   */
+  export type TarifaHotelRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TarifaHotelRef to fetch.
+     */
+    where: TarifaHotelRefWhereUniqueInput
+  }
+
+  /**
+   * TarifaHotelRef findUniqueOrThrow
+   */
+  export type TarifaHotelRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TarifaHotelRef to fetch.
+     */
+    where: TarifaHotelRefWhereUniqueInput
+  }
+
+  /**
+   * TarifaHotelRef findFirst
+   */
+  export type TarifaHotelRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TarifaHotelRef to fetch.
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TarifaHotelRefs to fetch.
+     */
+    orderBy?: TarifaHotelRefOrderByWithRelationInput | TarifaHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TarifaHotelRefs.
+     */
+    cursor?: TarifaHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TarifaHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TarifaHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TarifaHotelRefs.
+     */
+    distinct?: TarifaHotelRefScalarFieldEnum | TarifaHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * TarifaHotelRef findFirstOrThrow
+   */
+  export type TarifaHotelRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TarifaHotelRef to fetch.
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TarifaHotelRefs to fetch.
+     */
+    orderBy?: TarifaHotelRefOrderByWithRelationInput | TarifaHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TarifaHotelRefs.
+     */
+    cursor?: TarifaHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TarifaHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TarifaHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TarifaHotelRefs.
+     */
+    distinct?: TarifaHotelRefScalarFieldEnum | TarifaHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * TarifaHotelRef findMany
+   */
+  export type TarifaHotelRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter, which TarifaHotelRefs to fetch.
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TarifaHotelRefs to fetch.
+     */
+    orderBy?: TarifaHotelRefOrderByWithRelationInput | TarifaHotelRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TarifaHotelRefs.
+     */
+    cursor?: TarifaHotelRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TarifaHotelRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TarifaHotelRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TarifaHotelRefs.
+     */
+    distinct?: TarifaHotelRefScalarFieldEnum | TarifaHotelRefScalarFieldEnum[]
+  }
+
+  /**
+   * TarifaHotelRef create
+   */
+  export type TarifaHotelRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TarifaHotelRef.
+     */
+    data: XOR<TarifaHotelRefCreateInput, TarifaHotelRefUncheckedCreateInput>
+  }
+
+  /**
+   * TarifaHotelRef createMany
+   */
+  export type TarifaHotelRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TarifaHotelRefs.
+     */
+    data: TarifaHotelRefCreateManyInput | TarifaHotelRefCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TarifaHotelRef createManyAndReturn
+   */
+  export type TarifaHotelRefCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * The data used to create many TarifaHotelRefs.
+     */
+    data: TarifaHotelRefCreateManyInput | TarifaHotelRefCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TarifaHotelRef update
+   */
+  export type TarifaHotelRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TarifaHotelRef.
+     */
+    data: XOR<TarifaHotelRefUpdateInput, TarifaHotelRefUncheckedUpdateInput>
+    /**
+     * Choose, which TarifaHotelRef to update.
+     */
+    where: TarifaHotelRefWhereUniqueInput
+  }
+
+  /**
+   * TarifaHotelRef updateMany
+   */
+  export type TarifaHotelRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TarifaHotelRefs.
+     */
+    data: XOR<TarifaHotelRefUpdateManyMutationInput, TarifaHotelRefUncheckedUpdateManyInput>
+    /**
+     * Filter which TarifaHotelRefs to update
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * Limit how many TarifaHotelRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TarifaHotelRef updateManyAndReturn
+   */
+  export type TarifaHotelRefUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * The data used to update TarifaHotelRefs.
+     */
+    data: XOR<TarifaHotelRefUpdateManyMutationInput, TarifaHotelRefUncheckedUpdateManyInput>
+    /**
+     * Filter which TarifaHotelRefs to update
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * Limit how many TarifaHotelRefs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TarifaHotelRef upsert
+   */
+  export type TarifaHotelRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TarifaHotelRef to update in case it exists.
+     */
+    where: TarifaHotelRefWhereUniqueInput
+    /**
+     * In case the TarifaHotelRef found by the `where` argument doesn't exist, create a new TarifaHotelRef with this data.
+     */
+    create: XOR<TarifaHotelRefCreateInput, TarifaHotelRefUncheckedCreateInput>
+    /**
+     * In case the TarifaHotelRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TarifaHotelRefUpdateInput, TarifaHotelRefUncheckedUpdateInput>
+  }
+
+  /**
+   * TarifaHotelRef delete
+   */
+  export type TarifaHotelRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+    /**
+     * Filter which TarifaHotelRef to delete.
+     */
+    where: TarifaHotelRefWhereUniqueInput
+  }
+
+  /**
+   * TarifaHotelRef deleteMany
+   */
+  export type TarifaHotelRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TarifaHotelRefs to delete
+     */
+    where?: TarifaHotelRefWhereInput
+    /**
+     * Limit how many TarifaHotelRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TarifaHotelRef without action
+   */
+  export type TarifaHotelRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TarifaHotelRef
+     */
+    select?: TarifaHotelRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TarifaHotelRef
+     */
+    omit?: TarifaHotelRefOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TarifaHotelRefInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Cliente
    */
 
@@ -21182,6 +22402,16 @@ export namespace Prisma {
   export type ImagenPaqueteRefScalarFieldEnum = (typeof ImagenPaqueteRefScalarFieldEnum)[keyof typeof ImagenPaqueteRefScalarFieldEnum]
 
 
+  export const TarifaHotelRefScalarFieldEnum: {
+    id: 'id',
+    hotelId: 'hotelId',
+    tipoHabitacion: 'tipoHabitacion',
+    precioBase: 'precioBase'
+  };
+
+  export type TarifaHotelRefScalarFieldEnum = (typeof TarifaHotelRefScalarFieldEnum)[keyof typeof TarifaHotelRefScalarFieldEnum]
+
+
   export const ClienteScalarFieldEnum: {
     id: 'id',
     agenciaId: 'agenciaId',
@@ -21569,6 +22799,7 @@ export namespace Prisma {
     estrellas?: IntFilter<"HotelRef"> | number
     destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
     paquetes?: PaqueteHotelRefListRelationFilter
+    tarifas?: TarifaHotelRefListRelationFilter
   }
 
   export type HotelRefOrderByWithRelationInput = {
@@ -21578,6 +22809,7 @@ export namespace Prisma {
     estrellas?: SortOrder
     destino?: DestinoRefOrderByWithRelationInput
     paquetes?: PaqueteHotelRefOrderByRelationAggregateInput
+    tarifas?: TarifaHotelRefOrderByRelationAggregateInput
   }
 
   export type HotelRefWhereUniqueInput = Prisma.AtLeast<{
@@ -21590,6 +22822,7 @@ export namespace Prisma {
     estrellas?: IntFilter<"HotelRef"> | number
     destino?: XOR<DestinoRefScalarRelationFilter, DestinoRefWhereInput>
     paquetes?: PaqueteHotelRefListRelationFilter
+    tarifas?: TarifaHotelRefListRelationFilter
   }, "id">
 
   export type HotelRefOrderByWithAggregationInput = {
@@ -22074,6 +23307,59 @@ export namespace Prisma {
     paqueteId?: IntWithAggregatesFilter<"ImagenPaqueteRef"> | number
     url?: StringWithAggregatesFilter<"ImagenPaqueteRef"> | string
     orden?: IntWithAggregatesFilter<"ImagenPaqueteRef"> | number
+  }
+
+  export type TarifaHotelRefWhereInput = {
+    AND?: TarifaHotelRefWhereInput | TarifaHotelRefWhereInput[]
+    OR?: TarifaHotelRefWhereInput[]
+    NOT?: TarifaHotelRefWhereInput | TarifaHotelRefWhereInput[]
+    id?: IntFilter<"TarifaHotelRef"> | number
+    hotelId?: IntFilter<"TarifaHotelRef"> | number
+    tipoHabitacion?: StringFilter<"TarifaHotelRef"> | string
+    precioBase?: FloatFilter<"TarifaHotelRef"> | number
+    hotel?: XOR<HotelRefScalarRelationFilter, HotelRefWhereInput>
+  }
+
+  export type TarifaHotelRefOrderByWithRelationInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    precioBase?: SortOrder
+    hotel?: HotelRefOrderByWithRelationInput
+  }
+
+  export type TarifaHotelRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    hotelId_tipoHabitacion?: TarifaHotelRefHotelIdTipoHabitacionCompoundUniqueInput
+    AND?: TarifaHotelRefWhereInput | TarifaHotelRefWhereInput[]
+    OR?: TarifaHotelRefWhereInput[]
+    NOT?: TarifaHotelRefWhereInput | TarifaHotelRefWhereInput[]
+    hotelId?: IntFilter<"TarifaHotelRef"> | number
+    tipoHabitacion?: StringFilter<"TarifaHotelRef"> | string
+    precioBase?: FloatFilter<"TarifaHotelRef"> | number
+    hotel?: XOR<HotelRefScalarRelationFilter, HotelRefWhereInput>
+  }, "id" | "hotelId_tipoHabitacion">
+
+  export type TarifaHotelRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    precioBase?: SortOrder
+    _count?: TarifaHotelRefCountOrderByAggregateInput
+    _avg?: TarifaHotelRefAvgOrderByAggregateInput
+    _max?: TarifaHotelRefMaxOrderByAggregateInput
+    _min?: TarifaHotelRefMinOrderByAggregateInput
+    _sum?: TarifaHotelRefSumOrderByAggregateInput
+  }
+
+  export type TarifaHotelRefScalarWhereWithAggregatesInput = {
+    AND?: TarifaHotelRefScalarWhereWithAggregatesInput | TarifaHotelRefScalarWhereWithAggregatesInput[]
+    OR?: TarifaHotelRefScalarWhereWithAggregatesInput[]
+    NOT?: TarifaHotelRefScalarWhereWithAggregatesInput | TarifaHotelRefScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TarifaHotelRef"> | number
+    hotelId?: IntWithAggregatesFilter<"TarifaHotelRef"> | number
+    tipoHabitacion?: StringWithAggregatesFilter<"TarifaHotelRef"> | string
+    precioBase?: FloatWithAggregatesFilter<"TarifaHotelRef"> | number
   }
 
   export type ClienteWhereInput = {
@@ -22684,6 +23970,7 @@ export namespace Prisma {
     estrellas: number
     destino: DestinoRefCreateNestedOneWithoutHotelesInput
     paquetes?: PaqueteHotelRefCreateNestedManyWithoutHotelInput
+    tarifas?: TarifaHotelRefCreateNestedManyWithoutHotelInput
   }
 
   export type HotelRefUncheckedCreateInput = {
@@ -22692,6 +23979,7 @@ export namespace Prisma {
     nombre: string
     estrellas: number
     paquetes?: PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput
+    tarifas?: TarifaHotelRefUncheckedCreateNestedManyWithoutHotelInput
   }
 
   export type HotelRefUpdateInput = {
@@ -22700,6 +23988,7 @@ export namespace Prisma {
     estrellas?: IntFieldUpdateOperationsInput | number
     destino?: DestinoRefUpdateOneRequiredWithoutHotelesNestedInput
     paquetes?: PaqueteHotelRefUpdateManyWithoutHotelNestedInput
+    tarifas?: TarifaHotelRefUpdateManyWithoutHotelNestedInput
   }
 
   export type HotelRefUncheckedUpdateInput = {
@@ -22708,6 +23997,7 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     estrellas?: IntFieldUpdateOperationsInput | number
     paquetes?: PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput
+    tarifas?: TarifaHotelRefUncheckedUpdateManyWithoutHotelNestedInput
   }
 
   export type HotelRefCreateManyInput = {
@@ -23161,6 +24451,54 @@ export namespace Prisma {
     paqueteId?: IntFieldUpdateOperationsInput | number
     url?: StringFieldUpdateOperationsInput | string
     orden?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TarifaHotelRefCreateInput = {
+    id: number
+    tipoHabitacion: string
+    precioBase: number
+    hotel: HotelRefCreateNestedOneWithoutTarifasInput
+  }
+
+  export type TarifaHotelRefUncheckedCreateInput = {
+    id: number
+    hotelId: number
+    tipoHabitacion: string
+    precioBase: number
+  }
+
+  export type TarifaHotelRefUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
+    hotel?: HotelRefUpdateOneRequiredWithoutTarifasNestedInput
+  }
+
+  export type TarifaHotelRefUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    hotelId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TarifaHotelRefCreateManyInput = {
+    id: number
+    hotelId: number
+    tipoHabitacion: string
+    precioBase: number
+  }
+
+  export type TarifaHotelRefUpdateManyMutationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TarifaHotelRefUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    hotelId?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
   }
 
   export type ClienteCreateInput = {
@@ -23890,7 +25228,17 @@ export namespace Prisma {
     none?: PaqueteHotelRefWhereInput
   }
 
+  export type TarifaHotelRefListRelationFilter = {
+    every?: TarifaHotelRefWhereInput
+    some?: TarifaHotelRefWhereInput
+    none?: TarifaHotelRefWhereInput
+  }
+
   export type PaqueteHotelRefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TarifaHotelRefOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -24325,6 +25673,71 @@ export namespace Prisma {
     orden?: SortOrder
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type TarifaHotelRefHotelIdTipoHabitacionCompoundUniqueInput = {
+    hotelId: number
+    tipoHabitacion: string
+  }
+
+  export type TarifaHotelRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    precioBase?: SortOrder
+  }
+
+  export type TarifaHotelRefAvgOrderByAggregateInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    precioBase?: SortOrder
+  }
+
+  export type TarifaHotelRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    precioBase?: SortOrder
+  }
+
+  export type TarifaHotelRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    tipoHabitacion?: SortOrder
+    precioBase?: SortOrder
+  }
+
+  export type TarifaHotelRefSumOrderByAggregateInput = {
+    id?: SortOrder
+    hotelId?: SortOrder
+    precioBase?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type AgenciaScalarRelationFilter = {
     is?: AgenciaWhereInput
     isNot?: AgenciaWhereInput
@@ -24390,17 +25803,6 @@ export namespace Prisma {
     hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
     hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
     isEmpty?: boolean
-  }
-
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -24555,22 +25957,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -25088,11 +26474,25 @@ export namespace Prisma {
     connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
   }
 
+  export type TarifaHotelRefCreateNestedManyWithoutHotelInput = {
+    create?: XOR<TarifaHotelRefCreateWithoutHotelInput, TarifaHotelRefUncheckedCreateWithoutHotelInput> | TarifaHotelRefCreateWithoutHotelInput[] | TarifaHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: TarifaHotelRefCreateOrConnectWithoutHotelInput | TarifaHotelRefCreateOrConnectWithoutHotelInput[]
+    createMany?: TarifaHotelRefCreateManyHotelInputEnvelope
+    connect?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+  }
+
   export type PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput = {
     create?: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput> | PaqueteHotelRefCreateWithoutHotelInput[] | PaqueteHotelRefUncheckedCreateWithoutHotelInput[]
     connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutHotelInput | PaqueteHotelRefCreateOrConnectWithoutHotelInput[]
     createMany?: PaqueteHotelRefCreateManyHotelInputEnvelope
     connect?: PaqueteHotelRefWhereUniqueInput | PaqueteHotelRefWhereUniqueInput[]
+  }
+
+  export type TarifaHotelRefUncheckedCreateNestedManyWithoutHotelInput = {
+    create?: XOR<TarifaHotelRefCreateWithoutHotelInput, TarifaHotelRefUncheckedCreateWithoutHotelInput> | TarifaHotelRefCreateWithoutHotelInput[] | TarifaHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: TarifaHotelRefCreateOrConnectWithoutHotelInput | TarifaHotelRefCreateOrConnectWithoutHotelInput[]
+    createMany?: TarifaHotelRefCreateManyHotelInputEnvelope
+    connect?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
   }
 
   export type DestinoRefUpdateOneRequiredWithoutHotelesNestedInput = {
@@ -25117,6 +26517,20 @@ export namespace Prisma {
     deleteMany?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
   }
 
+  export type TarifaHotelRefUpdateManyWithoutHotelNestedInput = {
+    create?: XOR<TarifaHotelRefCreateWithoutHotelInput, TarifaHotelRefUncheckedCreateWithoutHotelInput> | TarifaHotelRefCreateWithoutHotelInput[] | TarifaHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: TarifaHotelRefCreateOrConnectWithoutHotelInput | TarifaHotelRefCreateOrConnectWithoutHotelInput[]
+    upsert?: TarifaHotelRefUpsertWithWhereUniqueWithoutHotelInput | TarifaHotelRefUpsertWithWhereUniqueWithoutHotelInput[]
+    createMany?: TarifaHotelRefCreateManyHotelInputEnvelope
+    set?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    disconnect?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    delete?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    connect?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    update?: TarifaHotelRefUpdateWithWhereUniqueWithoutHotelInput | TarifaHotelRefUpdateWithWhereUniqueWithoutHotelInput[]
+    updateMany?: TarifaHotelRefUpdateManyWithWhereWithoutHotelInput | TarifaHotelRefUpdateManyWithWhereWithoutHotelInput[]
+    deleteMany?: TarifaHotelRefScalarWhereInput | TarifaHotelRefScalarWhereInput[]
+  }
+
   export type PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput = {
     create?: XOR<PaqueteHotelRefCreateWithoutHotelInput, PaqueteHotelRefUncheckedCreateWithoutHotelInput> | PaqueteHotelRefCreateWithoutHotelInput[] | PaqueteHotelRefUncheckedCreateWithoutHotelInput[]
     connectOrCreate?: PaqueteHotelRefCreateOrConnectWithoutHotelInput | PaqueteHotelRefCreateOrConnectWithoutHotelInput[]
@@ -25129,6 +26543,20 @@ export namespace Prisma {
     update?: PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput | PaqueteHotelRefUpdateWithWhereUniqueWithoutHotelInput[]
     updateMany?: PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput | PaqueteHotelRefUpdateManyWithWhereWithoutHotelInput[]
     deleteMany?: PaqueteHotelRefScalarWhereInput | PaqueteHotelRefScalarWhereInput[]
+  }
+
+  export type TarifaHotelRefUncheckedUpdateManyWithoutHotelNestedInput = {
+    create?: XOR<TarifaHotelRefCreateWithoutHotelInput, TarifaHotelRefUncheckedCreateWithoutHotelInput> | TarifaHotelRefCreateWithoutHotelInput[] | TarifaHotelRefUncheckedCreateWithoutHotelInput[]
+    connectOrCreate?: TarifaHotelRefCreateOrConnectWithoutHotelInput | TarifaHotelRefCreateOrConnectWithoutHotelInput[]
+    upsert?: TarifaHotelRefUpsertWithWhereUniqueWithoutHotelInput | TarifaHotelRefUpsertWithWhereUniqueWithoutHotelInput[]
+    createMany?: TarifaHotelRefCreateManyHotelInputEnvelope
+    set?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    disconnect?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    delete?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    connect?: TarifaHotelRefWhereUniqueInput | TarifaHotelRefWhereUniqueInput[]
+    update?: TarifaHotelRefUpdateWithWhereUniqueWithoutHotelInput | TarifaHotelRefUpdateWithWhereUniqueWithoutHotelInput[]
+    updateMany?: TarifaHotelRefUpdateManyWithWhereWithoutHotelInput | TarifaHotelRefUpdateManyWithWhereWithoutHotelInput[]
+    deleteMany?: TarifaHotelRefScalarWhereInput | TarifaHotelRefScalarWhereInput[]
   }
 
   export type PaqueteHotelRefCreateNestedManyWithoutPaqueteInput = {
@@ -25577,6 +27005,28 @@ export namespace Prisma {
     update?: XOR<XOR<PaqueteRefUpdateToOneWithWhereWithoutImagenesInput, PaqueteRefUpdateWithoutImagenesInput>, PaqueteRefUncheckedUpdateWithoutImagenesInput>
   }
 
+  export type HotelRefCreateNestedOneWithoutTarifasInput = {
+    create?: XOR<HotelRefCreateWithoutTarifasInput, HotelRefUncheckedCreateWithoutTarifasInput>
+    connectOrCreate?: HotelRefCreateOrConnectWithoutTarifasInput
+    connect?: HotelRefWhereUniqueInput
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type HotelRefUpdateOneRequiredWithoutTarifasNestedInput = {
+    create?: XOR<HotelRefCreateWithoutTarifasInput, HotelRefUncheckedCreateWithoutTarifasInput>
+    connectOrCreate?: HotelRefCreateOrConnectWithoutTarifasInput
+    upsert?: HotelRefUpsertWithoutTarifasInput
+    connect?: HotelRefWhereUniqueInput
+    update?: XOR<XOR<HotelRefUpdateToOneWithWhereWithoutTarifasInput, HotelRefUpdateWithoutTarifasInput>, HotelRefUncheckedUpdateWithoutTarifasInput>
+  }
+
   export type AgenciaCreateNestedOneWithoutClientesInput = {
     create?: XOR<AgenciaCreateWithoutClientesInput, AgenciaUncheckedCreateWithoutClientesInput>
     connectOrCreate?: AgenciaCreateOrConnectWithoutClientesInput
@@ -25694,14 +27144,6 @@ export namespace Prisma {
   export type CotizacionUpdatesnapshotIncluyeInput = {
     set?: string[]
     push?: string | string[]
-  }
-
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -26014,6 +27456,22 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -26046,22 +27504,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -26546,6 +27988,7 @@ export namespace Prisma {
     nombre: string
     estrellas: number
     paquetes?: PaqueteHotelRefCreateNestedManyWithoutHotelInput
+    tarifas?: TarifaHotelRefCreateNestedManyWithoutHotelInput
   }
 
   export type HotelRefUncheckedCreateWithoutDestinoInput = {
@@ -26553,6 +27996,7 @@ export namespace Prisma {
     nombre: string
     estrellas: number
     paquetes?: PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput
+    tarifas?: TarifaHotelRefUncheckedCreateNestedManyWithoutHotelInput
   }
 
   export type HotelRefCreateOrConnectWithoutDestinoInput = {
@@ -26735,6 +28179,28 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TarifaHotelRefCreateWithoutHotelInput = {
+    id: number
+    tipoHabitacion: string
+    precioBase: number
+  }
+
+  export type TarifaHotelRefUncheckedCreateWithoutHotelInput = {
+    id: number
+    tipoHabitacion: string
+    precioBase: number
+  }
+
+  export type TarifaHotelRefCreateOrConnectWithoutHotelInput = {
+    where: TarifaHotelRefWhereUniqueInput
+    create: XOR<TarifaHotelRefCreateWithoutHotelInput, TarifaHotelRefUncheckedCreateWithoutHotelInput>
+  }
+
+  export type TarifaHotelRefCreateManyHotelInputEnvelope = {
+    data: TarifaHotelRefCreateManyHotelInput | TarifaHotelRefCreateManyHotelInput[]
+    skipDuplicates?: boolean
+  }
+
   export type DestinoRefUpsertWithoutHotelesInput = {
     update: XOR<DestinoRefUpdateWithoutHotelesInput, DestinoRefUncheckedUpdateWithoutHotelesInput>
     create: XOR<DestinoRefCreateWithoutHotelesInput, DestinoRefUncheckedCreateWithoutHotelesInput>
@@ -26790,6 +28256,32 @@ export namespace Prisma {
     hotelId?: IntFilter<"PaqueteHotelRef"> | number
     tipoHabitacion?: StringFilter<"PaqueteHotelRef"> | string
     cantidad?: IntFilter<"PaqueteHotelRef"> | number
+  }
+
+  export type TarifaHotelRefUpsertWithWhereUniqueWithoutHotelInput = {
+    where: TarifaHotelRefWhereUniqueInput
+    update: XOR<TarifaHotelRefUpdateWithoutHotelInput, TarifaHotelRefUncheckedUpdateWithoutHotelInput>
+    create: XOR<TarifaHotelRefCreateWithoutHotelInput, TarifaHotelRefUncheckedCreateWithoutHotelInput>
+  }
+
+  export type TarifaHotelRefUpdateWithWhereUniqueWithoutHotelInput = {
+    where: TarifaHotelRefWhereUniqueInput
+    data: XOR<TarifaHotelRefUpdateWithoutHotelInput, TarifaHotelRefUncheckedUpdateWithoutHotelInput>
+  }
+
+  export type TarifaHotelRefUpdateManyWithWhereWithoutHotelInput = {
+    where: TarifaHotelRefScalarWhereInput
+    data: XOR<TarifaHotelRefUpdateManyMutationInput, TarifaHotelRefUncheckedUpdateManyWithoutHotelInput>
+  }
+
+  export type TarifaHotelRefScalarWhereInput = {
+    AND?: TarifaHotelRefScalarWhereInput | TarifaHotelRefScalarWhereInput[]
+    OR?: TarifaHotelRefScalarWhereInput[]
+    NOT?: TarifaHotelRefScalarWhereInput | TarifaHotelRefScalarWhereInput[]
+    id?: IntFilter<"TarifaHotelRef"> | number
+    hotelId?: IntFilter<"TarifaHotelRef"> | number
+    tipoHabitacion?: StringFilter<"TarifaHotelRef"> | string
+    precioBase?: FloatFilter<"TarifaHotelRef"> | number
   }
 
   export type PaqueteHotelRefCreateWithoutPaqueteInput = {
@@ -27060,6 +28552,7 @@ export namespace Prisma {
     nombre: string
     estrellas: number
     destino: DestinoRefCreateNestedOneWithoutHotelesInput
+    tarifas?: TarifaHotelRefCreateNestedManyWithoutHotelInput
   }
 
   export type HotelRefUncheckedCreateWithoutPaquetesInput = {
@@ -27067,6 +28560,7 @@ export namespace Prisma {
     destinoId: number
     nombre: string
     estrellas: number
+    tarifas?: TarifaHotelRefUncheckedCreateNestedManyWithoutHotelInput
   }
 
   export type HotelRefCreateOrConnectWithoutPaquetesInput = {
@@ -27135,6 +28629,7 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     estrellas?: IntFieldUpdateOperationsInput | number
     destino?: DestinoRefUpdateOneRequiredWithoutHotelesNestedInput
+    tarifas?: TarifaHotelRefUpdateManyWithoutHotelNestedInput
   }
 
   export type HotelRefUncheckedUpdateWithoutPaquetesInput = {
@@ -27142,6 +28637,7 @@ export namespace Prisma {
     destinoId?: IntFieldUpdateOperationsInput | number
     nombre?: StringFieldUpdateOperationsInput | string
     estrellas?: IntFieldUpdateOperationsInput | number
+    tarifas?: TarifaHotelRefUncheckedUpdateManyWithoutHotelNestedInput
   }
 
   export type DestinoRefCreateWithoutActividadesInput = {
@@ -27742,6 +29238,54 @@ export namespace Prisma {
     versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
     traslados?: PaqueteTrasladoRefUncheckedUpdateManyWithoutPaqueteNestedInput
+  }
+
+  export type HotelRefCreateWithoutTarifasInput = {
+    id: number
+    nombre: string
+    estrellas: number
+    destino: DestinoRefCreateNestedOneWithoutHotelesInput
+    paquetes?: PaqueteHotelRefCreateNestedManyWithoutHotelInput
+  }
+
+  export type HotelRefUncheckedCreateWithoutTarifasInput = {
+    id: number
+    destinoId: number
+    nombre: string
+    estrellas: number
+    paquetes?: PaqueteHotelRefUncheckedCreateNestedManyWithoutHotelInput
+  }
+
+  export type HotelRefCreateOrConnectWithoutTarifasInput = {
+    where: HotelRefWhereUniqueInput
+    create: XOR<HotelRefCreateWithoutTarifasInput, HotelRefUncheckedCreateWithoutTarifasInput>
+  }
+
+  export type HotelRefUpsertWithoutTarifasInput = {
+    update: XOR<HotelRefUpdateWithoutTarifasInput, HotelRefUncheckedUpdateWithoutTarifasInput>
+    create: XOR<HotelRefCreateWithoutTarifasInput, HotelRefUncheckedCreateWithoutTarifasInput>
+    where?: HotelRefWhereInput
+  }
+
+  export type HotelRefUpdateToOneWithWhereWithoutTarifasInput = {
+    where?: HotelRefWhereInput
+    data: XOR<HotelRefUpdateWithoutTarifasInput, HotelRefUncheckedUpdateWithoutTarifasInput>
+  }
+
+  export type HotelRefUpdateWithoutTarifasInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    destino?: DestinoRefUpdateOneRequiredWithoutHotelesNestedInput
+    paquetes?: PaqueteHotelRefUpdateManyWithoutHotelNestedInput
+  }
+
+  export type HotelRefUncheckedUpdateWithoutTarifasInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destinoId?: IntFieldUpdateOperationsInput | number
+    nombre?: StringFieldUpdateOperationsInput | string
+    estrellas?: IntFieldUpdateOperationsInput | number
+    paquetes?: PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput
   }
 
   export type AgenciaCreateWithoutClientesInput = {
@@ -28851,6 +30395,7 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     estrellas?: IntFieldUpdateOperationsInput | number
     paquetes?: PaqueteHotelRefUpdateManyWithoutHotelNestedInput
+    tarifas?: TarifaHotelRefUpdateManyWithoutHotelNestedInput
   }
 
   export type HotelRefUncheckedUpdateWithoutDestinoInput = {
@@ -28858,6 +30403,7 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     estrellas?: IntFieldUpdateOperationsInput | number
     paquetes?: PaqueteHotelRefUncheckedUpdateManyWithoutHotelNestedInput
+    tarifas?: TarifaHotelRefUncheckedUpdateManyWithoutHotelNestedInput
   }
 
   export type HotelRefUncheckedUpdateManyWithoutDestinoInput = {
@@ -28909,6 +30455,12 @@ export namespace Prisma {
     cantidad: number
   }
 
+  export type TarifaHotelRefCreateManyHotelInput = {
+    id: number
+    tipoHabitacion: string
+    precioBase: number
+  }
+
   export type PaqueteHotelRefUpdateWithoutHotelInput = {
     tipoHabitacion?: StringFieldUpdateOperationsInput | string
     cantidad?: IntFieldUpdateOperationsInput | number
@@ -28925,6 +30477,24 @@ export namespace Prisma {
     paqueteId?: IntFieldUpdateOperationsInput | number
     tipoHabitacion?: StringFieldUpdateOperationsInput | string
     cantidad?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TarifaHotelRefUpdateWithoutHotelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TarifaHotelRefUncheckedUpdateWithoutHotelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TarifaHotelRefUncheckedUpdateManyWithoutHotelInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tipoHabitacion?: StringFieldUpdateOperationsInput | string
+    precioBase?: FloatFieldUpdateOperationsInput | number
   }
 
   export type PaqueteHotelRefCreateManyPaqueteInput = {

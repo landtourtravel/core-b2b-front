@@ -81,6 +81,7 @@ model HotelRef {
 
   destino  DestinoRef        @relation(fields: [destinoId], references: [id])
   paquetes PaqueteHotelRef[]
+  tarifas  TarifaHotelRef[]
 
   @@map("Hotel")
 }
@@ -195,6 +196,19 @@ model ImagenPaqueteRef {
   paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
 
   @@map("ImagenPaquete")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model TarifaHotelRef {
+  id             Int    @id
+  hotelId        Int
+  tipoHabitacion String // 'SGL' | 'DBL' | 'TPL' | 'QUAD' | 'CHD'
+  precioBase     Float
+
+  hotel HotelRef @relation(fields: [hotelId], references: [id])
+
+  @@unique([hotelId, tipoHabitacion])
+  @@map("TarifaHotel")
 }
 
 // ==============================================================

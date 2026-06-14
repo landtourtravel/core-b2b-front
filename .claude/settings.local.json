@@ -3,7 +3,12 @@
     "allow": [
       "Bash(git -C \"C:\\\\Users\\\\Usuario\\\\Documents\\\\PROYECTOS\\\\AGENCIADEVIAJES\\\\ltt-core-admin\\\\land-tour-client\" status)",
       "Bash(git -C \"C:\\\\Users\\\\Usuario\\\\Documents\\\\PROYECTOS\\\\AGENCIADEVIAJES\\\\ltt-core-admin\\\\land-tour-client\" branch --show-current)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(npm run *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(dir C:\\\\Users\\\\Administrator\\\\Documents\\\\GitHub\\\\ltt\\\\land-tour-client\\\\packages\\\\shared\\\\src *)",
+      "Bash(dir C:\\\\Users\\\\Administrator\\\\Documents\\\\GitHub\\\\ltt\\\\land-tour-client\\\\packages\\\\shared\\\\src\\\\types *)"
     ]
   }
 }

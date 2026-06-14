@@ -78,15 +78,31 @@ Dev mock users (no DB needed): `admin@agenciademo.com / Admin123*`, `colaborador
 
 ### Protected B2B dashboard
 
-`/dashboard/page.tsx` is a single large client component (~1500 lines) containing the entire agency portal: sidebar navigation, 5 tabs (Dashboard, Paquetes, Nueva Cotización, Cotizaciones, Marca Blanca), and a 4-step quoter (stepper).
+`/dashboard/page.tsx` is a single large client component (~1700 lines) containing the entire agency portal: sidebar navigation, 5 tabs (Dashboard, Paquetes, Nueva Cotización, Cotizaciones, Marca Blanca), and a 4-step quoter (stepper).
 
-**Important pattern:** `packages` state starts empty while loading. All derived state that depends on `selectedPkg` is guarded — the cotizador tab shows an inline error state if `isLoadingPackages || !selectedPkg` instead of crashing.
+#### Dual cotizador modes
+
+The "Nueva Cotización" tab supports two modes selected at Step 2:
+
+- **`cotMode = "catalogo"`** — picks a package from `cotizarData.paquetes` (DB). Prices come from `VersionPaqueteRef.precioPorPersona`. Subtotal = `precio × numPax × cantidad` (price already covers all nights).
+- **`cotMode = "libre"`** — picks a destino + hotel from `cotizarData.destinos` (DB). Prices come from `TarifaHotel.precioBase` (per night). Subtotal = `precio × numPax × cantidad × cotNoches`.
+
+`cotizarData` is fetched from `/api/cotizar-datos` on mount. Key state variables: `cotMode`, `cotizarData`, `cotSelectedPkgId`, `cotSelectedDestinoId`, `cotSelectedHotelIds`, `cotCustomDias`, `cotFechaSalida`, `cotHabs` (`Record<string, number>` keyed by tipoPax), `cotManualServices`.
+
+`PAX_BY_TYPE = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 }` — passengers per room unit.
+
+For libre cotizaciones, `paqueteId` is `null` in the DB (sentinel value `0` used only for optimistic UI updates in shared types). The old per-field state (`cantSGL`, `cantDBL`, etc.) is replaced by `cotHabs`.
 
 ### API layer
 
 `src/services/api.ts` — thin client wrapper for all fetch calls. Uses `safeFetch<T>()` which normalizes `503 → "DB_FAIL"` and empty arrays → `"EMPTY"`. Components receive `{ data, error }` and render inline states accordingly.
 
 API routes return `{ error: "DB_FAIL", status: 503 }` on any Prisma failure. Never throw unhandled errors to the client.
+
+Key API routes:
+
+- `GET /api/cotizar-datos` — returns `{ destinos, paquetes }` for the cotizador. Destinos include `hoteles[].tarifas[]`; paquetes include `versiones[]`. Used by the dual cotizador on mount.
+- `GET/POST /api/cotizaciones` — list/create cotizaciones. POST accepts flat room counts (`cantSGL`, `cantDBL`, …) and creates `CotizacionDetalle` rows per tipoPax. `paqueteId` is optional (null for libre). DB fields use `snapshotNombre/Destino/Duracion/Incluye`; the API maps these to `paqueteNombre/etc.` for the frontend.
 
 ### Email (mailer)
 
@@ -122,7 +138,17 @@ Fonts: Montserrat (public site), Inter (dashboard).
 ### Key shared types (`@land-tour/shared`)
 
 - `Package` — the canonical package type used everywhere; `prices.{sgl,dbl,tpl,quad,chd}` may be undefined
-- `Cotizacion` — snapshot-based (prices frozen at creation time so future package changes don't affect past quotes)
+- `Cotizacion` — snapshot-based (prices frozen at creation time so future package changes don't affect past quotes). `paqueteId: number` (non-nullable in shared types — use `0` as sentinel for libre cotizations in optimistic UI). `fechaViaje?: string` (optional, not null).
 - `CotizacionStatus`: `BORRADOR → ENVIADA → APROBADA | RECHAZADA`
 - `calcularSubtotal(rooms, prices)` — use this function for all subtotal math (not inline arithmetic)
 - `agenciaId` scopes every model — never query across agencies
+
+### Prisma readonly reference models
+
+Beyond the models listed in the Critical rule, the schema also declares these readonly references (managed by lt-core-admin, never migrate):
+
+- `HotelRef` — mapped to `Hotel` table; has `tarifas TarifaHotelRef[]` relation
+- `TarifaHotelRef` — mapped to `TarifaHotel` table; `(hotelId, tipoHabitacion)` unique; `precioBase` is per-night rate
+- `VersionPaqueteRef` — mapped to `VersionPaquete`; `(paqueteId, tipoPax)` unique; `precioPorPersona` covers all nights
+
+When adding new readonly models, annotate with `/// @readonly — gestionado por lt-core-admin` and use `@@map("TableName")`. Regenerate client with `npx prisma generate` from `apps/web/` (turbo alias may not be in PATH).
