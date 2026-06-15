@@ -72,17 +72,18 @@ export interface Package {
   highlights?: string[];
   itinerary?: ItineraryDay[];
   notes?: string[];
+  numPax: number;
+  numNinos: number;
+  visibleEnFront: boolean;
 }
 
 // ─── Autenticación / Usuarios ──────────────────────────────────────────────
 //
-// Roles dentro del portal de agencias minoristas.
-// ADMIN       → dueño/admin de la agencia: acceso completo a su agencia,
-//               puede configurar Marca Blanca, ver todos los colaboradores.
-// COLABORADOR → empleado de la agencia: puede cotizar y ver historial,
-//               NO accede a configuración ni gestión de equipo.
-// Kevin (superadmin) opera en lt-core-admin — otro subdominio, otro repo.
-export type UserRole = 'ADMIN' | 'COLABORADOR';
+// Enum RolUsuario definido en la BD (lt-core-admin es la fuente de verdad).
+// SUPERADMIN          → admin de Land Tour Travel, opera en lt-core-admin.
+// COLABORADOR_INTERNO → personal interno de LTT con acceso al portal B2B.
+// ASESOR_MINORISTA    → asesor de agencia minorista: rol estándar del portal B2B.
+export type UserRole = 'SUPERADMIN' | 'COLABORADOR_INTERNO' | 'ASESOR_MINORISTA';
 
 export interface User {
   id: string;

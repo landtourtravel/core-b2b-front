@@ -64,7 +64,18 @@ Split into two files to satisfy Next.js Edge/Node.js runtime boundaries:
 
 Session extends the default NextAuth types with `role: UserRole`, `agenciaId`, and `agenciaNombre`. All API routes use `session.user.agenciaId` to scope data access to the authenticated agency.
 
-Dev mock users (no DB needed): `admin@agenciademo.com / Admin123*`, `colaborador@agenciademo.com / Colab123*`.
+**`UserRole`** (definido en `packages/shared/src/types/index.ts`) refleja el enum real `RolUsuario` de la BD:
+
+```ts
+export type UserRole = 'SUPERADMIN' | 'COLABORADOR_INTERNO' | 'ASESOR_MINORISTA';
+```
+
+- `SUPERADMIN` / `COLABORADOR_INTERNO` → `isAdmin = true` en el dashboard (acceso a Marca Blanca)
+- `ASESOR_MINORISTA` → `isAdmin = false` (sin acceso a Marca Blanca)
+
+**No hay mock users.** El fallback de usuarios ficticios fue eliminado — `auth.ts` solo autentica contra la BD. Si Prisma falla, el login retorna `null` directamente.
+
+Usuario de prueba en DB: `asesor@agenciapruebas.com / Admin123*` (contraseña hasheada con bcrypt — actualizada 2026-06-14).
 
 ### Route protection
 
@@ -78,7 +89,17 @@ Dev mock users (no DB needed): `admin@agenciademo.com / Admin123*`, `colaborador
 
 ### Protected B2B dashboard
 
-`/dashboard/page.tsx` is a single large client component (~1700 lines) containing the entire agency portal: sidebar navigation, 5 tabs (Dashboard, Paquetes, Nueva Cotización, Cotizaciones, Marca Blanca), and a 4-step quoter (stepper).
+`/dashboard/page.tsx` is a single large client component (~1800 lines) containing the entire agency portal: sidebar navigation, 5 tabs (Dashboard, Paquetes, Nueva Cotización, Cotizaciones, Marca Blanca), and a 4-step quoter (stepper).
+
+**Adaptación móvil (2026-06-14):** El sidebar (`w-64`) se oculta con `hidden lg:flex`. En móvil se muestra un bottom nav fijo (`lg:hidden fixed bottom-0`) con 5 tabs: Inicio, Paquetes, Nueva, Cotizaciones, Perfil. El tab Perfil incluye datos de la agencia, acceso a Marca Blanca (solo admins) y botón de logout. Header móvil: `h-14`, logo LTT disimulado (`opacity-60 lg:hidden`), badge "Portal" pulsante a la derecha del título. Cotizaciones: vista de tarjetas (`sm:hidden`) + tabla (`hidden sm:block`). Stepper: panel lateral `hidden lg:block`, etiquetas de paso `hidden sm:block`. Main padding: `p-4 lg:p-8 pb-24 lg:pb-8`.
+
+**Control de acceso por rol:**
+```ts
+const isAdmin = rawRole === "SUPERADMIN" || rawRole === "COLABORADOR_INTERNO";
+```
+- El tab "Mi Marca Blanca" solo aparece en el sidebar si `isAdmin === true`.
+- El contenido del tab también está guardado con `{activeTab === "marca-blanca" && isAdmin && ...}`.
+- `ASESOR_MINORISTA` nunca ve ni puede acceder a Marca Blanca.
 
 #### Dual cotizador modes
 
@@ -152,3 +173,25 @@ Beyond the models listed in the Critical rule, the schema also declares these re
 - `VersionPaqueteRef` — mapped to `VersionPaquete`; `(paqueteId, tipoPax)` unique; `precioPorPersona` covers all nights
 
 When adding new readonly models, annotate with `/// @readonly — gestionado por lt-core-admin` and use `@@map("TableName")`. Regenerate client with `npx prisma generate` from `apps/web/` (turbo alias may not be in PATH).
+
+### Estado actual de la BD (Supabase) — actualizado 2026-06-14
+
+**Paquetes visibles en front:**
+- `id 8` — "Magias de Francia" (París, 5 días / 4 noches, incluye boleto). Versiones: SGL $452, DBL $381.
+- `id 9` — "Viajes memoriales" (Cartagena, 3 días / 2 noches, incluye boleto). Versiones: SGL $535, TPL $438.33, QUAD $418.25. Sin versión DBL (no disponible).
+
+**Destinos:** id 7 París/Francia, id 8 Cartagena/Colombia.
+
+**Hoteles:** 3 hoteles (ids 7, 8, 9) con tarifas `TarifaHotel` completas (SGL/DBL/TPL/QUAD/CHD).
+
+**Tablas en BD sin modelo en Prisma** (gestionadas por lt-core-admin, no modelar aquí):
+`PoliticaNinos`, `TarifaActividad`, `TarifaTraslado`, `VersionPaqueteActividad`, `VersionPaqueteTraslado`.
+
+**Usuarios en BD (`User` table):** `asesor@agenciapruebas.com` — "Asesor de Prueba", rol `ASESOR_MINORISTA`, contraseña bcrypt (`Admin123*`). No hay mock users en el código.
+
+**Cotizaciones existentes:** 2 cotizaciones reales (COT-20260602-001 RECHAZADA, COT-20260602-002 APROBADA), agencia "Agencia de Pruebas B2B".
+
+### Reglas de trabajo con Claude Code
+
+- **Cada vez que se acumulen 3+ cambios significativos en una sesión**: documentar en este CLAUDE.md, luego indicar al usuario que corra `/compact` y `/clear` para limpiar el contexto.
+- Cambios significativos = nuevas rutas, cambios de schema/tipos, lógica de negocio, correcciones de datos en BD, nuevos componentes.

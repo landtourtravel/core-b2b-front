@@ -91,11 +91,12 @@ export default function DashboardPage() {
 
   const userName      = sessionData?.user?.name || "Ana Córdova";
   const rawRole       = (sessionData?.user as any)?.role as string | undefined;
-  const isAdmin       = rawRole !== "COLABORADOR";
+  const isAdmin       = rawRole === "SUPERADMIN" || rawRole === "COLABORADOR_INTERNO";
   const agenciaDisplay = (sessionData?.user as any)?.agenciaNombre || "Viajes Andina Tours";
   const userRoleDisplay =
-    rawRole === "ADMIN"       ? "Administrador" :
-    rawRole === "COLABORADOR" ? "Colaborador"   : "Ejecutiva de Ventas";
+    rawRole === "SUPERADMIN"         ? "Super Administrador" :
+    rawRole === "COLABORADOR_INTERNO" ? "Colaborador Interno" :
+    rawRole === "ASESOR_MINORISTA"   ? "Asesor de Ventas"    : "Asesor de Ventas";
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -571,7 +572,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#F4FAF8] flex font-inter text-primary select-none">
 
       {/* ── SIDEBAR ── */}
-      <aside className="w-64 bg-primary-dark text-white flex flex-col justify-between shrink-0 shadow-[4px_0_24px_rgba(5,41,36,0.15)] relative z-20">
+      <aside className="hidden lg:flex w-64 bg-primary-dark text-white flex-col justify-between shrink-0 shadow-[4px_0_24px_rgba(5,41,36,0.15)] relative z-20">
         <div className="flex flex-col">
           <div className="p-6 border-b border-white/5 flex flex-col gap-2">
             <div className="bg-white p-3 rounded-2xl shadow-sm flex items-center justify-center">
@@ -665,32 +666,56 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
 
         {/* Header */}
-        <header className="h-[76px] bg-white border-b border-gray-100 px-8 flex items-center justify-between shrink-0 sticky top-0 z-10 shadow-sm">
-          <div className="flex flex-col">
-            <h2 className="text-base font-black text-primary uppercase tracking-widest leading-none">
+        <header className="h-14 lg:h-[76px] bg-white border-b border-gray-100 px-4 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-10 shadow-sm gap-3">
+          {/* Mobile: logo LTT disimulado | Desktop: título + breadcrumb */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="lg:hidden relative w-[60px] h-[20px] opacity-60 shrink-0">
+              <Image src="/images/lttlogo.png" alt="LTT" fill className="object-contain" />
+            </div>
+            <h2 className="lg:hidden text-[11px] font-black text-primary uppercase tracking-widest truncate">
               {activeTab === "dashboard"    && "Dashboard"}
-              {activeTab === "paquetes"     && "Cotizar Paquetes"}
+              {activeTab === "paquetes"     && "Paquetes"}
               {activeTab === "cotizar"      && "Nueva Cotización"}
-              {activeTab === "cotizaciones" && "Listado de Cotizaciones"}
-              {activeTab === "marca-blanca" && "Mi Marca Blanca"}
+              {activeTab === "cotizaciones" && "Cotizaciones"}
+              {activeTab === "marca-blanca" && "Marca Blanca"}
+              {activeTab === "perfil"       && "Mi Perfil"}
             </h2>
-            <div className="flex items-center gap-1.5 text-[10px] font-black text-primary/40 uppercase tracking-widest mt-1.5">
-              <span>Inicio</span><span>/</span>
-              <span className="text-secondary">
+            <div className="hidden lg:flex flex-col">
+              <h2 className="text-base font-black text-primary uppercase tracking-widest leading-none">
                 {activeTab === "dashboard"    && "Dashboard"}
                 {activeTab === "paquetes"     && "Cotizar Paquetes"}
                 {activeTab === "cotizar"      && "Nueva Cotización"}
                 {activeTab === "cotizaciones" && "Listado de Cotizaciones"}
                 {activeTab === "marca-blanca" && "Mi Marca Blanca"}
-              </span>
+                {activeTab === "perfil"       && "Mi Perfil"}
+              </h2>
+              <div className="flex items-center gap-1.5 text-[10px] font-black text-primary/40 uppercase tracking-widest mt-1.5">
+                <span>Inicio</span><span>/</span>
+                <span className="text-secondary">
+                  {activeTab === "dashboard"    && "Dashboard"}
+                  {activeTab === "paquetes"     && "Cotizar Paquetes"}
+                  {activeTab === "cotizar"      && "Nueva Cotización"}
+                  {activeTab === "cotizaciones" && "Listado de Cotizaciones"}
+                  {activeTab === "marca-blanca" && "Mi Marca Blanca"}
+                  {activeTab === "perfil"       && "Mi Perfil"}
+                </span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-1.5 bg-[#F4FAF8] border border-[#EDF7F5] rounded-xl text-[10px] font-black text-primary uppercase tracking-wider">
-            <Building2 size={12} className="text-secondary" /> {agenciaDisplay}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Portal badge — móvil */}
+            <div className="lg:hidden flex items-center gap-1.5 px-2.5 py-1 bg-secondary/10 border border-secondary/20 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+              <span className="text-[9px] font-black text-secondary uppercase tracking-wider">Portal</span>
+            </div>
+            {/* Agency badge — desktop */}
+            <div className="hidden lg:flex items-center gap-2 px-4 py-1.5 bg-[#F4FAF8] border border-[#EDF7F5] rounded-xl text-[10px] font-black text-primary uppercase tracking-wider">
+              <Building2 size={12} className="text-secondary" /> {agenciaDisplay}
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 lg:p-8 pb-24 lg:pb-8">
 
           {/* ════════════════════════ DASHBOARD ════════════════════════ */}
           {activeTab === "dashboard" && (
@@ -702,7 +727,7 @@ export default function DashboardPage() {
                   { value: kpiRechazadas, label: "Cotizaciones canceladas",  change: "↓ 1%",  trend: "down", icon: <X size={16} /> },
                   { value: kpiPendientes, label: "Pendientes de aprobación", change: "↓ 2%",  trend: "down", icon: <Clock size={16} /> },
                 ].map((item, i) => (
-                  <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100/80 shadow-sm flex flex-col justify-between gap-4 hover:shadow-md transition-all duration-200">
+                  <div key={i} className="bg-white p-3 sm:p-6 rounded-3xl border border-gray-100/80 shadow-sm flex flex-col justify-between gap-3 sm:gap-4 hover:shadow-md transition-all duration-200">
                     <div className="flex items-center justify-between">
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${item.trend === "up" ? "bg-secondary/10 text-secondary" : "bg-red-50 text-red-500"}`}>
                         {item.icon}
@@ -712,7 +737,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div>
-                      <span className="text-3xl font-black text-primary tracking-tight">{item.value}</span>
+                      <span className="text-2xl sm:text-3xl font-black text-primary tracking-tight">{item.value}</span>
                       <span className="block text-[11px] font-bold text-primary/50 mt-1">{item.label}</span>
                     </div>
                   </div>
@@ -946,7 +971,7 @@ export default function DashboardPage() {
                           <div className={`w-8 h-8 rounded-full font-black text-xs flex items-center justify-center shrink-0 border-2 transition-all ${active ? "bg-secondary border-secondary text-primary shadow-glow scale-110" : "border-gray-200 bg-white text-gray-400"}`}>
                             {si.s}
                           </div>
-                          <span className={`text-[10px] font-black uppercase tracking-wider absolute -bottom-5 whitespace-nowrap ${active ? "text-primary" : "text-gray-400"}`}>{si.label}</span>
+                          <span className={`hidden sm:block text-[10px] font-black uppercase tracking-wider absolute -bottom-5 whitespace-nowrap ${active ? "text-primary" : "text-gray-400"}`}>{si.label}</span>
                         </div>
                         {i < arr.length - 1 && <div className={`flex-1 h-0.5 mx-4 transition-all ${step > si.s ? "bg-secondary" : "bg-gray-200"}`} />}
                       </React.Fragment>
@@ -1444,8 +1469,8 @@ export default function DashboardPage() {
 
                 </div>
 
-                {/* ── Summary sidebar ── */}
-                <div className="space-y-5">
+                {/* ── Summary sidebar — solo desktop ── */}
+                <div className="hidden lg:block space-y-5">
                   <div className="bg-primary p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden flex flex-col gap-5 border border-white/5">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-12 translate-x-12 blur-2xl pointer-events-none" />
                     <div className="flex items-center justify-between">
@@ -1525,7 +1550,53 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* ── Vista de tarjetas (solo móvil) ── */}
+              <div className="sm:hidden space-y-3">
+                {isLoadingCots ? (
+                  <div className="flex justify-center py-10">
+                    <div className="w-7 h-7 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+                  </div>
+                ) : cotizaciones.length === 0 ? (
+                  <div className="text-center py-10 text-primary/40 text-xs font-bold">Sin cotizaciones registradas.</div>
+                ) : cotizaciones.map((cot) => {
+                  const ext = cot as CotizacionExtended;
+                  return (
+                    <div key={cot.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="text-[11px] font-black text-secondary block">{cot.codigo}</span>
+                          <span className="text-sm font-black text-primary block mt-0.5 truncate">{cot.cliente?.nombre || "—"}</span>
+                          <span className="text-[11px] font-bold text-primary/50 block mt-0.5 truncate">
+                            {cot.paqueteNombre}{cot.fechaViaje ? ` · ${cot.fechaViaje}` : ""}
+                          </span>
+                        </div>
+                        <span className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg tracking-wider flex items-center gap-1.5 shrink-0 ${STATUS_BADGE[cot.status]}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[cot.status]}`} />
+                          {COTIZACION_STATUS_LABEL[cot.status]}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+                        <span className="text-lg font-black text-primary">${cot.total.toLocaleString()} <span className="text-[10px] font-bold text-primary/40">USD</span></span>
+                        <div className="flex gap-2">
+                          <button onClick={() => alert(`Visualizando ${cot.codigo}`)} className="p-2 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-xl border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={14} /></button>
+                          {cot.status === "BORRADOR" && !!ext.hotelsComparison?.length && (
+                            <button onClick={() => handleOpenFinalizeDialog(cot.id)} className="p-2 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-xl border border-secondary/20 transition-all cursor-pointer"><Star size={14} /></button>
+                          )}
+                          {(cot.status === "ENVIADA" || cot.status === "BORRADOR") && (
+                            <>
+                              <button onClick={() => handleAprobar(cot.id)} className="p-2 bg-light hover:bg-emerald-50 text-primary hover:text-emerald-600 rounded-xl border border-lighter transition-all cursor-pointer"><Check size={14} /></button>
+                              <button onClick={() => handleRechazar(cot.id)} className="p-2 bg-light hover:bg-rose-50 text-primary hover:text-rose-600 rounded-xl border border-lighter transition-all cursor-pointer"><X size={14} /></button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ── Vista de tabla (sm y arriba) ── */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[750px]">
                   <thead>
                     <tr className="border-b border-gray-100">
@@ -1597,7 +1668,7 @@ export default function DashboardPage() {
           )}
 
           {/* ════════════════════════ MARCA BLANCA ════════════════════════ */}
-          {activeTab === "marca-blanca" && (
+          {activeTab === "marca-blanca" && isAdmin && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-scale">
               <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm lg:col-span-2 space-y-6">
                 <div className="border-b border-gray-50 pb-4">
@@ -1713,8 +1784,89 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* ════════════════════════ PERFIL (solo móvil) ════════════════════════ */}
+          {activeTab === "perfil" && (
+            <div className="space-y-4 animate-fade-scale max-w-lg mx-auto">
+              {/* Usuario */}
+              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-secondary text-primary flex items-center justify-center font-black text-lg shrink-0 shadow-inner">
+                  {userName.split(" ").map((n) => n[0]).join("")}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-primary truncate">{userName}</h3>
+                  <p className="text-[11px] font-bold text-secondary mt-0.5">{userRoleDisplay}</p>
+                  <div className="flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-[#F4FAF8] border border-[#EDF7F5] rounded-lg w-fit">
+                    <Building2 size={10} className="text-secondary shrink-0" />
+                    <span className="text-[10px] font-black text-primary truncate max-w-[160px]">{agenciaDisplay}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Marca Blanca — solo admins */}
+              {isAdmin && (
+                <button
+                  onClick={() => setActiveTab("marca-blanca")}
+                  className="w-full bg-white rounded-3xl border border-gray-100 shadow-sm p-5 flex items-center justify-between text-left active:bg-light transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                      <Settings2 size={16} className="text-secondary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-primary">Mi Marca Blanca</p>
+                      <p className="text-[10px] font-bold text-primary/40 mt-0.5">Logo, datos y markup de agencia</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-primary/30 shrink-0" />
+                </button>
+              )}
+
+              {/* Cerrar sesión */}
+              <button
+                onClick={handleLogout}
+                className="w-full py-4 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2 border border-red-100 cursor-pointer"
+              >
+                <LogOut size={14} /> Cerrar Sesión
+              </button>
+            </div>
+          )}
+
         </main>
       </div>
+
+      {/* ── BOTTOM NAV (solo móvil) ── */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(11,67,57,0.08)] flex items-stretch h-16">
+        {([
+          { id: "dashboard",    icon: LayoutDashboard,  label: "Inicio"    },
+          { id: "paquetes",     icon: Compass,          label: "Paquetes"  },
+          { id: "cotizar",      icon: Plus,             label: "Nueva"     },
+          { id: "cotizaciones", icon: FileSpreadsheet,  label: "Cots."     },
+          { id: "perfil",       icon: User,             label: "Perfil"    },
+        ] as const).map(({ id, icon: Icon, label }) => {
+          const isActive = id === "perfil"
+            ? activeTab === "perfil" || activeTab === "marca-blanca"
+            : activeTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => { setActiveTab(id); if (id === "cotizar") resetForm(); }}
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer relative"
+            >
+              <div className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all ${isActive ? "bg-secondary" : ""}`}>
+                <Icon size={16} className={isActive ? "text-primary stroke-[2.5]" : "text-primary/40 stroke-2"} />
+              </div>
+              <span className={`text-[9px] font-black uppercase tracking-wider leading-none ${isActive ? "text-primary" : "text-primary/40"}`}>
+                {label}
+              </span>
+              {id === "cotizaciones" && kpiPendientes > 0 && (
+                <span className="absolute top-1.5 right-[calc(50%-18px)] w-4 h-4 rounded-full bg-secondary text-primary font-black text-[8px] flex items-center justify-center border-2 border-white">
+                  {kpiPendientes}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
 
       {/* ════════════════════════ PROFORMA FINALIZATION DIALOG ════════════════════════ */}
       <dialog ref={proformaDialogRef} className="p-4" onClick={(e) => { if (e.target === proformaDialogRef.current) proformaDialogRef.current?.close(); }}>

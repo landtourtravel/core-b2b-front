@@ -7348,6 +7348,7 @@ export namespace Prisma {
     id: number | null
     precioBoleto: number | null
     numPax: number | null
+    numNinos: number | null
     diasEstancia: number | null
     nochesBase: number | null
     precioTotal: number | null
@@ -7358,6 +7359,7 @@ export namespace Prisma {
     id: number | null
     precioBoleto: number | null
     numPax: number | null
+    numNinos: number | null
     diasEstancia: number | null
     nochesBase: number | null
     precioTotal: number | null
@@ -7371,10 +7373,12 @@ export namespace Prisma {
     incluyeBoleto: boolean | null
     precioBoleto: number | null
     numPax: number | null
+    numNinos: number | null
     diasEstancia: number | null
     nochesBase: number | null
     precioTotal: number | null
     precioPorPersona: number | null
+    visibleEnFront: boolean | null
   }
 
   export type PaqueteRefMaxAggregateOutputType = {
@@ -7384,10 +7388,12 @@ export namespace Prisma {
     incluyeBoleto: boolean | null
     precioBoleto: number | null
     numPax: number | null
+    numNinos: number | null
     diasEstancia: number | null
     nochesBase: number | null
     precioTotal: number | null
     precioPorPersona: number | null
+    visibleEnFront: boolean | null
   }
 
   export type PaqueteRefCountAggregateOutputType = {
@@ -7397,10 +7403,12 @@ export namespace Prisma {
     incluyeBoleto: number
     precioBoleto: number
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal: number
     precioPorPersona: number
+    visibleEnFront: number
     _all: number
   }
 
@@ -7409,6 +7417,7 @@ export namespace Prisma {
     id?: true
     precioBoleto?: true
     numPax?: true
+    numNinos?: true
     diasEstancia?: true
     nochesBase?: true
     precioTotal?: true
@@ -7419,6 +7428,7 @@ export namespace Prisma {
     id?: true
     precioBoleto?: true
     numPax?: true
+    numNinos?: true
     diasEstancia?: true
     nochesBase?: true
     precioTotal?: true
@@ -7432,10 +7442,12 @@ export namespace Prisma {
     incluyeBoleto?: true
     precioBoleto?: true
     numPax?: true
+    numNinos?: true
     diasEstancia?: true
     nochesBase?: true
     precioTotal?: true
     precioPorPersona?: true
+    visibleEnFront?: true
   }
 
   export type PaqueteRefMaxAggregateInputType = {
@@ -7445,10 +7457,12 @@ export namespace Prisma {
     incluyeBoleto?: true
     precioBoleto?: true
     numPax?: true
+    numNinos?: true
     diasEstancia?: true
     nochesBase?: true
     precioTotal?: true
     precioPorPersona?: true
+    visibleEnFront?: true
   }
 
   export type PaqueteRefCountAggregateInputType = {
@@ -7458,10 +7472,12 @@ export namespace Prisma {
     incluyeBoleto?: true
     precioBoleto?: true
     numPax?: true
+    numNinos?: true
     diasEstancia?: true
     nochesBase?: true
     precioTotal?: true
     precioPorPersona?: true
+    visibleEnFront?: true
     _all?: true
   }
 
@@ -7558,10 +7574,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal: number | null
     precioPorPersona: number | null
+    visibleEnFront: boolean
     _count: PaqueteRefCountAggregateOutputType | null
     _avg: PaqueteRefAvgAggregateOutputType | null
     _sum: PaqueteRefSumAggregateOutputType | null
@@ -7590,10 +7608,12 @@ export namespace Prisma {
     incluyeBoleto?: boolean
     precioBoleto?: boolean
     numPax?: boolean
+    numNinos?: boolean
     diasEstancia?: boolean
     nochesBase?: boolean
     precioTotal?: boolean
     precioPorPersona?: boolean
+    visibleEnFront?: boolean
     hoteles?: boolean | PaqueteRef$hotelesArgs<ExtArgs>
     versiones?: boolean | PaqueteRef$versionesArgs<ExtArgs>
     imagenes?: boolean | PaqueteRef$imagenesArgs<ExtArgs>
@@ -7609,10 +7629,12 @@ export namespace Prisma {
     incluyeBoleto?: boolean
     precioBoleto?: boolean
     numPax?: boolean
+    numNinos?: boolean
     diasEstancia?: boolean
     nochesBase?: boolean
     precioTotal?: boolean
     precioPorPersona?: boolean
+    visibleEnFront?: boolean
   }, ExtArgs["result"]["paqueteRef"]>
 
   export type PaqueteRefSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7622,10 +7644,12 @@ export namespace Prisma {
     incluyeBoleto?: boolean
     precioBoleto?: boolean
     numPax?: boolean
+    numNinos?: boolean
     diasEstancia?: boolean
     nochesBase?: boolean
     precioTotal?: boolean
     precioPorPersona?: boolean
+    visibleEnFront?: boolean
   }, ExtArgs["result"]["paqueteRef"]>
 
   export type PaqueteRefSelectScalar = {
@@ -7635,13 +7659,15 @@ export namespace Prisma {
     incluyeBoleto?: boolean
     precioBoleto?: boolean
     numPax?: boolean
+    numNinos?: boolean
     diasEstancia?: boolean
     nochesBase?: boolean
     precioTotal?: boolean
     precioPorPersona?: boolean
+    visibleEnFront?: boolean
   }
 
-  export type PaqueteRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "descripcion" | "incluyeBoleto" | "precioBoleto" | "numPax" | "diasEstancia" | "nochesBase" | "precioTotal" | "precioPorPersona", ExtArgs["result"]["paqueteRef"]>
+  export type PaqueteRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "descripcion" | "incluyeBoleto" | "precioBoleto" | "numPax" | "numNinos" | "diasEstancia" | "nochesBase" | "precioTotal" | "precioPorPersona" | "visibleEnFront", ExtArgs["result"]["paqueteRef"]>
   export type PaqueteRefInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     hoteles?: boolean | PaqueteRef$hotelesArgs<ExtArgs>
     versiones?: boolean | PaqueteRef$versionesArgs<ExtArgs>
@@ -7669,10 +7695,12 @@ export namespace Prisma {
       incluyeBoleto: boolean
       precioBoleto: number | null
       numPax: number
+      numNinos: number
       diasEstancia: number
       nochesBase: number
       precioTotal: number | null
       precioPorPersona: number | null
+      visibleEnFront: boolean
     }, ExtArgs["result"]["paqueteRef"]>
     composites: {}
   }
@@ -8107,10 +8135,12 @@ export namespace Prisma {
     readonly incluyeBoleto: FieldRef<"PaqueteRef", 'Boolean'>
     readonly precioBoleto: FieldRef<"PaqueteRef", 'Float'>
     readonly numPax: FieldRef<"PaqueteRef", 'Int'>
+    readonly numNinos: FieldRef<"PaqueteRef", 'Int'>
     readonly diasEstancia: FieldRef<"PaqueteRef", 'Int'>
     readonly nochesBase: FieldRef<"PaqueteRef", 'Int'>
     readonly precioTotal: FieldRef<"PaqueteRef", 'Float'>
     readonly precioPorPersona: FieldRef<"PaqueteRef", 'Float'>
+    readonly visibleEnFront: FieldRef<"PaqueteRef", 'Boolean'>
   }
     
 
@@ -22326,10 +22356,12 @@ export namespace Prisma {
     incluyeBoleto: 'incluyeBoleto',
     precioBoleto: 'precioBoleto',
     numPax: 'numPax',
+    numNinos: 'numNinos',
     diasEstancia: 'diasEstancia',
     nochesBase: 'nochesBase',
     precioTotal: 'precioTotal',
-    precioPorPersona: 'precioPorPersona'
+    precioPorPersona: 'precioPorPersona',
+    visibleEnFront: 'visibleEnFront'
   };
 
   export type PaqueteRefScalarFieldEnum = (typeof PaqueteRefScalarFieldEnum)[keyof typeof PaqueteRefScalarFieldEnum]
@@ -22857,10 +22889,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFilter<"PaqueteRef"> | boolean
     precioBoleto?: FloatNullableFilter<"PaqueteRef"> | number | null
     numPax?: IntFilter<"PaqueteRef"> | number
+    numNinos?: IntFilter<"PaqueteRef"> | number
     diasEstancia?: IntFilter<"PaqueteRef"> | number
     nochesBase?: IntFilter<"PaqueteRef"> | number
     precioTotal?: FloatNullableFilter<"PaqueteRef"> | number | null
     precioPorPersona?: FloatNullableFilter<"PaqueteRef"> | number | null
+    visibleEnFront?: BoolFilter<"PaqueteRef"> | boolean
     hoteles?: PaqueteHotelRefListRelationFilter
     versiones?: VersionPaqueteRefListRelationFilter
     imagenes?: ImagenPaqueteRefListRelationFilter
@@ -22875,10 +22909,12 @@ export namespace Prisma {
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrderInput | SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrderInput | SortOrder
     precioPorPersona?: SortOrderInput | SortOrder
+    visibleEnFront?: SortOrder
     hoteles?: PaqueteHotelRefOrderByRelationAggregateInput
     versiones?: VersionPaqueteRefOrderByRelationAggregateInput
     imagenes?: ImagenPaqueteRefOrderByRelationAggregateInput
@@ -22896,10 +22932,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFilter<"PaqueteRef"> | boolean
     precioBoleto?: FloatNullableFilter<"PaqueteRef"> | number | null
     numPax?: IntFilter<"PaqueteRef"> | number
+    numNinos?: IntFilter<"PaqueteRef"> | number
     diasEstancia?: IntFilter<"PaqueteRef"> | number
     nochesBase?: IntFilter<"PaqueteRef"> | number
     precioTotal?: FloatNullableFilter<"PaqueteRef"> | number | null
     precioPorPersona?: FloatNullableFilter<"PaqueteRef"> | number | null
+    visibleEnFront?: BoolFilter<"PaqueteRef"> | boolean
     hoteles?: PaqueteHotelRefListRelationFilter
     versiones?: VersionPaqueteRefListRelationFilter
     imagenes?: ImagenPaqueteRefListRelationFilter
@@ -22914,10 +22952,12 @@ export namespace Prisma {
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrderInput | SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrderInput | SortOrder
     precioPorPersona?: SortOrderInput | SortOrder
+    visibleEnFront?: SortOrder
     _count?: PaqueteRefCountOrderByAggregateInput
     _avg?: PaqueteRefAvgOrderByAggregateInput
     _max?: PaqueteRefMaxOrderByAggregateInput
@@ -22935,10 +22975,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolWithAggregatesFilter<"PaqueteRef"> | boolean
     precioBoleto?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
     numPax?: IntWithAggregatesFilter<"PaqueteRef"> | number
+    numNinos?: IntWithAggregatesFilter<"PaqueteRef"> | number
     diasEstancia?: IntWithAggregatesFilter<"PaqueteRef"> | number
     nochesBase?: IntWithAggregatesFilter<"PaqueteRef"> | number
     precioTotal?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
     precioPorPersona?: FloatNullableWithAggregatesFilter<"PaqueteRef"> | number | null
+    visibleEnFront?: BoolWithAggregatesFilter<"PaqueteRef"> | boolean
   }
 
   export type PaqueteHotelRefWhereInput = {
@@ -24027,10 +24069,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
@@ -24045,10 +24089,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
@@ -24063,10 +24109,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
@@ -24081,10 +24129,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
@@ -24099,10 +24149,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
   }
 
   export type PaqueteRefUpdateManyMutationInput = {
@@ -24112,10 +24164,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type PaqueteRefUncheckedUpdateManyInput = {
@@ -24125,10 +24179,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type PaqueteHotelRefCreateInput = {
@@ -25338,16 +25394,19 @@ export namespace Prisma {
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrder
     precioPorPersona?: SortOrder
+    visibleEnFront?: SortOrder
   }
 
   export type PaqueteRefAvgOrderByAggregateInput = {
     id?: SortOrder
     precioBoleto?: SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrder
@@ -25361,10 +25420,12 @@ export namespace Prisma {
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrder
     precioPorPersona?: SortOrder
+    visibleEnFront?: SortOrder
   }
 
   export type PaqueteRefMinOrderByAggregateInput = {
@@ -25374,16 +25435,19 @@ export namespace Prisma {
     incluyeBoleto?: SortOrder
     precioBoleto?: SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrder
     precioPorPersona?: SortOrder
+    visibleEnFront?: SortOrder
   }
 
   export type PaqueteRefSumOrderByAggregateInput = {
     id?: SortOrder
     precioBoleto?: SortOrder
     numPax?: SortOrder
+    numNinos?: SortOrder
     diasEstancia?: SortOrder
     nochesBase?: SortOrder
     precioTotal?: SortOrder
@@ -28515,10 +28579,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
     actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
@@ -28532,10 +28598,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
@@ -28586,10 +28654,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
@@ -28603,10 +28673,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
@@ -28827,10 +28899,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
@@ -28844,10 +28918,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
@@ -28896,10 +28972,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
@@ -28913,10 +28991,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
@@ -28955,10 +29035,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
@@ -28972,10 +29054,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
@@ -29022,10 +29106,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
@@ -29039,10 +29125,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
@@ -29079,10 +29167,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefCreateNestedManyWithoutPaqueteInput
     actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
@@ -29096,10 +29186,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
     imagenes?: ImagenPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
@@ -29129,10 +29221,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
@@ -29146,10 +29240,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
     imagenes?: ImagenPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput
@@ -29163,10 +29259,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefCreateNestedManyWithoutPaqueteInput
     actividades?: PaqueteActividadRefCreateNestedManyWithoutPaqueteInput
@@ -29180,10 +29278,12 @@ export namespace Prisma {
     incluyeBoleto: boolean
     precioBoleto?: number | null
     numPax: number
+    numNinos: number
     diasEstancia: number
     nochesBase: number
     precioTotal?: number | null
     precioPorPersona?: number | null
+    visibleEnFront: boolean
     hoteles?: PaqueteHotelRefUncheckedCreateNestedManyWithoutPaqueteInput
     versiones?: VersionPaqueteRefUncheckedCreateNestedManyWithoutPaqueteInput
     actividades?: PaqueteActividadRefUncheckedCreateNestedManyWithoutPaqueteInput
@@ -29213,10 +29313,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUpdateManyWithoutPaqueteNestedInput
@@ -29230,10 +29332,12 @@ export namespace Prisma {
     incluyeBoleto?: BoolFieldUpdateOperationsInput | boolean
     precioBoleto?: NullableFloatFieldUpdateOperationsInput | number | null
     numPax?: IntFieldUpdateOperationsInput | number
+    numNinos?: IntFieldUpdateOperationsInput | number
     diasEstancia?: IntFieldUpdateOperationsInput | number
     nochesBase?: IntFieldUpdateOperationsInput | number
     precioTotal?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorPersona?: NullableFloatFieldUpdateOperationsInput | number | null
+    visibleEnFront?: BoolFieldUpdateOperationsInput | boolean
     hoteles?: PaqueteHotelRefUncheckedUpdateManyWithoutPaqueteNestedInput
     versiones?: VersionPaqueteRefUncheckedUpdateManyWithoutPaqueteNestedInput
     actividades?: PaqueteActividadRefUncheckedUpdateManyWithoutPaqueteNestedInput

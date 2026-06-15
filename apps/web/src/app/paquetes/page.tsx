@@ -52,21 +52,25 @@ export default function PaquetesPage() {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     api.getPackagesDetailed()
-      .then(({ data, error }) => { setPackages(data); setFetchError(error); })
-      .catch(() => setFetchError("DB_FAIL"))
-      .finally(() => setIsLoading(false));
+      .then(({ data, error }) => { if (!cancelled) { setPackages(data); setFetchError(error); } })
+      .catch(() => { if (!cancelled) setFetchError("DB_FAIL"); })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
   // Carga destinos y ciudades desde /api/destinations en un solo fetch
   useEffect(() => {
-    fetch("/api/destinations")
-      .then(r => r.json())
+    const controller = new AbortController();
+    fetch("/api/destinations", { signal: controller.signal })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then((data: Destino[]) => {
         setDestinations(data);
         setAllCities([...new Set(data.map(d => d.ciudad).filter(Boolean))].sort());
       })
-      .catch(console.error);
+      .catch(err => { if (err?.name !== "AbortError") console.error(err); });
+    return () => controller.abort();
   }, []);
 
   // Pre-carga params de URL en ambos estados (formulario y activo)
@@ -105,7 +109,10 @@ export default function PaquetesPage() {
         pkg.location.city.toLowerCase() === cityFilter.toLowerCase();
       const matchMin = !minPrice || pkg.price >= parseFloat(minPrice);
       const matchMax = !maxPrice || pkg.price <= parseFloat(maxPrice);
-      return matchDestino && matchCity && matchMin && matchMax;
+      const matchAdults   = !activeAdults   || pkg.numPax    >= parseInt(activeAdults);
+      const matchChildren = !activeChildren || pkg.numNinos  >= parseInt(activeChildren);
+      const matchDate     = !activeDate     || (!!pkg.dates && pkg.dates.includes(activeDate));
+      return matchDestino && matchCity && matchMin && matchMax && matchAdults && matchChildren && matchDate;
     })
     .sort((a, b) => {
       if (sortBy === 'precio_asc')   return a.price - b.price;
@@ -406,9 +413,9 @@ export default function PaquetesPage() {
           ) : fetchError === "DB_FAIL" ? (
             <div className="flex flex-col items-center justify-center py-28 gap-4 text-center">
               <AlertTriangle size={40} className="text-amber-400" />
-              <h3 className="text-primary font-bold text-lg">Conexión a DB fallida</h3>
+              <h3 className="text-primary font-bold text-lg">Sin conexión al servidor</h3>
               <p className="text-primary/50 text-sm max-w-xs leading-relaxed">
-                No se pudo conectar a la base de datos. Verifica tu conexión y vuelve a intentarlo.
+                No hay conexión con el servidor en este momento. Verifica tu conexión y vuelve a intentarlo.
               </p>
               <button onClick={() => window.location.reload()} className="mt-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-light transition-colors">
                 Reintentar
@@ -511,11 +518,11 @@ export default function PaquetesPage() {
                     <Search size={26} className="text-primary/20" />
                   </div>
                   <h3 className="text-primary font-bold text-lg mb-2">
-                    {fetchError === "EMPTY" && !hasFilters ? "No hay paquetes creados" : "Sin resultados"}
+                    {fetchError === "EMPTY" && !hasFilters ? "Sin paquetes disponibles" : "Sin resultados"}
                   </h3>
                   <p className="text-primary/40 text-sm max-w-xs mb-7 leading-relaxed">
                     {fetchError === "EMPTY" && !hasFilters
-                      ? "No hay paquetes creados en la base de datos. El administrador debe crearlos desde el panel."
+                      ? "No hay paquetes registrados en el sistema."
                       : "No encontramos paquetes que coincidan con tu búsqueda o filtros seleccionados."}
                   </p>
                   {hasFilters && (

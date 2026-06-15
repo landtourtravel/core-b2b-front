@@ -160,10 +160,12 @@ exports.Prisma.PaqueteRefScalarFieldEnum = {
   incluyeBoleto: 'incluyeBoleto',
   precioBoleto: 'precioBoleto',
   numPax: 'numPax',
+  numNinos: 'numNinos',
   diasEstancia: 'diasEstancia',
   nochesBase: 'nochesBase',
   precioTotal: 'precioTotal',
-  precioPorPersona: 'precioPorPersona'
+  precioPorPersona: 'precioPorPersona',
+  visibleEnFront: 'visibleEnFront'
 };
 
 exports.Prisma.PaqueteHotelRefScalarFieldEnum = {

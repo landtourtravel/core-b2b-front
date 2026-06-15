@@ -52,6 +52,14 @@ function LoginForm() {
   return (
     <main className="relative w-full max-w-md bg-white rounded-[36px] shadow-[0_25px_60px_-15px_rgba(5,41,36,0.5)] border border-white/20 p-8 md:p-10 flex flex-col z-10 animate-fade-scale select-none">
 
+      {/* Volver — solo móvil */}
+      <Link
+        href="/"
+        className="sm:hidden self-start flex items-center gap-1.5 text-primary/40 hover:text-primary/70 text-[10px] font-black uppercase tracking-wider transition-colors mb-5"
+      >
+        ← Inicio
+      </Link>
+
       {/* Cabecera / Logo */}
       <div className="flex flex-col items-center mb-8">
         <Link href="/" className="relative w-36 h-12 transition-transform duration-300 hover:scale-105" aria-label="Inicio Land Tour Travel">
@@ -227,8 +235,8 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-tr from-primary-dark via-primary to-primary-dark/95 flex items-center justify-center p-4 overflow-hidden font-montserrat">
 
-      {/* Botón de regreso */}
-      <div className="absolute top-6 left-6 z-20">
+      {/* Botón de regreso — solo desktop (en móvil interfiere con el form centrado) */}
+      <div className="hidden sm:block absolute top-6 left-6 z-20">
         <Link
           href="/"
           className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/10 hover:border-white/20 shadow-sm transition-all duration-200 text-xs font-bold active:scale-95"

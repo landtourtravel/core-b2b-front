@@ -94,10 +94,12 @@ model PaqueteRef {
   incluyeBoleto    Boolean
   precioBoleto     Float?
   numPax           Int
+  numNinos         Int
   diasEstancia     Int
   nochesBase       Int
   precioTotal      Float?
   precioPorPersona Float?
+  visibleEnFront   Boolean
 
   hoteles     PaqueteHotelRef[]
   versiones   VersionPaqueteRef[]

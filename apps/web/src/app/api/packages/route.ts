@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Package } from "@land-tour/shared";
 import { prisma } from "@/lib/prisma";
-import { MOCK_PACKAGES } from "@/lib/mock-data";
 
 function toPackage(p: {
   id: number;
@@ -9,6 +8,9 @@ function toPackage(p: {
   descripcion: string | null;
   incluyeBoleto: boolean;
   precioPorPersona: number | null;
+  numPax: number;
+  numNinos: number;
+  visibleEnFront: boolean;
   diasEstancia: number;
   nochesBase: number;
   versiones: { tipoPax: string; precioPorPersona: number | null }[];
@@ -47,6 +49,9 @@ function toPackage(p: {
     flightIncluded: p.incluyeBoleto,
     actividades: p.actividades.map(a => a.actividad.nombre),
     traslados:   p.traslados.map(t => t.traslado.tipo),
+    numPax:         p.numPax,
+    numNinos:       p.numNinos,
+    visibleEnFront: p.visibleEnFront,
   };
 }
 
@@ -57,6 +62,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const rows = await prisma.paqueteRef.findMany({
+      where: { visibleEnFront: true },
       include: {
         versiones: true,
         imagenes: { orderBy: { orden: "asc" }, take: 1 },
@@ -78,9 +84,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(packages satisfies Package[]);
   } catch (error) {
     console.error('[/api/packages] Error:', error);
-    let packages = MOCK_PACKAGES;
-    if (country) packages = packages.filter((p) => p.location.country.toLowerCase().includes(country.toLowerCase()));
-    if (city)    packages = packages.filter((p) => p.location.city.toLowerCase().includes(city.toLowerCase()));
-    return NextResponse.json(packages);
+    return new NextResponse(null, { status: 503 });
   }
 }
