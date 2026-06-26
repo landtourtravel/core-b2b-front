@@ -12,8 +12,10 @@ dist/
 build/
 *.tsbuildinfo
 
-# Environment
+# Environment — NEVER commit real credentials
+.env
 .env.local
+env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -39,6 +41,9 @@ yarn-error.log*
 
 # Prisma
 *.db
+# Generated Prisma client — regenerate with: npm run db:generate
+src/generated/
+apps/web/src/generated/
 
 # Test
 coverage/
@@ -46,4 +51,12 @@ coverage/
 # Documents
 documents/
 documentation/
+
+# Claude Code local tooling — not project code
 .agents/
+.claude/
+.mcp.json
+skills-lock.json
+
+# Duplicate / scratch images
+img/
