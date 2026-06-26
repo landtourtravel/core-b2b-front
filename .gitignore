@@ -60,3 +60,12 @@ skills-lock.json
 
 # Duplicate / scratch images
 img/
+
+#Limpia los MD
+agents.md
+CLAUDE.md
+srs.md
+
+
+#docs agente
+docs/

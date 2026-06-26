@@ -53,8 +53,11 @@ export async function GET(
         chd:  0,
       },
       flightIncluded: p.incluyeBoleto,
-      actividades: p.actividades.map(a => a.actividad.nombre),
-      traslados:   p.traslados.map(t => t.traslado.tipo),
+      actividades:    p.actividades.map(a => a.actividad.nombre),
+      traslados:      p.traslados.map(t => t.traslado.tipo),
+      numPax:         0,
+      numNinos:       0,
+      visibleEnFront: p.visibleEnFront ?? true,
     };
 
     return NextResponse.json(pkg);

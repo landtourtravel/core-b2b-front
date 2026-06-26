@@ -94,6 +94,10 @@ model PaqueteRef {
   descripcion      String? @db.Text
   incluyeBoleto    Boolean
   precioBoleto     Float?
+  descripcionBoleto String? @db.Text
+  permitirModificarBoleto Boolean @default(true)
+  permitirModificarNoches Boolean @default(false)
+  ajustePrecio     Float   @default(0)
   numPax           Int
   numNinos         Int
   diasEstancia     Int
@@ -117,6 +121,7 @@ model PaqueteHotelRef {
   hotelId        Int
   tipoHabitacion String
   cantidad       Int
+  noches         Int @default(1)
 
   paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
   hotel   HotelRef   @relation(fields: [hotelId], references: [id])
@@ -132,8 +137,9 @@ model ActividadRef {
   nombre      String
   descripcion String? @db.Text
 
-  destino  DestinoRef            @relation(fields: [destinoId], references: [id])
+  destino  DestinoRef              @relation(fields: [destinoId], references: [id])
   paquetes PaqueteActividadRef[]
+  tarifas  TarifaActividadRef[]
 
   @@map("Actividad")
 }
@@ -144,10 +150,39 @@ model TrasladoRef {
   destinoId Int
   tipo      String
 
-  destino  DestinoRef           @relation(fields: [destinoId], references: [id])
+  destino  DestinoRef             @relation(fields: [destinoId], references: [id])
   paquetes PaqueteTrasladoRef[]
+  tarifas  TarifaTrasladoRef[]
 
   @@map("Traslado")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model TarifaActividadRef {
+  id           Int    @id
+  actividadId  Int
+  precio       Float
+  paxMax       Int
+  paxMin       Int
+  tipoPasajero String
+
+  actividad ActividadRef @relation(fields: [actividadId], references: [id])
+
+  @@map("TarifaActividad")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model TarifaTrasladoRef {
+  id         Int    @id
+  trasladoId Int
+  tipoCobro  String
+  precio     Float
+  paxMax     Int
+  paxMin     Int
+
+  traslado TrasladoRef @relation(fields: [trasladoId], references: [id])
+
+  @@map("TarifaTraslado")
 }
 
 /// @readonly — gestionado por lt-core-admin

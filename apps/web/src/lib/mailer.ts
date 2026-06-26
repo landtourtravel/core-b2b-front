@@ -248,6 +248,56 @@ function requestAccessHtml(data: RequestAccessData): string {
   `);
 }
 
+// ─── Template 3: Cotización guardada ─────────────────────────────────────────
+
+export interface CotizacionNotifyData {
+  cotizacionId:  string;
+  codigo:        string;
+  agenciaEmail?: string;
+  agenciaNombre: string;
+  clienteNombre: string;
+}
+
+function cotizacionNotifyHtml(data: CotizacionNotifyData): string {
+  const date = new Date().toLocaleString("es-EC", { dateStyle: "full", timeStyle: "short" });
+  return emailWrapper(`
+    <tr>
+      <td style="padding:40px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <span style="display:inline-block;padding:7px 18px;background:#edf7f5;border-radius:100px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#28bfa9;">
+                &#10022; Nueva Cotización
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:8px;">
+              <h1 style="margin:0;font-size:22px;font-weight:800;color:#0b4339;letter-spacing:-0.5px;">
+                Cotización guardada exitosamente
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <p style="margin:0;font-size:14px;color:#6b7280;line-height:1.7;">
+                La agencia <strong style="color:#0b4339;">${data.agenciaNombre}</strong> ha generado una nueva cotización.
+              </p>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-radius:12px;overflow:hidden;border:1px solid #edf7f5;margin-bottom:20px;">
+          <tr><td colspan="2" style="background:#0b4339;padding:13px 16px;"><p style="margin:0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#28bfa9;">Detalles</p></td></tr>
+          <tr style="background:#ffffff;"><td style="padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;border-bottom:1px solid #edf7f5;">Código</td><td style="padding:11px 16px;font-size:14px;font-weight:800;color:#0b4339;border-bottom:1px solid #edf7f5;">${data.codigo}</td></tr>
+          <tr style="background:#f5faf9;"><td style="padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;border-bottom:1px solid #edf7f5;">Agencia</td><td style="padding:11px 16px;font-size:14px;font-weight:700;color:#0b4339;border-bottom:1px solid #edf7f5;">${data.agenciaNombre}</td></tr>
+          <tr style="background:#ffffff;"><td style="padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;border-bottom:1px solid #edf7f5;">Cliente</td><td style="padding:11px 16px;font-size:14px;font-weight:700;color:#0b4339;border-bottom:1px solid #edf7f5;">${data.clienteNombre}</td></tr>
+          <tr style="background:#f5faf9;"><td style="padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;">Fecha</td><td style="padding:11px 16px;font-size:12px;font-weight:700;color:#6b7280;">${date}</td></tr>
+        </table>
+      </td>
+    </tr>
+  `);
+}
+
 // ─── Exported send functions ──────────────────────────────────────────────────
 
 export async function sendForgotPasswordEmail(userEmail: string): Promise<void> {
@@ -258,6 +308,18 @@ export async function sendForgotPasswordEmail(userEmail: string): Promise<void> 
     subject: `[CAMBIO DE CLAVE] Solicitud de ${userEmail}`,
     text:    `El usuario ${userEmail} solicitó un restablecimiento de contraseña. Fecha: ${new Date().toLocaleString("es-EC")}`,
     html:    forgotPasswordHtml(userEmail),
+  });
+}
+
+export async function sendCotizacionNotifyEmail(data: CotizacionNotifyData): Promise<void> {
+  const transporter = createTransporter();
+  const lttEmail = process.env.LAND_TOUR_NOTIFY_EMAIL ?? "reservas@landtourtavel.com";
+  const to = [lttEmail, data.agenciaEmail].filter(Boolean).join(", ");
+  await transporter.sendMail({
+    from:    `"Land Tour Portal" <${process.env.SMTP_FROM}>`,
+    to,
+    subject: `[COTIZACIÓN] ${data.codigo} — ${data.clienteNombre}`,
+    html:    cotizacionNotifyHtml(data),
   });
 }
 

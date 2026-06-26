@@ -4,10 +4,11 @@ import { prisma } from "@/lib/prisma";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
-function generateCodigo(count: number): string {
-  const now = new Date();
-  const d = now.toISOString().slice(0, 10).replace(/-/g, "");
-  return `COT-${d}-${String(count + 1).padStart(3, "0")}`;
+function generateCodigo(agenciaId: string, userId: string, count: number): string {
+  const agCod  = agenciaId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
+  const usrCod = userId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
+  const seq    = String(count + 1).padStart(4, "0");
+  return `${agCod}-${usrCod}-${seq}`;
 }
 
 // GET /api/cotizaciones — lista cotizaciones de la agencia activa
@@ -16,8 +17,9 @@ export async function GET() {
   if (!session?.user?.agenciaId) return NextResponse.json([], { status: 401 });
 
   try {
+    const userId = (session.user as any).id as string;
     const rows = await prisma.cotizacion.findMany({
-      where: { agenciaId: session.user.agenciaId },
+      where: { agenciaId: session.user.agenciaId, creadoPorId: userId },
       include: { cliente: true, detalles: true },
       orderBy: { fechaCreacion: "desc" },
     });
@@ -55,7 +57,8 @@ export async function GET() {
         subtotal:      c.subtotal,
         markup:        c.markup,
         total:         c.total,
-        fechaViaje:    c.fechaViaje?.toISOString().slice(0, 10) ?? null,
+        fechaViaje:    c.fechaViaje?.toISOString().slice(0, 10)    ?? null,
+        fechaRetorno:  c.fechaRetorno?.toISOString().slice(0, 10)  ?? null,
         status:        c.status,
         notas:         c.notas,
         tokenAprobacion: c.tokenAprobacion,
@@ -108,8 +111,12 @@ export async function POST(req: NextRequest) {
     });
 
   try {
-    const count  = await prisma.cotizacion.count({ where: { agenciaId } });
-    const codigo = generateCodigo(count);
+    const count  = await prisma.cotizacion.count({ where: { agenciaId, creadoPorId } });
+    const codigo = generateCodigo(agenciaId, creadoPorId, count);
+
+    // boletoTotal = precioBoleto × total passengers across all room types
+    const totalPax = habitaciones.reduce((sum, h) => sum + h.numPax * h.cantidad, 0);
+    const boletoTotal = (incluyeBoleto && precioBoleto) ? precioBoleto * totalPax : 0;
 
     const cotizacion = await prisma.cotizacion.create({
       data: {
@@ -121,7 +128,7 @@ export async function POST(req: NextRequest) {
         snapshotIncluye:  paqueteIncluye  ?? [],
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto    ?? null,
-        boletoTotal:      0,
+        boletoTotal,
         subtotal, markup: markup ?? 0, total,
         fechaViaje:   fechaViaje   ? new Date(fechaViaje)   : null,
         fechaRetorno: fechaRetorno ? new Date(fechaRetorno) : null,
@@ -155,17 +162,20 @@ export async function POST(req: NextRequest) {
         cantCHD:  getDetalle("CHD")?.cantidad  ?? 0,
       },
       precios: {
-        precioSGL:   getDetalle("SGL")?.precioPorPersona  ?? 0,
-        precioDBL:   getDetalle("DBL")?.precioPorPersona  ?? 0,
-        precioTPL:   getDetalle("TPL")?.precioPorPersona  ?? 0,
-        precioQUAD:  getDetalle("QUAD")?.precioPorPersona ?? 0,
-        precioCHD:   getDetalle("CHD")?.precioPorPersona  ?? 0,
+        precioSGL:    getDetalle("SGL")?.precioPorPersona  ?? 0,
+        precioDBL:    getDetalle("DBL")?.precioPorPersona  ?? 0,
+        precioTPL:    getDetalle("TPL")?.precioPorPersona  ?? 0,
+        precioQUAD:   getDetalle("QUAD")?.precioPorPersona ?? 0,
+        precioCHD:    getDetalle("CHD")?.precioPorPersona  ?? 0,
+        precioBoleto: cotizacion.precioBoleto ?? undefined,
       },
       subtotal:      cotizacion.subtotal,
       markup:        cotizacion.markup,
       total:         cotizacion.total,
-      fechaViaje:    cotizacion.fechaViaje?.toISOString().slice(0, 10) ?? null,
+      fechaViaje:    cotizacion.fechaViaje?.toISOString().slice(0, 10)   ?? null,
+      fechaRetorno:  cotizacion.fechaRetorno?.toISOString().slice(0, 10) ?? null,
       status:        cotizacion.status,
+      notas:         cotizacion.notas,
       fechaCreacion: cotizacion.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
     }, { status: 201 });
   } catch (err) {

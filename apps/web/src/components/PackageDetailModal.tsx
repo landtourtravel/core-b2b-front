@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, MapPin, Clock, Plane, CheckCircle, Calendar, Mail, Phone,
   MessageCircle, CreditCard, ChevronRight, ShieldCheck, AlertCircle,
+  Building2, Car, UtensilsCrossed, Map, Waves, TreePine, Moon,
 } from "lucide-react";
 import Image from "next/image";
 import { Package } from "@land-tour/shared";
@@ -44,6 +45,30 @@ type Agency = {
   correo: string | null;
   telefono: string | null;
 };
+
+// ─── Icon resolver for "Lo más destacado" ─────────────────────────────────────
+function getIncludeIcon(text: string): React.ReactNode {
+  const t = text.toLowerCase();
+  if (t.includes("hotel") || t.includes("alojamiento") || t.includes("hospedaje"))
+    return <Building2 size={14} className="text-secondary shrink-0" />;
+  if (t.includes("aeropuerto") || t.includes("traslado") || t.includes("transfer"))
+    return <Car size={14} className="text-secondary shrink-0" />;
+  if (t.includes("vuelo") || t.includes("aéreo") || t.includes("boleto") || t.includes("avión"))
+    return <Plane size={14} className="text-secondary shrink-0" />;
+  if (t.includes("desayuno") || t.includes("almuerzo") || t.includes("cena") || t.includes("comida") || t.includes("alimentación"))
+    return <UtensilsCrossed size={14} className="text-secondary shrink-0" />;
+  if (t.includes("guía") || t.includes("tour") || t.includes("excursión") || t.includes("visita"))
+    return <Map size={14} className="text-secondary shrink-0" />;
+  if (t.includes("seguro") || t.includes("asistencia") || t.includes("médico"))
+    return <ShieldCheck size={14} className="text-secondary shrink-0" />;
+  if (t.includes("snorkel") || t.includes("buceo") || t.includes("playa") || t.includes("cenote"))
+    return <Waves size={14} className="text-secondary shrink-0" />;
+  if (t.includes("parque") || t.includes("temático") || t.includes("pirámide") || t.includes("centenario"))
+    return <TreePine size={14} className="text-secondary shrink-0" />;
+  if (t.includes("nocturno") || t.includes("night"))
+    return <Moon size={14} className="text-secondary shrink-0" />;
+  return <CheckCircle size={14} className="text-secondary shrink-0" />;
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -263,19 +288,39 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                     ))}
                   </div>
 
-                  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
-                      <CheckCircle size={14} className="text-secondary" /> Lo más destacado
-                    </h3>
-                    <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
-                      {packageData.highlights?.map((h, i) => (
-                        <div key={i} className="flex items-start gap-3 group">
-                          <div className="w-4 h-4 rounded bg-secondary/10 flex items-center justify-center mt-0.5 group-hover:bg-secondary/20 transition-colors">
-                            <ChevronRight size={10} className="text-secondary" />
-                          </div>
-                          <span className="text-[13px] font-medium text-primary/70 leading-relaxed">{h}</span>
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    {/* Section header */}
+                    <div className="px-6 pt-5 pb-4 border-b border-gray-50">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/15 text-secondary text-[9px] font-black rounded-lg uppercase tracking-widest">
+                          <CheckCircle size={10} /> Incluye
+                        </span>
+                        <h3 className="text-sm font-black text-primary tracking-tight">Lo más destacado</h3>
+                      </div>
+                      <p className="text-[11px] font-medium text-primary/40 mt-1">Servicios y experiencias incluidas en este programa</p>
+                    </div>
+                    {/* Pills grid */}
+                    <div className="p-5">
+                      {(packageData.includes?.length ?? 0) > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {packageData.includes!.map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 rounded-xl hover:bg-secondary/20 hover:border-secondary/40 hover:scale-[1.02] transition-all duration-200 cursor-default group"
+                            >
+                              <div className="w-7 h-7 rounded-lg bg-white/80 flex items-center justify-center shadow-sm shrink-0 group-hover:bg-white transition-colors">
+                                {getIncludeIcon(item)}
+                              </div>
+                              <span className="text-[12px] font-bold text-primary/80 leading-tight">{item}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8 gap-2">
+                          <CheckCircle size={28} className="text-primary/10" />
+                          <p className="text-xs font-bold text-primary/30">Servicios incluidos próximamente</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
