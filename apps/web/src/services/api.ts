@@ -29,11 +29,27 @@ export const api = {
   },
 
   getPackagesDetailed: async (
-    params?: { country?: string; city?: string }
+    params?: {
+      country?: string;
+      city?: string;
+      destino?: string;
+      adultos?: number;
+      ninos?: number;
+      incluyeBoleto?: boolean;
+      precioMin?: number;
+      precioMax?: number;
+    }
   ): Promise<{ data: Package[]; error: "DB_FAIL" | "EMPTY" | null }> => {
     const url = new URL(`${getBaseUrl()}/api/packages`);
-    if (params?.country) url.searchParams.append("country", params.country);
-    if (params?.city)    url.searchParams.append("city",    params.city);
+    if (params?.country)  url.searchParams.append("country",  params.country);
+    if (params?.city)     url.searchParams.append("city",     params.city);
+    if (params?.destino)  url.searchParams.append("destino",  params.destino);
+    if (params?.adultos)  url.searchParams.append("adultos",  String(params.adultos));
+    if (params?.ninos)    url.searchParams.append("ninos",    String(params.ninos));
+    if (params?.incluyeBoleto !== undefined)
+      url.searchParams.append("incluyeBoleto", String(params.incluyeBoleto));
+    if (params?.precioMin) url.searchParams.append("precioMin", String(params.precioMin));
+    if (params?.precioMax) url.searchParams.append("precioMax", String(params.precioMax));
 
     const result = await safeFetch<Package[]>(url.toString());
     return { data: (result.data as Package[]) ?? [], error: result.error };

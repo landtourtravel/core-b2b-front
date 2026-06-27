@@ -89,7 +89,7 @@ const DestinationModal: React.FC<ModalProps> = ({ destination, onClose }) => {
                 {destination.description}
               </p>
 
-              {destination.highlights && (
+              {destination.highlights && destination.highlights.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-xs font-bold text-secondary uppercase tracking-widest mb-3">
                     Lo que no puedes perderte
@@ -214,7 +214,7 @@ const DestinationCard: React.FC<CardProps> = ({
         <h3 className="text-white font-extrabold text-2xl leading-tight mb-1">
           {destination.ciudad}
         </h3>
-        <p className="text-white/80 text-sm font-medium mb-4">{destination.tagline}</p>
+        {destination.tagline && <p className="text-white/80 text-sm font-medium mb-4">{destination.tagline}</p>}
 
         <p className="text-white/60 text-xs mb-5">
           {destination.packageCount} paquetes disponibles
@@ -264,7 +264,7 @@ const MobileDestinationCard: React.FC<MobileCardProps> = ({ destination, onOpen 
       <h3 className="text-white font-extrabold text-xl leading-tight mb-0.5">
         {destination.ciudad}
       </h3>
-      <p className="text-white/75 text-xs mb-4">{destination.tagline}</p>
+      {destination.tagline && <p className="text-white/75 text-xs mb-4">{destination.tagline}</p>}
 
       <div className="flex items-center gap-2">
         <button

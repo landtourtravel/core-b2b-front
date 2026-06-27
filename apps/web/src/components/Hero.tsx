@@ -23,8 +23,10 @@ export const Hero = () => {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (destination) params.set("destino", destination);
-    if (adults) params.set("adultos", adults);
+    if (adults && adults !== "2") params.set("adultos", adults);
     if (children !== "0") params.set("ninos", children);
+    // Fecha: solo referencial — se propaga a la URL pero NO filtra resultados
+    // (los paquetes no tienen fechas de salida fijas en la BD).
     if (date) params.set("fecha", date);
     router.push(`/paquetes?${params.toString()}`);
   };
@@ -128,15 +130,20 @@ export const Hero = () => {
               {/* Divisor */}
               <div className="hidden md:block self-stretch bg-gray-200 mx-3" aria-hidden="true" />
 
-              {/* Fecha */}
+              {/* Fecha deseada — referencial, no filtra resultados */}
               <div className="flex flex-col gap-1 md:px-4">
-                <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">
-                  Fecha de salida
+                <label
+                  className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase flex items-center gap-1"
+                  title="Referencial — los paquetes no tienen fecha fija de salida"
+                >
+                  Fecha deseada
+                  <span className="text-[8px] font-semibold text-secondary normal-case tracking-normal">(referencial)</span>
                 </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  title="Referencial — los paquetes no tienen fecha fija de salida"
                   className="text-sm text-gray-700 bg-transparent border-b border-gray-200 pb-1.5 outline-none focus:border-secondary transition-colors appearance-none w-full"
                 />
               </div>

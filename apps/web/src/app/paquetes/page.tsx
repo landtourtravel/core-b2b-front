@@ -109,10 +109,12 @@ export default function PaquetesPage() {
         pkg.location.city.toLowerCase() === cityFilter.toLowerCase();
       const matchMin = !minPrice || pkg.price >= parseFloat(minPrice);
       const matchMax = !maxPrice || pkg.price <= parseFloat(maxPrice);
-      const matchAdults   = !activeAdults   || pkg.numPax    >= parseInt(activeAdults);
-      const matchChildren = !activeChildren || pkg.numNinos  >= parseInt(activeChildren);
-      const matchDate     = !activeDate     || (!!pkg.dates && pkg.dates.includes(activeDate));
-      return matchDestino && matchCity && matchMin && matchMax && matchAdults && matchChildren && matchDate;
+      // numPax / numNinos existen en la BD. Solo filtran cuando el valor es
+      // significativo (≥2 adultos / ≥1 niño); null-safe ante datos faltantes.
+      const matchAdults   = !activeAdults   || parseInt(activeAdults)   <= 1 || (pkg.numPax   ?? Infinity) >= parseInt(activeAdults);
+      const matchChildren = !activeChildren || parseInt(activeChildren) === 0 || (pkg.numNinos ?? Infinity) >= parseInt(activeChildren);
+      // Fecha: referencial — nunca oculta resultados (sin fechas fijas en BD).
+      return matchDestino && matchCity && matchMin && matchMax && matchAdults && matchChildren;
     })
     .sort((a, b) => {
       if (sortBy === 'precio_asc')   return a.price - b.price;
@@ -218,13 +220,20 @@ export default function PaquetesPage() {
 
                 <div className="hidden sm:block self-stretch bg-gray-200 mx-2" aria-hidden="true" />
 
-                {/* Fecha */}
+                {/* Fecha deseada — referencial, no filtra resultados */}
                 <div className="flex flex-col gap-1 sm:px-3">
-                  <label className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Fecha de salida</label>
+                  <label
+                    className="text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase flex items-center gap-1"
+                    title="Referencial — los paquetes no tienen fecha fija de salida"
+                  >
+                    Fecha deseada
+                    <span className="text-[8px] font-semibold text-secondary normal-case tracking-normal">(referencial)</span>
+                  </label>
                   <input
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
+                    title="Referencial — los paquetes no tienen fecha fija de salida"
                     className="text-sm text-gray-700 bg-transparent border-b border-gray-200 pb-1.5 outline-none focus:border-secondary transition-colors appearance-none w-full"
                   />
                 </div>
@@ -428,7 +437,7 @@ export default function PaquetesPage() {
                 <div className="mb-4 flex items-center gap-2 flex-wrap">
                   <span className="text-xs text-primary/50 font-medium">Buscando:</span>
                   {activeDestination && <span className="px-2.5 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full">{activeDestination}</span>}
-                  {activeDate && <span className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">{new Date(activeDate + "T00:00:00").toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" })}</span>}
+                  {activeDate && <span title="Referencial — no filtra resultados" className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">📅 {new Date(activeDate + "T00:00:00").toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" })} <span className="text-primary/40 font-semibold">(deseada)</span></span>}
                   {activeAdults !== "2" && <span className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">{activeAdults} adultos</span>}
                   {activeChildren !== "0" && <span className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">{activeChildren} niños</span>}
                   <button onClick={clearAll} className="text-[10px] font-bold text-primary/30 hover:text-primary/60 flex items-center gap-1">

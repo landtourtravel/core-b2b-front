@@ -62,6 +62,7 @@ export interface Package {
   actividades?: string[];
   traslados?: string[];
   flightIncluded?: boolean;
+  incluyeBoleto?: boolean; // campo real de la BD (Paquete.incluyeBoleto)
   transport?: string;
   gallery?: string[];
   // Campos de detalle
