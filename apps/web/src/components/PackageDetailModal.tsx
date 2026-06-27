@@ -22,8 +22,6 @@ export interface ItineraryDay {
 
 export interface PackageDetail extends Partial<Package> {
   dates?: string;
-  airline?: string;
-  reservationFee?: number;
   childPrice?: number;
   heroImage?: string;
   highlights?: string[];
@@ -439,6 +437,9 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                             <span className="text-[11px] font-bold text-primary/70 leading-tight">{text}</span>
                           </div>
                         ))}
+                        {packageData.incluyeBoleto !== true && (packageData.includes?.length ?? 0) === 0 && (
+                          <p className="text-[11px] font-bold text-primary/30 italic">No definidos</p>
+                        )}
                       </div>
                     </div>
                     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
@@ -487,20 +488,14 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                         <span className="text-4xl font-black tracking-tighter">${packageData.price}</span>
                         <span className="text-xs font-bold text-white/60">USD / pax</span>
                       </div>
-                      <div className="mt-6 space-y-3 pt-4 border-t border-white/10">
-                        <div className="flex justify-between items-center text-[11px]">
-                          <span className="font-bold text-white/70">Abono Inicial</span>
-                          <span className="font-black text-secondary">${packageData.reservationFee}</span>
+                      {(packageData.childPrice ?? 0) > 0 && (
+                        <div className="mt-6 space-y-3 pt-4 border-t border-white/10">
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="font-bold text-white/70">Niños (2-11 años)</span>
+                            <span className="font-black text-secondary-light">${packageData.childPrice} USD / pax</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center text-[11px]">
-                          <span className="font-bold text-white/70">Niños (2-11 años)</span>
-                          <span className="font-black text-secondary-light">${packageData.childPrice ?? 500}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-[11px] pt-2">
-                          <span className="font-bold text-white/70">Saldo Pendiente</span>
-                          <span className="font-black text-white/90">${(packageData.price ?? 0) - (packageData.reservationFee ?? 0)}</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 
