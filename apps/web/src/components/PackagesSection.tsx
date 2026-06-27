@@ -6,7 +6,7 @@ import { Button } from "@land-tour/ui";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { PackageDetailModal } from "./PackageDetailModal";
-import { AlertTriangle, Package as PackageIcon } from "lucide-react";
+import { AlertTriangle, Package as PackageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Package } from "@land-tour/shared";
 import { api } from "@/services/api";
 
@@ -17,6 +17,12 @@ export const PackagesSection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<"DB_FAIL" | "EMPTY" | null>(null);
 
+  // ── Carousel navigation (desktop arrows + scroll-synced dots) ──
+  const scrollTrackRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+
   React.useEffect(() => {
     api.getPackagesDetailed()
       .then(({ data, error }) => {
@@ -26,6 +32,33 @@ export const PackagesSection = () => {
       .catch(() => setFetchError("DB_FAIL"))
       .finally(() => setIsLoading(false));
   }, []);
+
+  const updateScrollState = React.useCallback(() => {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+    const firstCard = el.children[0] as HTMLElement | undefined;
+    const cardWidth = firstCard ? firstCard.offsetWidth + 16 : 304; // card + gap-4
+    const idx = Math.round(el.scrollLeft / cardWidth);
+    setActiveIndex(Math.max(0, Math.min(idx, packages.length - 1)));
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, [packages.length]);
+
+  // Re-measure once packages render (and on resize)
+  React.useEffect(() => {
+    if (packages.length === 0) return;
+    updateScrollState();
+    window.addEventListener("resize", updateScrollState);
+    return () => window.removeEventListener("resize", updateScrollState);
+  }, [packages.length, updateScrollState]);
+
+  const scrollByCard = (dir: -1 | 1) => {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+    const firstCard = el.children[0] as HTMLElement | undefined;
+    const cardWidth = firstCard ? firstCard.offsetWidth + 16 : 304;
+    el.scrollBy({ left: dir * cardWidth, behavior: "smooth" });
+  };
 
   if (isLoading) {
     return (
@@ -82,11 +115,25 @@ export const PackagesSection = () => {
 
         {/* ── Carousel ── */}
         <div className="relative">
+          {/* Flecha izquierda — solo desktop */}
+          <button
+            type="button"
+            onClick={() => scrollByCard(-1)}
+            disabled={!canScrollLeft}
+            aria-label="Paquetes anteriores"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200 disabled:opacity-0 disabled:pointer-events-none"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
           {/* Scroll track */}
           <div
+            ref={scrollTrackRef}
+            onScroll={updateScrollState}
+            style={{ touchAction: "pan-x" }}
             className="
               flex gap-4
-              overflow-x-auto
+              overflow-x-auto overflow-y-hidden
               snap-x snap-mandatory
               pb-4
               scrollbar-hide
@@ -97,6 +144,7 @@ export const PackagesSection = () => {
             {packages.map((pkg, idx) => (
               <motion.div
                 key={pkg.id}
+                style={{ touchAction: "pan-x" }}
                 className="
                   flex-shrink-0 snap-center
                   w-[calc(100vw-2rem)]
@@ -118,14 +166,26 @@ export const PackagesSection = () => {
               </motion.div>
             ))}
           </div>
-          {/* Dot indicators */}
+
+          {/* Flecha derecha — solo desktop */}
+          <button
+            type="button"
+            onClick={() => scrollByCard(1)}
+            disabled={!canScrollRight}
+            aria-label="Paquetes siguientes"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200 disabled:opacity-0 disabled:pointer-events-none"
+          >
+            <ChevronRight size={20} />
+          </button>
+
+          {/* Dot indicators — sincronizados con el scroll real */}
           <div className="flex justify-center gap-1.5 mt-5">
-            {packages.map((pkg) => (
+            {packages.map((pkg, idx) => (
               <span
                 key={pkg.id}
                 className={`
                   w-1.5 h-1.5 rounded-full transition-colors duration-300
-                  ${selectedPackage?.id === pkg.id ? "bg-secondary" : "bg-primary/20"}
+                  ${activeIndex === idx ? "bg-secondary" : "bg-primary/20"}
                 `}
               />
             ))}

@@ -13,7 +13,16 @@ import { RequestAccessModal } from "@/components/RequestAccessModal";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/panel";
+
+  // Validar que el callbackUrl sea una ruta relativa del mismo origen
+  // (evita open-redirect a sitios externos).
+  const safeCallbackUrl = (() => {
+    const raw = searchParams.get("callbackUrl") || "/panel";
+    if (raw.startsWith("//") || raw.includes("://") || !raw.startsWith("/")) {
+      return "/panel";
+    }
+    return raw;
+  })();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,17 +44,21 @@ function LoginForm() {
     const result = await signIn("credentials", {
       email,
       password,
+      remember: String(rememberMe), // "true" | "false" — controla la duración de la sesión
       redirect: false,
     });
 
-    setIsLoading(false);
-
     if (!result?.ok || result.error) {
+      // Solo en error reactivamos el formulario y mostramos el mensaje.
+      setIsLoading(false);
       setError("Correo o contraseña incorrectos. Verifica tus datos.");
       return;
     }
 
-    router.push(callbackUrl);
+    // Login exitoso: mantenemos el spinner y el botón deshabilitado
+    // hasta que Next.js complete la navegación. El usuario será
+    // redirigido y no volverá a ver el formulario, así que NO apagamos isLoading.
+    router.replace(safeCallbackUrl);
     router.refresh();
   };
 
@@ -85,7 +98,11 @@ function LoginForm() {
       </div>
 
       {/* Formulario */}
-      <form onSubmit={handleLoginSubmit} className="space-y-5">
+      <form
+        onSubmit={handleLoginSubmit}
+        aria-busy={isLoading}
+        className={`space-y-5 ${isLoading ? "pointer-events-none" : ""}`}
+      >
 
         {/* Error de autenticación */}
         {error && (
@@ -107,10 +124,11 @@ function LoginForm() {
             <input
               type="email"
               required
+              disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu.correo@landtour.com"
-              className="w-full pl-11 pr-4 py-3.5 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold placeholder-primary/30 outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:border-secondary focus-visible:bg-white transition-all duration-200"
+              className="w-full pl-11 pr-4 py-3.5 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold placeholder-primary/30 outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:border-secondary focus-visible:bg-white transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -127,15 +145,17 @@ function LoginForm() {
             <input
               type={showPassword ? "text" : "password"}
               required
+              disabled={isLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Ingresa tu contraseña"
-              className="w-full pl-11 pr-12 py-3.5 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold placeholder-primary/30 outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:border-secondary focus-visible:bg-white transition-all duration-200"
+              className="w-full pl-11 pr-12 py-3.5 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold placeholder-primary/30 outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:border-secondary focus-visible:bg-white transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             />
             <button
               type="button"
+              disabled={isLoading}
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-primary/40 hover:text-primary transition-colors"
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-primary/40 hover:text-primary transition-colors disabled:cursor-not-allowed"
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -149,8 +169,9 @@ function LoginForm() {
             <input
               type="checkbox"
               checked={rememberMe}
+              disabled={isLoading}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-secondary focus:ring-secondary/40 accent-secondary transition-all"
+              className="w-4 h-4 rounded border-gray-300 text-secondary focus:ring-secondary/40 accent-secondary transition-all disabled:cursor-not-allowed"
             />
             <span className="text-[11px] font-bold text-primary/70 group-hover:text-primary transition-colors">
               Mantener sesión iniciada

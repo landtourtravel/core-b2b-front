@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 // DELETE /api/cotizaciones/[id] — solo BORRADOR o RECHAZADA
 export async function DELETE(
@@ -25,7 +26,7 @@ export async function DELETE(
     await prisma.cotizacion.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("DELETE /api/cotizaciones/[id]:", err);
+    logError("DELETE /api/cotizaciones/[id]", err);
     return NextResponse.json({ error: "Error al eliminar" }, { status: 500 });
   }
 }

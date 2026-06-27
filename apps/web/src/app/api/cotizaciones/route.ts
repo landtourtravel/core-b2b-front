@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
@@ -61,14 +62,13 @@ export async function GET() {
         fechaRetorno:  c.fechaRetorno?.toISOString().slice(0, 10)  ?? null,
         status:        c.status,
         notas:         c.notas,
-        tokenAprobacion: c.tokenAprobacion,
         fechaCreacion: c.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
       };
     });
 
     return NextResponse.json(cotizaciones);
   } catch (err) {
-    console.error("GET /api/cotizaciones:", err);
+    logError("GET /api/cotizaciones", err);
     return NextResponse.json([]);
   }
 }
@@ -90,6 +90,28 @@ export async function POST(req: NextRequest) {
 
   if (!clienteId || subtotal === undefined) {
     return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
+  }
+
+  // ─── Server-side input validation ─────────────────────────────────────────────
+  const MAX_PRICE = 1_000_000;
+  const isValidAmount = (v: unknown): v is number =>
+    typeof v === "number" && isFinite(v) && v >= 0 && v <= MAX_PRICE;
+  const isValidCount = (v: unknown): v is number =>
+    typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 99;
+  if (
+    !isValidAmount(subtotal) ||
+    !isValidAmount(total) ||
+    !isValidAmount(markup) ||
+    !isValidCount(cantSGL) || !isValidCount(cantDBL) ||
+    !isValidCount(cantTPL) || !isValidCount(cantQUAD) || !isValidCount(cantCHD)
+  ) {
+    return NextResponse.json({ error: "Valores numéricos inválidos" }, { status: 400 });
+  }
+  if (total < subtotal) {
+    return NextResponse.json(
+      { error: "El total no puede ser menor al subtotal" },
+      { status: 400 }
+    );
   }
 
   const agenciaId   = session.user.agenciaId;
@@ -122,9 +144,9 @@ export async function POST(req: NextRequest) {
       data: {
         codigo, agenciaId, creadoPorId, clienteId,
         paqueteId: paqueteId && Number(paqueteId) > 0 ? Number(paqueteId) : null,
-        snapshotNombre:   paqueteNombre   ?? "",
-        snapshotDestino:  paqueteDestino  ?? "",
-        snapshotDuracion: paqueteDuracion ?? "",
+        snapshotNombre:   (paqueteNombre   ?? "").slice(0, 200),
+        snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
+        snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
         snapshotIncluye:  paqueteIncluye  ?? [],
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto    ?? null,
@@ -179,7 +201,7 @@ export async function POST(req: NextRequest) {
       fechaCreacion: cotizacion.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
     }, { status: 201 });
   } catch (err) {
-    console.error("POST /api/cotizaciones:", err);
+    logError("POST /api/cotizaciones", err);
     return NextResponse.json({ error: "Error al guardar cotización" }, { status: 500 });
   }
 }

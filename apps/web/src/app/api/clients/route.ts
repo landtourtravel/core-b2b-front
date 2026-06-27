@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 // GET /api/clients?email=&documento= — busca cliente existente
 export async function GET(req: NextRequest) {
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     });
     return NextResponse.json(cliente);
   } catch (err) {
-    console.error("GET /api/clients:", err);
+    logError("GET /api/clients", err);
     return NextResponse.json(null);
   }
 }
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(cliente);
   } catch (err) {
-    console.error("POST /api/clients:", err);
+    logError("POST /api/clients", err);
     return NextResponse.json({ error: "Error al guardar cliente" }, { status: 500 });
   }
 }

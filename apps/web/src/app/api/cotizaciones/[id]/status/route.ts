@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 // PATCH /api/cotizaciones/[id]/status — cambia el estado de una cotización
 export async function PATCH(
@@ -50,7 +51,7 @@ export async function PATCH(
 
     return NextResponse.json({ ok: true, status: updated.status });
   } catch (err) {
-    console.error("PATCH /api/cotizaciones/[id]/status:", err);
+    logError("PATCH /api/cotizaciones/[id]/status", err);
     return NextResponse.json({ error: "Error al actualizar estado" }, { status: 500 });
   }
 }

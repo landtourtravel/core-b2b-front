@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { sendCotizacionNotifyEmail } from "@/lib/mailer";
+import { logError } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     await sendCotizacionNotifyEmail({ cotizacionId, codigo, agenciaEmail, agenciaNombre, clienteNombre });
   } catch (err) {
-    console.error("[NOTIFY] Error enviando correo de cotización:", err);
+    logError("POST /api/cotizaciones/notify", err);
   }
 
   return NextResponse.json({ ok: true });

@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user?.agenciaId) {
+    return NextResponse.json({ destinos: [], paquetes: [] }, { status: 401 });
+  }
+
   try {
     const destinos = await prisma.destinoRef.findMany({
       include: {
@@ -131,7 +138,7 @@ export async function GET() {
       paquetes: paquetesMapeados,
     });
   } catch (error) {
-    console.error("Error en GET /api/cotizar-datos:", error);
+    logError("GET /api/cotizar-datos", error);
     return NextResponse.json({ destinos: [], paquetes: [] }, { status: 503 });
   }
 }

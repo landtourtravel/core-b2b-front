@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Package } from "@land-tour/shared";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 function toPackage(p: {
   id: number;
@@ -83,7 +84,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(packages satisfies Package[]);
   } catch (error) {
-    console.error('[/api/packages] Error:', error);
+    logError("GET /api/packages", error);
     return new NextResponse(null, { status: 503 });
   }
 }

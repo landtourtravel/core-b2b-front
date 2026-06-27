@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { api } from "@/services/api";
+import { useIdleTimer } from "@/hooks/useIdleTimer";
+import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
 import {
   Package,
   Cotizacion,
@@ -115,6 +117,15 @@ export default function DashboardPage() {
     rawRole === "SUPERADMIN"         ? "Super Administrador" :
     rawRole === "COLABORADOR_INTERNO" ? "Colaborador Interno" :
     rawRole === "ASESOR_MINORISTA"   ? "Asesor de Ventas"    : "Asesor de Ventas";
+
+  // ── Idle session timeout ──────────────────────────────────────────────────
+  // 60 min sin actividad → aviso con countdown de 90s → signOut automático.
+  const { showWarning, secondsLeft, resetTimer } = useIdleTimer({
+    idleMs: 60 * 60 * 1000,
+    warningMs: 90 * 1000,
+    enabled: !!sessionData,
+    onTimeout: () => signOut({ callbackUrl: "/login" }),
+  });
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -948,6 +959,14 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#F4FAF8] flex font-inter text-primary select-none">
+
+      {/* ── Aviso de sesión por inactividad ── */}
+      <SessionTimeoutModal
+        isOpen={showWarning}
+        secondsLeft={secondsLeft}
+        onContinue={resetTimer}
+        onSignOut={() => signOut({ callbackUrl: "/login" })}
+      />
 
       {/* ── SIDEBAR ── */}
       <aside className="hidden lg:flex w-64 bg-primary-dark text-white flex-col justify-between shrink-0 shadow-[4px_0_24px_rgba(5,41,36,0.15)] relative z-20">

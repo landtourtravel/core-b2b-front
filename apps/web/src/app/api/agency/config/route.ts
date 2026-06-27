@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 // GET /api/agency/config — devuelve datos de la agencia activa
 export async function GET() {
@@ -14,7 +15,7 @@ export async function GET() {
     });
     return NextResponse.json(agencia ?? {});
   } catch (err) {
-    console.error("GET /api/agency/config:", err);
+    logError("GET /api/agency/config", err);
     return NextResponse.json({});
   }
 }

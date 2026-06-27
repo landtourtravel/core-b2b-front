@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Destino } from "@land-tour/shared";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 export async function GET() {
   try {
@@ -39,7 +40,7 @@ export async function GET() {
 
     return NextResponse.json(destinos);
   } catch (error) {
-    console.error('[/api/destinations] Error:', error);
+    logError("GET /api/destinations", error);
     return new NextResponse(null, { status: 503 });
   }
 }

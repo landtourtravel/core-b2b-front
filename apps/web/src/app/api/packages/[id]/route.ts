@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Package } from "@land-tour/shared";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 export async function GET(
   _req: NextRequest,
@@ -62,7 +63,7 @@ export async function GET(
 
     return NextResponse.json(pkg);
   } catch (error) {
-    console.error('[/api/packages/[id]] Error:', error);
+    logError("GET /api/packages/[id]", error);
     return NextResponse.json(
       { error: "DB_FAIL", message: "No se pudo conectar a la base de datos." },
       { status: 503 }

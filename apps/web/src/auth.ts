@@ -12,6 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email:    { label: "Correo",     type: "email"    },
         password: { label: "Contraseña", type: "password" },
+        remember: { label: "Recordar",   type: "text"     }, // "true" | "false"
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
@@ -35,6 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role:          (user.role as UserRole) ?? "ASESOR_MINORISTA",
           agenciaId:     user.agencia.id,
           agenciaNombre: user.agencia.nombre,
+          remember:      credentials.remember === "true",
         };
       },
     }),

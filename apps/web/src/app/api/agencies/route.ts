@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logError } from "@/lib/logger";
 
 export async function GET() {
   try {
@@ -9,7 +10,7 @@ export async function GET() {
     });
     return NextResponse.json(agencies);
   } catch (err) {
-    console.error("[/api/agencies]", err);
+    logError("GET /api/agencies", err);
     return NextResponse.json([], { status: 503 });
   }
 }
