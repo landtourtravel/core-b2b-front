@@ -94,9 +94,11 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
   const [mainImage, setMainImage] = useState<string | undefined>(effectiveGallery[0]);
   const tabs = ["Resumen", "Itinerario", "Incluye", "Cotizar"];
 
-  const locationLabel = packageData.location
-    ? `${packageData.location.city}, ${packageData.location.country}`
-    : "Destino variado";
+  const locationLabel = packageData.isMultiDestino && packageData.destinos?.length
+    ? packageData.destinos.map((d) => d.ciudad).join(" · ")
+    : packageData.location
+      ? `${packageData.location.city}, ${packageData.location.country}`
+      : "Destino variado";
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -211,17 +213,29 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                 <span className="px-2 py-0.5 bg-white/20 backdrop-blur-md text-white font-bold text-[9px] uppercase rounded-md border border-white/10">
                   Salida GYE
                 </span>
+                {packageData.isMultiDestino && (
+                  <span className="px-2 py-0.5 bg-gold/20 backdrop-blur-md text-gold font-black text-[9px] uppercase rounded-md border border-gold/30">
+                    Multi-destino
+                  </span>
+                )}
               </div>
               <h2 className="text-white text-xl sm:text-2xl md:text-4xl font-black leading-tight tracking-tight max-w-[90%] sm:max-w-none">
                 {packageData.title}
               </h2>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/70 text-[10px] sm:text-xs font-bold">
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <Calendar size={12} className="text-secondary" /> {packageData.dates}
-                </span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <Plane size={12} className="text-secondary" /> {packageData.airline}
-                </span>
+                {packageData.dates && (
+                  <span className="flex items-center gap-1 whitespace-nowrap">
+                    <Calendar size={12} className="text-secondary" /> {packageData.dates}
+                  </span>
+                )}
+                {packageData.incluyeBoleto !== undefined && (
+                  <span className="flex items-center gap-1">
+                    <Plane size={12} className={packageData.incluyeBoleto ? "text-secondary" : "text-amber-400"} />
+                    {packageData.incluyeBoleto
+                      ? (packageData.descripcionBoleto || "Boleto aéreo incluido")
+                      : "Boleto no incluido"}
+                  </span>
+                )}
               </div>
             </div>
             <button
@@ -274,9 +288,17 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                 <div className="flex flex-col gap-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 shrink-0">
                     {[
-                      { label: "Destino",   value: locationLabel,                          icon: <MapPin      className="text-secondary" size={14} /> },
+                      { label: packageData.isMultiDestino ? "Destinos" : "Destino", value: locationLabel, icon: <MapPin className="text-secondary" size={14} /> },
                       { label: "Duración",  value: packageData.duration ?? "",              icon: <Clock       className="text-secondary" size={14} /> },
-                      ...(packageData.airline ? [{ label: "Aerolínea", value: packageData.airline, icon: <Plane className="text-secondary" size={14} /> }] : []),
+                      ...(packageData.incluyeBoleto !== undefined
+                        ? [{
+                            label: "Boleto aéreo",
+                            value: packageData.incluyeBoleto
+                              ? (packageData.descripcionBoleto || "Incluido en el precio")
+                              : "No incluido (puede agregarse)",
+                            icon: <Plane className={packageData.incluyeBoleto ? "text-secondary" : "text-amber-400"} size={14} />,
+                          }]
+                        : []),
                       { label: "Desde",     value: `$${packageData.price ?? 0} USD / pax`, icon: <CreditCard  className="text-secondary" size={14} /> },
                     ].map((item, i) => (
                       <div key={i} className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-0.5 sm:gap-1">
@@ -330,7 +352,30 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
               {activeTab === "Itinerario" && (
                 <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                   <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Plan de viaje diario</h3>
-                  {!packageData.actividades?.length && !packageData.traslados?.length ? (
+                  {packageData.itinerary && packageData.itinerary.length > 0 ? (
+                    <div className="space-y-5">
+                      {packageData.itinerary.map((day) => (
+                        <div key={day.day} className="flex gap-4">
+                          <div className="w-8 h-8 rounded-lg bg-primary text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-md">
+                            {day.day}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-sm font-black text-primary">{day.title}</h4>
+                              {day.location && (
+                                <span className="text-[9px] font-bold text-secondary/70 bg-secondary/10 px-2 py-0.5 rounded-full">
+                                  {day.location}
+                                </span>
+                              )}
+                            </div>
+                            {day.description && (
+                              <p className="text-[11px] text-gray-500 font-medium leading-relaxed">{day.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : !packageData.actividades?.length && !packageData.traslados?.length ? (
                     <p className="text-sm text-gray-400 font-medium text-center py-8">No hay información de itinerario disponible.</p>
                   ) : (
                     <div className="space-y-4">
@@ -380,6 +425,14 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                         <ShieldCheck size={14} /> Servicios Incluidos
                       </h3>
                       <div className="space-y-2.5">
+                        {packageData.incluyeBoleto === true && (
+                          <div className="flex items-start gap-3">
+                            <CheckCircle size={12} className="text-secondary mt-0.5 shrink-0" />
+                            <span className="text-[11px] font-bold text-primary/70 leading-tight">
+                              {packageData.descripcionBoleto || "Vuelo incluido en el precio del paquete"}
+                            </span>
+                          </div>
+                        )}
                         {packageData.includes?.map((text, i) => (
                           <div key={i} className="flex items-start gap-3">
                             <CheckCircle size={12} className="text-secondary mt-0.5 shrink-0" />
@@ -393,6 +446,14 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                         <X size={14} /> No incluye
                       </h3>
                       <div className="space-y-2.5">
+                        {packageData.incluyeBoleto === false && (
+                          <div className="flex items-start gap-3">
+                            <X size={12} className="text-red-300 mt-0.5 shrink-0" />
+                            <span className="text-[11px] font-bold text-primary/60 leading-tight">
+                              Boleto aéreo (puede cotizarse por separado con la agencia)
+                            </span>
+                          </div>
+                        )}
                         {packageData.notIncludes?.map((text, i) => (
                           <div key={i} className="flex items-start gap-3">
                             <X size={12} className="text-red-300 mt-0.5 shrink-0" />

@@ -28,18 +28,23 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   category,
   image,
   flightIncluded = true,
+  incluyeBoleto,
+  isMultiDestino = false,
+  destinos,
   transport,
   currency = "USD",
   onClick,
 }) => {
   const fallbackImage = `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80`;
 
-  // Format location string
-  const locationLabel = typeof location === 'string'
-    ? location
-    : location
-      ? `${location.city}, ${location.country}`
-      : "Destino variado";
+  // Format location string — en multi-destino concatena las ciudades.
+  const locationLabel = isMultiDestino && destinos?.length
+    ? destinos.map((d) => d.ciudad).join(" · ")
+    : typeof location === 'string'
+      ? location
+      : location
+        ? `${location.city}, ${location.country}`
+        : "Destino variado";
 
   return (
     <article
@@ -67,11 +72,17 @@ export const PackageCard: React.FC<PackageCardProps> = ({
       <div className="p-3.5 sm:p-5 flex flex-col flex-1">
 
         {/* Location tag */}
-        <div className="flex items-center gap-1.5 mb-2">
+        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
           <MapPin size={13} className="text-secondary shrink-0" />
           <span className="text-secondary text-xs font-semibold tracking-wide">
             {locationLabel}
           </span>
+          {isMultiDestino && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold/15 text-gold border border-gold/30 text-[9px] font-black uppercase tracking-wider rounded-md">
+              <MapPin size={8} />
+              Multi-destino
+            </span>
+          )}
         </div>
 
         {/* Title */}
@@ -87,10 +98,18 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               <Clock size={13} className="text-primary/50 shrink-0" />
               {duration}
             </span>
-            {flightIncluded && (
+            {/* Boleto: usa el campo real `incluyeBoleto`; cae a `flightIncluded`
+                cuando no está definido. Si ambos son undefined no se muestra nada. */}
+            {(incluyeBoleto ?? flightIncluded) === true && (
               <span className="flex items-center gap-1.5 text-[13px] text-primary/70">
                 <Plane size={13} className="text-primary/50 shrink-0" />
                 Vuelo incluido
+              </span>
+            )}
+            {(incluyeBoleto ?? flightIncluded) === false && (
+              <span className="flex items-center gap-1.5 text-[11px] text-amber-600/80">
+                <Plane size={12} className="text-amber-500/70 shrink-0" />
+                Sin boleto incluido
               </span>
             )}
           </div>

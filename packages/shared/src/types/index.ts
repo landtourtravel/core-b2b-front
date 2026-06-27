@@ -62,7 +62,13 @@ export interface Package {
   actividades?: string[];
   traslados?: string[];
   flightIncluded?: boolean;
-  incluyeBoleto?: boolean; // campo real de la BD (Paquete.incluyeBoleto)
+  incluyeBoleto?: boolean;       // campo real de la BD (Paquete.incluyeBoleto)
+  descripcionBoleto?: string;    // descripción del boleto si lo incluye
+  precioBoleto?: number;         // precio del boleto por persona (con markup en endpoints públicos)
+  ajustePrecio?: number;         // ajuste de precio del paquete (Paquete.ajustePrecio)
+  // Multi-destino — un paquete con hoteles en más de un destino
+  isMultiDestino?: boolean;
+  destinos?: Array<{ id: number; ciudad: string; pais: string }>;
   transport?: string;
   gallery?: string[];
   // Campos de detalle

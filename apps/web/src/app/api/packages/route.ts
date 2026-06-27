@@ -4,11 +4,21 @@ import { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { logError } from "@/lib/logger";
 
+// Markup público (+9%) — SOLO para la landing/`/paquetes`. Nunca debe aparecer
+// en el cotizador del dashboard (`/api/cotizar-datos` usa sus propias queries
+// sin markup). No exportar esta constante.
+const LANDING_MARKUP = 1.09;
+const withMarkup = (n: number | null | undefined): number =>
+  n != null && n > 0 ? Math.ceil(n * LANDING_MARKUP) : 0;
+
 function toPackage(p: {
   id: number;
   nombre: string;
   descripcion: string | null;
   incluyeBoleto: boolean;
+  descripcionBoleto: string | null;
+  precioBoleto: number | null;
+  ajustePrecio: number | null;
   precioPorPersona: number | null;
   numPax: number;
   numNinos: number;
@@ -17,39 +27,69 @@ function toPackage(p: {
   nochesBase: number;
   versiones: { tipoPax: string; precioPorPersona: number | null }[];
   imagenes: { url: string }[];
-  hoteles: { hotel: { destino: { pais: string; ciudad: string } } }[];
+  hoteles: { hotel: { destino: { id: number; pais: string; ciudad: string } } }[];
   actividades: { actividad: { nombre: string } }[];
   traslados: { traslado: { tipo: string } }[];
+  itinerario: { dia: number; titulo: string; descripcion: string | null; orden: number }[];
 }): Package {
+  // ── Destinos únicos del paquete (un paquete puede tener hoteles en varios) ──
+  const destinosUnicos = [
+    ...new Map(
+      p.hoteles.map((h) => [h.hotel.destino.id, h.hotel.destino])
+    ).values(),
+  ];
+  const isMultiDestino = destinosUnicos.length > 1;
+  const primerDestino = destinosUnicos[0];
+
+  const versionPrice = (tipo: string) =>
+    withMarkup(p.versiones.find((v) => v.tipoPax === tipo)?.precioPorPersona);
+
   const dblVersion = p.versiones.find((v) => v.tipoPax === "DBL");
+  const precioBase = dblVersion?.precioPorPersona ?? p.precioPorPersona ?? 0;
+
+  const chdVersion = p.versiones.find((v) => v.tipoPax === "CHD")?.precioPorPersona;
+
+  const itinerary = p.itinerario
+    .slice()
+    .sort((a, b) => a.orden - b.orden)
+    .map((d) => ({ day: d.dia, title: d.titulo, description: d.descripcion ?? "" }));
+
   return {
     id:           String(p.id),
     title:        p.nombre,
     description:  p.descripcion ?? "",
-    price:        dblVersion?.precioPorPersona ?? p.precioPorPersona ?? 0,
+    price:        withMarkup(precioBase),
     image:        p.imagenes[0]?.url ?? "",
+    gallery:      p.imagenes.map((img) => img.url),
     category:     "",
     duration:     `${p.diasEstancia} días / ${p.nochesBase} noches`,
     nochesBase:   p.nochesBase,
     diasEstancia: p.diasEstancia,
     location: {
-      country: p.hoteles[0]?.hotel?.destino?.pais   ?? "",
-      city:    p.hoteles[0]?.hotel?.destino?.ciudad ?? "",
+      country: primerDestino?.pais   ?? "",
+      city:    primerDestino?.ciudad ?? "",
     },
+    isMultiDestino,
+    destinos: destinosUnicos.map((d) => ({ id: d.id, ciudad: d.ciudad, pais: d.pais })),
     includes:    [
       ...p.actividades.map(a => a.actividad.nombre),
       ...p.traslados.map(t => t.traslado.tipo),
     ],
     notIncludes: [],
     prices: {
-      sgl:  p.versiones.find((v) => v.tipoPax === "SGL")?.precioPorPersona  ?? 0,
-      dbl:  p.versiones.find((v) => v.tipoPax === "DBL")?.precioPorPersona  ?? 0,
-      tpl:  p.versiones.find((v) => v.tipoPax === "TPL")?.precioPorPersona  ?? 0,
-      quad: p.versiones.find((v) => v.tipoPax === "QUAD")?.precioPorPersona ?? 0,
-      chd:  p.versiones.find((v) => v.tipoPax === "CHD")?.precioPorPersona  ?? 0,
+      sgl:  versionPrice("SGL"),
+      dbl:  versionPrice("DBL"),
+      tpl:  versionPrice("TPL"),
+      quad: versionPrice("QUAD"),
+      chd:  versionPrice("CHD"),
     },
-    flightIncluded: p.incluyeBoleto,
-    incluyeBoleto:  p.incluyeBoleto,
+    childPrice: chdVersion != null ? withMarkup(chdVersion) : undefined,
+    flightIncluded:    p.incluyeBoleto,
+    incluyeBoleto:     p.incluyeBoleto,
+    descripcionBoleto: p.descripcionBoleto ?? undefined,
+    precioBoleto:      p.precioBoleto != null ? withMarkup(p.precioBoleto) : undefined,
+    ajustePrecio:      p.ajustePrecio ?? 0,
+    itinerary:    itinerary.length > 0 ? itinerary : undefined,
     actividades: p.actividades.map(a => a.actividad.nombre),
     traslados:   p.traslados.map(t => t.traslado.tipo),
     numPax:         p.numPax,
@@ -103,13 +143,13 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         versiones: true,
-        imagenes: { orderBy: { orden: "asc" }, take: 1 },
+        imagenes: { orderBy: { orden: "asc" } },
         hoteles: {
           include: { hotel: { include: { destino: true } } },
-          take: 1,
         },
         actividades: { include: { actividad: true } },
         traslados:   { include: { traslado: true } },
+        itinerario:  { orderBy: { orden: "asc" } },
       },
       orderBy: { id: "asc" },
     });

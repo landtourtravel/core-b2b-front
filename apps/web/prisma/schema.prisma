@@ -111,8 +111,23 @@ model PaqueteRef {
   imagenes    ImagenPaqueteRef[]
   actividades PaqueteActividadRef[]
   traslados   PaqueteTrasladoRef[]
+  itinerario  ItinerarioDiaRef[]
 
   @@map("Paquete")
+}
+
+/// @readonly — gestionado por lt-core-admin
+model ItinerarioDiaRef {
+  id          Int     @id
+  paqueteId   Int
+  dia         Int
+  titulo      String
+  descripcion String? @db.Text
+  orden       Int
+
+  paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
+
+  @@map("ItinerarioDia")
 }
 
 /// @readonly — gestionado por lt-core-admin
