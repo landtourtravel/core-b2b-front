@@ -43,6 +43,7 @@ import {
   Star,
   Globe,
   Printer,
+  Trash2,
 } from "lucide-react";
 
 // ─── Cotizar-datos API types ──────────────────────────────────────────────────
@@ -514,6 +515,14 @@ export default function DashboardPage() {
 
   const handleAprobar  = (id: string) => patchCotizacionStatus(id, "APROBADA");
   const handleRechazar = (id: string) => patchCotizacionStatus(id, "RECHAZADA");
+
+  const handleEliminar = async (id: string) => {
+    if (!confirm("¿Eliminar esta cotización? Esta acción no se puede deshacer.")) return;
+    setCotizaciones((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await fetch(`/api/cotizaciones/${id}`, { method: "DELETE" });
+    } catch {}
+  };
 
   const handleSaveProforma = async () => {
     let paqueteId: number | null = null;
@@ -2390,6 +2399,9 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               <button onClick={() => handleRechazar(cot.id)} className="p-2 bg-light hover:bg-rose-50 text-primary hover:text-rose-600 rounded-xl border border-lighter transition-all cursor-pointer"><X size={14} /></button>
                             </>
                           )}
+                          {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
+                            <button onClick={() => handleEliminar(cot.id)} className="p-2 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-xl border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={14} /></button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -2457,6 +2469,9 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               )}
                               {cot.status === "RECHAZADA" && (
                                 <button className="p-1.5 bg-light text-primary/40 rounded-lg border border-lighter cursor-not-allowed" title="Rechazada"><X size={12} className="text-rose-400" /></button>
+                              )}
+                              {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
+                                <button onClick={() => handleEliminar(cot.id)} className="p-1.5 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-lg border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={12} /></button>
                               )}
                             </div>
                           </td>
