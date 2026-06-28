@@ -482,8 +482,33 @@ export default function DashboardPage() {
       }, 0)
     : 0;
 
-  // subtotal = alojamiento + actividades/traslados libres
-  const cotSubtotal = cotSubtotalAlojamiento + cotLibreActTotal + cotLibreTrsTotal;
+  // Costo de noches extra usando tarifas reales de TarifaHotel
+  const cotExtraCost = (() => {
+    if (cotExtraNights <= 0) return 0;
+    if (cotMode === "catalogo" && cotSelectedPkg && cotSelectedPkg.hotelTarifas.length > 0) {
+      const firstHotelId = cotSelectedPkg.hoteles[0]?.id ?? 0;
+      return Object.entries(cotHabs)
+        .filter(([, qty]) => qty > 0)
+        .reduce((sum, [tipoPax, qty]) => {
+          const tarifa = cotSelectedPkg.hotelTarifas.find(
+            (t) => t.hotelId === firstHotelId && t.tipoHabitacion === tipoPax
+          );
+          return sum + (tarifa?.precioBase ?? 0) * (COT_NUM_PAX[tipoPax] ?? 1) * qty * cotExtraNights;
+        }, 0);
+    }
+    if (cotMode === "libre" && cotPrimaryHotel) {
+      return Object.entries(cotHabs)
+        .filter(([, qty]) => qty > 0)
+        .reduce((sum, [tipoPax, qty]) => {
+          const tarifa = cotPrimaryHotel.tarifas?.find((t) => t.tipoHabitacion === tipoPax);
+          return sum + (tarifa?.precioBase ?? 0) * (COT_NUM_PAX[tipoPax] ?? 1) * qty * cotExtraNights;
+        }, 0);
+    }
+    return 0;
+  })();
+
+  // subtotal = alojamiento + noches extra + actividades/traslados libres
+  const cotSubtotal = cotSubtotalAlojamiento + cotExtraCost + cotLibreActTotal + cotLibreTrsTotal;
 
   const cotPaxResumen = Object.entries(cotHabs)
     .filter(([, qty]) => qty > 0)
@@ -2364,6 +2389,12 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         <span>Subtotal alojamiento</span>
                         <span className="font-black text-white">${cotSubtotalAlojamiento.toLocaleString()}</span>
                       </div>
+                      {cotExtraCost > 0 && (
+                        <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                          <span>Noches extra ({cotExtraNights}n)</span>
+                          <span>${cotExtraCost.toLocaleString("es-EC")}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between items-center">
                         <span>Markup agencia</span>
                         <span className="font-black text-secondary-light">${agencyMarkup.toLocaleString()}</span>
