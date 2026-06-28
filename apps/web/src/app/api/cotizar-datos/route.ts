@@ -31,7 +31,7 @@ export async function GET() {
       include: {
         versiones: { orderBy: { tipoPax: "asc" } },
         hoteles: {
-          include: { hotel: { include: { destino: true } } },
+          include: { hotel: { include: { destino: true, tarifas: true } } },
         },
         actividades: {
           include: { actividad: { include: { destino: true } } },
@@ -63,6 +63,19 @@ export async function GET() {
         }
       });
 
+      const hotelTarifas: { hotelId: number; tipoHabitacion: string; precioBase: number }[] = [];
+      p.hoteles.forEach((ph) => {
+        if (ph.hotel?.tarifas) {
+          ph.hotel.tarifas.forEach((t) => {
+            hotelTarifas.push({
+              hotelId: ph.hotel!.id,
+              tipoHabitacion: t.tipoHabitacion,
+              precioBase: Number(t.precioBase),
+            });
+          });
+        }
+      });
+
       return {
         id: p.id,
         nombre: p.nombre,
@@ -77,6 +90,7 @@ export async function GET() {
         destinoPais: primerDestino?.pais ?? "",
         destinos: destinosList,
         hoteles: [...hotelesMap.values()],
+        hotelTarifas,
         versiones: p.versiones
           .filter((v) => v.precioPorPersona !== null)
           .map((v) => ({

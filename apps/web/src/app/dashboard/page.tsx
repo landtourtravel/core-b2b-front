@@ -68,6 +68,7 @@ interface CotPaquete {
   destinoCiudad: string; destinoPais: string;
   destinos: CotPaqueteDestino[];
   hoteles: CotPaqueteHotel[];
+  hotelTarifas: { hotelId: number; tipoHabitacion: string; precioBase: number }[];
   actividades: CotPaqueteActividad[];
   traslados: CotPaqueteTraslado[];
   versiones: CotPaqueteVersion[];
