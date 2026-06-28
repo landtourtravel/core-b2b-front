@@ -49,6 +49,8 @@ import {
 } from "lucide-react";
 import { DashboardContext, type CotizacionExtended } from "./DashboardContext";
 import DashboardTab from "./components/DashboardTab";
+import PaquetesTab from "./components/PaquetesTab";
+import CotizacionesTab from "./components/CotizacionesTab";
 
 // ─── Cotizar-datos API types ──────────────────────────────────────────────────
 interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
@@ -135,8 +137,6 @@ export default function DashboardPage() {
   const [packages, setPackages]             = useState<Package[]>([]);
   const [isLoadingPackages, setLoadingPkg]  = useState(true);
   const [packagesFetchError, setPkgError]   = useState<"DB_FAIL" | "EMPTY" | null>(null);
-  const [searchPkgTerm, setSearchPkgTerm]   = useState("");
-  const [activeDestino, setActiveDestino]   = useState<string | null>(null);
 
   useEffect(() => {
     setLoadingPkg(true);
@@ -145,15 +145,6 @@ export default function DashboardPage() {
       .catch(() => setPkgError("DB_FAIL"))
       .finally(() => setLoadingPkg(false));
   }, []);
-
-  const filteredPackages = packages.filter((pkg) => {
-    const loc = `${pkg.location?.city || ""} ${pkg.location?.country || ""}`;
-    return (
-      pkg.title.toLowerCase().includes(searchPkgTerm.toLowerCase()) ||
-      loc.toLowerCase().includes(searchPkgTerm.toLowerCase()) ||
-      pkg.category.toLowerCase().includes(searchPkgTerm.toLowerCase())
-    );
-  });
 
   // ── Cotizaciones ─────────────────────────────────────────────────────────────
   const [cotizaciones, setCotizaciones] = useState<CotizacionExtended[]>([]);
@@ -425,13 +416,6 @@ export default function DashboardPage() {
     (cotMode === "catalogo" ? cotSelectedPkgId !== null : cotSelectedHotelIds.length > 0);
   const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
   const step3CanProceed = isComparativeMode || cotTotalHabs > 0;
-
-  const packagesByCountry = packages.reduce<Record<string, Package[]>>((acc, pkg) => {
-    const c = pkg.location?.country || "Otros";
-    if (!acc[c]) acc[c] = [];
-    acc[c].push(pkg);
-    return acc;
-  }, {});
 
   const cotNoches = cotMode === "catalogo"
     ? (cotSelectedPkg?.nochesBase ?? 0) + cotExtraNights
@@ -1222,162 +1206,12 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
 
           {/* ════════════════════════ PAQUETES ════════════════════════ */}
           {activeTab === "paquetes" && (
-            <div className="space-y-6 animate-fade-scale">
-              {/* ── Header con buscador ── */}
-              <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Catálogo de Programas Turísticos
-                  </h3>
-                  <p className="text-[11px] text-primary/50 font-semibold mt-1">
-                    Selecciona un programa para cotizar al instante con tus comisiones.
-                  </p>
-                </div>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-primary/40"><Search size={14} /></span>
-                  <input
-                    type="text"
-                    placeholder="Buscar por destino o nombre..."
-                    value={searchPkgTerm}
-                    onChange={(e) => { setSearchPkgTerm(e.target.value); setActiveDestino(null); }}
-                    className="pl-9 pr-4 py-2.5 bg-light border border-lighter rounded-2xl text-xs font-bold placeholder-primary/30 outline-none w-full md:w-64 focus:border-secondary focus:bg-white transition-all"
-                  />
-                </div>
-              </div>
-              {/* ── Estados: cargando / error / vacío ── */}
-              {isLoadingPackages ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-3">
-                  <div className="w-8 h-8 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-                  <p className="text-primary/50 font-bold text-xs">Cargando programas...</p>
-                </div>
-              ) : packagesFetchError === "DB_FAIL" ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-                  <AlertCircle size={28} className="text-amber-400" />
-                  <p className="text-primary/60 font-bold text-xs">Conexión a DB fallida — no se pudieron cargar los paquetes.</p>
-                </div>
-              ) : packagesFetchError === "EMPTY" || packages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-                  <Globe size={28} className="text-primary/20" />
-                  <p className="text-primary/50 font-bold text-xs">No hay paquetes creados en la base de datos.</p>
-                  <p className="text-primary/30 text-[10px]">El administrador debe crear los paquetes desde el panel.</p>
-                </div>
-              ) : (() => {
-                const pkgsFiltrados = packages.filter((pkg) => {
-                  if (!searchPkgTerm) return true;
-                  const loc = `${pkg.location?.city || ""} ${pkg.location?.country || ""}`.toLowerCase();
-                  return (
-                    pkg.title.toLowerCase().includes(searchPkgTerm.toLowerCase()) ||
-                    loc.includes(searchPkgTerm.toLowerCase())
-                  );
-                });
-                const byDestino = pkgsFiltrados.reduce<Record<string, { pais: string; pkgs: typeof pkgsFiltrados }>>((acc, pkg) => {
-                  const ciudad = pkg.location?.city || "Sin destino";
-                  const pais   = pkg.location?.country || "";
-                  if (!acc[ciudad]) acc[ciudad] = { pais, pkgs: [] };
-                  acc[ciudad].pkgs.push(pkg);
-                  return acc;
-                }, {});
-                const destinos = Object.keys(byDestino).sort();
-                if (destinos.length === 0) {
-                  return (
-                    <div className="py-16 text-center text-primary/40 font-bold text-xs">
-                      No se encontraron paquetes para &quot;{searchPkgTerm}&quot;
-                    </div>
-                  );
-                }
-                return (
-                  <div className="space-y-3">
-                    {destinos.map((ciudad) => {
-                      const { pais, pkgs } = byDestino[ciudad];
-                      const isOpen = activeDestino === ciudad;
-                      return (
-                        <div key={ciudad} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                          {/* ── Cabecera del destino (acordeón) ── */}
-                          <button
-                            onClick={() => setActiveDestino(isOpen ? null : ciudad)}
-                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-light/60 transition-colors cursor-pointer group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
-                                <MapPin size={14} className="text-secondary" />
-                              </div>
-                              <div className="text-left">
-                                <span className="text-sm font-black text-primary group-hover:text-secondary transition-colors">{ciudad}</span>
-                                <span className="text-[10px] font-bold text-primary/40 ml-2">{pais}</span>
-                              </div>
-                              <span className="ml-2 px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-md">
-                                {pkgs.length} {pkgs.length === 1 ? "programa" : "programas"}
-                              </span>
-                            </div>
-                            {isOpen
-                              ? <ChevronUp size={16} className="text-primary/40 shrink-0" />
-                              : <ChevronDown size={16} className="text-primary/40 shrink-0" />
-                            }
-                          </button>
-                          {/* ── Lista de paquetes desplegable ── */}
-                          {isOpen && (
-                            <div className="border-t border-gray-50 divide-y divide-gray-50">
-                              {pkgs.map((pkg) => (
-                                <div
-                                  key={pkg.id}
-                                  className="flex items-center gap-4 px-6 py-4 hover:bg-light/40 transition-colors group/row"
-                                >
-                                  {/* Miniatura */}
-                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                                    <Image
-                                      src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80"}
-                                      alt={pkg.title}
-                                      width={64}
-                                      height={64}
-                                      className="w-full h-full object-cover transition-transform duration-300 group-hover/row:scale-105"
-                                    />
-                                  </div>
-                                  {/* Info */}
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="text-xs font-black text-primary leading-tight line-clamp-1 group-hover/row:text-secondary transition-colors">
-                                      {pkg.title}
-                                    </h4>
-                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
-                                      <span className="flex items-center gap-1 text-[10px] font-bold text-primary/40">
-                                        <Clock size={9} /> {pkg.duration || `${pkg.diasEstancia}d / ${pkg.nochesBase}n`}
-                                      </span>
-                                      {pkg.flightIncluded && (
-                                        <span className="flex items-center gap-1 text-[10px] font-bold text-secondary">
-                                          <Plane size={9} /> Vuelo incluido
-                                        </span>
-                                      )}
-                                    </div>
-                                    {pkg.includes && pkg.includes.length > 0 && (
-                                      <p className="text-[10px] font-medium text-primary/35 mt-1 line-clamp-1">
-                                        Incluye: {pkg.includes.slice(0, 3).join(" · ")}
-                                        {pkg.includes.length > 3 && ` y ${pkg.includes.length - 3} más`}
-                                      </p>
-                                    )}
-                                  </div>
-                                  {/* Precio + Botón */}
-                                  <div className="flex flex-col items-end gap-2 shrink-0">
-                                    <div className="text-right">
-                                      <span className="text-[8px] font-black uppercase text-gray-400 block leading-none">Desde</span>
-                                      <span className="text-sm font-black text-primary">${pkg.price} <span className="text-[9px] font-bold text-primary/40">USD</span></span>
-                                    </div>
-                                    <button
-                                      onClick={() => handleQuickQuote(String(pkg.id))}
-                                      className="px-3.5 py-2 bg-secondary hover:bg-secondary-light text-primary font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                                    >
-                                      <Plus size={10} className="stroke-[2.5]" /> Cotizar
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-            </div>
+            <PaquetesTab
+              packages={packages}
+              isLoadingPackages={isLoadingPackages}
+              packagesFetchError={packagesFetchError}
+              onQuickQuote={handleQuickQuote}
+            />
           )}
 
           {/* ════════════════════════ NUEVA COTIZACIÓN (STEPPER) ════════════════════════ */}
@@ -2518,142 +2352,11 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
 
           {/* ════════════════════════ COTIZACIONES ════════════════════════ */}
           {activeTab === "cotizaciones" && (
-            <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 animate-fade-scale">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-50 pb-4">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest">Listado de Cotizaciones Generadas</h3>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-primary/40"><Search size={12} /></span>
-                    <input type="text" placeholder="Buscar por código, cliente..." className="pl-8 pr-4 py-2 bg-light border border-lighter rounded-xl text-xs font-bold placeholder-primary/30 outline-none w-full md:w-56" />
-                  </div>
-                  <select className="px-3 py-2 bg-light border border-lighter rounded-xl text-xs font-bold text-primary/60 outline-none cursor-pointer">
-                    <option>Todos los estados</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* ── Vista de tarjetas (solo móvil) ── */}
-              <div className="sm:hidden space-y-3">
-                {isLoadingCots ? (
-                  <div className="flex justify-center py-10">
-                    <div className="w-7 h-7 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-                  </div>
-                ) : cotizaciones.length === 0 ? (
-                  <div className="text-center py-10 text-primary/40 text-xs font-bold">Sin cotizaciones registradas.</div>
-                ) : cotizaciones.map((cot) => {
-                  const ext = cot as CotizacionExtended;
-                  return (
-                    <div key={cot.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <span className="text-[11px] font-black text-secondary block">{cot.codigo}</span>
-                          <span className="text-sm font-black text-primary block mt-0.5 truncate">{cot.cliente?.nombre || "—"}</span>
-                          <span className="text-[11px] font-bold text-primary/50 block mt-0.5 truncate">
-                            {cot.paqueteNombre}{cot.fechaViaje ? ` · ${cot.fechaViaje}` : ""}
-                          </span>
-                        </div>
-                        <span className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg tracking-wider flex items-center gap-1.5 shrink-0 ${STATUS_BADGE[cot.status]}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[cot.status]}`} />
-                          {COTIZACION_STATUS_LABEL[cot.status]}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between border-t border-gray-50 pt-3">
-                        <span className="text-lg font-black text-primary">${cot.total.toLocaleString()} <span className="text-[10px] font-bold text-primary/40">USD</span></span>
-                        <div className="flex gap-2">
-                          <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} aria-label={`Ver cotización ${cot.codigo}`} className="p-2 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-xl border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={14} /></button>
-                          {cot.status === "BORRADOR" && !!ext.hotelsComparison?.length && (
-                            <button onClick={() => handleOpenFinalizeDialog(cot.id)} aria-label={`Finalizar cotización ${cot.codigo}`} className="p-2 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-xl border border-secondary/20 transition-all cursor-pointer"><Star size={14} /></button>
-                          )}
-                          {(cot.status === "ENVIADA" || cot.status === "BORRADOR") && (
-                            <>
-                              <button onClick={() => handleAprobar(cot.id)} className="p-2 bg-light hover:bg-emerald-50 text-primary hover:text-emerald-600 rounded-xl border border-lighter transition-all cursor-pointer"><Check size={14} /></button>
-                              <button onClick={() => handleRechazar(cot.id)} className="p-2 bg-light hover:bg-rose-50 text-primary hover:text-rose-600 rounded-xl border border-lighter transition-all cursor-pointer"><X size={14} /></button>
-                            </>
-                          )}
-                          {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
-                            <button onClick={() => { setConfirmDeleteId(cot.id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-2 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-xl border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={14} /></button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* ── Vista de tabla (sm y arriba) ── */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[750px]">
-                  <thead>
-                    <tr className="border-b border-gray-100">
-                      {["Código","Cliente","Programa","Fechas","Pax","Total","Creación","Estado","Acciones"].map((h) => (
-                        <th key={h} className="pb-3 text-[10px] font-black uppercase text-gray-400 tracking-wider">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50 text-xs font-bold text-primary/80">
-                    {cotizaciones.map((cot) => {
-                      const ext = cot as CotizacionExtended;
-                      const hasComparison = !!ext.hotelsComparison?.length;
-                      return (
-                        <tr key={cot.id} className="hover:bg-light/40 transition-colors">
-                          <td className="py-4">
-                            <span className="font-black text-secondary block">{cot.codigo}</span>
-                            <span className="text-[9px] text-gray-400 font-bold block mt-0.5">
-                              {hasComparison ? `${ext.hotelsComparison!.length} hotel(es)` : `Por ${userName}`}
-                            </span>
-                          </td>
-                          <td className="py-4 font-black">{cot.cliente?.nombre || "—"}</td>
-                          <td className="py-4 text-primary/60 max-w-[140px] truncate">{cot.paqueteNombre}</td>
-                          <td className="py-4">{cot.fechaViaje || "—"}</td>
-                          <td className="py-4">{resumenPasajeros(cot.pasajeros)}</td>
-                          <td className="py-4 font-black">${cot.total.toLocaleString()}</td>
-                          <td className="py-4 text-gray-400">{cot.fechaCreacion}</td>
-                          <td className="py-4">
-                            <span className={`px-2.5 py-0.5 text-[9px] font-black uppercase rounded-md tracking-wider flex items-center gap-1.5 w-fit ${STATUS_BADGE[cot.status]}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[cot.status]}`} />
-                              {COTIZACION_STATUS_LABEL[cot.status]}
-                            </span>
-                          </td>
-                          <td className="py-4">
-                            <div className="flex gap-1.5 flex-wrap">
-                              <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} aria-label={`Ver cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={12} /></button>
-
-                              {/* Generar Cotización Final — BORRADOR with hotelsComparison */}
-                              {cot.status === "BORRADOR" && hasComparison && (
-                                <button
-                                  onClick={() => handleOpenFinalizeDialog(cot.id)}
-                                  aria-label={`Finalizar cotización ${cot.codigo}`}
-                                  className="p-1.5 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-lg border border-secondary/20 transition-all cursor-pointer"
-                                  title="Generar Cotización Final"
-                                >
-                                  <Star size={12} />
-                                </button>
-                              )}
-
-                              {(cot.status === "ENVIADA" || cot.status === "BORRADOR") && (
-                                <>
-                                  <button onClick={() => handleAprobar(cot.id)} className="p-1.5 bg-light hover:bg-emerald-50 text-primary hover:text-emerald-600 rounded-lg border border-lighter transition-all cursor-pointer" title="Aprobar"><Check size={12} /></button>
-                                  <button onClick={() => handleRechazar(cot.id)} className="p-1.5 bg-light hover:bg-rose-50 text-primary hover:text-rose-600 rounded-lg border border-lighter transition-all cursor-pointer" title="Rechazar"><X size={12} /></button>
-                                </>
-                              )}
-                              {cot.status === "APROBADA" && (
-                                <button className="p-1.5 bg-light text-primary/40 rounded-lg border border-lighter cursor-not-allowed" title="Aprobada"><Check size={12} className="text-emerald-500" /></button>
-                              )}
-                              {cot.status === "RECHAZADA" && (
-                                <button className="p-1.5 bg-light text-primary/40 rounded-lg border border-lighter cursor-not-allowed" title="Rechazada"><X size={12} className="text-rose-400" /></button>
-                              )}
-                              {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
-                                <button onClick={() => { setConfirmDeleteId(cot.id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-lg border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={12} /></button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <CotizacionesTab
+              onPreviewCot={(cot) => { setPreviewCot(cot); setPreviewTab("Cliente"); }}
+              onOpenFinalize={handleOpenFinalizeDialog}
+              onOpenDelete={(id) => { setConfirmDeleteId(id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }}
+            />
           )}
 
           {/* ════════════════════════ MARCA BLANCA (deshabilitado) ════════════════════════ */}
