@@ -177,6 +177,7 @@ export default function DashboardPage() {
   const proformaDialogRef    = useRef<HTMLDialogElement>(null);
   const [proformaCotId, setProformaCotId]             = useState<string | null>(null);
   const [proformaChosenHotel, setProformaChosenHotel] = useState("");
+  const [approvalHabs, setApprovalHabs] = useState<Record<string, number>>({});
   const confirmDeleteDialogRef = useRef<HTMLDialogElement>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
@@ -1010,6 +1011,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
   const handleOpenFinalizeDialog = (cotId: string) => {
     setProformaCotId(cotId);
     setProformaChosenHotel("");
+    setApprovalHabs({});
     if (proformaDialogRef.current && !proformaDialogRef.current.open)
       proformaDialogRef.current.showModal();
   };
