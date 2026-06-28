@@ -47,6 +47,7 @@ import {
   Printer,
   Trash2,
 } from "lucide-react";
+import { DashboardContext, type CotizacionExtended } from "./DashboardContext";
 
 // ─── Cotizar-datos API types ──────────────────────────────────────────────────
 interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
@@ -74,11 +75,6 @@ interface CotPaquete {
   versiones: CotPaqueteVersion[];
 }
 interface CotizarData { destinos: CotDestino[]; paquetes: CotPaquete[] }
-
-type CotizacionExtended = Cotizacion & {
-  hotelsComparison?: Array<{ hotel: { id: string; name: string }; subtotal: number; extraNightsCost: number; total: number }>;
-  chosenHotelId?: string;
-};
 
 // ─── Status style maps (must be at file scope for Tailwind scanning) ──────────
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
@@ -1052,6 +1048,30 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
+    <DashboardContext.Provider value={{
+      cotizaciones,
+      setCotizaciones,
+      isLoadingCots,
+      agencyName,
+      agencyPhone,
+      agencyAddress,
+      agencyLogo,
+      agencyMarkup,
+      setAgencyMarkup,
+      defaultMarkup,
+      userName,
+      agenciaDisplay,
+      userRoleDisplay,
+      isAdmin,
+      rawRole,
+      kpiTotal,
+      kpiAprobadas,
+      kpiRechazadas,
+      kpiPendientes,
+      handleEliminar,
+      patchCotizacionStatus,
+      handleLogout,
+    }}>
     <div className="min-h-screen bg-[#F4FAF8] flex font-inter text-primary select-none">
 
       {/* ── Aviso de sesión por inactividad ── */}
@@ -3311,5 +3331,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
       )}
 
     </div>
+    </DashboardContext.Provider>
   );
 }
