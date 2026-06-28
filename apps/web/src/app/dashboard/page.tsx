@@ -1157,9 +1157,9 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                           </td>
                           <td className="py-4">
                             <div className="flex gap-1.5">
-                              <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={12} /></button>
+                              <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} aria-label={`Ver cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={12} /></button>
                               {cot.status === "BORRADOR" && (cot as CotizacionExtended).hotelsComparison && (
-                                <button onClick={() => handleOpenFinalizeDialog(cot.id)} className="p-1.5 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-lg border border-secondary/20 transition-all cursor-pointer" title="Generar Cotización Final"><Star size={12} /></button>
+                                <button onClick={() => handleOpenFinalizeDialog(cot.id)} aria-label={`Finalizar cotización ${cot.codigo}`} className="p-1.5 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-lg border border-secondary/20 transition-all cursor-pointer" title="Generar Cotización Final"><Star size={12} /></button>
                               )}
                             </div>
                           </td>
@@ -1276,9 +1276,11 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                 >
                                   {/* Miniatura */}
                                   <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                                    <img
+                                    <Image
                                       src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80"}
                                       alt={pkg.title}
+                                      width={64}
+                                      height={64}
                                       className="w-full h-full object-cover transition-transform duration-300 group-hover/row:scale-105"
                                     />
                                   </div>
@@ -1384,25 +1386,25 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className={labelCls}>Nombre Completo *</label>
-                          <input type="text" required value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Nombre del cliente" className={inputCls} />
+                          <label htmlFor="client-name" className={labelCls}>Nombre Completo *</label>
+                          <input id="client-name" type="text" required value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Nombre del cliente" className={inputCls} />
                         </div>
                         <div className="space-y-1.5">
-                          <label className={labelCls}>Correo Electrónico</label>
-                          <input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} onBlur={handleClientEmailBlur} placeholder="cliente@email.com" className={inputCls} />
+                          <label htmlFor="client-email" className={labelCls}>Correo Electrónico</label>
+                          <input id="client-email" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} onBlur={handleClientEmailBlur} placeholder="cliente@email.com" className={inputCls} />
                           {clientFoundMsg && <p className="text-[10px] font-bold text-secondary mt-1">{clientFoundMsg}</p>}
                         </div>
                         <div className="space-y-1.5">
-                          <label className={labelCls}>Teléfono / WhatsApp</label>
-                          <input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+593 9XXXXXXXX" className={inputCls} />
+                          <label htmlFor="client-phone" className={labelCls}>Teléfono / WhatsApp</label>
+                          <input id="client-phone" type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+593 9XXXXXXXX" className={inputCls} />
                         </div>
                         <div className="space-y-1.5">
-                          <label className={labelCls}>Identificación / C.I.</label>
-                          <input type="text" value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Opcional" className={inputCls} />
+                          <label htmlFor="client-doc" className={labelCls}>Identificación / C.I.</label>
+                          <input id="client-doc" type="text" value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Opcional" className={inputCls} />
                         </div>
                         <div className="space-y-1.5 sm:col-span-2">
-                          <label className={labelCls}>Dirección</label>
-                          <input type="text" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} placeholder="Dirección del cliente" className={inputCls} />
+                          <label htmlFor="client-address" className={labelCls}>Dirección</label>
+                          <input id="client-address" type="text" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} placeholder="Dirección del cliente" className={inputCls} />
                         </div>
 
                         {/* Agency read-only tag */}
@@ -2004,7 +2006,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                   <span className={`text-[10px] font-bold block ${precio > 0 ? "text-secondary" : "text-primary/30"}`}>{tarifaLabel}</span>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0 ml-4">
-                                  <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: Math.max(0, (prev[tipoPax] ?? 0) - 1) }))} disabled={qty === 0} className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                                  <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: Math.max(0, (prev[tipoPax] ?? 0) - 1) }))} disabled={qty === 0} aria-label={`Reducir cantidad de ${label}`} className="w-11 h-11 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
                                     <Minus size={12} />
                                   </button>
                                   <span className="w-6 text-center font-black text-sm text-primary">{qty}</span>
@@ -2015,12 +2017,13 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                       (tipoPax === "CHD" && cotMode === "catalogo" && (cotSelectedPkg?.incluyeBoleto ?? false)) ||
                                       (cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0)
                                     }
+                                    aria-label={`Aumentar cantidad de ${label}`}
                                     title={
                                       cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0
                                         ? "Este tipo de habitación no está disponible en el paquete seleccionado"
                                         : (tipoPax === "CHD" && cotMode === "catalogo" && cotSelectedPkg?.incluyeBoleto ? "El paquete ya incluye boleto para niños" : undefined)
                                     }
-                                    className="w-7 h-7 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="w-11 h-11 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
                                   >
                                     <Plus size={12} />
                                   </button>
@@ -2067,8 +2070,8 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD)</label>
-                        <input type="number" min={0} value={agencyMarkup} onChange={(e) => setAgencyMarkup(Number(e.target.value))} placeholder="Ej. 100" className={inputCls} />
+                        <label htmlFor="agency-markup" className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD)</label>
+                        <input id="agency-markup" type="number" min={0} value={agencyMarkup} onChange={(e) => setAgencyMarkup(Number(e.target.value))} placeholder="Ej. 100" className={inputCls} />
                         <p className="text-[10px] text-primary/40 font-bold">Este valor se suma al total final y no es visible para el cliente.</p>
                       </div>
 
@@ -2408,9 +2411,9 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                       <div className="flex items-center justify-between border-t border-gray-50 pt-3">
                         <span className="text-lg font-black text-primary">${cot.total.toLocaleString()} <span className="text-[10px] font-bold text-primary/40">USD</span></span>
                         <div className="flex gap-2">
-                          <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} className="p-2 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-xl border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={14} /></button>
+                          <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} aria-label={`Ver cotización ${cot.codigo}`} className="p-2 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-xl border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={14} /></button>
                           {cot.status === "BORRADOR" && !!ext.hotelsComparison?.length && (
-                            <button onClick={() => handleOpenFinalizeDialog(cot.id)} className="p-2 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-xl border border-secondary/20 transition-all cursor-pointer"><Star size={14} /></button>
+                            <button onClick={() => handleOpenFinalizeDialog(cot.id)} aria-label={`Finalizar cotización ${cot.codigo}`} className="p-2 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-xl border border-secondary/20 transition-all cursor-pointer"><Star size={14} /></button>
                           )}
                           {(cot.status === "ENVIADA" || cot.status === "BORRADOR") && (
                             <>
@@ -2419,7 +2422,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                             </>
                           )}
                           {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
-                            <button onClick={() => handleEliminar(cot.id)} className="p-2 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-xl border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={14} /></button>
+                            <button onClick={() => handleEliminar(cot.id)} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-2 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-xl border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={14} /></button>
                           )}
                         </div>
                       </div>
@@ -2464,12 +2467,13 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                           </td>
                           <td className="py-4">
                             <div className="flex gap-1.5 flex-wrap">
-                              <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={12} /></button>
+                              <button onClick={() => { setPreviewCot(cot as CotizacionExtended); setPreviewTab("Cliente"); }} aria-label={`Ver cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={12} /></button>
 
                               {/* Generar Cotización Final — BORRADOR with hotelsComparison */}
                               {cot.status === "BORRADOR" && hasComparison && (
                                 <button
                                   onClick={() => handleOpenFinalizeDialog(cot.id)}
+                                  aria-label={`Finalizar cotización ${cot.codigo}`}
                                   className="p-1.5 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-lg border border-secondary/20 transition-all cursor-pointer"
                                   title="Generar Cotización Final"
                                 >
@@ -2490,7 +2494,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                 <button className="p-1.5 bg-light text-primary/40 rounded-lg border border-lighter cursor-not-allowed" title="Rechazada"><X size={12} className="text-rose-400" /></button>
                               )}
                               {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
-                                <button onClick={() => handleEliminar(cot.id)} className="p-1.5 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-lg border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={12} /></button>
+                                <button onClick={() => handleEliminar(cot.id)} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-lg border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={12} /></button>
                               )}
                             </div>
                           </td>
@@ -2653,7 +2657,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
       </div>
 
       {/* ── BOTTOM NAV (solo móvil) ── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(11,67,57,0.08)] flex items-stretch h-16">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(11,67,57,0.08)] flex items-stretch h-16" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {([
           { id: "dashboard",    icon: LayoutDashboard,  label: "Inicio"    },
           { id: "paquetes",     icon: Compass,          label: "Paquetes"  },
