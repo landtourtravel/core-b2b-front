@@ -96,6 +96,9 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
 // ─── T&C static text ──────────────────────────────────────────────────────────
 const TERMINOS_CONDICIONES = `Los precios indicados son por persona en la categoría de habitación seleccionada y están sujetos a disponibilidad hotelera al momento de la reserva. Land Tour Travel actúa como operador mayorista; la agencia minorista es responsable de la relación comercial con el cliente final. El pago del depósito de reserva (40% del total) es obligatorio para confirmar los servicios. Cancelaciones con menos de 15 días de anticipación están sujetas a penalidades del 50%. Los vuelos, cuando son incluidos, están sujetos a las políticas de la aerolínea operadora. Land Tour Travel no se responsabiliza por cambios de vuelo, demoras o cancelaciones por parte de la aerolínea. El pasajero es responsable de contar con documentación vigente (pasaporte, visa si aplica). Las tarifas de niños aplican para menores de 2 a 11 años compartiendo habitación con adultos. El markup/comisión de agencia no es visible para el cliente final en los documentos exportados.`;
 
+// ─── Draft key ───────────────────────────────────────────────────────────────
+const DRAFT_KEY = "cotizador-draft-v1";
+
 // ─── Input style helper ───────────────────────────────────────────────────────
 const inputCls = "w-full px-4 py-3 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold outline-none focus:border-secondary focus:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 const inputDisabledCls = "w-full px-4 py-3 bg-light border border-lighter text-primary/50 rounded-2xl text-xs sm:text-sm font-bold outline-none cursor-not-allowed";
@@ -183,6 +186,7 @@ export default function DashboardPage() {
   const [previewTab,      setPreviewTab]      = useState<"Cliente" | "Viaje & Precios" | "Notas">("Cliente");
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [isSavingQuote,   setIsSavingQuote]   = useState(false);
+  const [hasDraft,        setHasDraft]        = useState(false);
 
   // Client fields
   const [clientName,    setClientName]    = useState("");
@@ -318,6 +322,71 @@ export default function DashboardPage() {
       .then((data: CotizarData) => setCotizarData(data))
       .catch(() => {});
   }, []);
+
+  const clearDraft = () => {
+    sessionStorage.removeItem(DRAFT_KEY);
+    setHasDraft(false);
+  };
+
+  const restoreDraft = () => {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.clientName    !== undefined) setClientName(d.clientName);
+      if (d.clientEmail   !== undefined) setClientEmail(d.clientEmail);
+      if (d.clientPhone   !== undefined) setClientPhone(d.clientPhone);
+      if (d.clientId      !== undefined) setClientId(d.clientId);
+      if (d.clientAddress !== undefined) setClientAddress(d.clientAddress);
+      if (d.cotMode       !== undefined) setCotMode(d.cotMode);
+      if (d.cotSelectedPkgId     !== undefined) setCotSelectedPkgId(d.cotSelectedPkgId);
+      if (d.cotSelectedDestinoId !== undefined) setCotSelectedDestinoId(d.cotSelectedDestinoId);
+      if (d.cotSelectedHotelIds  !== undefined) setCotSelectedHotelIds(d.cotSelectedHotelIds);
+      if (d.cotHabs        !== undefined) setCotHabs(d.cotHabs);
+      if (d.cotFechaSalida !== undefined) setCotFechaSalida(d.cotFechaSalida);
+      if (d.cotCustomDias  !== undefined) setCotCustomDias(d.cotCustomDias);
+      if (d.cotExtraNights !== undefined) setCotExtraNights(d.cotExtraNights);
+      if (d.cotFlightOverride !== undefined) setCotFlightOverride(d.cotFlightOverride);
+      if (d.cotFlightPrice    !== undefined) setCotFlightPrice(d.cotFlightPrice);
+      if (d.cotLibreActSel    !== undefined) setCotLibreActSel(d.cotLibreActSel);
+      if (d.cotLibreTrsSel    !== undefined) setCotLibreTrsSel(d.cotLibreTrsSel);
+      if (d.step !== undefined) setStep(d.step);
+      setHasDraft(false);
+    } catch {
+      // ignore parse errors
+    }
+  };
+
+  // Auto-save wizard state to sessionStorage (debounced 800ms)
+  useEffect(() => {
+    if (quoteLocked) return;
+    const isFormEmpty = !clientName && !clientEmail && !cotSelectedPkgId && !cotSelectedDestinoId
+      && Object.keys(cotHabs).length === 0 && !cotFechaSalida;
+    if (isFormEmpty) return;
+
+    const timer = setTimeout(() => {
+      const draft: Record<string, unknown> = {
+        clientName, clientEmail, clientPhone, clientId, clientAddress,
+        cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
+        cotHabs, cotFechaSalida, cotCustomDias, cotExtraNights,
+        cotFlightOverride, cotFlightPrice, cotLibreActSel, cotLibreTrsSel, step,
+      };
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [
+    clientName, clientEmail, clientPhone, clientId, clientAddress,
+    cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
+    cotHabs, cotFechaSalida, cotCustomDias, cotExtraNights,
+    cotFlightOverride, cotFlightPrice, cotLibreActSel, cotLibreTrsSel, step, quoteLocked,
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== "cotizar") return;
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (raw) setHasDraft(true);
+  }, [activeTab]);
 
   useEffect(() => {
     if (previewCot) {
@@ -489,6 +558,7 @@ export default function DashboardPage() {
     setCotLibreTrsSel({});
     setCotIsMultiDestino(false);
     setCotExtraDestinoIds([]);
+    clearDraft();
   };
 
   const handleQuickQuote = (pkgId: string) => {
@@ -619,6 +689,7 @@ export default function DashboardPage() {
 
     setCotizaciones((prev) => [newCot, ...prev]);
     setQuoteLocked(true);
+    clearDraft();
 
     try {
       const clientRes = await fetch("/api/clients", {
@@ -1336,6 +1407,29 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
           {/* ════════════════════════ NUEVA COTIZACIÓN (STEPPER) ════════════════════════ */}
           {activeTab === "cotizar" && (
             <div className="space-y-6 animate-fade-scale">
+
+              {hasDraft && !quoteLocked && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black text-amber-700">Tienes una cotización en progreso sin guardar.</p>
+                    <p className="text-[10px] font-bold text-amber-600 mt-0.5">¿Deseas continuar donde lo dejaste?</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={restoreDraft}
+                      className="px-4 py-2 bg-amber-500 text-white font-black text-xs uppercase tracking-wider rounded-xl hover:bg-amber-600 transition-all cursor-pointer"
+                    >
+                      Continuar
+                    </button>
+                    <button
+                      onClick={clearDraft}
+                      className="px-4 py-2 border border-amber-300 text-amber-700 font-black text-xs uppercase tracking-wider rounded-xl hover:bg-amber-100 transition-all cursor-pointer"
+                    >
+                      Descartar
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Stepper progress */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
