@@ -230,8 +230,7 @@ export default function DashboardPage() {
   const [cotFechaSalida,      setCotFechaSalida]      = useState("");
   const [cotNumPersonas,      setCotNumPersonas]      = useState(2);
   const [cotNumNinos,         setCotNumNinos]         = useState(0);
-  const [cotHabs,             setCotHabs]             = useState<Record<string, number>>({ DBL: 1 });
-  const [cotManualServices,   setCotManualServices]   = useState<Array<{ id: string; descripcion: string; costo: number }>>([]);
+  const [cotHabs,             setCotHabs]             = useState<Record<string, number>>({});
   const [cotFlightOverride,   setCotFlightOverride]   = useState<boolean | null>(null);
   const [cotFlightPrice,      setCotFlightPrice]      = useState<number>(0);
   const [cotExtraNights,      setCotExtraNights]      = useState<number>(0);
@@ -465,8 +464,6 @@ export default function DashboardPage() {
       return sum + precio * numPax * qty;
     }, 0);
 
-  const cotManualTotal = cotManualServices.reduce((sum, s) => sum + s.costo, 0);
-
   // Actividades y traslados seleccionados en modo libre — busca en todos los destinos activos
   const cotAllActRef = cotAllDestinos.flatMap((d) => d.actividades);
   const cotAllTrsRef = cotAllDestinos.flatMap((d) => d.traslados);
@@ -485,8 +482,8 @@ export default function DashboardPage() {
       }, 0)
     : 0;
 
-  // subtotal = alojamiento + servicios manuales + actividades/traslados libres
-  const cotSubtotal = cotSubtotalAlojamiento + cotManualTotal + cotLibreActTotal + cotLibreTrsTotal;
+  // subtotal = alojamiento + actividades/traslados libres
+  const cotSubtotal = cotSubtotalAlojamiento + cotLibreActTotal + cotLibreTrsTotal;
 
   const cotPaxResumen = Object.entries(cotHabs)
     .filter(([, qty]) => qty > 0)
@@ -550,8 +547,7 @@ export default function DashboardPage() {
     setCotFechaSalida("");
     setCotNumPersonas(2);
     setCotNumNinos(0);
-    setCotHabs({ DBL: 1 });
-    setCotManualServices([]);
+    setCotHabs({});
     setCotFlightOverride(null);
     setCotFlightPrice(0);
     setCotExtraNights(0);
@@ -628,7 +624,6 @@ export default function DashboardPage() {
       paqueteIncluye  = [
         ...cotSelectedPkg.actividades.map((a) => a.nombre),
         ...cotSelectedPkg.traslados.map((t) => t.tipo),
-        ...cotManualServices.map((s) => s.descripcion).filter(Boolean),
       ];
     } else if (cotMode === "libre" && cotAllDestinos.length > 0) {
       const cities    = cotAllDestinos.map((d) => d.ciudad).join(" + ");
@@ -639,7 +634,7 @@ export default function DashboardPage() {
       incluyeBoleto   = cotFlightActive;
       const actNombres = cotAllActRef.filter((a) => cotLibreActSel[a.id]).map((a) => a.nombre);
       const trsNombres = cotAllTrsRef.filter((t) => cotLibreTrsSel[t.id]).map((t) => t.tipo);
-      paqueteIncluye = [...actNombres, ...trsNombres, ...cotManualServices.map((s) => s.descripcion).filter(Boolean)];
+      paqueteIncluye = [...actNombres, ...trsNombres];
     }
 
     const now    = new Date();
@@ -650,7 +645,6 @@ export default function DashboardPage() {
     const sessionUserId    = (sessionData?.user as any)?.id ?? "unknown";
 
     const notasParts: string[] = [];
-    if (cotManualServices.length > 0) notasParts.push(cotManualServices.map((s) => `${s.descripcion}: $${s.costo}`).join("; "));
     const notasStr = notasParts.length > 0 ? notasParts.join(" | ") : undefined;
 
     const newCot: CotizacionExtended = {
@@ -784,7 +778,6 @@ export default function DashboardPage() {
       ];
     }
     if (cotFlightActive) includes = [`Boleto aéreo${cotSelectedPkg?.descripcionBoleto ? ": " + cotSelectedPkg.descripcionBoleto : ""}`, ...includes];
-    includes = [...includes, ...cotManualServices.filter((s) => s.descripcion).map((s) => s.descripcion)];
 
     const typeLabelMap: Record<string, string> = { SGL: "Sencilla", DBL: "Doble", TPL: "Triple", QUAD: "Cuádruple", CHD: "Niño (2-11)" };
     const pricingRows = ordered.map((tipoPax) => {
@@ -951,10 +944,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
           <td colspan="3">Actividades y traslados</td>
           <td class="right bold">$${fmt(cotLibreActTotal + cotLibreTrsTotal)}</td>
         </tr>` : ""}
-        ${cotManualServices.filter((s) => s.costo > 0).map((svc) => `<tr>
-          <td colspan="3">${esc(svc.descripcion || "Servicio adicional")}</td>
-          <td class="right bold">$${fmt(svc.costo)}</td>
-        </tr>`).join("")}
         <tr class="total-row">
           <td colspan="3" class="green">TOTAL</td>
           <td class="right green">$${fmt(cotTotal)}</td>
@@ -2135,41 +2124,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className={labelCls}>Servicios Adicionales</label>
-                          <button
-                            type="button"
-                            onClick={() => setCotManualServices((prev) => [...prev, { id: `svc-${Date.now()}`, descripcion: "", costo: 0 }])}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-secondary/20 transition-all cursor-pointer"
-                          >
-                            <Plus size={11} /> Agregar Servicio
-                          </button>
-                        </div>
-                        {cotManualServices.length > 0 && (
-                          <div className="space-y-2">
-                            {cotManualServices.map((svc) => (
-                              <div key={svc.id} className="flex items-center gap-2 p-3 bg-light border border-lighter rounded-2xl">
-                                <input type="text" placeholder="Descripción del servicio..." value={svc.descripcion}
-                                  onChange={(e) => setCotManualServices((prev) => prev.map((s) => s.id === svc.id ? { ...s, descripcion: e.target.value } : s))}
-                                  className="flex-1 px-3 py-2 bg-white border border-lighter text-primary rounded-xl text-xs font-bold outline-none focus:border-secondary transition-all"
-                                />
-                                <div className="relative shrink-0">
-                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30 text-xs font-black">$</span>
-                                  <input type="number" min={0} placeholder="0" value={svc.costo || ""}
-                                    onChange={(e) => setCotManualServices((prev) => prev.map((s) => s.id === svc.id ? { ...s, costo: Number(e.target.value) } : s))}
-                                    className="w-24 pl-6 pr-3 py-2 bg-white border border-lighter text-primary rounded-xl text-xs font-bold outline-none focus:border-secondary transition-all"
-                                  />
-                                </div>
-                                <button type="button" onClick={() => setCotManualServices((prev) => prev.filter((s) => s.id !== svc.id))} className="p-1.5 bg-rose-50 text-rose-400 hover:bg-rose-100 rounded-lg transition-all cursor-pointer shrink-0">
-                                  <X size={12} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
                       <div className="space-y-1.5">
                         <label htmlFor="agency-markup" className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD)</label>
                         <input id="agency-markup" type="number" min={0} value={agencyMarkup} onChange={(e) => setAgencyMarkup(Number(e.target.value))} placeholder="Ej. 100" className={inputCls} />
@@ -2299,12 +2253,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
 
                             {/* Resumen de cargos adicionales + total */}
                             <div className="border-t border-gray-100 pt-3 space-y-1">
-                              {cotManualServices.filter((s) => s.costo > 0).map((svc) => (
-                                <div key={svc.id} className="flex justify-between text-[10px] font-bold text-primary/60">
-                                  <span>{svc.descripcion || "Servicio adicional"}</span>
-                                  <span>${svc.costo.toLocaleString()}</span>
-                                </div>
-                              ))}
                               {cotBoletoTotal > 0 && (
                                 <div className="flex justify-between text-[10px] font-bold text-primary/60">
                                   <span>Boleto aéreo ({cotTotalRoomPax} pax × ${cotFlightPrice})</span>
@@ -2416,12 +2364,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         <span>Subtotal alojamiento</span>
                         <span className="font-black text-white">${cotSubtotalAlojamiento.toLocaleString()}</span>
                       </div>
-                      {cotManualTotal > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span>Servicios adicionales</span>
-                          <span className="font-black text-white">${cotManualTotal.toLocaleString()}</span>
-                        </div>
-                      )}
                       <div className="flex justify-between items-center">
                         <span>Markup agencia</span>
                         <span className="font-black text-secondary-light">${agencyMarkup.toLocaleString()}</span>
