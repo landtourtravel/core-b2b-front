@@ -1968,62 +1968,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                       )}
                                     </div>
 
-                                    {/* ── Traslados disponibles ── */}
-                                    {destino.traslados.length > 0 && (
-                                      <div className="space-y-2">
-                                        <label className={labelCls}>Traslados en {destino.ciudad}</label>
-                                        <div className="space-y-2">
-                                          {destino.traslados.map((trs) => {
-                                            const checked = !!cotLibreTrsSel[trs.id];
-                                            const minPrice = trs.tarifas.length > 0 ? Math.min(...trs.tarifas.map((t) => t.precio)) : 0;
-                                            return (
-                                              <button
-                                                key={trs.id} type="button"
-                                                onClick={() => setCotLibreTrsSel((prev) => ({ ...prev, [trs.id]: !prev[trs.id] }))}
-                                                className={`w-full flex items-center gap-4 p-3 rounded-2xl border transition-all text-left cursor-pointer ${checked ? "border-secondary bg-secondary/5" : "border-gray-100 hover:border-secondary/30 hover:bg-light/60"}`}
-                                              >
-                                                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
-                                                  {checked && <Check size={11} className="text-primary stroke-[3]" />}
-                                                </div>
-                                                <div className="flex-grow min-w-0">
-                                                  <p className="text-xs font-black text-primary">{trs.tipo}</p>
-                                                  {minPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">Desde ${minPrice}</p>}
-                                                </div>
-                                              </button>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* ── Actividades disponibles ── */}
-                                    {destino.actividades.length > 0 && (
-                                      <div className="space-y-2">
-                                        <label className={labelCls}>Actividades en {destino.ciudad}</label>
-                                        <div className="space-y-2">
-                                          {destino.actividades.map((act) => {
-                                            const checked = !!cotLibreActSel[act.id];
-                                            const minPrice = act.tarifas.length > 0 ? Math.min(...act.tarifas.map((t) => t.precio)) : 0;
-                                            return (
-                                              <button
-                                                key={act.id} type="button"
-                                                onClick={() => setCotLibreActSel((prev) => ({ ...prev, [act.id]: !prev[act.id] }))}
-                                                className={`w-full flex items-center gap-4 p-3 rounded-2xl border transition-all text-left cursor-pointer ${checked ? "border-secondary bg-secondary/5" : "border-gray-100 hover:border-secondary/30 hover:bg-light/60"}`}
-                                              >
-                                                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
-                                                  {checked && <Check size={11} className="text-primary stroke-[3]" />}
-                                                </div>
-                                                <div className="flex-grow min-w-0">
-                                                  <p className="text-xs font-black text-primary">{act.nombre}</p>
-                                                  {act.descripcion && <p className="text-[10px] text-primary/40 font-bold mt-0.5">{act.descripcion}</p>}
-                                                  {minPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">Desde ${minPrice}/persona</p>}
-                                                </div>
-                                              </button>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    )}
                                   </div>
                                 );
                               })}
@@ -2148,6 +2092,93 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                           })}
                         </div>
                       </div>
+
+                      {/* ── SERVICIOS: read-only chips (catálogo) or checkboxes (libre) ── */}
+                      {cotMode === "catalogo" && cotSelectedPkg && (cotSelectedPkg.actividades.length > 0 || cotSelectedPkg.traslados.length > 0) && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Incluido en el programa</p>
+                          <div className="p-3 bg-light border border-lighter rounded-2xl flex flex-wrap gap-1.5">
+                            {cotSelectedPkg.actividades.map((a) => (
+                              <span key={a.id} className="px-2.5 py-1 bg-secondary/10 text-secondary text-[9px] font-black rounded-md">
+                                {a.nombre}
+                              </span>
+                            ))}
+                            {cotSelectedPkg.traslados.map((t) => (
+                              <span key={t.id} className="px-2.5 py-1 bg-primary/5 text-primary/60 text-[9px] font-black rounded-md">
+                                {t.tipo}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {cotMode === "libre" && cotAllDestinos.length > 0 && (
+                        <div className="space-y-4">
+                          {cotAllDestinos.map((destino) => {
+                            const hasMultiple = cotAllDestinos.length > 1;
+                            return (
+                              <div key={destino.id} className={hasMultiple ? "p-4 bg-light border border-lighter rounded-2xl space-y-3" : "space-y-4"}>
+                                {hasMultiple && (
+                                  <p className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1.5">
+                                    <MapPin size={10} /> {destino.ciudad}, {destino.pais}
+                                  </p>
+                                )}
+                                {destino.traslados.length > 0 && (
+                                  <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Traslados en {destino.ciudad}</p>
+                                    <div className="space-y-2">
+                                      {destino.traslados.map((trs) => {
+                                        const checked = !!cotLibreTrsSel[trs.id];
+                                        const minPrice = trs.tarifas.length > 0 ? Math.min(...trs.tarifas.map((t) => t.precio)) : 0;
+                                        return (
+                                          <button key={trs.id} type="button"
+                                            onClick={() => setCotLibreTrsSel((prev) => ({ ...prev, [trs.id]: !prev[trs.id] }))}
+                                            className={`w-full flex items-center gap-4 p-3 rounded-2xl border transition-all text-left cursor-pointer ${checked ? "border-secondary bg-secondary/5" : "border-gray-100 hover:border-secondary/30 hover:bg-light/60"}`}
+                                          >
+                                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
+                                              {checked && <Check size={11} className="text-primary stroke-[3]" />}
+                                            </div>
+                                            <div className="flex-grow min-w-0">
+                                              <p className="text-xs font-black text-primary">{trs.tipo}</p>
+                                              {minPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">Desde ${minPrice}</p>}
+                                            </div>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                                {destino.actividades.length > 0 && (
+                                  <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Actividades en {destino.ciudad}</p>
+                                    <div className="space-y-2">
+                                      {destino.actividades.map((act) => {
+                                        const checked = !!cotLibreActSel[act.id];
+                                        const minPrice = act.tarifas.length > 0 ? Math.min(...act.tarifas.map((t) => t.precio)) : 0;
+                                        return (
+                                          <button key={act.id} type="button"
+                                            onClick={() => setCotLibreActSel((prev) => ({ ...prev, [act.id]: !prev[act.id] }))}
+                                            className={`w-full flex items-center gap-4 p-3 rounded-2xl border transition-all text-left cursor-pointer ${checked ? "border-secondary bg-secondary/5" : "border-gray-100 hover:border-secondary/30 hover:bg-light/60"}`}
+                                          >
+                                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
+                                              {checked && <Check size={11} className="text-primary stroke-[3]" />}
+                                            </div>
+                                            <div className="flex-grow min-w-0">
+                                              <p className="text-xs font-black text-primary">{act.nombre}</p>
+                                              {act.descripcion && <p className="text-[10px] text-primary/40 font-bold mt-0.5">{act.descripcion}</p>}
+                                              {minPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">Desde ${minPrice}/persona</p>}
+                                            </div>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
 
                       <div className="space-y-1.5">
                         <label htmlFor="agency-markup" className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD)</label>
