@@ -1369,7 +1369,12 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                     );
                   })}
                 </div>
-                <div className="h-6" />
+                <div className="h-6 relative">
+                  <p className="text-center text-[10px] font-black text-primary/50 uppercase tracking-wider mt-1 sm:hidden">
+                    Paso {step}:{" "}
+                    {step === 1 ? "Cliente" : step === 2 ? "Configuración" : step === 3 ? "Habitaciones" : "Revisión"}
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -1455,8 +1460,8 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                       {/* Selector de modo */}
                       <div className="grid grid-cols-2 gap-3">
                         {([
-                          { mode: "catalogo" as const, label: "Catálogo DB", desc: "Paquetes con precios del catálogo", icon: <Compass size={18} /> },
-                          { mode: "libre" as const,    label: "Cotización Libre", desc: "Selecciona destino y hotel manualmente", icon: <Globe size={18} /> },
+                          { mode: "catalogo" as const, label: "Paquetes Disponibles", desc: "Elige de los paquetes armados por Land Tour Travel", icon: <Compass size={18} /> },
+                          { mode: "libre" as const,    label: "Armar desde Cero", desc: "Selecciona destino, hotel y servicios manualmente", icon: <Globe size={18} /> },
                         ] as const).map(({ mode, label, desc, icon }) => (
                           <button
                             key={mode} type="button" onClick={() => setCotMode(mode)}
@@ -2671,7 +2676,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
             <button
               key={id}
               onClick={() => { setActiveTab(id); if (id === "cotizar") resetForm(); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer relative"
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-all duration-200 cursor-pointer relative ${isActive ? "scale-110" : "active:scale-95"}`}
             >
               <div className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all ${isActive ? "bg-secondary" : ""}`}>
                 <Icon size={16} className={isActive ? "text-primary stroke-[2.5]" : "text-primary/40 stroke-2"} />
