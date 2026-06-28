@@ -400,20 +400,6 @@ export default function DashboardPage() {
   // ── Derived ──────────────────────────────────────────────────────────────────
   const selectedPkg = packages.find((p) => String(p.id) === String(selectedPkgId)) ?? packages[0];
 
-  // Step guards
-  const step1CanProceed = clientName.trim().length > 0;
-  const step2CanProceed = cotFechaSalida.trim().length > 0 &&
-    (cotMode === "catalogo" ? cotSelectedPkgId !== null : cotSelectedHotelIds.length > 0);
-  const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
-  const step3CanProceed = cotTotalHabs > 0;
-
-  const packagesByCountry = packages.reduce<Record<string, Package[]>>((acc, pkg) => {
-    const c = pkg.location?.country || "Otros";
-    if (!acc[c]) acc[c] = [];
-    acc[c].push(pkg);
-    return acc;
-  }, {});
-
   // ── Cotizador derived ─────────────────────────────────────────────────────────
   const COT_NUM_PAX: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
@@ -433,6 +419,20 @@ export default function DashboardPage() {
   const isComparativeMode =
     (cotMode === "catalogo" && (cotSelectedPkg?.hoteles.length ?? 0) > 1) ||
     (cotMode === "libre" && cotSelectedHotelIds.length > 1);
+
+  // Step guards
+  const step1CanProceed = clientName.trim().length > 0;
+  const step2CanProceed = cotFechaSalida.trim().length > 0 &&
+    (cotMode === "catalogo" ? cotSelectedPkgId !== null : cotSelectedHotelIds.length > 0);
+  const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
+  const step3CanProceed = isComparativeMode || cotTotalHabs > 0;
+
+  const packagesByCountry = packages.reduce<Record<string, Package[]>>((acc, pkg) => {
+    const c = pkg.location?.country || "Otros";
+    if (!acc[c]) acc[c] = [];
+    acc[c].push(pkg);
+    return acc;
+  }, {});
 
   const cotNoches = cotMode === "catalogo"
     ? (cotSelectedPkg?.nochesBase ?? 0) + cotExtraNights
