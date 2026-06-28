@@ -173,6 +173,8 @@ export default function DashboardPage() {
   const proformaDialogRef    = useRef<HTMLDialogElement>(null);
   const [proformaCotId, setProformaCotId]             = useState<string | null>(null);
   const [proformaChosenHotel, setProformaChosenHotel] = useState("");
+  const confirmDeleteDialogRef = useRef<HTMLDialogElement>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // ── Stepper ──────────────────────────────────────────────────────────────────
   const [step,            setStep]            = useState(1);
@@ -528,7 +530,6 @@ export default function DashboardPage() {
   const handleRechazar = (id: string) => patchCotizacionStatus(id, "RECHAZADA");
 
   const handleEliminar = async (id: string) => {
-    if (!confirm("¿Eliminar esta cotización? Esta acción no se puede deshacer.")) return;
     setCotizaciones((prev) => prev.filter((c) => c.id !== id));
     try {
       await fetch(`/api/cotizaciones/${id}`, { method: "DELETE" });
@@ -2422,7 +2423,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                             </>
                           )}
                           {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
-                            <button onClick={() => handleEliminar(cot.id)} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-2 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-xl border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={14} /></button>
+                            <button onClick={() => { setConfirmDeleteId(cot.id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-2 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-xl border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={14} /></button>
                           )}
                         </div>
                       </div>
@@ -2494,7 +2495,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                 <button className="p-1.5 bg-light text-primary/40 rounded-lg border border-lighter cursor-not-allowed" title="Rechazada"><X size={12} className="text-rose-400" /></button>
                               )}
                               {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
-                                <button onClick={() => handleEliminar(cot.id)} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-lg border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={12} /></button>
+                                <button onClick={() => { setConfirmDeleteId(cot.id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }} aria-label={`Eliminar cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-rose-50 text-primary/40 hover:text-rose-500 rounded-lg border border-lighter transition-all cursor-pointer" title="Eliminar"><Trash2 size={12} /></button>
                               )}
                             </div>
                           </td>
@@ -2755,6 +2756,57 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
             </button>
           </div>
         </div>
+      </dialog>
+
+      {/* ── Modal confirmar eliminación ── */}
+      <dialog
+        ref={confirmDeleteDialogRef}
+        className="backdrop:bg-primary/40 backdrop:backdrop-blur-sm rounded-3xl border-0 p-0 shadow-2xl w-[90vw] max-w-sm"
+        onCancel={(e) => { e.preventDefault(); confirmDeleteDialogRef.current?.close(); setConfirmDeleteId(null); }}
+      >
+        {(() => {
+          const cot = cotizaciones.find((c) => c.id === confirmDeleteId);
+          return (
+            <div className="p-6 space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0">
+                  <Trash2 size={18} className="text-rose-500" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-primary">Eliminar cotización</h3>
+                  <p className="text-[10px] font-bold text-primary/50 mt-0.5">Esta acción no se puede deshacer</p>
+                </div>
+              </div>
+              {cot && (
+                <div className="p-3 bg-rose-50 border border-rose-100 rounded-2xl">
+                  <p className="text-xs font-black text-rose-700">{cot.codigo}</p>
+                  <p className="text-[10px] font-bold text-rose-500 mt-0.5">{cot.cliente?.nombre || "—"}</p>
+                </div>
+              )}
+              <p className="text-xs font-bold text-primary/60">
+                ¿Estás seguro de que deseas eliminar esta cotización?
+              </p>
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => { confirmDeleteDialogRef.current?.close(); setConfirmDeleteId(null); }}
+                  className="flex-1 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirmDeleteId) handleEliminar(confirmDeleteId);
+                    confirmDeleteDialogRef.current?.close();
+                    setConfirmDeleteId(null);
+                  }}
+                  className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all cursor-pointer shadow-sm"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          );
+        })()}
       </dialog>
 
       {/* ════ COTIZACIÓN PREVIEW MODAL ════ */}
