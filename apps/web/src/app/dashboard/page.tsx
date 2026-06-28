@@ -429,6 +429,10 @@ export default function DashboardPage() {
     ? cotAllDestinos.flatMap((d) => d.hoteles)
     : (cotSelectedDestino?.hoteles ?? []);
   const cotPrimaryHotel    = cotAvailableHotels.find((h) => cotSelectedHotelIds.includes(h.id)) ?? null;
+  // Comparative mode: catálogo with >1 hotel OR libre with >1 hotel selected
+  const isComparativeMode =
+    (cotMode === "catalogo" && (cotSelectedPkg?.hoteles.length ?? 0) > 1) ||
+    (cotMode === "libre" && cotSelectedHotelIds.length > 1);
 
   const cotNoches = cotMode === "catalogo"
     ? (cotSelectedPkg?.nochesBase ?? 0) + cotExtraNights
@@ -2047,50 +2051,124 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                             Tarifas: {cotPrimaryHotel.nombre}{cotMode === "libre" ? ` · ${cotNoches} noches` : ""}
                           </p>
                         )}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {([
-                            { tipoPax: "SGL",  label: "Sencilla (SGL)",   numPax: 1 },
-                            { tipoPax: "DBL",  label: "Doble (DBL)",      numPax: 2 },
-                            { tipoPax: "TPL",  label: "Triple (TPL)",     numPax: 3 },
-                            { tipoPax: "QUAD", label: "Cuádruple (QUAD)", numPax: 4 },
-                            { tipoPax: "CHD",  label: "Niños 2-11 (CHD)", numPax: 1 },
-                          ] as const).map(({ tipoPax, label }) => {
-                            const precio = getCotPrice(tipoPax);
-                            const qty    = cotHabs[tipoPax] ?? 0;
-                            const tarifaLabel = precio > 0 ? `$${precio}/p${cotMode === "libre" ? "/noche" : ""}` : "Sin tarifa";
-                            return (
-                              <div key={tipoPax} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${precio > 0 || qty > 0 ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-60"}`}>
-                                <div className="space-y-0.5 min-w-0">
-                                  <span className="text-xs font-black text-primary block">{label}</span>
-                                  <span className={`text-[10px] font-bold block ${precio > 0 ? "text-secondary" : "text-primary/30"}`}>{tarifaLabel}</span>
+                        {!isComparativeMode ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {([
+                              { tipoPax: "SGL",  label: "Sencilla (SGL)",   numPax: 1 },
+                              { tipoPax: "DBL",  label: "Doble (DBL)",      numPax: 2 },
+                              { tipoPax: "TPL",  label: "Triple (TPL)",     numPax: 3 },
+                              { tipoPax: "QUAD", label: "Cuádruple (QUAD)", numPax: 4 },
+                              { tipoPax: "CHD",  label: "Niños 2-11 (CHD)", numPax: 1 },
+                            ] as const).map(({ tipoPax, label }) => {
+                              const precio = getCotPrice(tipoPax);
+                              const qty    = cotHabs[tipoPax] ?? 0;
+                              const tarifaLabel = precio > 0 ? `$${precio}/p${cotMode === "libre" ? "/noche" : ""}` : "Sin tarifa";
+                              return (
+                                <div key={tipoPax} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${precio > 0 || qty > 0 ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-60"}`}>
+                                  <div className="space-y-0.5 min-w-0">
+                                    <span className="text-xs font-black text-primary block">{label}</span>
+                                    <span className={`text-[10px] font-bold block ${precio > 0 ? "text-secondary" : "text-primary/30"}`}>{tarifaLabel}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0 ml-4">
+                                    <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: Math.max(0, (prev[tipoPax] ?? 0) - 1) }))} disabled={qty === 0} aria-label={`Reducir cantidad de ${label}`} className="w-11 h-11 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                                      <Minus size={12} />
+                                    </button>
+                                    <span className="w-6 text-center font-black text-sm text-primary">{qty}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: (prev[tipoPax] ?? 0) + 1 }))}
+                                      disabled={
+                                        (tipoPax === "CHD" && cotMode === "catalogo" && (cotSelectedPkg?.incluyeBoleto ?? false)) ||
+                                        (cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0)
+                                      }
+                                      aria-label={`Aumentar cantidad de ${label}`}
+                                      title={
+                                        cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0
+                                          ? "Este tipo de habitación no está disponible en el paquete seleccionado"
+                                          : (tipoPax === "CHD" && cotMode === "catalogo" && cotSelectedPkg?.incluyeBoleto ? "El paquete ya incluye boleto para niños" : undefined)
+                                      }
+                                      className="w-11 h-11 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
+                                    >
+                                      <Plus size={12} />
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0 ml-4">
-                                  <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: Math.max(0, (prev[tipoPax] ?? 0) - 1) }))} disabled={qty === 0} aria-label={`Reducir cantidad de ${label}`} className="w-11 h-11 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
-                                    <Minus size={12} />
-                                  </button>
-                                  <span className="w-6 text-center font-black text-sm text-primary">{qty}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: (prev[tipoPax] ?? 0) + 1 }))}
-                                    disabled={
-                                      (tipoPax === "CHD" && cotMode === "catalogo" && (cotSelectedPkg?.incluyeBoleto ?? false)) ||
-                                      (cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0)
-                                    }
-                                    aria-label={`Aumentar cantidad de ${label}`}
-                                    title={
-                                      cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0
-                                        ? "Este tipo de habitación no está disponible en el paquete seleccionado"
-                                        : (tipoPax === "CHD" && cotMode === "catalogo" && cotSelectedPkg?.incluyeBoleto ? "El paquete ya incluye boleto para niños" : undefined)
-                                    }
-                                    className="w-11 h-11 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
-                                  >
-                                    <Plus size={12} />
-                                  </button>
-                                </div>
-                              </div>
+                              );
+                            })}
+                          </div>
+                        ) : (() => {
+                          const ROOM_TYPES = ["SGL", "DBL", "TPL", "QUAD", "CHD"] as const;
+                          type CompRow = { id: number; nombre: string; estrellas: number };
+                          let rows: CompRow[] = [];
+                          let activeTypes: (typeof ROOM_TYPES)[number][] = [];
+
+                          if (cotMode === "catalogo" && cotSelectedPkg) {
+                            activeTypes = [...ROOM_TYPES].filter((t) =>
+                              cotSelectedPkg!.versiones.some((v) => v.tipoPax === t && (v.precioPorPersona ?? 0) > 0)
                             );
-                          })}
-                        </div>
+                            rows = cotSelectedPkg.hoteles.map((h) => ({ id: h.id, nombre: h.nombre, estrellas: h.estrellas }));
+                          } else if (cotMode === "libre") {
+                            const selHotels = cotAvailableHotels.filter((h) => cotSelectedHotelIds.includes(h.id));
+                            activeTypes = [...ROOM_TYPES].filter((t) =>
+                              selHotels.some((h) => h.tarifas.some((tf) => tf.tipoHabitacion === t))
+                            );
+                            rows = selHotels.map((h) => ({ id: h.id, nombre: h.nombre, estrellas: h.estrellas }));
+                          }
+
+                          const getPriceCell = (hotelId: number, tipoPax: string): number | null => {
+                            if (cotMode === "catalogo" && cotSelectedPkg) {
+                              return cotSelectedPkg.versiones.find((v) => v.tipoPax === tipoPax)?.precioPorPersona ?? null;
+                            }
+                            if (cotMode === "libre") {
+                              const hotel = cotAvailableHotels.find((h) => h.id === hotelId);
+                              const tf = hotel?.tarifas.find((t) => t.tipoHabitacion === tipoPax);
+                              return tf ? tf.precioBase * cotNoches : null;
+                            }
+                            return null;
+                          };
+
+                          return (
+                            <div className="space-y-3">
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                  <thead>
+                                    <tr className="border-b border-gray-100">
+                                      <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider min-w-[140px]">Hotel</th>
+                                      <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-center">Estrellas</th>
+                                      {activeTypes.map((t) => (
+                                        <th key={t} className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-right whitespace-nowrap">{t}/pax</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-50">
+                                    {rows.map((hotel) => (
+                                      <tr key={hotel.id}>
+                                        <td className="py-2.5 font-black text-primary text-[11px]">{hotel.nombre}</td>
+                                        <td className="py-2.5 text-center text-[11px] text-amber-500 whitespace-nowrap">{"★".repeat(hotel.estrellas)}</td>
+                                        {activeTypes.map((tipoPax) => {
+                                          const precio = getPriceCell(hotel.id, tipoPax);
+                                          if (precio == null) return <td key={tipoPax} className="py-2.5 text-right text-primary/30">—</td>;
+                                          const fmt = precio % 1 === 0 ? precio.toLocaleString() : precio.toFixed(2);
+                                          return <td key={tipoPax} className="py-2.5 text-right font-black text-primary text-[11px]">${fmt}</td>;
+                                        })}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                <p className="mt-2 text-[9px] text-primary/40 font-bold">
+                                  {cotMode === "catalogo"
+                                    ? "Precio por persona según tarifa del paquete."
+                                    : `Precio total por persona para ${cotNoches} noche${cotNoches !== 1 ? "s" : ""}.`}
+                                </p>
+                              </div>
+                              <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl">
+                                <p className="text-[10px] font-black text-amber-700">
+                                  Esta cotización incluye múltiples opciones de hotel. El total final se calculará cuando el cliente elija su hotel preferido.
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* ── SERVICIOS: read-only chips (catálogo) or checkboxes (libre) ── */}
@@ -2321,10 +2399,19 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                   <span>${(cotLibreActTotal + cotLibreTrsTotal).toLocaleString()}</span>
                                 </div>
                               )}
-                              <div className="flex justify-between pt-2 border-t border-secondary/20">
-                                <span className="text-[10px] font-black text-primary uppercase tracking-wider">Total estimado</span>
-                                <span className="font-black text-secondary text-sm">${cotTotal.toLocaleString()}</span>
-                              </div>
+                              {isComparativeMode ? (
+                                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl">
+                                  <p className="text-xs font-black text-amber-700">Total: Pendiente de selección de hotel</p>
+                                  <p className="text-[10px] font-bold text-amber-600 mt-0.5">
+                                    El cliente debe elegir un hotel para calcular el total definitivo.
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="flex justify-between pt-2 border-t border-secondary/20">
+                                  <span className="text-[10px] font-black text-primary uppercase tracking-wider">Total estimado</span>
+                                  <span className="font-black text-secondary text-sm">${cotTotal.toLocaleString()}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         );
