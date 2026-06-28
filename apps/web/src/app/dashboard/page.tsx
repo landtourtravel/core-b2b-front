@@ -181,8 +181,9 @@ export default function DashboardPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // ── Stepper ──────────────────────────────────────────────────────────────────
-  const [step,            setStep]            = useState(1);
-  const [quoteLocked,     setQuoteLocked]     = useState(false);
+  const [step,              setStep]              = useState(1);
+  const [quoteLocked,       setQuoteLocked]       = useState(false);
+  const [showMobileSummary, setShowMobileSummary] = useState(false);
   const [previewCot,      setPreviewCot]      = useState<CotizacionExtended | null>(null);
   const [previewTab,      setPreviewTab]      = useState<"Cliente" | "Viaje & Precios" | "Notas">("Cliente");
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
@@ -2848,6 +2849,17 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
         </main>
       </div>
 
+      {/* ── Mobile FAB: Ver Resumen (Steps 2-4 only) ── */}
+      {activeTab === "cotizar" && step > 1 && (
+        <button
+          onClick={() => setShowMobileSummary(true)}
+          aria-label="Ver resumen de cotización"
+          className="lg:hidden fixed bottom-20 right-4 z-30 w-14 h-14 bg-primary rounded-full shadow-xl flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <DollarSign size={20} className="text-white" />
+        </button>
+      )}
+
       {/* ── BOTTOM NAV (solo móvil) ── */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(11,67,57,0.08)] flex items-stretch h-16" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {([
@@ -3213,6 +3225,88 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
           </div>
         );
       })()}
+
+      {/* ── Mobile bottom-sheet: price summary ── */}
+      {showMobileSummary && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 flex flex-col justify-end"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowMobileSummary(false); }}
+        >
+          <div className="absolute inset-0 bg-primary/40 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-t-3xl p-6 space-y-4 max-h-[70vh] overflow-y-auto overscroll-contain">
+            <div className="w-8 h-1 bg-gray-200 rounded-full mx-auto -mt-2" />
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest">Resumen</h3>
+              <button
+                onClick={() => setShowMobileSummary(false)}
+                className="p-1.5 rounded-lg bg-light text-primary/40 hover:bg-lighter transition-all cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            </div>
+            <div className="p-3 bg-light border border-lighter rounded-2xl space-y-1.5">
+              <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                <span>Destino</span>
+                <span className="text-primary font-black">{cotDestinoCiudad || "—"}</span>
+              </div>
+              <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                <span>Duración</span>
+                <span className="text-primary font-black">{cotDuracion}</span>
+              </div>
+              {cotFechaSalida && (
+                <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                  <span>Salida</span>
+                  <span className="text-primary font-black">{cotFechaSalida}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                <span>Distribución</span>
+                <span className="text-primary font-black">{cotPaxResumen}</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              {cotSubtotalAlojamiento > 0 && (
+                <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                  <span>Alojamiento</span>
+                  <span>${cotSubtotalAlojamiento.toLocaleString("es-EC")}</span>
+                </div>
+              )}
+              {cotExtraCost > 0 && (
+                <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                  <span>Noches extra ({cotExtraNights}n)</span>
+                  <span>${cotExtraCost.toLocaleString("es-EC")}</span>
+                </div>
+              )}
+              {(cotLibreActTotal + cotLibreTrsTotal) > 0 && (
+                <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                  <span>Actividades / Traslados</span>
+                  <span>${(cotLibreActTotal + cotLibreTrsTotal).toLocaleString("es-EC")}</span>
+                </div>
+              )}
+              {cotBoletoTotal > 0 && (
+                <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                  <span>Boleto aéreo</span>
+                  <span>${cotBoletoTotal.toLocaleString("es-EC")}</span>
+                </div>
+              )}
+              {agencyMarkup > 0 && (
+                <div className="flex justify-between text-[10px] font-bold text-primary/40 italic">
+                  <span>Comisión (oculta al cliente)</span>
+                  <span>${agencyMarkup.toLocaleString("es-EC")}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                <span className="text-xs font-black text-primary uppercase">
+                  {isComparativeMode ? "Total estimado" : "Total"}
+                </span>
+                <span className="text-base font-black text-secondary">
+                  {isComparativeMode ? "Pendiente" : `$${cotTotal.toLocaleString("es-EC")}`}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
