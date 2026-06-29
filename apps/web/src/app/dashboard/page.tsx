@@ -51,6 +51,13 @@ import { DashboardContext, type CotizacionExtended } from "./DashboardContext";
 import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
 import CotizacionesTab from "./components/CotizacionesTab";
+import {
+  getAdultAccomPrice,
+  getChildPriceForAge,
+  getActividadGroupPrice,
+  getTrasladoGroupPrice,
+  calcHotelBreakdown,
+} from "./cotizar-price";
 
 // ─── Cotizar-datos API types ──────────────────────────────────────────────────
 interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
@@ -61,12 +68,24 @@ interface CotTrasladoTarifa { precio: number; tipoCobro: string; paxMin: number;
 interface CotTraslado { id: number; tipo: string; tarifas: CotTrasladoTarifa[] }
 interface CotDestino { id: number; ciudad: string; pais: string; hoteles: CotHotel[]; actividades: CotActividad[]; traslados: CotTraslado[] }
 interface CotPaqueteVersion { tipoPax: string; numPax: number; precioPorPersona: number | null }
-interface CotPaqueteActividad { id: number; nombre: string; destinoId: number; destinoCiudad: string }
-interface CotPaqueteTraslado  { id: number; tipo: string;   destinoId: number; destinoCiudad: string }
+interface CotPoliticaNinos { edadMin: number; edadMax: number; precio: number | null }
+interface CotPaqueteActividad {
+  id: number; nombre: string; descripcion: string | null;
+  destinoId: number; destinoCiudad: string;
+  tarifas: { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }[];
+}
+interface CotPaqueteTraslado {
+  id: number; tipo: string; destinoId: number; destinoCiudad: string;
+  tarifas: { precio: number; tipoCobro: string; paxMin: number; paxMax: number }[];
+}
 interface CotPaqueteDestino   { id: number; ciudad: string; pais: string }
-interface CotPaqueteHotel { id: number; nombre: string; estrellas: number }
+interface CotPaqueteHotel {
+  id: number; nombre: string; estrellas: number;
+  tarifas: { tipoHabitacion: string; precioBase: number }[];
+  politicaNinos: CotPoliticaNinos[];
+}
 interface CotPaquete {
-  id: number; nombre: string; diasEstancia: number; nochesBase: number;
+  id: number; nombre: string; numPax: number; diasEstancia: number; nochesBase: number;
   incluyeBoleto: boolean; precioBoleto: number | null; descripcionBoleto: string | null;
   permitirModificarBoleto: boolean; permitirModificarNoches: boolean;
   destinoCiudad: string; destinoPais: string;
@@ -99,10 +118,19 @@ const TERMINOS_CONDICIONES = `Los precios indicados son por persona en la catego
 // ─── Draft key ───────────────────────────────────────────────────────────────
 const DRAFT_KEY = "cotizador-draft-v1";
 
+
 // ─── Input style helper ───────────────────────────────────────────────────────
 const inputCls = "w-full px-4 py-3 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold outline-none focus:border-secondary focus:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 const inputDisabledCls = "w-full px-4 py-3 bg-light border border-lighter text-primary/50 rounded-2xl text-xs sm:text-sm font-bold outline-none cursor-not-allowed";
 const labelCls = "block text-[10px] font-black uppercase text-primary/40 tracking-wider";
+
+function numPaxToTipoPax(n: number): "SGL" | "DBL" | "TPL" | "QUAD" | null {
+  if (n === 1) return "SGL";
+  if (n === 2) return "DBL";
+  if (n === 3) return "TPL";
+  if (n === 4) return "QUAD";
+  return null;
+}
 
 export default function DashboardPage() {
   // ── Session ─────────────────────────────────────────────────────────────────
@@ -172,7 +200,6 @@ export default function DashboardPage() {
   // ── Stepper ──────────────────────────────────────────────────────────────────
   const [step,              setStep]              = useState(1);
   const [quoteLocked,       setQuoteLocked]       = useState(false);
-  const [showMobileSummary, setShowMobileSummary] = useState(false);
   const [previewCot,      setPreviewCot]      = useState<CotizacionExtended | null>(null);
   const [previewTab,      setPreviewTab]      = useState<"Cliente" | "Viaje & Precios" | "Notas">("Cliente");
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
@@ -208,7 +235,8 @@ export default function DashboardPage() {
   const [childAirfare,  setChildAirfare]  = useState(0);
   const [adultAirfare,  setAdultAirfare]  = useState(0);
   const [extraNights,   setExtraNights]   = useState(0);
-  const [agencyMarkup,  setAgencyMarkup]  = useState(100);
+  const [agencyMarkup,  setAgencyMarkup]  = useState(0);
+  const [cotHotelAccordionOpen, setCotHotelAccordionOpen] = useState<number | null>(null);
 
   // ── Cotizador dual (nuevo sistema) ──────────────────────────────────────────
   const [cotMode,             setCotMode]             = useState<"catalogo" | "libre">("catalogo");
@@ -228,6 +256,8 @@ export default function DashboardPage() {
   const [cotLibreTrsSel,      setCotLibreTrsSel]      = useState<Record<number, boolean>>({});
   const [cotIsMultiDestino,   setCotIsMultiDestino]   = useState(false);
   const [cotExtraDestinoIds,  setCotExtraDestinoIds]  = useState<number[]>([]);
+  const [cotFromQuickQuote,   setCotFromQuickQuote]   = useState(false);
+  const [cotNinosEdades,      setCotNinosEdades]      = useState<number[]>([]);
 
   // Marca blanca (persiste en localStorage)
   const [agencyLogo,    setAgencyLogo]    = useState<string | null>(null);
@@ -249,7 +279,7 @@ export default function DashboardPage() {
         if (cfg.agencyAddress) setAgencyAddress(cfg.agencyAddress);
         if (cfg.defaultMarkup) {
           setDefaultMarkup(cfg.defaultMarkup);
-          setAgencyMarkup(parseInt(cfg.defaultMarkup) || 100);
+          setAgencyMarkup(parseInt(cfg.defaultMarkup) || 0);
         }
         if (cfg.agencyLogo)    setAgencyLogo(cfg.agencyLogo);
       } catch {}
@@ -307,11 +337,38 @@ export default function DashboardPage() {
   }, [cantCHD]);
 
   useEffect(() => {
+    setCotNinosEdades((prev) => {
+      if (cotNumNinos > prev.length) return [...prev, ...Array(cotNumNinos - prev.length).fill(5)];
+      return prev.slice(0, cotNumNinos);
+    });
+  }, [cotNumNinos]);
+
+  // Auto-derive room distribution from Step 1 passengers (catalog mode only)
+  useEffect(() => {
+    if (cotMode !== "catalogo") return;
+    const typeMap: Record<number, string> = { 1: "SGL", 2: "DBL", 3: "TPL", 4: "QUAD" };
+    const adultType = typeMap[cotNumPersonas] ?? null;
+    const newHabs: Record<string, number> = {};
+    if (adultType) newHabs[adultType] = 1;
+    if (cotNumNinos > 0) newHabs["CHD"] = cotNumNinos;
+    setCotHabs(newHabs);
+  }, [cotMode, cotNumPersonas, cotNumNinos]);
+
+  useEffect(() => {
     fetch("/api/cotizar-datos")
       .then((r) => r.json())
       .then((data: CotizarData) => setCotizarData(data))
       .catch(() => {});
   }, []);
+
+  // Auto-open first hotel accordion when entering Step 3
+  useEffect(() => {
+    if (step === 3 && cotMode === "catalogo") {
+      const pkg = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
+      const firstHotel = pkg?.hoteles[0];
+      if (firstHotel) setCotHotelAccordionOpen(firstHotel.id);
+    }
+  }, [step, cotMode, cotSelectedPkgId, cotizarData]);
 
   const clearDraft = () => {
     sessionStorage.removeItem(DRAFT_KEY);
@@ -340,6 +397,10 @@ export default function DashboardPage() {
       if (d.cotFlightPrice    !== undefined) setCotFlightPrice(d.cotFlightPrice);
       if (d.cotLibreActSel    !== undefined) setCotLibreActSel(d.cotLibreActSel);
       if (d.cotLibreTrsSel    !== undefined) setCotLibreTrsSel(d.cotLibreTrsSel);
+      if (d.cotNumPersonas    !== undefined) setCotNumPersonas(d.cotNumPersonas);
+      if (d.cotNumNinos       !== undefined) setCotNumNinos(d.cotNumNinos);
+      if (d.cotNinosEdades    !== undefined) setCotNinosEdades(d.cotNinosEdades);
+      if (d.cotFromQuickQuote !== undefined) setCotFromQuickQuote(d.cotFromQuickQuote);
       if (d.step !== undefined) setStep(d.step);
       setHasDraft(false);
     } catch {
@@ -360,6 +421,7 @@ export default function DashboardPage() {
         cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
         cotHabs, cotFechaSalida, cotCustomDias, cotExtraNights,
         cotFlightOverride, cotFlightPrice, cotLibreActSel, cotLibreTrsSel, step,
+        cotNumPersonas, cotNumNinos, cotNinosEdades, cotFromQuickQuote,
       };
       sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     }, 800);
@@ -370,6 +432,7 @@ export default function DashboardPage() {
     cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
     cotHabs, cotFechaSalida, cotCustomDias, cotExtraNights,
     cotFlightOverride, cotFlightPrice, cotLibreActSel, cotLibreTrsSel, step, quoteLocked,
+    cotNumPersonas, cotNumNinos, cotNinosEdades, cotFromQuickQuote,
   ]);
 
   useEffect(() => {
@@ -410,10 +473,27 @@ export default function DashboardPage() {
     (cotMode === "catalogo" && (cotSelectedPkg?.hoteles.length ?? 0) > 1) ||
     (cotMode === "libre" && cotSelectedHotelIds.length > 1);
 
+  // Version validation for catalog mode
+  const today = new Date().toISOString().split("T")[0];
+  // 2 adults = always valid (uses the DBL base price, even without explicit version record).
+  // For any other count, look for a non-CHD version whose numPax matches exactly.
+  const matchingAdultVersion = cotNumPersonas !== 2
+    ? (cotSelectedPkg?.versiones.find(
+        (v) => v.numPax === cotNumPersonas && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0
+      ) ?? null)
+    : null;
+  const hasMatchingVersion = cotNumPersonas === 2 || matchingAdultVersion !== null;
+  const exceedsCapacity    = !!cotSelectedPkg && cotNumPersonas > cotSelectedPkg.numPax;
+  const hasChildVersion    = !!cotSelectedPkg &&
+    cotSelectedPkg.versiones.some((v) => v.tipoPax === "CHD" && (v.precioPorPersona ?? 0) > 0);
+  const versionWarning     = cotMode === "catalogo" && cotSelectedPkgId !== null && cotNumPersonas >= 1 &&
+    (!hasMatchingVersion || exceedsCapacity);
+  const childNoVersionWarn = cotMode === "catalogo" && cotNumNinos > 0 && cotSelectedPkgId !== null && !hasChildVersion;
+
   // Step guards
-  const step1CanProceed = clientName.trim().length > 0;
+  const step1CanProceed = clientName.trim().length > 0 && cotNumPersonas >= 1;
   const step2CanProceed = cotFechaSalida.trim().length > 0 &&
-    (cotMode === "catalogo" ? cotSelectedPkgId !== null : cotSelectedHotelIds.length > 0);
+    (cotMode === "catalogo" ? cotSelectedPkgId !== null && !versionWarning : cotSelectedHotelIds.length > 0);
   const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
   const step3CanProceed = isComparativeMode || cotTotalHabs > 0;
 
@@ -510,7 +590,11 @@ export default function DashboardPage() {
   // total = subtotal + boleto + markup (markup invisible al cliente)
   const cotTotal = cotSubtotal + cotBoletoTotal + agencyMarkup;
 
-  const cotShowPaxWarning = cotNumPersonas > 0 && cotTotalRoomPax > 0 && cotTotalRoomPax !== cotNumPersonas;
+  // In catalog mode cotHabs is auto-derived so adults always match; only warn in libre mode.
+  const cotAdultRoomPax = Object.entries(cotHabs)
+    .filter(([tipoPax]) => tipoPax !== "CHD")
+    .reduce((sum, [tipoPax, qty]) => sum + (COT_NUM_PAX[tipoPax] ?? 1) * qty, 0);
+  const cotShowPaxWarning = cotMode === "libre" && cotNumPersonas > 0 && cotAdultRoomPax > 0 && cotAdultRoomPax !== cotNumPersonas;
 
   const cotDestinoCiudad = cotMode === "catalogo"
     ? (cotSelectedPkg?.destinoCiudad ?? "—")
@@ -567,6 +651,8 @@ export default function DashboardPage() {
     setCotLibreTrsSel({});
     setCotIsMultiDestino(false);
     setCotExtraDestinoIds([]);
+    setCotFromQuickQuote(false);
+    setCotNinosEdades([]);
     clearDraft();
   };
 
@@ -574,6 +660,7 @@ export default function DashboardPage() {
     resetForm();
     setCotMode("catalogo");
     setCotSelectedPkgId(Number(pkgId));
+    setCotFromQuickQuote(true);
     setActiveTab("cotizar");
   };
 
@@ -1281,9 +1368,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                {/* ── Steps ── */}
-                <div className="lg:col-span-2 space-y-6">
+              <div className="space-y-6">
 
                   {/* ── PASO 1: DATOS DEL CLIENTE ── */}
                   {step === 1 && (
@@ -1333,11 +1418,70 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         </div>
                       </div>
 
+                      {/* ── Pasajeros del Viaje ── */}
+                      <div className="border-t border-gray-50 pt-5">
+                        <h4 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2 mb-4">
+                          <span className="w-2.5 h-2.5 rounded bg-secondary/50 inline-block" /> Pasajeros del Viaje
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label htmlFor="cot-adultos" className={labelCls}>Adultos *</label>
+                            <input
+                              id="cot-adultos" type="number" min={1} max={50} required
+                              value={cotNumPersonas || ""}
+                              onChange={(e) => setCotNumPersonas(Math.max(1, Number(e.target.value) || 0))}
+                              placeholder="Ej. 2"
+                              className={inputCls}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label htmlFor="cot-ninos" className={labelCls}>Niños (2–11 años)</label>
+                            <input
+                              id="cot-ninos" type="number" min={0} max={10}
+                              value={cotNumNinos || ""}
+                              onChange={(e) => setCotNumNinos(Math.max(0, Number(e.target.value) || 0))}
+                              placeholder="0"
+                              className={inputCls}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Edades de niños — aparecen dinámicamente */}
+                        {cotNumNinos > 0 && (
+                          <div className="mt-4 p-4 bg-amber-50/60 border border-amber-200/50 rounded-2xl space-y-3">
+                            <p className="text-[10px] font-black text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
+                              <AlertCircle size={11} /> Edad exacta de cada niño
+                            </p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              {cotNinosEdades.map((edad, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  <label className={labelCls}>Niño {idx + 1}</label>
+                                  <select
+                                    value={edad}
+                                    onChange={(e) => {
+                                      const next = [...cotNinosEdades];
+                                      next[idx] = Number(e.target.value);
+                                      setCotNinosEdades(next);
+                                    }}
+                                    className={inputCls}
+                                  >
+                                    {Array.from({ length: 12 }, (_, i) => i + 2).map((a) => (
+                                      <option key={a} value={a}>{a} años</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-[9px] text-amber-600/70 font-bold">Las edades se usan para verificar las políticas de niños del paquete.</p>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
                         {!step1CanProceed && (
                           <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
                             <AlertCircle size={11} className="shrink-0" />
-                            El nombre del cliente es obligatorio.
+                            {!clientName.trim() ? "El nombre del cliente es obligatorio." : "Indica la cantidad de adultos que viajan."}
                           </p>
                         )}
                         <button
@@ -1382,7 +1526,28 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                       {cotMode === "catalogo" && (
                         <div className="space-y-4">
                           <label className={labelCls}>Programa Turístico *</label>
-                          {cotizarData === null ? (
+
+                          {/* Paquete bloqueado (viene de quick-quote) */}
+                          {cotFromQuickQuote && cotSelectedPkg ? (
+                            <div className="p-4 bg-secondary/5 border-2 border-secondary/30 rounded-2xl flex items-start gap-4">
+                              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                                <CheckCircle2 size={18} className="text-primary" />
+                              </div>
+                              <div className="flex-grow min-w-0">
+                                <p className="text-xs font-black text-primary">{cotSelectedPkg.nombre}</p>
+                                <p className="text-[10px] text-primary/50 font-bold mt-0.5">
+                                  {cotSelectedPkg.destinoCiudad}, {cotSelectedPkg.destinoPais} · {cotSelectedPkg.diasEstancia}d / {cotSelectedPkg.nochesBase}n
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => { setCotFromQuickQuote(false); setCotSelectedPkgId(null); }}
+                                className="text-[9px] font-black text-primary/40 hover:text-secondary underline cursor-pointer transition-colors shrink-0"
+                              >
+                                Cambiar
+                              </button>
+                            </div>
+                          ) : cotizarData === null ? (
                             <div className="flex items-center gap-2 py-4 text-primary/40 text-xs font-bold">
                               <div className="w-4 h-4 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" />
                               Cargando paquetes...
@@ -1439,11 +1604,60 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               ))}
                             </div>
                           )}
+                          {/* Warning: versión no configurada o capacidad excedida */}
+                          {versionWarning && (
+                            <div className="flex items-start gap-3 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl">
+                              <AlertCircle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                              <div className="space-y-1.5">
+                                {exceedsCapacity ? (
+                                  <p className="text-xs font-black text-amber-700">
+                                    Este paquete está configurado para máximo {cotSelectedPkg!.numPax} adulto{cotSelectedPkg!.numPax !== 1 ? "s" : ""}.
+                                    Declaraste {cotNumPersonas} adultos.
+                                  </p>
+                                ) : (
+                                  <p className="text-xs font-black text-amber-700">
+                                    Sin versión configurada para {cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""}.
+                                  </p>
+                                )}
+                                <p className="text-[10px] font-bold text-amber-600">
+                                  Solicita al administrador configurar la versión o realiza una{" "}
+                                  <button
+                                    type="button"
+                                    onClick={() => setCotMode("libre")}
+                                    className="underline font-black cursor-pointer hover:text-amber-700"
+                                  >
+                                    Cotización Libre
+                                  </button>
+                                  .
+                                </p>
+                                {cotSelectedPkg && cotSelectedPkg.versiones.filter((v) => v.tipoPax !== "CHD").length > 0 && (
+                                  <p className="text-[9px] text-amber-500 font-bold">
+                                    Versiones disponibles:{" "}
+                                    {cotSelectedPkg.versiones
+                                      .filter((v) => v.tipoPax !== "CHD")
+                                      .map((v) => `${v.numPax} pax — ${v.tipoPax}`)
+                                      .join(" · ")}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Warning: paquete sin versión CHD pero hay niños */}
+                          {childNoVersionWarn && (
+                            <div className="flex items-start gap-3 p-3 bg-sky-50 border border-sky-200 rounded-2xl">
+                              <AlertCircle size={14} className="text-sky-500 shrink-0 mt-0.5" />
+                              <p className="text-[10px] font-bold text-sky-700">
+                                Este paquete no tiene tarifa configurada para niños (CHD). Verifica con el administrador si aplica tarifa de niños.
+                              </p>
+                            </div>
+                          )}
+
                           {/* Fechas */}
                           <div className="grid grid-cols-2 gap-4 pt-2">
                             <div className="space-y-1.5">
                               <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Salida</label>
-                              <input type="date" value={cotFechaSalida} onChange={(e) => setCotFechaSalida(e.target.value)} className={inputCls} />
+                              <input type="date" min={today} value={cotFechaSalida} onChange={(e) => setCotFechaSalida(e.target.value)} className={inputCls} />
                             </div>
                             <div className="space-y-1.5">
                               <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
@@ -1483,40 +1697,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               </div>
                             </div>
                           )}
-
-                          {/* Actividades + traslados del paquete (informativo) */}
-                          {cotSelectedPkg && (cotSelectedPkg.actividades.length > 0 || cotSelectedPkg.traslados.length > 0) && (() => {
-                            // Agrupar por destino
-                            const porDestino = new Map<number, { ciudad: string; actividades: string[]; traslados: string[] }>();
-                            cotSelectedPkg.actividades.forEach((a) => {
-                              if (!porDestino.has(a.destinoId)) porDestino.set(a.destinoId, { ciudad: a.destinoCiudad, actividades: [], traslados: [] });
-                              porDestino.get(a.destinoId)!.actividades.push(a.nombre);
-                            });
-                            cotSelectedPkg.traslados.forEach((t) => {
-                              if (!porDestino.has(t.destinoId)) porDestino.set(t.destinoId, { ciudad: t.destinoCiudad, actividades: [], traslados: [] });
-                              porDestino.get(t.destinoId)!.traslados.push(t.tipo);
-                            });
-                            return (
-                              <div className="p-3 bg-light border border-lighter rounded-2xl space-y-3">
-                                <p className="text-[10px] font-black text-primary/40 uppercase tracking-wider">Incluye en el programa</p>
-                                {[...porDestino.entries()].map(([dId, data]) => (
-                                  <div key={dId}>
-                                    {cotSelectedPkg.destinos.length > 1 && (
-                                      <p className="text-[9px] font-black text-secondary uppercase tracking-wider mb-1">{data.ciudad}</p>
-                                    )}
-                                    <div className="flex flex-wrap gap-1.5">
-                                      {data.actividades.map((a) => (
-                                        <span key={a} className="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-md">{a}</span>
-                                      ))}
-                                      {data.traslados.map((t) => (
-                                        <span key={t} className="px-2 py-0.5 bg-primary/5 text-primary/60 text-[9px] font-black rounded-md">{t}</span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            );
-                          })()}
 
                           {/* Flight toggle — controlado por permitirModificarBoleto */}
                           {cotSelectedPkg && (
@@ -1691,7 +1871,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                               <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Salida</label>
-                              <input type="date" value={cotFechaSalida} onChange={(e) => setCotFechaSalida(e.target.value)} className={inputCls} />
+                              <input type="date" min={today} value={cotFechaSalida} onChange={(e) => setCotFechaSalida(e.target.value)} className={inputCls} />
                             </div>
                             <div className="space-y-1.5">
                               <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
@@ -1781,7 +1961,11 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                             <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
                               <AlertCircle size={11} className="shrink-0" />
                               {cotMode === "catalogo"
-                                ? (!cotSelectedPkgId ? "Selecciona un programa turístico." : "La fecha de salida es obligatoria.")
+                                ? (!cotSelectedPkgId
+                                    ? "Selecciona un programa turístico."
+                                    : versionWarning
+                                      ? "No hay versión configurada para la cantidad de adultos."
+                                      : "La fecha de salida es obligatoria.")
                                 : (cotSelectedHotelIds.length === 0 ? "Selecciona al menos un hotel." : "La fecha de salida es obligatoria.")}
                             </p>
                           )}
@@ -1807,24 +1991,25 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         <span className="text-[10px] font-black uppercase tracking-wider text-secondary">Paso 3 de 4</span>
                       </div>
 
-                      {cotSelectedHotelIds.length > 0 && cotAvailableHotels.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {cotAvailableHotels.filter((h) => cotSelectedHotelIds.includes(h.id)).map((h) => (
-                            <span key={h.id} className="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg border border-secondary/20 flex items-center gap-1.5">
-                              <Building2 size={10} /> {h.nombre}
+                      {/* Pasajeros declarados en Paso 1 — resumen read-only */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="px-4 py-3 bg-light border border-lighter rounded-2xl">
+                          <span className="text-[9px] font-black uppercase text-primary/40 tracking-wider block">Adultos</span>
+                          <span className="text-sm font-black text-primary">{cotNumPersonas}</span>
+                        </div>
+                        {cotNumNinos > 0 && (
+                          <div className="px-4 py-3 bg-light border border-lighter rounded-2xl">
+                            <span className="text-[9px] font-black uppercase text-primary/40 tracking-wider block">Niños</span>
+                            <span className="text-sm font-black text-primary">{cotNumNinos}</span>
+                          </div>
+                        )}
+                        <div className={cotNumNinos > 0 ? "col-span-2" : ""}>
+                          <div className="px-4 py-3 bg-secondary/5 border border-secondary/15 rounded-2xl">
+                            <span className="text-[9px] font-black uppercase text-secondary/60 tracking-wider block">
+                              {cotMode === "catalogo" ? "Habitaciones" : "Distribución habitaciones"}
                             </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className={labelCls}>Total de Adultos</label>
-                          <input type="number" min={1} max={50} value={cotNumPersonas || ""} onChange={(e) => setCotNumPersonas(Number(e.target.value))} placeholder="Ej. 4" className={`${inputCls} w-28`} />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className={labelCls}>Distribución Actual</label>
-                          <div className="px-4 py-3 bg-secondary/5 border border-secondary/15 rounded-2xl text-xs font-black text-secondary">{cotPaxResumen}</div>
+                            <span className="text-xs font-black text-secondary">{cotPaxResumen}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -1835,14 +2020,15 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         </div>
                       )}
 
-                      <div className="space-y-2">
-                        <label className={labelCls}>Distribución por Tipo de Habitación *</label>
-                        {cotPrimaryHotel && (
-                          <p className="text-[10px] text-primary/40 font-bold -mt-1">
-                            Tarifas: {cotPrimaryHotel.nombre}{cotMode === "libre" ? ` · ${cotNoches} noches` : ""}
-                          </p>
-                        )}
-                        {!isComparativeMode ? (
+                      {/* ── Modo libre: contadores +/- de habitaciones ── */}
+                      {cotMode === "libre" && (
+                        <div className="space-y-2">
+                          <label className={labelCls}>Distribución por Tipo de Habitación *</label>
+                          {cotPrimaryHotel && (
+                            <p className="text-[10px] text-primary/40 font-bold -mt-1">
+                              Tarifas: {cotPrimaryHotel.nombre} · {cotNoches} noches
+                            </p>
+                          )}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {([
                               { tipoPax: "SGL",  label: "Sencilla (SGL)",   numPax: 1 },
@@ -1853,7 +2039,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                             ] as const).map(({ tipoPax, label }) => {
                               const precio = getCotPrice(tipoPax);
                               const qty    = cotHabs[tipoPax] ?? 0;
-                              const tarifaLabel = precio > 0 ? `$${precio}/p${cotMode === "libre" ? "/noche" : ""}` : "Sin tarifa";
+                              const tarifaLabel = precio > 0 ? `$${precio}/p/noche` : "Sin tarifa";
                               return (
                                 <div key={tipoPax} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${precio > 0 || qty > 0 ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-60"}`}>
                                   <div className="space-y-0.5 min-w-0">
@@ -1868,16 +2054,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                     <button
                                       type="button"
                                       onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: (prev[tipoPax] ?? 0) + 1 }))}
-                                      disabled={
-                                        (tipoPax === "CHD" && cotMode === "catalogo" && (cotSelectedPkg?.incluyeBoleto ?? false)) ||
-                                        (cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0)
-                                      }
                                       aria-label={`Aumentar cantidad de ${label}`}
-                                      title={
-                                        cotMode === "catalogo" && cotSelectedPkgId !== null && precio === 0
-                                          ? "Este tipo de habitación no está disponible en el paquete seleccionado"
-                                          : (tipoPax === "CHD" && cotMode === "catalogo" && cotSelectedPkg?.incluyeBoleto ? "El paquete ya incluye boleto para niños" : undefined)
-                                      }
                                       className="w-11 h-11 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
                                     >
                                       <Plus size={12} />
@@ -1887,97 +2064,189 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               );
                             })}
                           </div>
-                        ) : (() => {
-                          const ROOM_TYPES = ["SGL", "DBL", "TPL", "QUAD", "CHD"] as const;
-                          type CompRow = { id: number; nombre: string; estrellas: number };
-                          let rows: CompRow[] = [];
-                          let activeTypes: (typeof ROOM_TYPES)[number][] = [];
+                        </div>
+                      )}
 
-                          if (cotMode === "catalogo" && cotSelectedPkg) {
-                            activeTypes = [...ROOM_TYPES].filter((t) =>
-                              cotSelectedPkg!.versiones.some((v) => v.tipoPax === t && (v.precioPorPersona ?? 0) > 0)
-                            );
-                            rows = cotSelectedPkg.hoteles.map((h) => ({ id: h.id, nombre: h.nombre, estrellas: h.estrellas }));
-                          } else if (cotMode === "libre") {
-                            const selHotels = cotAvailableHotels.filter((h) => cotSelectedHotelIds.includes(h.id));
-                            activeTypes = [...ROOM_TYPES].filter((t) =>
-                              selHotels.some((h) => h.tarifas.some((tf) => tf.tipoHabitacion === t))
-                            );
-                            rows = selHotels.map((h) => ({ id: h.id, nombre: h.nombre, estrellas: h.estrellas }));
-                          }
-
-                          const getPriceCell = (hotelId: number, tipoPax: string): number | null => {
-                            if (cotMode === "catalogo" && cotSelectedPkg) {
-                              return cotSelectedPkg.versiones.find((v) => v.tipoPax === tipoPax)?.precioPorPersona ?? null;
-                            }
-                            if (cotMode === "libre") {
-                              const hotel = cotAvailableHotels.find((h) => h.id === hotelId);
-                              const tf = hotel?.tarifas.find((t) => t.tipoHabitacion === tipoPax);
-                              return tf ? tf.precioBase * cotNoches : null;
-                            }
-                            return null;
-                          };
-
-                          return (
-                            <div className="space-y-3">
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                  <thead>
-                                    <tr className="border-b border-gray-100">
-                                      <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider min-w-[140px]">Hotel</th>
-                                      <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-center">Estrellas</th>
-                                      {activeTypes.map((t) => (
-                                        <th key={t} className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-right whitespace-nowrap">{t}/pax</th>
-                                      ))}
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-gray-50">
-                                    {rows.map((hotel) => (
-                                      <tr key={hotel.id}>
-                                        <td className="py-2.5 font-black text-primary text-[11px]">{hotel.nombre}</td>
-                                        <td className="py-2.5 text-center text-[11px] text-amber-500 whitespace-nowrap">{"★".repeat(hotel.estrellas)}</td>
-                                        {activeTypes.map((tipoPax) => {
-                                          const precio = getPriceCell(hotel.id, tipoPax);
-                                          if (precio == null) return <td key={tipoPax} className="py-2.5 text-right text-primary/30">—</td>;
-                                          const fmt = precio % 1 === 0 ? precio.toLocaleString() : precio.toFixed(2);
-                                          return <td key={tipoPax} className="py-2.5 text-right font-black text-primary text-[11px]">${fmt}</td>;
-                                        })}
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                                <p className="mt-2 text-[9px] text-primary/40 font-bold">
-                                  {cotMode === "catalogo"
-                                    ? "Precio por persona según tarifa del paquete."
-                                    : `Precio total por persona para ${cotNoches} noche${cotNoches !== 1 ? "s" : ""}.`}
-                                </p>
-                              </div>
-                              <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl">
-                                <p className="text-[10px] font-black text-amber-700">
-                                  Esta cotización incluye múltiples opciones de hotel. El total final se calculará cuando el cliente elija su hotel preferido.
-                                </p>
-                              </div>
+                      {/* ── Modo catálogo: acordeón por hotel ── */}
+                      {cotMode === "catalogo" && cotSelectedPkg && cotSelectedPkg.hoteles.length > 0 && (() => {
+                        const requiredTipoPax = numPaxToTipoPax(cotNumPersonas) ?? "DBL";
+                        const singleHotel = cotSelectedPkg.hoteles.length === 1;
+                        const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest flex items-center gap-1.5">
+                              <Building2 size={10} /> Hoteles disponibles
+                            </p>
+                            <div className="space-y-2">
+                              {cotSelectedPkg.hoteles.map((hotel) => {
+                                const isOpen = singleHotel || cotHotelAccordionOpen === hotel.id;
+                                const adultPrice = getAdultAccomPrice(hotel, requiredTipoPax);
+                                const childResults = cotNinosEdades.map((age) =>
+                                  getChildPriceForAge(hotel, age, adultPrice)
+                                );
+                                const noApplyWarnings = childResults
+                                  .map((r, i) => (!r.aplica ? { num: i + 1, age: cotNinosEdades[i] } : null))
+                                  .filter((w): w is { num: number; age: number } => w !== null);
+                                return (
+                                  <div key={hotel.id} className="border border-gray-100 rounded-2xl overflow-hidden">
+                                    {!singleHotel ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => setCotHotelAccordionOpen(isOpen ? null : hotel.id)}
+                                        className="w-full flex items-center justify-between p-4 text-left hover:bg-light/50 transition-colors cursor-pointer"
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          {noApplyWarnings.length > 0 && <AlertCircle size={13} className="text-amber-500 shrink-0" />}
+                                          <span className="font-black text-primary text-xs truncate">{hotel.nombre}</span>
+                                          <span className="text-amber-400 text-[10px] shrink-0">{"★".repeat(hotel.estrellas)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                                          {adultPrice > 0 && (
+                                            <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg">
+                                              ${fmtN(adultPrice)}/pax
+                                            </span>
+                                          )}
+                                          {isOpen ? <ChevronUp size={12} className="text-primary/40" /> : <ChevronDown size={12} className="text-primary/40" />}
+                                        </div>
+                                      </button>
+                                    ) : (
+                                      <div className="flex items-center justify-between p-4">
+                                        <div className="flex items-center gap-2">
+                                          <Building2 size={13} className="text-secondary shrink-0" />
+                                          <span className="font-black text-primary text-xs">{hotel.nombre}</span>
+                                          <span className="text-amber-400 text-[10px]">{"★".repeat(hotel.estrellas)}</span>
+                                        </div>
+                                        {adultPrice > 0 && (
+                                          <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg">
+                                            ${fmtN(adultPrice)}/pax/noche
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+                                    {isOpen && (
+                                      <div className={`px-4 pb-4 space-y-3 ${!singleHotel ? "border-t border-gray-50 pt-3" : ""}`}>
+                                        <div>
+                                          <p className="text-[9px] font-black text-primary/30 uppercase tracking-wider mb-1.5">Alojamiento adultos</p>
+                                          <div className="flex items-center justify-between p-3 bg-light border border-lighter rounded-xl">
+                                            <span className="text-xs font-bold text-primary">
+                                              {requiredTipoPax} · {cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""}
+                                            </span>
+                                            <span className="font-black text-primary text-xs">
+                                              {adultPrice > 0 ? `$${fmtN(adultPrice)}/persona/noche` : "Sin tarifa disponible"}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        {cotNumNinos > 0 && (
+                                          <div>
+                                            <p className="text-[9px] font-black text-primary/30 uppercase tracking-wider mb-1.5">Niños ({cotNumNinos})</p>
+                                            <div className="space-y-1.5">
+                                              {childResults.map((result, i) => (
+                                                <div key={i} className={`flex items-center justify-between p-3 rounded-xl border ${result.aplica ? "bg-light border-lighter" : "bg-amber-50 border-amber-100"}`}>
+                                                  <div className="flex items-center gap-2">
+                                                    {result.aplica
+                                                      ? <CheckCircle2 size={11} className="text-secondary shrink-0" />
+                                                      : <AlertCircle size={11} className="text-amber-500 shrink-0" />}
+                                                    <span className="text-xs font-bold text-primary">Niño {i + 1} · {cotNinosEdades[i]} años</span>
+                                                  </div>
+                                                  <span className={`font-black text-xs ${result.aplica ? "text-primary" : "text-amber-600"}`}>
+                                                    {result.aplica ? `$${fmtN(result.precio)}/noche` : `$${fmtN(result.precio)}/noche (tarifa adulto)`}
+                                                  </span>
+                                                </div>
+                                              ))}
+                                              {noApplyWarnings.length > 0 && (
+                                                <div className="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+                                                  <AlertCircle size={11} className="text-amber-600 shrink-0 mt-0.5" />
+                                                  <p className="text-[10px] font-bold text-amber-700">
+                                                    {noApplyWarnings.length} niño{noApplyWarnings.length !== 1 ? "s" : ""} no cumple{noApplyWarnings.length === 1 ? "" : "n"} la política de edad de este hotel (edad{noApplyWarnings.length !== 1 ? "es" : ""}: {noApplyWarnings.map((w) => `${w.age} años`).join(", ")}). Se cotizarán a tarifa de adulto.
+                                                  </p>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
-                          );
-                        })()}
-                      </div>
-
-                      {/* ── SERVICIOS: read-only chips (catálogo) or checkboxes (libre) ── */}
-                      {cotMode === "catalogo" && cotSelectedPkg && (cotSelectedPkg.actividades.length > 0 || cotSelectedPkg.traslados.length > 0) && (
-                        <div className="space-y-2">
-                          <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Incluido en el programa</p>
-                          <div className="p-3 bg-light border border-lighter rounded-2xl flex flex-wrap gap-1.5">
-                            {cotSelectedPkg.actividades.map((a) => (
-                              <span key={a.id} className="px-2.5 py-1 bg-secondary/10 text-secondary text-[9px] font-black rounded-md">
-                                {a.nombre}
-                              </span>
-                            ))}
-                            {cotSelectedPkg.traslados.map((t) => (
-                              <span key={t.id} className="px-2.5 py-1 bg-primary/5 text-primary/60 text-[9px] font-black rounded-md">
-                                {t.tipo}
-                              </span>
-                            ))}
                           </div>
+                        );
+                      })()}
+
+                      {/* ── Actividades incluidas (catálogo) ── */}
+                      {cotMode === "catalogo" && cotSelectedPkg && cotSelectedPkg.actividades.length > 0 && (() => {
+                        const totalPax = cotNumPersonas + cotNumNinos;
+                        const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Actividades incluidas</p>
+                            <div className="space-y-1.5">
+                              {cotSelectedPkg.actividades.map((act) => {
+                                const groupTotal = getActividadGroupPrice(act.tarifas, cotNumPersonas, cotNumNinos);
+                                const perPax = totalPax > 0 ? groupTotal / totalPax : 0;
+                                const tAdulto = act.tarifas.find((t) => t.tipoPasajero === "ADULTO" && cotNumPersonas >= t.paxMin && cotNumPersonas <= t.paxMax);
+                                const tNino = cotNumNinos > 0 ? act.tarifas.find((t) => t.tipoPasajero === "NINO" && cotNumNinos >= t.paxMin && cotNumNinos <= t.paxMax) : undefined;
+                                return (
+                                  <div key={act.id} className="flex items-center justify-between p-3 bg-light border border-lighter rounded-xl">
+                                    <div className="min-w-0">
+                                      <span className="text-xs font-bold text-primary block">{act.nombre}</span>
+                                      {act.descripcion && <p className="text-[10px] text-primary/40 mt-0.5">{act.descripcion}</p>}
+                                      <div className="flex gap-3 mt-1 flex-wrap">
+                                        {tAdulto && <span className="text-[9px] font-bold text-primary/50">ADU: ${fmtN(tAdulto.precio)}/pax</span>}
+                                        {tNino && cotNumNinos > 0 && <span className="text-[9px] font-bold text-secondary/70">NIÑ: ${fmtN(tNino.precio)}/pax</span>}
+                                      </div>
+                                    </div>
+                                    {perPax > 0 && <span className="font-black text-secondary text-xs shrink-0 ml-3">≈${fmtN(perPax)}/pax</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* ── Traslados incluidos (catálogo) ── */}
+                      {cotMode === "catalogo" && cotSelectedPkg && cotSelectedPkg.traslados.length > 0 && (() => {
+                        const totalPax = cotNumPersonas + cotNumNinos;
+                        const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Traslados incluidos</p>
+                            <div className="space-y-1.5">
+                              {cotSelectedPkg.traslados.map((trs) => {
+                                const groupTotal = getTrasladoGroupPrice(trs.tarifas, totalPax);
+                                const tarifa = trs.tarifas.find((t) => totalPax >= t.paxMin && totalPax <= t.paxMax);
+                                const perPax = totalPax > 0 ? groupTotal / totalPax : 0;
+                                return (
+                                  <div key={trs.id} className="flex items-center justify-between p-3 bg-light border border-lighter rounded-xl">
+                                    <div className="min-w-0">
+                                      <span className="text-xs font-bold text-primary block">{trs.tipo}</span>
+                                      {tarifa && (
+                                        <p className="text-[9px] font-bold text-primary/40 mt-0.5">
+                                          {tarifa.tipoCobro === "POR_VEHICULO" ? `$${fmtN(tarifa.precio)} por vehículo (hasta ${tarifa.paxMax} pax)` : `$${fmtN(tarifa.precio)}/persona`}
+                                        </p>
+                                      )}
+                                    </div>
+                                    {perPax > 0 && <span className="font-black text-secondary text-xs shrink-0 ml-3">≈${fmtN(perPax)}/pax</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* ── Boleto aéreo (catálogo) ── */}
+                      {cotMode === "catalogo" && cotFlightActive && cotFlightPrice > 0 && (
+                        <div className="flex items-center justify-between p-3 bg-secondary/5 border border-secondary/15 rounded-xl">
+                          <div>
+                            <span className="text-xs font-bold text-primary block">Boleto aéreo</span>
+                            {cotSelectedPkg?.descripcionBoleto && (
+                              <p className="text-[10px] text-primary/40 mt-0.5">{cotSelectedPkg.descripcionBoleto}</p>
+                            )}
+                          </div>
+                          <span className="font-black text-secondary text-xs shrink-0 ml-3">${cotFlightPrice.toLocaleString()}/pax</span>
                         </div>
                       )}
 
@@ -2111,102 +2380,144 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                         ))}
                       </div>
 
-                      {/* ── Tabla comparativa de hoteles (ambos modos) ── */}
-                      {(() => {
-                        const ordered = (["SGL", "DBL", "TPL", "QUAD", "CHD"] as const).filter((t) => (cotHabs[t] ?? 0) > 0);
-                        const markupPerPax = cotTotalRoomPax > 0 ? agencyMarkup / cotTotalRoomPax : 0;
-
-                        type HotelRow = { id: number; nombre: string; estrellas: number; getPrice: (t: string) => number | null };
-                        let hotelRows: HotelRow[] = [];
-
-                        if (cotMode === "catalogo" && cotSelectedPkg && cotSelectedPkg.hoteles.length > 0) {
-                          hotelRows = cotSelectedPkg.hoteles.map((h) => ({
-                            ...h,
-                            getPrice: (tipoPax: string) => {
-                              const v = cotSelectedPkg.versiones.find((ver) => ver.tipoPax === tipoPax);
-                              return v?.precioPorPersona != null ? v.precioPorPersona + markupPerPax : null;
-                            },
-                          }));
-                        } else if (cotMode === "libre" && cotSelectedHotelIds.length > 0) {
-                          const selHotels = cotAvailableHotels.filter((h) => cotSelectedHotelIds.includes(h.id));
-                          hotelRows = selHotels.map((h) => ({
-                            id: h.id, nombre: h.nombre, estrellas: h.estrellas,
-                            getPrice: (tipoPax: string) => {
-                              const t = h.tarifas.find((tf) => tf.tipoHabitacion === tipoPax);
-                              return t ? t.precioBase * cotNoches + markupPerPax : null;
-                            },
-                          }));
-                        }
-
-                        if (hotelRows.length === 0 || ordered.length === 0) return null;
-
+                      {/* ── Tabla comparativa (catálogo) ── */}
+                      {cotMode === "catalogo" && cotSelectedPkg && cotSelectedPkg.hoteles.length > 0 && (() => {
+                        const requiredTipoPax = numPaxToTipoPax(cotNumPersonas) ?? "DBL";
+                        const totalPax = cotNumPersonas + cotNumNinos;
+                        const hotels = cotSelectedPkg.hoteles;
+                        const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
+                        const breakdowns = hotels.map((hotel) =>
+                          calcHotelBreakdown(
+                            hotel,
+                            requiredTipoPax,
+                            cotNinosEdades,
+                            cotNumPersonas,
+                            cotSelectedPkg!.actividades,
+                            cotSelectedPkg!.traslados,
+                            cotFlightActive,
+                            cotFlightPrice,
+                            agencyMarkup
+                          )
+                        );
                         return (
                           <div className="space-y-3">
+                            <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider">
+                              Comparativa por opción de hotel
+                            </p>
                             <div className="overflow-x-auto">
-                              <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider mb-2">Comparación de Hoteles</p>
-                              <table className="w-full text-left border-collapse">
+                              <table className="w-full text-left border-collapse text-xs">
                                 <thead>
                                   <tr className="border-b border-gray-100">
-                                    <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider min-w-[120px]">Hotel</th>
-                                    <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-center">Estrellas</th>
-                                    {ordered.map((t) => (
-                                      <th key={t} className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-right whitespace-nowrap">{t}/pax</th>
+                                    <th className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider min-w-[130px]">Concepto</th>
+                                    {hotels.map((h) => (
+                                      <th key={h.id} className="pb-2 text-[9px] font-black uppercase text-gray-400 tracking-wider text-right whitespace-nowrap pl-4">
+                                        {h.nombre}<br />
+                                        <span className="text-amber-400 text-[9px] font-normal normal-case">{"★".repeat(h.estrellas)}</span>
+                                      </th>
                                     ))}
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50 text-xs font-bold">
-                                  {hotelRows.map((hotel) => (
-                                    <tr key={hotel.id}>
-                                      <td className="py-2.5 font-black text-primary text-[11px]">{hotel.nombre}</td>
-                                      <td className="py-2.5 text-center text-[11px] text-amber-500 whitespace-nowrap">{"★".repeat(hotel.estrellas)}</td>
-                                      {ordered.map((tipoPax) => {
-                                        const price = hotel.getPrice(tipoPax);
-                                        if (price == null) return <td key={tipoPax} className="py-2.5 text-right text-primary/30">—</td>;
-                                        const fmt = price % 1 === 0 ? price.toLocaleString() : price.toFixed(2);
-                                        return <td key={tipoPax} className="py-2.5 text-right font-black text-primary">${fmt}</td>;
+                                <tbody className="divide-y divide-gray-50">
+                                  <tr>
+                                    <td className="py-2.5 font-black text-primary">Alojamiento {requiredTipoPax}</td>
+                                    {breakdowns.map((bd, i) => (
+                                      <td key={hotels[i].id} className="py-2.5 text-right font-black text-primary pl-4">
+                                        {bd.alojamiento > 0 ? `$${fmtN(bd.alojamiento)}/pax` : "—"}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                  {cotNumNinos > 0 && (
+                                    <tr>
+                                      <td className="py-2.5 font-bold text-primary/70">Niños CHD ({cotNumNinos})</td>
+                                      {breakdowns.map((bd, i) => {
+                                        const hasWarning = bd.childResults.some((r) => !r.aplica);
+                                        return (
+                                          <td key={hotels[i].id} className="py-2.5 text-right font-black pl-4">
+                                            <span className={hasWarning ? "text-amber-600" : "text-primary"}>
+                                              ${fmtN(bd.avgChd)}/pax{hasWarning ? " ⚠" : ""}
+                                            </span>
+                                          </td>
+                                        );
                                       })}
                                     </tr>
-                                  ))}
+                                  )}
+                                  {cotSelectedPkg.actividades.map((act) => {
+                                    const groupTotal = getActividadGroupPrice(act.tarifas, cotNumPersonas, cotNumNinos);
+                                    const perPax = totalPax > 0 ? groupTotal / totalPax : 0;
+                                    if (perPax === 0) return null;
+                                    return (
+                                      <tr key={act.id}>
+                                        <td className="py-2.5 text-primary/50 font-bold">{act.nombre}</td>
+                                        {hotels.map((h) => (
+                                          <td key={h.id} className="py-2.5 text-right text-primary/50 pl-4">${fmtN(perPax)}/pax</td>
+                                        ))}
+                                      </tr>
+                                    );
+                                  })}
+                                  {cotSelectedPkg.traslados.map((trs) => {
+                                    const groupTotal = getTrasladoGroupPrice(trs.tarifas, totalPax);
+                                    const perPax = totalPax > 0 ? groupTotal / totalPax : 0;
+                                    if (perPax === 0) return null;
+                                    return (
+                                      <tr key={trs.id}>
+                                        <td className="py-2.5 text-primary/50 font-bold">{trs.tipo}</td>
+                                        {hotels.map((h) => (
+                                          <td key={h.id} className="py-2.5 text-right text-primary/50 pl-4">${fmtN(perPax)}/pax</td>
+                                        ))}
+                                      </tr>
+                                    );
+                                  })}
+                                  {cotFlightActive && cotFlightPrice > 0 && (
+                                    <tr>
+                                      <td className="py-2.5 text-primary/50 font-bold">Boleto aéreo</td>
+                                      {hotels.map((h) => (
+                                        <td key={h.id} className="py-2.5 text-right text-primary/50 pl-4">${fmtN(cotFlightPrice)}/pax</td>
+                                      ))}
+                                    </tr>
+                                  )}
                                 </tbody>
+                                <tfoot>
+                                  <tr className="border-t-2 border-secondary/30">
+                                    <td className="pt-3 text-[9px] font-black text-primary/40 uppercase tracking-wider">Precio / persona ★</td>
+                                    {breakdowns.map((bd, i) => (
+                                      <td key={hotels[i].id} className="pt-3 text-right font-black text-secondary text-sm pl-4">
+                                        ${fmtN(bd.totalPerPax)}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                </tfoot>
                               </table>
-                              <p className="mt-1.5 text-[9px] text-primary/35 font-bold">
-                                {cotMode === "libre"
-                                  ? `Precio por persona: ${cotNoches} noche${cotNoches !== 1 ? "s" : ""} + comisión agencia (${markupPerPax % 1 === 0 ? "$" + markupPerPax.toLocaleString() : "$" + markupPerPax.toFixed(2)}/pax).`
-                                  : `Precio por persona según tarifa del paquete + comisión agencia (${markupPerPax % 1 === 0 ? "$" + markupPerPax.toLocaleString() : "$" + markupPerPax.toFixed(2)}/pax).`}
-                              </p>
                             </div>
-
-                            {/* Resumen de cargos adicionales + total */}
-                            <div className="border-t border-gray-100 pt-3 space-y-1">
-                              {cotBoletoTotal > 0 && (
-                                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                                  <span>Boleto aéreo ({cotTotalRoomPax} pax × ${cotFlightPrice})</span>
-                                  <span>${cotBoletoTotal.toLocaleString()}</span>
-                                </div>
-                              )}
-                              {(cotLibreActTotal + cotLibreTrsTotal) > 0 && (
-                                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                                  <span>Actividades y traslados</span>
-                                  <span>${(cotLibreActTotal + cotLibreTrsTotal).toLocaleString()}</span>
-                                </div>
-                              )}
-                              {isComparativeMode ? (
-                                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl">
-                                  <p className="text-xs font-black text-amber-700">Total: Pendiente de selección de hotel</p>
-                                  <p className="text-[10px] font-bold text-amber-600 mt-0.5">
-                                    El cliente debe elegir un hotel para calcular el total definitivo.
-                                  </p>
-                                </div>
-                              ) : (
-                                <div className="flex justify-between pt-2 border-t border-secondary/20">
-                                  <span className="text-[10px] font-black text-primary uppercase tracking-wider">Total estimado</span>
-                                  <span className="font-black text-secondary text-sm">${cotTotal.toLocaleString()}</span>
-                                </div>
-                              )}
-                            </div>
+                            <p className="text-[9px] text-primary/35 font-bold">
+                              {agencyMarkup > 0
+                                ? `★ Incluye comisión de $${fmtN(agencyMarkup)} distribuida entre ${totalPax} pasajero${totalPax !== 1 ? "s" : ""} ($${fmtN(agencyMarkup / totalPax)}/pax). No visible para el cliente.`
+                                : "★ Sin comisión de agencia aplicada."}
+                            </p>
                           </div>
                         );
                       })()}
+
+                      {/* ── Total estimado (libre) ── */}
+                      {cotMode === "libre" && !isComparativeMode && (
+                        <div className="border-t border-gray-100 pt-3 space-y-1">
+                          {cotBoletoTotal > 0 && (
+                            <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                              <span>Boleto aéreo ({cotTotalRoomPax} pax × ${cotFlightPrice})</span>
+                              <span>${cotBoletoTotal.toLocaleString()}</span>
+                            </div>
+                          )}
+                          {(cotLibreActTotal + cotLibreTrsTotal) > 0 && (
+                            <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                              <span>Actividades y traslados</span>
+                              <span>${(cotLibreActTotal + cotLibreTrsTotal).toLocaleString()}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between pt-2 border-t border-secondary/20">
+                            <span className="text-[10px] font-black text-primary uppercase tracking-wider">Total estimado</span>
+                            <span className="font-black text-secondary text-sm">${cotTotal.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                         <button onClick={() => setStep(3)} disabled={quoteLocked} className="px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Atrás</button>
@@ -2283,69 +2594,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                     </div>
                   )}
 
-                </div>
-
-                {/* ── Summary sidebar — solo desktop ── */}
-                <div className="hidden lg:block space-y-5">
-                  <div className="bg-primary p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden flex flex-col gap-5 border border-white/5">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-12 translate-x-12 blur-2xl pointer-events-none" />
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-black uppercase text-secondary tracking-widest">Resumen</h3>
-                      <span className="px-2 py-0.5 bg-white/10 text-[8px] font-black uppercase tracking-wider rounded-md border border-white/5">Proforma</span>
-                    </div>
-                    <div className="space-y-2 text-[11px] border-t border-white/10 pt-4 font-bold text-white/70">
-                      <div className="flex justify-between items-center">
-                        <span>Subtotal alojamiento</span>
-                        <span className="font-black text-white">${cotSubtotalAlojamiento.toLocaleString()}</span>
-                      </div>
-                      {cotExtraCost > 0 && (
-                        <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                          <span>Noches extra ({cotExtraNights}n)</span>
-                          <span>${cotExtraCost.toLocaleString("es-EC")}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <span>Markup agencia</span>
-                        <span className="font-black text-secondary-light">${agencyMarkup.toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex justify-between items-center">
-                      <div>
-                        <span className="text-[8px] font-black uppercase tracking-wider text-secondary">Total Proforma</span>
-                        <span className="block text-2xl font-black text-white">${cotTotal.toLocaleString()}</span>
-                      </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest bg-white/10 px-2 rounded-lg border border-white/5">USD</span>
-                    </div>
-                    <div className="border-t border-white/10 pt-3 space-y-2 text-[10px] font-bold text-white/50">
-                      <div className="flex justify-between">
-                        <span>Pasajeros</span>
-                        <span className="text-white/80">{cotPaxResumen}</span>
-                      </div>
-                      {cotSelectedHotelIds.length > 0 && (
-                        <div className="flex justify-between">
-                          <span>Hoteles</span>
-                          <span className="text-white/80">{cotSelectedHotelIds.length} seleccionado{cotSelectedHotelIds.length > 1 ? "s" : ""}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3">
-                    <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-wider border-b border-gray-50 pb-2">Info del Viaje</h4>
-                    <div className="space-y-2 text-xs font-bold text-primary/70">
-                      {[
-                        ["Destino",  `${cotDestinoCiudad}${cotDestinoPais ? `, ${cotDestinoPais}` : ""}`],
-                        ["Duración", cotDuracion],
-                        ["Fechas",   cotFechasDisplay],
-                      ].map(([lbl, val]) => (
-                        <div key={lbl} className="flex justify-between gap-2">
-                          <span className="text-primary/40 shrink-0">{lbl}:</span>
-                          <span className="text-right">{val}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -2508,16 +2756,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
         </main>
       </div>
 
-      {/* ── Mobile FAB: Ver Resumen (Steps 2-4 only) ── */}
-      {activeTab === "cotizar" && step > 1 && (
-        <button
-          onClick={() => setShowMobileSummary(true)}
-          aria-label="Ver resumen de cotización"
-          className="lg:hidden fixed bottom-20 right-4 z-30 w-14 h-14 bg-primary rounded-full shadow-xl flex items-center justify-center active:scale-95 transition-transform"
-        >
-          <DollarSign size={20} className="text-white" />
-        </button>
-      )}
 
       {/* ── BOTTOM NAV (solo móvil) ── */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(11,67,57,0.08)] flex items-stretch h-16" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
@@ -2885,87 +3123,6 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
         );
       })()}
 
-      {/* ── Mobile bottom-sheet: price summary ── */}
-      {showMobileSummary && (
-        <div
-          className="lg:hidden fixed inset-0 z-40 flex flex-col justify-end"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowMobileSummary(false); }}
-        >
-          <div className="absolute inset-0 bg-primary/40 backdrop-blur-sm" />
-          <div className="relative bg-white rounded-t-3xl p-6 space-y-4 max-h-[70vh] overflow-y-auto overscroll-contain">
-            <div className="w-8 h-1 bg-gray-200 rounded-full mx-auto -mt-2" />
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-primary uppercase tracking-widest">Resumen</h3>
-              <button
-                onClick={() => setShowMobileSummary(false)}
-                className="p-1.5 rounded-lg bg-light text-primary/40 hover:bg-lighter transition-all cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            </div>
-            <div className="p-3 bg-light border border-lighter rounded-2xl space-y-1.5">
-              <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                <span>Destino</span>
-                <span className="text-primary font-black">{cotDestinoCiudad || "—"}</span>
-              </div>
-              <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                <span>Duración</span>
-                <span className="text-primary font-black">{cotDuracion}</span>
-              </div>
-              {cotFechaSalida && (
-                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                  <span>Salida</span>
-                  <span className="text-primary font-black">{cotFechaSalida}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                <span>Distribución</span>
-                <span className="text-primary font-black">{cotPaxResumen}</span>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              {cotSubtotalAlojamiento > 0 && (
-                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                  <span>Alojamiento</span>
-                  <span>${cotSubtotalAlojamiento.toLocaleString("es-EC")}</span>
-                </div>
-              )}
-              {cotExtraCost > 0 && (
-                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                  <span>Noches extra ({cotExtraNights}n)</span>
-                  <span>${cotExtraCost.toLocaleString("es-EC")}</span>
-                </div>
-              )}
-              {(cotLibreActTotal + cotLibreTrsTotal) > 0 && (
-                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                  <span>Actividades / Traslados</span>
-                  <span>${(cotLibreActTotal + cotLibreTrsTotal).toLocaleString("es-EC")}</span>
-                </div>
-              )}
-              {cotBoletoTotal > 0 && (
-                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                  <span>Boleto aéreo</span>
-                  <span>${cotBoletoTotal.toLocaleString("es-EC")}</span>
-                </div>
-              )}
-              {agencyMarkup > 0 && (
-                <div className="flex justify-between text-[10px] font-bold text-primary/40 italic">
-                  <span>Comisión (oculta al cliente)</span>
-                  <span>${agencyMarkup.toLocaleString("es-EC")}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                <span className="text-xs font-black text-primary uppercase">
-                  {isComparativeMode ? "Total estimado" : "Total"}
-                </span>
-                <span className="text-base font-black text-secondary">
-                  {isComparativeMode ? "Pendiente" : `$${cotTotal.toLocaleString("es-EC")}`}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
     </DashboardContext.Provider>
