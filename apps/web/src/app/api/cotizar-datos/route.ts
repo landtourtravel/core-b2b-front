@@ -31,13 +31,17 @@ export async function GET() {
       include: {
         versiones: { orderBy: { tipoPax: "asc" } },
         hoteles: {
-          include: { hotel: { include: { destino: true, tarifas: true } } },
+          include: {
+            hotel: {
+              include: { destino: true, tarifas: true, politicaNinos: true },
+            },
+          },
         },
         actividades: {
-          include: { actividad: { include: { destino: true } } },
+          include: { actividad: { include: { destino: true, tarifas: true } } },
         },
         traslados: {
-          include: { traslado: { include: { destino: true } } },
+          include: { traslado: { include: { destino: true, tarifas: true } } },
         },
       },
       orderBy: { nombre: "asc" },
@@ -56,10 +60,30 @@ export async function GET() {
       const primerDestino = destinosList[0];
 
       // Deduplicate hotels by id (PaqueteHotelRef has one row per hotelId+tipoHabitacion)
-      const hotelesMap = new Map<number, { id: number; nombre: string; estrellas: number }>();
+      const hotelesMap = new Map<number, {
+        id: number; nombre: string; estrellas: number;
+        tarifas: { tipoHabitacion: string; precioBase: number }[];
+        politicaNinos: { id: number; rangoNombre: string; edadMin: number; edadMax: number; precio: number | null; tipoCobro: string | null }[];
+      }>();
       p.hoteles.forEach((ph) => {
         if (ph.hotel && !hotelesMap.has(ph.hotel.id)) {
-          hotelesMap.set(ph.hotel.id, { id: ph.hotel.id, nombre: ph.hotel.nombre, estrellas: ph.hotel.estrellas });
+          hotelesMap.set(ph.hotel.id, {
+            id: ph.hotel.id,
+            nombre: ph.hotel.nombre,
+            estrellas: ph.hotel.estrellas,
+            tarifas: ph.hotel.tarifas.map((t) => ({
+              tipoHabitacion: t.tipoHabitacion,
+              precioBase: Number(t.precioBase),
+            })),
+            politicaNinos: ph.hotel.politicaNinos.map((pol) => ({
+              id: pol.id,
+              rangoNombre: pol.rangoNombre,
+              edadMin: pol.edadMin,
+              edadMax: pol.edadMax,
+              precio: pol.precio ?? null,
+              tipoCobro: pol.tipoCobro ?? null,
+            })),
+          });
         }
       });
 
@@ -79,6 +103,7 @@ export async function GET() {
       return {
         id: p.id,
         nombre: p.nombre,
+        numPax: p.numPax,
         diasEstancia: p.diasEstancia,
         nochesBase: p.nochesBase,
         incluyeBoleto: p.incluyeBoleto,
@@ -101,14 +126,27 @@ export async function GET() {
         actividades: p.actividades.map((pa) => ({
           id: pa.actividad.id,
           nombre: pa.actividad.nombre,
+          descripcion: pa.actividad.descripcion ?? null,
           destinoId: pa.actividad.destinoId,
           destinoCiudad: pa.actividad.destino?.ciudad ?? "",
+          tarifas: pa.actividad.tarifas.map((t) => ({
+            precio: Number(t.precio),
+            tipoPasajero: t.tipoPasajero,
+            paxMin: t.paxMin,
+            paxMax: t.paxMax,
+          })),
         })),
         traslados: p.traslados.map((pt) => ({
           id: pt.traslado.id,
           tipo: pt.traslado.tipo,
           destinoId: pt.traslado.destinoId,
           destinoCiudad: pt.traslado.destino?.ciudad ?? "",
+          tarifas: pt.traslado.tarifas.map((t) => ({
+            precio: Number(t.precio),
+            tipoCobro: t.tipoCobro,
+            paxMin: t.paxMin,
+            paxMax: t.paxMax,
+          })),
         })),
       };
     });
