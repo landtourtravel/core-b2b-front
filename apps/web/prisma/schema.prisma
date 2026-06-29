@@ -80,10 +80,9 @@ model HotelRef {
   nombre    String
   estrellas Int
 
-  destino       DestinoRef        @relation(fields: [destinoId], references: [id])
-  paquetes      PaqueteHotelRef[]
-  tarifas       TarifaHotelRef[]
-  politicaNinos PoliticaNinosRef[]
+  destino  DestinoRef        @relation(fields: [destinoId], references: [id])
+  paquetes PaqueteHotelRef[]
+  tarifas  TarifaHotelRef[]
 
   @@map("Hotel")
 }
@@ -263,21 +262,6 @@ model TarifaHotelRef {
 
   @@unique([hotelId, tipoHabitacion])
   @@map("TarifaHotel")
-}
-
-/// @readonly — gestionado por lt-core-admin
-model PoliticaNinosRef {
-  id          Int     @id
-  hotelId     Int
-  rangoNombre String
-  edadMin     Int
-  edadMax     Int
-  precio      Float?
-  tipoCobro   String?
-
-  hotel HotelRef @relation(fields: [hotelId], references: [id])
-
-  @@map("PoliticaNinos")
 }
 
 // ==============================================================
