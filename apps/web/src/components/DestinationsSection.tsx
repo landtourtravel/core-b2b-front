@@ -350,7 +350,7 @@ export const DestinationsSection: React.FC = () => {
       <section className="py-20 bg-light flex items-center justify-center min-h-[200px]">
         <div className="flex flex-col items-center gap-3 text-center px-4">
           <MapPinIcon size={32} className="text-primary/20" />
-          <p className="text-primary/50 font-semibold text-sm">No hay destinos creados en la base de datos.</p>
+          <p className="text-primary/50 font-semibold text-sm">No hay destinos disponibles en este momento. Vuelve a intentarlo más tarde.</p>
         </div>
       </section>
     );

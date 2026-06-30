@@ -1778,7 +1778,7 @@ function doApprove() {
                           ) : cotizarData.paquetes.length === 0 ? (
                             <div className="py-8 text-center">
                               <Globe size={24} className="text-primary/20 mx-auto mb-2" />
-                              <p className="text-primary/50 font-bold text-xs">No hay paquetes en la base de datos.</p>
+                              <p className="text-primary/50 font-bold text-xs">No hay paquetes disponibles en este momento.</p>
                             </div>
                           ) : (
                             <div className="space-y-2">

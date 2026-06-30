@@ -531,7 +531,7 @@ export default function PaquetesPage() {
                   </h3>
                   <p className="text-primary/40 text-sm max-w-xs mb-7 leading-relaxed">
                     {fetchError === "EMPTY" && !hasFilters
-                      ? "No hay paquetes registrados en el sistema."
+                      ? "No hay paquetes disponibles en este momento. Vuelve a intentarlo más tarde."
                       : "No encontramos paquetes que coincidan con tu búsqueda o filtros seleccionados."}
                   </p>
                   {hasFilters && (

@@ -67,8 +67,8 @@ export default function PaquetesTab({
       ) : packagesFetchError === "EMPTY" || packages.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
           <Globe size={28} className="text-primary/20" />
-          <p className="text-primary/50 font-bold text-xs">No hay paquetes creados en la base de datos.</p>
-          <p className="text-primary/30 text-[10px]">El administrador debe crear los paquetes desde el panel.</p>
+          <p className="text-primary/50 font-bold text-xs">No hay paquetes disponibles en este momento.</p>
+          <p className="text-primary/30 text-[10px]">Contacta al administrador para agregar paquetes al catálogo.</p>
         </div>
       ) : (() => {
         const pkgsFiltrados = packages.filter((pkg) => {
