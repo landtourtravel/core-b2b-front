@@ -15,9 +15,9 @@ export async function PATCH(
   const body = await req.json();
   const {
     status,
-    selectedHotel,        // legacy: string (hotel name for nota)
-    selectedHotelId,      // new: number (chosen hotel ID in comparative mode)
-    total: newTotal,      // new: recalculated total when approving comparative
+    selectedHotelId,       // primary hotel ID (single-destino or first in multi)
+    selectedHotelIds,      // all selected hotel IDs for multi-destino
+    total: newTotal,
     nota,
   } = body;
 
@@ -34,18 +34,55 @@ export async function PATCH(
       return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
     const creadoPorId = (session.user as { id?: string }).id as string;
+    const snapshot = cotizacion.hotelsComparisonSnapshot as any[] | null;
 
-    const hotelNota = selectedHotel ? `Hotel seleccionado: ${selectedHotel}` : undefined;
+    // Validate hotel IDs against stored comparison snapshot
+    if (status === "APROBADA") {
+      const idsToValidate: number[] = [];
+      if (Array.isArray(selectedHotelIds) && selectedHotelIds.length > 0) {
+        for (const hId of selectedHotelIds) {
+          if (typeof hId !== "number" || !Number.isInteger(hId) || hId <= 0)
+            return NextResponse.json({ error: "selectedHotelIds contiene un valor inválido" }, { status: 400 });
+          idsToValidate.push(hId);
+        }
+      } else if (selectedHotelId !== undefined && selectedHotelId !== null) {
+        if (typeof selectedHotelId !== "number" || !Number.isInteger(selectedHotelId) || selectedHotelId <= 0)
+          return NextResponse.json({ error: "selectedHotelId inválido" }, { status: 400 });
+        idsToValidate.push(selectedHotelId);
+      }
+      if (idsToValidate.length > 0 && Array.isArray(snapshot) && snapshot.length > 0) {
+        for (const hId of idsToValidate) {
+          if (!snapshot.find((h: any) => h.hotelId === hId))
+            return NextResponse.json({ error: "Hotel no válido para esta cotización" }, { status: 400 });
+        }
+      }
+    }
 
     const updateData: Parameters<typeof prisma.cotizacion.update>[0]["data"] = {
       status,
-      notas: hotelNota ?? cotizacion.notas,
+      notas: nota ?? cotizacion.notas,
       fechaAprobacion: status === "APROBADA" ? new Date() : cotizacion.fechaAprobacion,
       fechaEnvio: status === "ENVIADA" ? new Date() : cotizacion.fechaEnvio,
     };
 
-    if (status === "APROBADA" && typeof newTotal === "number") {
-      updateData.total = newTotal;
+    if (status === "APROBADA") {
+      // Determine primary selected hotel ID
+      const primaryId = Array.isArray(selectedHotelIds) && selectedHotelIds.length > 0
+        ? selectedHotelIds[0]
+        : (typeof selectedHotelId === "number" ? selectedHotelId : null);
+      if (primaryId) updateData.selectedHotelId = primaryId;
+      if (typeof newTotal === "number") updateData.total = newTotal;
+
+      // Mark selected hotels in comparison snapshot (v2 multi-destino support)
+      const allIds = Array.isArray(selectedHotelIds) && selectedHotelIds.length > 0
+        ? selectedHotelIds
+        : (primaryId ? [primaryId] : []);
+      if (allIds.length > 0 && Array.isArray(snapshot) && snapshot.length > 0) {
+        updateData.hotelsComparisonSnapshot = snapshot.map((h: any) => ({
+          ...h,
+          selected: allIds.includes(h.hotelId),
+        }));
+      }
     }
 
     const [updated] = await prisma.$transaction([
@@ -56,7 +93,7 @@ export async function PATCH(
           cambiadoPorId: creadoPorId,
           statusAnterior: cotizacion.status as any,
           statusNuevo: status as any,
-          nota: nota ?? hotelNota ?? null,
+          nota: nota ?? null,
         },
       }),
     ]);

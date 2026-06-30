@@ -76,7 +76,7 @@ export const PackagesSection = () => {
       <section className="py-24 bg-white min-h-[200px] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center px-4">
           <AlertTriangle size={32} className="text-amber-400" />
-          <p className="text-primary/60 font-semibold text-sm">Conexión a DB fallida — los paquetes no están disponibles en este momento.</p>
+          <p className="text-primary/60 font-semibold text-sm">No pudimos cargar los paquetes recomendados en este momento. Por favor, intenta recargar la página o vuelve a intentarlo más tarde.</p>
         </div>
       </section>
     );
@@ -87,7 +87,7 @@ export const PackagesSection = () => {
       <section className="py-24 bg-white min-h-[200px] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center px-4">
           <PackageIcon size={32} className="text-primary/20" />
-          <p className="text-primary/50 font-semibold text-sm">No hay paquetes creados en la base de datos.</p>
+          <p className="text-primary/50 font-semibold text-sm">No hay paquetes disponibles en este momento. Vuelve a intentarlo más tarde.</p>
         </div>
       </section>
     );

@@ -3,15 +3,28 @@ import React, { createContext, useContext } from "react";
 import type { Cotizacion, CotizacionStatus } from "@land-tour/shared";
 
 // Extended cotizacion type used within the dashboard (adds local-only fields)
+export type HotelCompSnapshot = {
+  hotelId: number;
+  nombre: string;
+  estrellas: number;
+  // v2 fields: destination grouping + column breakdown
+  destinoId?: number;
+  destinoCiudad?: string;
+  destinoPais?: string;
+  tipoPax?: string;
+  adultColPerPax?: number;    // alojamiento + services + extra nights, per adult pax
+  boletoPerPax?: number;      // flight price per pax (0 when not active)
+  // Existing
+  avgChildPerPax: number | null;
+  pricePerPax: number;        // full all-in price per adult pax (includes markup)
+  total: number;
+  // Set to true on approval (multi-destino tracking)
+  selected?: boolean;
+};
+
 export type CotizacionExtended = Cotizacion & {
-  // Local-only extended fields (not in DB)
-  hotelsComparison?: Array<{
-    hotel: { id: string; name: string; nombre?: string };
-    subtotal: number;
-    extraNightsCost: number;
-    total: number;
-  }>;
-  chosenHotelId?: string;
+  hotelsComparison?: HotelCompSnapshot[];
+  selectedHotelId?: number | null;
 };
 
 export interface DashboardContextValue {

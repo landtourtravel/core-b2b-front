@@ -347,6 +347,10 @@ model Cotizacion {
   fechaViaje   DateTime?
   fechaRetorno DateTime?
 
+  // ── Comparativa de hoteles (snapshot al crear la cotización) ────────
+  hotelsComparisonSnapshot Json?  // Array de { hotelId, nombre, estrellas, totalPerPax, subtotal, total }
+  selectedHotelId          Int?   // Hotel elegido al aprobar
+
   // ── Estado del flujo ────────────────────────────────────────────────
   status          CotizacionStatus @default(BORRADOR)
   notas           String?          @db.Text

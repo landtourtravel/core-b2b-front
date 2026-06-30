@@ -80,6 +80,42 @@ export function getTrasladoGroupPrice(tarifas: CotHelperTrsTarifa[], totalPax: n
   return tarifa.tipoCobro === "POR_VEHICULO" ? tarifa.precio : tarifa.precio * totalPax;
 }
 
+// ── Per-person service helpers (DB stores activity/transfer prices per person) ──
+// These do NOT divide group totals. The matching ADULTO/NINO tariff price is already
+// per-person, so it's added directly to the per-person room rate. Only POR_VEHICULO
+// transfers (a group cost by nature) are divided by total pax to express per person.
+
+/** Per-adult activity price (matching the adult pax bracket). */
+export function getActividadAdultPerPax(tarifas: CotHelperActTarifa[], numAdultos: number): number {
+  return (
+    tarifas.find(
+      (t) => t.tipoPasajero === "ADULTO" && numAdultos >= t.paxMin && numAdultos <= t.paxMax
+    )?.precio ?? 0
+  );
+}
+
+/** Per-child activity price (matching the child pax bracket). */
+export function getActividadChildPerPax(tarifas: CotHelperActTarifa[], numNinos: number): number {
+  if (numNinos <= 0) return 0;
+  return (
+    tarifas.find(
+      (t) => t.tipoPasajero === "NINO" && numNinos >= t.paxMin && numNinos <= t.paxMax
+    )?.precio ?? 0
+  );
+}
+
+/**
+ * Per-person transfer price.
+ * POR_PERSONA → precio (already per person, added directly).
+ * POR_VEHICULO → precio / totalPax (group cost split across passengers).
+ */
+export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], totalPax: number): number {
+  const tarifa = tarifas.find((t) => totalPax >= t.paxMin && totalPax <= t.paxMax);
+  if (!tarifa) return 0;
+  if (tarifa.tipoCobro === "POR_VEHICULO") return totalPax > 0 ? tarifa.precio / totalPax : 0;
+  return tarifa.precio;
+}
+
 // ── Composite breakdown ───────────────────────────────────────────────────────
 
 export type HotelBreakdown = {
@@ -123,17 +159,19 @@ export function calcHotelBreakdown(
       ? childResults.reduce((s, r) => s + r.precio, 0) / numNinos
       : 0;
 
-  const actTotal = actividades.reduce(
-    (s, a) => s + getActividadGroupPrice(a.tarifas, numAdultos, numNinos),
+  // Per-person service cost added directly to the per-person room rate (no division).
+  // The adult column is the reference, so activities use the ADULTO per-person price.
+  const actPerPax = actividades.reduce(
+    (s, a) => s + getActividadAdultPerPax(a.tarifas, numAdultos),
     0
   );
-  const actPerPax = totalPax > 0 ? actTotal / totalPax : 0;
+  const actTotal = actPerPax * totalPax;
 
-  const trsTotal = traslados.reduce(
-    (s, t) => s + getTrasladoGroupPrice(t.tarifas, totalPax),
+  const trsPerPax = traslados.reduce(
+    (s, t) => s + getTrasladoPerPax(t.tarifas, totalPax),
     0
   );
-  const trsPerPax = totalPax > 0 ? trsTotal / totalPax : 0;
+  const trsTotal = trsPerPax * totalPax;
 
   const boletoPerPax = flightActive ? flightPrice : 0;
   const markupPerPax = totalPax > 0 ? agencyMarkup / totalPax : 0;

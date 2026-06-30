@@ -1,18 +1,10 @@
 "use client";
 import React from "react";
-import {
-  FileText,
-  CheckCircle2,
-  X,
-  Clock,
-  Eye,
-  Star,
-} from "lucide-react";
+import { FileText, CheckCircle2, X, Clock, Eye } from "lucide-react";
 import { COTIZACION_STATUS_LABEL } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended } from "../DashboardContext";
 
-// Status style maps (must be at file scope for Tailwind scanning)
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-50 text-sky-600",
   ENVIADA:   "bg-amber-50 text-amber-600",
@@ -28,11 +20,10 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
 
 interface DashboardTabProps {
   onGoToCotizaciones: () => void;
-  onPreviewCot: (cot: CotizacionExtended) => void;
-  onOpenFinalize: (id: string) => void;
+  onViewCot: (cot: CotizacionExtended) => void;
 }
 
-export default function DashboardTab({ onGoToCotizaciones, onPreviewCot, onOpenFinalize }: DashboardTabProps) {
+export default function DashboardTab({ onGoToCotizaciones, onViewCot }: DashboardTabProps) {
   const { cotizaciones, kpiTotal, kpiAprobadas, kpiRechazadas, kpiPendientes } = useDashboard();
 
   return (
@@ -66,7 +57,10 @@ export default function DashboardTab({ onGoToCotizaciones, onPreviewCot, onOpenF
           <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Últimas Cotizaciones
           </h3>
-          <button onClick={onGoToCotizaciones} className="px-4 py-1.5 border border-gray-200 hover:border-primary/20 text-primary text-[10px] font-black uppercase tracking-wider rounded-xl hover:bg-gray-50 transition-all cursor-pointer">
+          <button
+            onClick={onGoToCotizaciones}
+            className="px-4 py-1.5 border border-gray-200 hover:border-primary/20 text-primary text-[10px] font-black uppercase tracking-wider rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
+          >
             Ver todas
           </button>
         </div>
@@ -74,7 +68,7 @@ export default function DashboardTab({ onGoToCotizaciones, onPreviewCot, onOpenF
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="border-b border-gray-100">
-                {["Código","Cliente","Destino","Fecha","Total","Estado","Acciones"].map((h) => (
+                {["Código","Cliente","Destino","Fecha","Total","Estado","Acción"].map((h) => (
                   <th key={h} className="pb-3 text-[10px] font-black uppercase text-gray-400 tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -94,12 +88,14 @@ export default function DashboardTab({ onGoToCotizaciones, onPreviewCot, onOpenF
                     </span>
                   </td>
                   <td className="py-4">
-                    <div className="flex gap-1.5">
-                      <button onClick={() => onPreviewCot(cot as CotizacionExtended)} aria-label={`Ver cotización ${cot.codigo}`} className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer" title="Previsualizar"><Eye size={12} /></button>
-                      {cot.status === "BORRADOR" && (cot as CotizacionExtended).hotelsComparison && (
-                        <button onClick={() => onOpenFinalize(cot.id)} aria-label={`Finalizar cotización ${cot.codigo}`} className="p-1.5 bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary rounded-lg border border-secondary/20 transition-all cursor-pointer" title="Generar Cotización Final"><Star size={12} /></button>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => onViewCot(cot as CotizacionExtended)}
+                      aria-label={`Ver cotización ${cot.codigo}`}
+                      className="p-1.5 bg-light hover:bg-secondary/15 text-primary hover:text-secondary rounded-lg border border-lighter transition-all cursor-pointer"
+                      title="Ver detalles"
+                    >
+                      <Eye size={12} />
+                    </button>
                   </td>
                 </tr>
               ))}

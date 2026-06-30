@@ -62,6 +62,8 @@ export async function GET() {
         fechaRetorno:  c.fechaRetorno?.toISOString().slice(0, 10)  ?? null,
         status:        c.status,
         notas:         c.notas,
+        hotelsComparison: (c.hotelsComparisonSnapshot as any) ?? null,
+        selectedHotelId:  c.selectedHotelId ?? null,
         fechaCreacion: c.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
       };
     });
@@ -86,6 +88,7 @@ export async function POST(req: NextRequest) {
     precioSGL = 0, precioDBL = 0, precioTPL = 0, precioQUAD = 0, precioCHD = 0,
     subtotal, markup, total,
     fechaViaje, fechaRetorno, notas,
+    hotelsComparison,
   } = body;
 
   if (!clienteId || subtotal === undefined) {
@@ -148,6 +151,7 @@ export async function POST(req: NextRequest) {
         snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
         snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
         snapshotIncluye:  paqueteIncluye  ?? [],
+        hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : null,
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto    ?? null,
         boletoTotal,
@@ -198,6 +202,8 @@ export async function POST(req: NextRequest) {
       fechaRetorno:  cotizacion.fechaRetorno?.toISOString().slice(0, 10) ?? null,
       status:        cotizacion.status,
       notas:         cotizacion.notas,
+      hotelsComparison: (cotizacion.hotelsComparisonSnapshot as any) ?? null,
+      selectedHotelId:  cotizacion.selectedHotelId ?? null,
       fechaCreacion: cotizacion.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
     }, { status: 201 });
   } catch (err) {

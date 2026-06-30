@@ -62,7 +62,7 @@ export default function PaquetesTab({
       ) : packagesFetchError === "DB_FAIL" ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
           <AlertCircle size={28} className="text-amber-400" />
-          <p className="text-primary/60 font-bold text-xs">Conexión a DB fallida — no se pudieron cargar los paquetes.</p>
+          <p className="text-primary/60 font-bold text-xs">No pudimos cargar los paquetes en este momento. Por favor, recarga la página o inténtalo de nuevo más tarde.</p>
         </div>
       ) : packagesFetchError === "EMPTY" || packages.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">

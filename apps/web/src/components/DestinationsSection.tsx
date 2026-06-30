@@ -339,7 +339,7 @@ export const DestinationsSection: React.FC = () => {
       <section className="py-20 bg-light flex items-center justify-center min-h-[200px]">
         <div className="flex flex-col items-center gap-3 text-center px-4">
           <AlertTriangle size={32} className="text-amber-400" />
-          <p className="text-primary/60 font-semibold text-sm">Conexión a DB fallida — los destinos no están disponibles en este momento.</p>
+          <p className="text-primary/60 font-semibold text-sm">No logramos obtener los destinos destacados por ahora. Por favor, actualiza la página para intentarlo de nuevo.</p>
         </div>
       </section>
     );

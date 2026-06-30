@@ -422,9 +422,9 @@ export default function PaquetesPage() {
           ) : fetchError === "DB_FAIL" ? (
             <div className="flex flex-col items-center justify-center py-28 gap-4 text-center">
               <AlertTriangle size={40} className="text-amber-400" />
-              <h3 className="text-primary font-bold text-lg">Sin conexión al servidor</h3>
+              <h3 className="text-primary font-bold text-lg">Ocurrió un inconveniente temporal</h3>
               <p className="text-primary/50 text-sm max-w-xs leading-relaxed">
-                No hay conexión con el servidor en este momento. Verifica tu conexión y vuelve a intentarlo.
+                No pudimos cargar nuestro catálogo de paquetes. Por favor, asegúrate de tener conexión a internet e inténtalo de nuevo en unos momentos.
               </p>
               <button onClick={() => window.location.reload()} className="mt-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-light transition-colors">
                 Reintentar
