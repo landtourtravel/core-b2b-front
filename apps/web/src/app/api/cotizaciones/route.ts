@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma";
 import { logError } from "@/lib/logger";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
@@ -151,7 +152,7 @@ export async function POST(req: NextRequest) {
         snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
         snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
         snapshotIncluye:  paqueteIncluye  ?? [],
-        hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : null,
+        hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto    ?? null,
         boletoTotal,
