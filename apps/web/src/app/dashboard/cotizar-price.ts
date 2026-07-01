@@ -118,23 +118,69 @@ export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], totalPax: numbe
 
 // ── Composite breakdown ───────────────────────────────────────────────────────
 
+/** Passengers per room unit — used to split a per-ROOM rate into a per-person cost. */
+export const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
+
 export type HotelBreakdown = {
-  alojamiento: number;
-  childResults: ChildPriceResult[];
-  avgChd: number;
-  actTotal: number;
+  /** Total nights this hotel's stop covers (base parada nights + extra nights for its destino). */
+  noches: number;
+  /** Occupancy of the chosen room type (PAX_BY_TYPE[tipoPax]). */
+  occupancy: number;
+
+  // ── Per adult (reference column) ──────────────────────────────────────────
+  /** Adult accommodation per adult = roomRate × noches ÷ numAdultos. */
+  adultAccomPerAdult: number;
+  /** Adult activities per person (one-time, NOT × nights). */
   actPerPax: number;
-  trsTotal: number;
+  /** Transfers per person (one-time). */
   trsPerPax: number;
+  /** actPerPax + trsPerPax — package services per person (hotel-independent). */
+  servicesPerPax: number;
+
+  // ── Children ──────────────────────────────────────────────────────────────
+  childResults: ChildPriceResult[];
+  /** Σ (childRate × noches) over all children. */
+  childAccomTotal: number;
+  /** numNinos × (child activities per child + transfers per child). */
+  childServicesTotal: number;
+  /** (childAccomTotal + childServicesTotal) ÷ numAdultos — prorated supplement per adult. */
+  childSupplementPerAdult: number;
+
+  // ── Accommodation totals (this hotel's destino contribution) ──────────────
+  /** roomRate × noches (the room for the adults, one unit). */
+  adultAccomTotal: number;
+  /** adultAccomTotal + childAccomTotal — combine across destinos for multi-stop. */
+  accomTotal: number;
+
+  // ── Shared components (identical for every hotel of the package) ──────────
   boletoPerPax: number;
   markupPerPax: number;
-  /** Reference total per ADULT passenger (excl. nights multiplication). CHD not included. */
-  totalPerPax: number;
+  boletoTotal: number;          // boletoPerPax × totalPax
+  servicesTotal: number;        // servicesPerPax × numAdultos + childServicesTotal
+  /** servicesTotal + boletoTotal + agencyMarkup — counted ONCE for the whole package. */
+  sharedTotal: number;
+
+  // ── Composed figures ─────────────────────────────────────────────────────
+  /** Per-adult accommodation + services (the "Alojamiento" column). */
+  adultColPerPax: number;
+  /** accomTotal + servicesTotal — package neto without boleto/markup, this hotel. */
+  subtotal: number;
+  /** subtotal + boletoTotal + agencyMarkup = accomTotal + sharedTotal. Single-stop package total. */
+  total: number;
+  /** All-in per adult (incl. child supplement, boleto and markup share) — display only. */
+  pricePerPax: number;
+  /** = childSupplementPerAdult — shown as the per-adult minors supplement. */
+  avgChildPerPax: number;
 };
 
 /**
- * Calculates the full price breakdown for one hotel option.
- * `totalPerPax` is the adult reference price including markup (but excluding CHD).
+ * Calculates the full price breakdown for one hotel option, mirroring the admin
+ * wizard: accommodation = per-ROOM rate × nights ÷ occupants; children are prorated
+ * into a per-adult supplement (accommodation + their own activities/transfers).
+ *
+ * `total` assumes this hotel covers ITS stop plus the full package services — correct
+ * as-is for a single-destino package. For multi-destino, combine `accomTotal` across the
+ * chosen hotel of each destino and add `sharedTotal` ONCE (see callers).
  */
 export function calcHotelBreakdown(
   hotel: CotHelperHotel,
@@ -145,49 +191,81 @@ export function calcHotelBreakdown(
   traslados: CotHelperTraslado[],
   flightActive: boolean,
   flightPrice: number,
-  agencyMarkup: number
+  agencyMarkup: number,
+  noches: number
 ): HotelBreakdown {
   const numNinos = cotNinosEdades.length;
   const totalPax = numAdultos + numNinos;
+  const occupancy = PAX_BY_TYPE[tipoPax] ?? Math.max(1, numAdultos);
+  const nights = Math.max(1, noches);
 
-  const alojamiento = getAdultAccomPrice(hotel, tipoPax);
+  // ── Accommodation (admin parity: roomRate × nights, split across adults) ──
+  const roomRate = getAdultAccomPrice(hotel, tipoPax);
+  const adultAccomTotal = roomRate * nights;
+  const adultAccomPerAdult = numAdultos > 0 ? adultAccomTotal / numAdultos : adultAccomTotal / occupancy;
+
   const childResults = cotNinosEdades.map((age) =>
-    getChildPriceForAge(hotel, age, alojamiento)
+    getChildPriceForAge(hotel, age, roomRate)
   );
-  const avgChd =
-    numNinos > 0
-      ? childResults.reduce((s, r) => s + r.precio, 0) / numNinos
-      : 0;
+  const childAccomTotal = childResults.reduce((s, r) => s + r.precio * nights, 0);
 
-  // Per-person service cost added directly to the per-person room rate (no division).
-  // The adult column is the reference, so activities use the ADULTO per-person price.
+  // ── Services per person (one-time, not per night) ─────────────────────────
   const actPerPax = actividades.reduce(
     (s, a) => s + getActividadAdultPerPax(a.tarifas, numAdultos),
     0
   );
-  const actTotal = actPerPax * totalPax;
-
   const trsPerPax = traslados.reduce(
     (s, t) => s + getTrasladoPerPax(t.tarifas, totalPax),
     0
   );
-  const trsTotal = trsPerPax * totalPax;
+  const servicesPerPax = actPerPax + trsPerPax;
 
+  // Children's own services: child activity tariff per child + same transfer per person.
+  const childActPerChild = actividades.reduce(
+    (s, a) => s + getActividadChildPerPax(a.tarifas, numNinos),
+    0
+  );
+  const childServicesTotal = numNinos > 0 ? numNinos * (childActPerChild + trsPerPax) : 0;
+
+  const childSupplementPerAdult =
+    numAdultos > 0 ? (childAccomTotal + childServicesTotal) / numAdultos : 0;
+
+  // ── Shared (hotel-independent) totals ─────────────────────────────────────
   const boletoPerPax = flightActive ? flightPrice : 0;
   const markupPerPax = totalPax > 0 ? agencyMarkup / totalPax : 0;
+  const boletoTotal = boletoPerPax * totalPax;
+  const servicesTotal = servicesPerPax * numAdultos + childServicesTotal;
+  const sharedTotal = servicesTotal + boletoTotal + agencyMarkup;
 
-  const totalPerPax = alojamiento + actPerPax + trsPerPax + boletoPerPax + markupPerPax;
+  // ── Composed ──────────────────────────────────────────────────────────────
+  const adultColPerPax = adultAccomPerAdult + servicesPerPax;
+  const accomTotal = adultAccomTotal + childAccomTotal;
+  const subtotal = accomTotal + servicesTotal;
+  const total = accomTotal + sharedTotal;
+  const pricePerPax = adultColPerPax + childSupplementPerAdult + boletoPerPax + markupPerPax;
 
   return {
-    alojamiento,
-    childResults,
-    avgChd,
-    actTotal,
+    noches: nights,
+    occupancy,
+    adultAccomPerAdult,
     actPerPax,
-    trsTotal,
     trsPerPax,
+    servicesPerPax,
+    childResults,
+    childAccomTotal,
+    childServicesTotal,
+    childSupplementPerAdult,
+    adultAccomTotal,
+    accomTotal,
     boletoPerPax,
     markupPerPax,
-    totalPerPax,
+    boletoTotal,
+    servicesTotal,
+    sharedTotal,
+    adultColPerPax,
+    subtotal,
+    total,
+    pricePerPax,
+    avgChildPerPax: childSupplementPerAdult,
   };
 }

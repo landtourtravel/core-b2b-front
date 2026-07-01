@@ -6,7 +6,22 @@ import {
 } from "lucide-react";
 import { COTIZACION_STATUS_LABEL, resumenPasajeros } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
-import { useDashboard, type CotizacionExtended } from "../DashboardContext";
+import { useDashboard, type CotizacionExtended, type HotelCompSnapshot } from "../DashboardContext";
+
+/**
+ * Combines the selected hotels into one package total without double-counting the
+ * shared cost (services + boleto + markup). v3 snapshots carry `accomTotal` (this
+ * hotel's accommodation) and `sharedTotal` (the package-wide shared cost, identical
+ * for every hotel): total = Σ accomTotal + sharedTotal (once). Falls back to summing
+ * `total` for legacy v1/v2 snapshots that lack those fields.
+ */
+function combineHotels(selHotels: HotelCompSnapshot[]): number {
+  if (selHotels.length === 0) return 0;
+  const hasV3 = selHotels[0].accomTotal != null && selHotels[0].sharedTotal != null;
+  if (!hasV3) return selHotels.reduce((s, h) => s + h.total, 0);
+  const accom = selHotels.reduce((s, h) => s + (h.accomTotal ?? 0), 0);
+  return accom + (selHotels[0].sharedTotal ?? 0);
+}
 
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-50 text-sky-600",
@@ -117,7 +132,8 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
     const selHotels = selIds
       .map((hId) => allHotels.find((h) => h.hotelId === hId))
       .filter(Boolean) as typeof allHotels;
-    const combined = selHotels.reduce((s, h) => s + h.total, 0);
+    // Combina sin duplicar servicios/boleto/markup: Σ alojamiento + sharedTotal (una vez).
+    const combined = combineHotels(selHotels);
     const names    = selHotels.map((h) => h.nombre).join(", ");
 
     setCotizaciones((prev) =>
@@ -209,7 +225,7 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
           }).join("");
 
           const chdCells = dHotels.map((h) =>
-            `<td class="right">${(h.avgChildPerPax ?? 0) > 0 ? "$" + fmt(h.avgChildPerPax!) + "/pax" : "—"}</td>`
+            `<td class="right">${(h.avgChildPerPax ?? 0) > 0 ? "+$" + fmt(h.avgChildPerPax!) + "/pax" : "—"}</td>`
           ).join("");
 
           const bolCells = dHotels.map((h) =>
@@ -228,7 +244,7 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
             `</tr></thead><tbody>` +
             `<tr><td style="font-size:9px;line-height:1.5">Alojamiento ${esc(pTip)}<br>` +
             `<span style="opacity:.45;font-size:8px;font-weight:400">(hab. + act. + traslados)</span></td>${alojCells}</tr>` +
-            (dShowChd ? `<tr><td style="font-size:9px">CHD (niño 2-11)</td>${chdCells}</tr>` : "") +
+            (dShowChd ? `<tr><td style="font-size:9px">Suplemento menores <span style="opacity:.45;font-size:8px;font-weight:400">(/adulto)</span></td>${chdCells}</tr>` : "") +
             (dShowBol ? `<tr><td style="font-size:9px">&#9992; Boleto aéreo</td>${bolCells}</tr>` : "") +
             `<tr class="total-row"><td class="green" style="font-size:10px;text-transform:uppercase;` +
             `letter-spacing:1px;font-weight:900">PRECIO / PERSONA *</td>${totalCells}</tr>` +
@@ -565,13 +581,13 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                             {/* CHD row */}
                             {dHasChd && (
                               <tr>
-                                <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">CHD (niño 2–11)</td>
+                                <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">Suplemento menores<br /><span className="text-[9px] text-primary/30 font-normal">(/adulto)</span></td>
                                 {hotels.map((h) => {
                                   const isSel = h.hotelId === selByDestino[dId];
                                   return (
                                     <td key={h.hotelId} className={`px-3 py-2.5 text-center font-bold text-primary/60 ${isSel ? "bg-secondary/10" : ""}`}>
                                       {(h.avgChildPerPax ?? 0) > 0
-                                        ? `$${fmtN(h.avgChildPerPax!)}/pax`
+                                        ? `+$${fmtN(h.avgChildPerPax!)}/pax`
                                         : <span className="text-primary/20">—</span>}
                                     </td>
                                   );
@@ -766,7 +782,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                                 </span>
                                 {(h.avgChildPerPax ?? 0) > 0 && (
                                   <span className="text-[10px] text-primary/40 font-bold">
-                                    CHD: <strong className="text-primary/70">${h.avgChildPerPax!.toLocaleString()}</strong>/pax
+                                    Menores: <strong className="text-primary/70">+${h.avgChildPerPax!.toLocaleString()}</strong>/adulto
                                   </span>
                                 )}
                                 {(h.boletoPerPax ?? 0) > 0 && (

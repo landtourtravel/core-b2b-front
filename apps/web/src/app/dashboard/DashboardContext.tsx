@@ -12,12 +12,15 @@ export type HotelCompSnapshot = {
   destinoCiudad?: string;
   destinoPais?: string;
   tipoPax?: string;
-  adultColPerPax?: number;    // alojamiento + services + extra nights, per adult pax
+  adultColPerPax?: number;    // alojamiento (×noches ÷ocupación) + servicios, por adulto
   boletoPerPax?: number;      // flight price per pax (0 when not active)
+  // v3 fields: admin-parity breakdown for correct multi-destino combine
+  accomTotal?: number;        // alojamiento total de este hotel (adultos + niños) en su destino
+  sharedTotal?: number;       // servicios + boleto + markup (igual para todos los hoteles, se cuenta 1 vez)
   // Existing
-  avgChildPerPax: number | null;
+  avgChildPerPax: number | null;  // v3: suplemento de menores por adulto
   pricePerPax: number;        // full all-in price per adult pax (includes markup)
-  total: number;
+  total: number;              // accomTotal + sharedTotal — total single-stop de este hotel
   // Set to true on approval (multi-destino tracking)
   selected?: boolean;
 };

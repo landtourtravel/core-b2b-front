@@ -62,7 +62,7 @@ export async function GET() {
       // Deduplicate hotels by id (PaqueteHotelRef has one row per hotelId+tipoHabitacion)
       const hotelesMap = new Map<number, {
         id: number; nombre: string; estrellas: number;
-        destinoId: number; destinoCiudad: string;
+        destinoId: number; destinoCiudad: string; noches: number;
         tarifas: { tipoHabitacion: string; precioBase: number }[];
         politicaNinos: { id: number; rangoNombre: string; edadMin: number; edadMax: number; precio: number | null; tipoCobro: string | null }[];
       }>();
@@ -74,6 +74,8 @@ export async function GET() {
             estrellas: ph.hotel.estrellas,
             destinoId: ph.hotel.destino?.id ?? 0,
             destinoCiudad: ph.hotel.destino?.ciudad ?? "",
+            // Nights this hotel's stop covers (PaqueteHotel.noches — same across its room types).
+            noches: ph.noches ?? 1,
             tarifas: ph.hotel.tarifas.map((t) => ({
               tipoHabitacion: t.tipoHabitacion,
               precioBase: Number(t.precioBase),

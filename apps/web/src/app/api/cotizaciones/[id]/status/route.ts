@@ -71,7 +71,12 @@ export async function PATCH(
         ? selectedHotelIds[0]
         : (typeof selectedHotelId === "number" ? selectedHotelId : null);
       if (primaryId) updateData.selectedHotelId = primaryId;
-      if (typeof newTotal === "number") updateData.total = newTotal;
+      if (typeof newTotal === "number") {
+        updateData.total = newTotal;
+        // Mantener subtotal consistente: total = subtotal + boletoTotal + markup.
+        const derivedSubtotal = newTotal - cotizacion.boletoTotal - cotizacion.markup;
+        updateData.subtotal = derivedSubtotal > 0 ? derivedSubtotal : cotizacion.subtotal;
+      }
 
       // Mark selected hotels in comparison snapshot (v2 multi-destino support)
       const allIds = Array.isArray(selectedHotelIds) && selectedHotelIds.length > 0
