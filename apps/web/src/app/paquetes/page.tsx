@@ -78,8 +78,8 @@ export default function PaquetesPage() {
     const params = new URLSearchParams(window.location.search);
     const d = params.get("destino") ?? "";
     const f = params.get("fecha")   ?? "";
-    const a = params.get("adultos") ?? "2";
-    const n = params.get("ninos")   ?? "0";
+    const a = params.get("adultos") || "2";
+    const n = params.get("ninos")   || "0";
     setDestination(d);  setActiveDestination(d);
     setDate(f);         setActiveDate(f);
     setAdults(a);       setActiveAdults(a);
@@ -104,9 +104,14 @@ export default function PaquetesPage() {
       const loc = `${pkg.location.city} ${pkg.location.country}`.toLowerCase();
       const matchDestino = !activeDestination ||
         loc.includes(activeDestination.toLowerCase()) ||
-        pkg.title.toLowerCase().includes(activeDestination.toLowerCase());
+        pkg.title.toLowerCase().includes(activeDestination.toLowerCase()) ||
+        pkg.destinos?.some(d =>
+          d.ciudad.toLowerCase().includes(activeDestination.toLowerCase()) ||
+          d.pais.toLowerCase().includes(activeDestination.toLowerCase())
+        );
       const matchCity = !cityFilter ||
-        pkg.location.city.toLowerCase() === cityFilter.toLowerCase();
+        pkg.location.city.toLowerCase() === cityFilter.toLowerCase() ||
+        pkg.destinos?.some(d => d.ciudad.toLowerCase() === cityFilter.toLowerCase());
       const matchMin = !minPrice || pkg.price >= parseFloat(minPrice);
       const matchMax = !maxPrice || pkg.price <= parseFloat(maxPrice);
       // numPax / numNinos existen en la BD. Solo filtran cuando el valor es
@@ -145,8 +150,8 @@ export default function PaquetesPage() {
   const handleSearch = () => {
     setActiveDestination(destination);
     setActiveDate(date);
-    setActiveAdults(adults);
-    setActiveChildren(children);
+    setActiveAdults(adults || "2");
+    setActiveChildren(children || "0");
     setCurrentPage(1);
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };

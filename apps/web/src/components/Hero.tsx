@@ -23,8 +23,8 @@ export const Hero = () => {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (destination) params.set("destino", destination);
-    if (adults && adults !== "2") params.set("adultos", adults);
-    if (children !== "0") params.set("ninos", children);
+    params.set("adultos", adults || "2");
+    params.set("ninos", children || "0");
     // Fecha: solo referencial — se propaga a la URL pero NO filtra resultados
     // (los paquetes no tienen fechas de salida fijas en la BD).
     if (date) params.set("fecha", date);

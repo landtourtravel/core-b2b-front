@@ -10,10 +10,10 @@ import { useDashboard, type CotizacionExtended, type HotelCompSnapshot } from ".
 
 /**
  * Combines the selected hotels into one package total without double-counting the
- * shared cost (services + boleto + markup). v3 snapshots carry `accomTotal` (this
- * hotel's accommodation) and `sharedTotal` (the package-wide shared cost, identical
- * for every hotel): total = Σ accomTotal + sharedTotal (once). Falls back to summing
- * `total` for legacy v1/v2 snapshots that lack those fields.
+ * global cost (boleto + markup). v3 snapshots carry `accomTotal` (this stop's
+ * accommodation + its destino's local services) and `sharedTotal` (boleto + markup,
+ * identical for every hotel): total = Σ accomTotal + sharedTotal (once). Falls back to
+ * summing `total` for legacy v1/v2 snapshots that lack those fields.
  */
 function combineHotels(selHotels: HotelCompSnapshot[]): number {
   if (selHotels.length === 0) return 0;
@@ -232,9 +232,10 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
             `<td class="right">${(h.boletoPerPax ?? 0) > 0 ? "$" + fmt(h.boletoPerPax!) + "/pax" : "—"}</td>`
           ).join("");
 
-          const totalCells = dHotels.map((h) =>
-            `<td class="right green bold" style="font-size:13px">$${fmt(h.pricePerPax)}</td>`
-          ).join("");
+          const totalCells = dHotels.map((h) => {
+            const localP = (h.adultColPerPax != null ? h.adultColPerPax : h.pricePerPax) + (h.avgChildPerPax ?? 0);
+            return `<td class="right green bold" style="font-size:13px">$${fmt(pMulti ? localP : h.pricePerPax)}</td>`;
+          }).join("");
 
           return (
             `<div class="dest-group">` +
@@ -245,17 +246,26 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
             `<tr><td style="font-size:9px;line-height:1.5">Alojamiento ${esc(pTip)}<br>` +
             `<span style="opacity:.45;font-size:8px;font-weight:400">(hab. + act. + traslados)</span></td>${alojCells}</tr>` +
             (dShowChd ? `<tr><td style="font-size:9px">Suplemento menores <span style="opacity:.45;font-size:8px;font-weight:400">(/adulto)</span></td>${chdCells}</tr>` : "") +
-            (dShowBol ? `<tr><td style="font-size:9px">&#9992; Boleto aéreo</td>${bolCells}</tr>` : "") +
+            (!pMulti && dShowBol ? `<tr><td style="font-size:9px">&#9992; Boleto aéreo</td>${bolCells}</tr>` : "") +
             `<tr class="total-row"><td class="green" style="font-size:10px;text-transform:uppercase;` +
-            `letter-spacing:1px;font-weight:900">PRECIO / PERSONA *</td>${totalCells}</tr>` +
+            `letter-spacing:1px;font-weight:900">${pMulti ? "Subtotal tramo / pax" : "PRECIO / PERSONA *"}</td>${totalCells}</tr>` +
             `</tbody></table></div>`
           );
         }).join("");
+
+        // Global boleto line (once) for multi-destino proformas.
+        const pHasBol = hotelsForPrint.some((h) => (h.boletoPerPax ?? 0) > 0);
+        const globalHTML = (pMulti && pHasBol)
+          ? `<table class="hotel-comp-table" style="margin-top:6px"><tbody>` +
+            `<tr><td style="font-size:9px">&#9992; Boleto aéreo (una vez / pax)</td>` +
+            `<td class="right bold">$${fmt(hotelsForPrint[0]?.boletoPerPax ?? 0)}</td></tr></tbody></table>`
+          : "";
 
         hotelTableHTML = `
       <div class="section">
         <div class="section-title">${isApproved ? "Hotel(es) Seleccionado(s)" : "Comparativa de Alojamiento"}</div>
         ${groupsHTML}
+        ${globalHTML}
       </div>`;
       } else {
         // v1 backward compat
@@ -397,7 +407,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
         </tr>` : ""}
         <tr class="total-row">
           <td colspan="3" class="green">TOTAL</td>
-          <td class="right green">$${fmt(activeHotel?.total ?? cot.total)}</td>
+          <td class="right green">$${fmt(cot.total)}</td>
         </tr>
       </tbody>
     </table>
@@ -595,8 +605,8 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               </tr>
                             )}
 
-                            {/* Boleto row */}
-                            {dHasBol && (
+                            {/* Boleto row — por fila solo en single-destino (multi se muestra una vez abajo) */}
+                            {!isMultiDest && dHasBol && (
                               <tr>
                                 <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
                                   <span className="flex items-center gap-1"><Plane size={9} className="text-secondary/60" /> Boleto aéreo</span>
@@ -614,16 +624,17 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               </tr>
                             )}
 
-                            {/* PRECIO/PERSONA total row */}
+                            {/* Total de la fila: multi = subtotal del tramo (sin boleto/markup); single = precio final */}
                             <tr className="border-t-2 border-secondary/30">
                               <td className="px-3 py-3 font-black text-[10px] uppercase tracking-wider text-primary bg-primary/5 whitespace-nowrap">
-                                PRECIO / PERSONA *
+                                {isMultiDest ? "Subtotal tramo / pax" : "PRECIO / PERSONA *"}
                               </td>
                               {hotels.map((h) => {
-                                const isSel = h.hotelId === selByDestino[dId];
+                                const isSel   = h.hotelId === selByDestino[dId];
+                                const localP  = (h.adultColPerPax != null ? h.adultColPerPax : h.pricePerPax) + (h.avgChildPerPax ?? 0);
                                 return (
                                   <td key={h.hotelId} className={`px-3 py-3 text-center font-black text-secondary text-sm ${isSel ? "bg-secondary/15" : "bg-primary/5"}`}>
-                                    ${fmtN(h.pricePerPax)}
+                                    ${fmtN(isMultiDest ? localP : h.pricePerPax)}
                                   </td>
                                 );
                               })}
@@ -636,8 +647,18 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                   );
                 })}
 
+                {/* Costos globales (una sola vez) — solo multi-destino */}
+                {isMultiDest && hasBoleto && (
+                  <div className="flex justify-between text-[10px] font-bold text-primary/60 px-1">
+                    <span className="flex items-center gap-1"><Plane size={9} className="text-secondary/60" /> Boleto aéreo (una vez / pax)</span>
+                    <span>${fmtN(allHotels[0]?.boletoPerPax ?? 0)}</span>
+                  </div>
+                )}
+
                 <p className="text-[9px] font-bold text-primary/30 leading-relaxed">
-                  * Precio por persona incluye alojamiento, actividades y traslados{hasBoleto ? ", y boleto aéreo" : ""}. Sujeto a disponibilidad.
+                  {isMultiDest
+                    ? `* El subtotal por tramo cubre alojamiento y servicios locales de ese destino. El boleto aéreo${hasBoleto ? "" : " (si aplica)"} y la comisión se suman una sola vez al total, no por destino.`
+                    : `* Precio por persona incluye alojamiento, actividades y traslados${hasBoleto ? ", y boleto aéreo" : ""}. Sujeto a disponibilidad.`}
                 </p>
               </div>
             );
@@ -793,8 +814,12 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                               </div>
                             </div>
                             <div className="text-right shrink-0">
-                              <span className="text-sm font-black text-secondary">${h.total.toLocaleString()}</span>
-                              <span className="block text-[9px] text-primary/30 font-bold">USD</span>
+                              {/* Multi-destino: mostrar el total del tramo (aloj.+servicios locales) para no
+                                  inflar cada tarjeta con el boleto/markup global. Single: total completo. */}
+                              <span className="text-sm font-black text-secondary">
+                                ${(isMultiDest ? (h.accomTotal ?? h.total) : h.total).toLocaleString()}
+                              </span>
+                              <span className="block text-[9px] text-primary/30 font-bold">{isMultiDest ? "tramo" : "USD"}</span>
                             </div>
                           </button>
                         );

@@ -73,17 +73,27 @@ export default function PaquetesTab({
       ) : (() => {
         const pkgsFiltrados = packages.filter((pkg) => {
           if (!searchPkgTerm) return true;
-          const loc = `${pkg.location?.city || ""} ${pkg.location?.country || ""}`.toLowerCase();
-          return (
-            pkg.title.toLowerCase().includes(searchPkgTerm.toLowerCase()) ||
-            loc.includes(searchPkgTerm.toLowerCase())
+          const matchTerm = searchPkgTerm.toLowerCase();
+          const titleMatch = pkg.title.toLowerCase().includes(matchTerm);
+          const locationMatch = `${pkg.location?.city || ""} ${pkg.location?.country || ""}`.toLowerCase().includes(matchTerm);
+          const destinosMatch = pkg.destinos?.some(d =>
+            d.ciudad.toLowerCase().includes(matchTerm) ||
+            d.pais.toLowerCase().includes(matchTerm)
           );
+          return titleMatch || locationMatch || destinosMatch;
         });
         const byDestino = pkgsFiltrados.reduce<Record<string, { pais: string; pkgs: typeof pkgsFiltrados }>>((acc, pkg) => {
-          const ciudad = pkg.location?.city || "Sin destino";
-          const pais   = pkg.location?.country || "";
-          if (!acc[ciudad]) acc[ciudad] = { pais, pkgs: [] };
-          acc[ciudad].pkgs.push(pkg);
+          const processDestino = (ciudad: string, pais: string) => {
+            if (!acc[ciudad]) acc[ciudad] = { pais, pkgs: [] };
+            if (!acc[ciudad].pkgs.some(p => p.id === pkg.id)) {
+              acc[ciudad].pkgs.push(pkg);
+            }
+          };
+          if (pkg.destinos && pkg.destinos.length > 0) {
+            pkg.destinos.forEach(d => processDestino(d.ciudad, d.pais));
+          } else {
+            processDestino(pkg.location?.city || "Sin destino", pkg.location?.country || "");
+          }
           return acc;
         }, {});
         const destinos = Object.keys(byDestino).sort();

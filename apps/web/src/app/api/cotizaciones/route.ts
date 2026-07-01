@@ -6,6 +6,9 @@ import { logError } from "@/lib/logger";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
+/** Round to 2 decimals to avoid cent drift between UI and DB. */
+const r2 = (n: number) => Math.round(n * 100) / 100;
+
 function generateCodigo(agenciaId: string, userId: string, count: number): string {
   const agCod  = agenciaId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
   const usrCod = userId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
@@ -132,8 +135,9 @@ export async function POST(req: NextRequest) {
     .filter((h) => h.cantidad > 0)
     .map((h) => {
       const numPax = PAX_BY_TYPE[h.tipoPax] ?? 1;
-      const precioUnitario = h.precioPorPersona * numPax;
-      return { tipoPax: h.tipoPax, numPax, cantidad: h.cantidad, precioPorPersona: h.precioPorPersona, precioUnitario, subtotal: precioUnitario * h.cantidad };
+      const precioPorPersona = r2(h.precioPorPersona);
+      const precioUnitario = r2(precioPorPersona * numPax);
+      return { tipoPax: h.tipoPax, numPax, cantidad: h.cantidad, precioPorPersona, precioUnitario, subtotal: r2(precioUnitario * h.cantidad) };
     });
 
   try {
@@ -142,7 +146,7 @@ export async function POST(req: NextRequest) {
 
     // boletoTotal = precioBoleto × total passengers across all room types
     const totalPax = habitaciones.reduce((sum, h) => sum + h.numPax * h.cantidad, 0);
-    const boletoTotal = (incluyeBoleto && precioBoleto) ? precioBoleto * totalPax : 0;
+    const boletoTotal = (incluyeBoleto && precioBoleto) ? r2(precioBoleto * totalPax) : 0;
 
     const cotizacion = await prisma.cotizacion.create({
       data: {
@@ -154,9 +158,9 @@ export async function POST(req: NextRequest) {
         snapshotIncluye:  paqueteIncluye  ?? [],
         hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
         incluyeBoleto:    incluyeBoleto   ?? false,
-        precioBoleto:     precioBoleto    ?? null,
+        precioBoleto:     precioBoleto != null ? r2(precioBoleto) : null,
         boletoTotal,
-        subtotal, markup: markup ?? 0, total,
+        subtotal: r2(subtotal), markup: r2(markup ?? 0), total: r2(total),
         fechaViaje:   fechaViaje   ? new Date(fechaViaje)   : null,
         fechaRetorno: fechaRetorno ? new Date(fechaRetorno) : null,
         status: "BORRADOR",
