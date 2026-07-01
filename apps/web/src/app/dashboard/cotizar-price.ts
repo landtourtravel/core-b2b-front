@@ -145,7 +145,7 @@ export type HotelBreakdown = {
   childResults: ChildPriceResult[];
   /** Σ (childRate × noches) over all children — this hotel's destino. */
   childAccomTotal: number;
-  /** numNinos × (child local activities per child + local transfers per person). */
+  /** numNinos × (child local NINO activities per child). Transfers excluded (covered by adults' fare). */
   childServicesTotal: number;
   /** (childAccomTotal + childServicesTotal) ÷ numAdultos — prorated supplement per adult. */
   childSupplementPerAdult: number;
@@ -234,12 +234,15 @@ export function calcHotelBreakdown(
   );
   const servicesPerPax = actPerPax + trsPerPax;
 
-  // Children's own local services: child activity tariff per child + same transfer per person.
+  // Children's own local services: ONLY their child (NINO) activity tariff.
+  // Transfers are deliberately NOT added to children: the transfer cost is already
+  // covered in the adults' fare, and TarifaTraslado has no child-specific rate
+  // (no tipoPasajero column) — so there is nothing child-specific to charge.
   const childActPerChild = actividades.reduce(
     (s, a) => s + getActividadChildPerPax(a.tarifas, numNinos),
     0
   );
-  const childServicesTotal = numNinos > 0 ? numNinos * (childActPerChild + trsPerPax) : 0;
+  const childServicesTotal = numNinos > 0 ? numNinos * childActPerChild : 0;
 
   const childSupplementPerAdult =
     numAdultos > 0 ? (childAccomTotal + childServicesTotal) / numAdultos : 0;
