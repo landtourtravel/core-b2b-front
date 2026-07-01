@@ -105,14 +105,16 @@ export function getActividadChildPerPax(tarifas: CotHelperActTarifa[], numNinos:
 }
 
 /**
- * Per-person transfer price.
+ * Per-person transfer price for a given passenger count (`paxCount` selects the volume bracket).
+ * Callers pass the count of the pax type being charged (e.g. numAdultos), NOT total pax,
+ * so children excluded from transfers don't shift the bracket or the vehicle divisor.
  * POR_PERSONA → precio (already per person, added directly).
- * POR_VEHICULO → precio / totalPax (group cost split across passengers).
+ * POR_VEHICULO → precio / paxCount (group cost split across the charged passengers).
  */
-export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], totalPax: number): number {
-  const tarifa = tarifas.find((t) => totalPax >= t.paxMin && totalPax <= t.paxMax);
+export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], paxCount: number): number {
+  const tarifa = tarifas.find((t) => paxCount >= t.paxMin && paxCount <= t.paxMax);
   if (!tarifa) return 0;
-  if (tarifa.tipoCobro === "POR_VEHICULO") return totalPax > 0 ? tarifa.precio / totalPax : 0;
+  if (tarifa.tipoCobro === "POR_VEHICULO") return paxCount > 0 ? tarifa.precio / paxCount : 0;
   return tarifa.precio;
 }
 
@@ -228,8 +230,13 @@ export function calcHotelBreakdown(
     (s, a) => s + getActividadAdultPerPax(a.tarifas, numAdultos),
     0
   );
+  // Adult transfer bracket is chosen by numAdultos (NOT totalPax), mirroring
+  // getActividadAdultPerPax. Children are excluded from transfers (their cost is
+  // covered by the adults' fare), so they must not shift the adult volume bracket
+  // nor the POR_VEHICULO divisor — otherwise adults get the cheaper larger-group
+  // rate for a group size that isn't being charged.
   const trsPerPax = traslados.reduce(
-    (s, t) => s + getTrasladoPerPax(t.tarifas, totalPax),
+    (s, t) => s + getTrasladoPerPax(t.tarifas, numAdultos),
     0
   );
   const servicesPerPax = actPerPax + trsPerPax;
