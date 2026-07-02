@@ -48,6 +48,22 @@ export function getChildPriceForAge(
 }
 
 /**
+ * Ages of the children whose age is NOT covered by any of the hotel's PoliticaNinos
+ * ranges. Uses the SAME match rule as `getChildPriceForAge` (single source of truth):
+ * an uncovered child is charged the adult rate (`aplica: false`). Returns [] when the
+ * hotel covers every child (or there are no children). Does NOT hide the hotel — the
+ * UI shows an advisory warning and keeps the card selectable.
+ */
+export function getUncoveredChildAges(
+  hotel: Pick<CotHelperHotel, "politicaNinos">,
+  childAges: number[]
+): number[] {
+  return childAges.filter(
+    (age) => !hotel.politicaNinos.some((p) => age >= p.edadMin && age <= p.edadMax)
+  );
+}
+
+/**
  * Total activity cost for the group.
  * Finds the ADULTO tariff for numAdultos range and NINO tariff for numNinos range.
  * Returns 0 if no matching tariff found.

@@ -25,6 +25,7 @@ import {
   User,
   Download,
   AlertCircle,
+  AlertTriangle,
   MapPin,
   Calendar,
   Building2,
@@ -53,12 +54,13 @@ import PaquetesTab from "./components/PaquetesTab";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
+  getUncoveredChildAges,
   type HotelBreakdown,
 } from "./cotizar-price";
 
 // ─── Cotizar-datos API types ──────────────────────────────────────────────────
 interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
-interface CotHotel { id: number; nombre: string; estrellas: number; tarifas: CotHotelTarifa[] }
+interface CotHotel { id: number; nombre: string; estrellas: number; tarifas: CotHotelTarifa[]; politicaNinos: CotPoliticaNinos[] }
 interface CotActividadTarifa { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }
 interface CotActividad { id: number; nombre: string; descripcion: string | null; tarifas: CotActividadTarifa[] }
 interface CotTrasladoTarifa { precio: number; tipoCobro: string; paxMin: number; paxMax: number }
@@ -109,6 +111,42 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
   APROBADA:  "bg-emerald-500",
   RECHAZADA: "bg-rose-500",
 };
+
+// ─── Aviso de política de niños (edad no cubierta) ────────────────────────────
+// Muestra un warning ámbar dentro de la card del hotel cuando la edad de uno o más
+// niños no cae en ningún rango de PoliticaNinos. NO bloquea la selección: el niño se
+// cotiza a tarifa de adulto (coherente con getChildPriceForAge → aplica:false).
+function formatEdades(ages: number[]): string {
+  if (ages.length === 1) return `${ages[0]} años`;
+  return `${ages.slice(0, -1).join(", ")} y ${ages[ages.length - 1]} años`;
+}
+function ChildPolicyWarning({
+  politicaNinos,
+  childAges,
+  className = "",
+}: {
+  politicaNinos: CotPoliticaNinos[];
+  childAges: number[];
+  className?: string;
+}) {
+  const uncovered = getUncoveredChildAges({ politicaNinos }, childAges);
+  if (uncovered.length === 0) return null;
+  const edadesTxt = formatEdades(uncovered);
+  const plural = uncovered.length !== 1;
+  return (
+    <div className={`flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl ${className}`}>
+      <AlertTriangle size={12} className="text-amber-600 shrink-0 mt-0.5" />
+      <div className="min-w-0">
+        <p className="text-[10px] font-black text-amber-700 leading-snug">
+          {uncovered.length} niño{plural ? "s" : ""} sin política de edad ({edadesTxt})
+        </p>
+        <p className="text-[10px] font-semibold text-amber-600/90 leading-snug mt-0.5">
+          Este hotel cobrará tarifa de adulto para {plural ? "los niños" : "el niño"} de {edadesTxt} al no contar con políticas de rango de edad disponibles.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // ─── T&C static text ──────────────────────────────────────────────────────────
 const TERMINOS_CONDICIONES = `Los precios indicados son por persona en la categoría de habitación seleccionada y están sujetos a disponibilidad hotelera al momento de la reserva. Land Tour Travel actúa como operador mayorista; la agencia minorista es responsable de la relación comercial con el cliente final. El pago del depósito de reserva (40% del total) es obligatorio para confirmar los servicios. Cancelaciones con menos de 15 días de anticipación están sujetas a penalidades del 50%. Los vuelos, cuando son incluidos, están sujetos a las políticas de la aerolínea operadora. Land Tour Travel no se responsabiliza por cambios de vuelo, demoras o cancelaciones por parte de la aerolínea. El pasajero es responsable de contar con documentación vigente (pasaporte, visa si aplica). Las tarifas de niños aplican para menores de 2 a 11 años compartiendo habitación con adultos. El markup/comisión de agencia no es visible para el cliente final en los documentos exportados.`;
@@ -2447,6 +2485,13 @@ function doApprove() {
                                                 <div className="mt-3 text-[10px] font-bold text-primary/50 uppercase tracking-wide">
                                                   {occupancyLabel}
                                                 </div>
+                                                {cotNumNinos > 0 && (
+                                                  <ChildPolicyWarning
+                                                    politicaNinos={hotel.politicaNinos}
+                                                    childAges={cotNinosEdades}
+                                                    className="mt-3"
+                                                  />
+                                                )}
                                               </div>
                                             );
                                           })}

@@ -13,7 +13,7 @@ export async function GET() {
     const destinos = await prisma.destinoRef.findMany({
       include: {
         hoteles: {
-          include: { tarifas: true },
+          include: { tarifas: true, politicaNinos: true },
           orderBy: { estrellas: "desc" },
         },
         actividades: {
@@ -168,6 +168,11 @@ export async function GET() {
           tarifas: h.tarifas.map((t) => ({
             tipoHabitacion: t.tipoHabitacion,
             precioBase: t.precioBase,
+          })),
+          politicaNinos: h.politicaNinos.map((pol) => ({
+            edadMin: pol.edadMin,
+            edadMax: pol.edadMax,
+            precio: pol.precio ?? null,
           })),
         })),
         actividades: d.actividades.map((a) => ({
