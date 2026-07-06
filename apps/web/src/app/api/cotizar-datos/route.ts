@@ -47,6 +47,25 @@ export async function GET() {
       orderBy: { nombre: "asc" },
     });
 
+    // Child air-fare fields (precioBoletoNino, permiteBoletoNino) live on Paquete but are
+    // managed by lt-core-admin and may not exist as columns yet. Read them defensively so
+    // this endpoint keeps working before lt-core-admin adds them. When absent → null
+    // (the cotizador treats null as "use the adult fare as fallback, no block").
+    const boletoNinoMap = new Map<number, { precioBoletoNino: number | null; permiteBoletoNino: boolean | null }>();
+    try {
+      const rows = await prisma.$queryRaw<
+        { id: number; precioBoletoNino: number | null; permiteBoletoNino: boolean | null }[]
+      >`SELECT "id", "precioBoletoNino", "permiteBoletoNino" FROM "Paquete" WHERE "visibleEnFront" = true`;
+      rows.forEach((r) =>
+        boletoNinoMap.set(r.id, {
+          precioBoletoNino: r.precioBoletoNino != null ? Number(r.precioBoletoNino) : null,
+          permiteBoletoNino: r.permiteBoletoNino ?? null,
+        })
+      );
+    } catch {
+      // Columns not present yet — child fare stays null for every package.
+    }
+
     const paquetesMapeados = paquetes.map((p) => {
       // Unique destinations from hotels (preserves order of first occurrence)
       const destinosMap = new Map<number, { id: number; ciudad: string; pais: string }>();
@@ -113,6 +132,8 @@ export async function GET() {
         nochesBase: p.nochesBase,
         incluyeBoleto: p.incluyeBoleto,
         precioBoleto: p.precioBoleto ?? null,
+        precioBoletoNino: boletoNinoMap.get(p.id)?.precioBoletoNino ?? null,
+        permiteBoletoNino: boletoNinoMap.get(p.id)?.permiteBoletoNino ?? null,
         descripcionBoleto: p.descripcionBoleto ?? null,
         permitirModificarBoleto: p.permitirModificarBoleto,
         permitirModificarNoches: p.permitirModificarNoches,
@@ -148,7 +169,7 @@ export async function GET() {
           destinoCiudad: pt.traslado.destino?.ciudad ?? "",
           tarifas: pt.traslado.tarifas.map((t) => ({
             precio: Number(t.precio),
-            tipoCobro: t.tipoCobro,
+            tipoPasajero: t.tipoPasajero,
             paxMin: t.paxMin,
             paxMax: t.paxMax,
           })),
@@ -191,7 +212,7 @@ export async function GET() {
           tipo: t.tipo,
           tarifas: t.tarifas.map((tt) => ({
             precio: tt.precio,
-            tipoCobro: tt.tipoCobro,
+            tipoPasajero: tt.tipoPasajero,
             paxMin: tt.paxMin,
             paxMax: tt.paxMax,
           })),

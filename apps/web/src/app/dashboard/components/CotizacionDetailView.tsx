@@ -7,6 +7,9 @@ import {
 import { COTIZACION_STATUS_LABEL, resumenPasajeros } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended, type HotelCompSnapshot } from "../DashboardContext";
+import { combineComboLegs, type ComboLeg } from "../cotizar-price";
+
+const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
 /**
  * Combines the selected hotels into one package total without double-counting the
@@ -121,6 +124,30 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
   const hotelsForPrint = isApproved
     ? (allHotels.some((h) => h.selected) ? allHotels.filter((h) => h.selected) : (activeHotel ? [activeHotel] : allHotels))
     : allHotels;
+
+  // Explicit per-person adult/child prices for the current hotel selection (v4 snapshots).
+  // All-in (accom + local services + boleto + markup share) — display only, does not alter totals.
+  const hasV4Split = allHotels.length > 0 && allHotels[0].adultAccomTotal != null;
+  const numNinos   = (cot.pasajeros as any)?.cantCHD ?? 0;
+  const numAdultos = (["SGL", "DBL", "TPL", "QUAD"] as const).reduce(
+    (s, t) => s + (((cot.pasajeros as any)?.[`cant${t}`] ?? 0) as number) * PAX_BY_TYPE[t], 0);
+  const selectedLegRows = destiEntries
+    .map(([dId]) => allHotels.find((h) => h.hotelId === selByDestino[dId]))
+    .filter(Boolean) as HotelCompSnapshot[];
+  const perPersonPrices = (hasV4Split && destiEntries.length > 0 && selectedLegRows.length === destiEntries.length)
+    ? combineComboLegs(
+        selectedLegRows.map((h): ComboLeg => ({
+          adultAccomTotal:    h.adultAccomTotal ?? 0,
+          adultServicesTotal: h.adultServicesTotal ?? 0,
+          childAccomTotal:    h.childAccomTotal ?? 0,
+          childServicesTotal: h.childServicesTotal ?? 0,
+        })),
+        numAdultos, numNinos,
+        allHotels[0].boletoPerPax ?? 0,
+        allHotels[0].boletoChildPerPax ?? 0,
+        cot.markup ?? 0,
+      )
+    : null;
 
   // ─── Approve ──────────────────────────────────────────────────────
   const handleApprove = async () => {
@@ -664,6 +691,37 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
             );
           })()}
 
+          {/* Precio por persona — Adulto y Niño por separado (selección actual) */}
+          {perPersonPrices && (
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+              <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-4">
+                Precio por Persona {isApproved ? "(confirmado)" : "(según selección)"}
+              </span>
+              <div className={`grid gap-3 ${numNinos > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
+                <div className="rounded-2xl border border-secondary/20 bg-secondary/5 p-4 text-center">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-primary/40 mb-1">Adulto</p>
+                  <p className="text-lg font-black text-primary">
+                    ${perPersonPrices.precioAdulto % 1 === 0 ? perPersonPrices.precioAdulto.toLocaleString() : perPersonPrices.precioAdulto.toFixed(2)}
+                    <span className="text-[9px] font-bold text-primary/40"> /pax</span>
+                  </p>
+                </div>
+                {numNinos > 0 && (
+                  <div className="rounded-2xl border border-secondary/20 bg-secondary/5 p-4 text-center">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-primary/40 mb-1">Niño</p>
+                    <p className="text-lg font-black text-primary">
+                      ${perPersonPrices.precioNino % 1 === 0 ? perPersonPrices.precioNino.toLocaleString() : perPersonPrices.precioNino.toFixed(2)}
+                      <span className="text-[9px] font-bold text-primary/40"> /niño</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+              <p className="text-[8px] text-primary/30 font-bold mt-2 leading-relaxed">
+                Precio all-in por persona (alojamiento, actividades, traslados{(allHotels[0]?.boletoPerPax ?? 0) > 0 ? ", boleto aéreo" : ""}{(cot.markup ?? 0) > 0 ? " y comisión" : ""}).
+                {numNinos > 0 ? " El niño se calcula por separado del adulto." : ""}
+              </p>
+            </div>
+          )}
+
           {/* Pricing table */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
             <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-4">Desglose de Precios</span>
@@ -683,7 +741,7 @@ td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bot
                     if (!qty) return null;
                     return (
                       <tr key={t} className="hover:bg-light/50">
-                        <td className="px-3 py-2.5 font-black text-primary">{t}</td>
+                        <td className="px-3 py-2.5 font-black text-primary">{t === "CHD" ? "Niño" : t}</td>
                         <td className="px-3 py-2.5 font-black text-secondary">${precio.toLocaleString()}</td>
                         <td className="px-3 py-2.5 text-primary/60">{qty}</td>
                         <td className="px-3 py-2.5 font-black text-primary">${(precio * qty).toLocaleString()}</td>

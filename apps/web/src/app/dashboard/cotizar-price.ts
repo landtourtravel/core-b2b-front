@@ -14,7 +14,10 @@ export type CotHelperHotel = {
 export type CotHelperActTarifa = { precio: number; tipoPasajero: string; paxMin: number; paxMax: number };
 export type CotHelperActividad = { id: number; nombre: string; descripcion: string | null; tarifas: CotHelperActTarifa[] };
 
-export type CotHelperTrsTarifa = { precio: number; tipoCobro: string; paxMin: number; paxMax: number };
+// TarifaTraslado migró de `tipoCobro` (POR_PERSONA/POR_VEHICULO) a `tipoPasajero`
+// (ADULTO/NINO) — igual que TarifaActividad. El traslado es siempre por persona con
+// bracket por cantidad de pax; ya no existe el costo por vehículo.
+export type CotHelperTrsTarifa = { precio: number; tipoPasajero: string; paxMin: number; paxMax: number };
 export type CotHelperTraslado = { id: number; tipo: string; tarifas: CotHelperTrsTarifa[] };
 
 // ── Individual helpers ────────────────────────────────────────────────────────
@@ -86,14 +89,11 @@ export function getActividadGroupPrice(
 }
 
 /**
- * Total transfer cost for the group.
- * POR_PERSONA: precio × totalPax.
- * POR_VEHICULO: precio flat (one vehicle covers the group).
+ * Total adult transfer cost for the group = per-adult rate × numAdultos.
+ * (Kept for compatibility; the per-person helper below is what the breakdown uses.)
  */
-export function getTrasladoGroupPrice(tarifas: CotHelperTrsTarifa[], totalPax: number): number {
-  const tarifa = tarifas.find((t) => totalPax >= t.paxMin && totalPax <= t.paxMax);
-  if (!tarifa) return 0;
-  return tarifa.tipoCobro === "POR_VEHICULO" ? tarifa.precio : tarifa.precio * totalPax;
+export function getTrasladoGroupPrice(tarifas: CotHelperTrsTarifa[], numAdultos: number): number {
+  return getTrasladoPerPax(tarifas, numAdultos) * numAdultos;
 }
 
 // ── Per-person service helpers (DB stores activity/transfer prices per person) ──
@@ -121,17 +121,18 @@ export function getActividadChildPerPax(tarifas: CotHelperActTarifa[], numNinos:
 }
 
 /**
- * Per-person transfer price for a given passenger count (`paxCount` selects the volume bracket).
- * Callers pass the count of the pax type being charged (e.g. numAdultos), NOT total pax,
- * so children excluded from transfers don't shift the bracket or the vehicle divisor.
- * POR_PERSONA → precio (already per person, added directly).
- * POR_VEHICULO → precio / paxCount (group cost split across the charged passengers).
+ * Per-person ADULT transfer price for a given passenger count (`paxCount` selects the
+ * volume bracket). Callers pass the count of the pax type being charged (e.g. numAdultos).
+ * Mirrors `getActividadAdultPerPax`: picks the ADULTO tariff whose [paxMin,paxMax] covers
+ * `paxCount` and returns its per-person price. Children are charged this same adult rate
+ * (owner's rule 2026-07-05), so the breakdown reuses this value for each child too.
  */
 export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], paxCount: number): number {
-  const tarifa = tarifas.find((t) => paxCount >= t.paxMin && paxCount <= t.paxMax);
-  if (!tarifa) return 0;
-  if (tarifa.tipoCobro === "POR_VEHICULO") return paxCount > 0 ? tarifa.precio / paxCount : 0;
-  return tarifa.precio;
+  return (
+    tarifas.find(
+      (t) => t.tipoPasajero === "ADULTO" && paxCount >= t.paxMin && paxCount <= t.paxMax
+    )?.precio ?? 0
+  );
 }
 
 // ── Composite breakdown ───────────────────────────────────────────────────────
@@ -163,7 +164,11 @@ export type HotelBreakdown = {
   childResults: ChildPriceResult[];
   /** Σ (childRate × noches) over all children — this hotel's destino. */
   childAccomTotal: number;
-  /** numNinos × (child local NINO activities per child). Transfers excluded (covered by adults' fare). */
+  /**
+   * numNinos × (child NINO activities per child + adult transfer per pax).
+   * Per owner's rule (2026-07-05) the child now pays the SAME transfer fare as an
+   * adult (`trsPerPax`), reversing the earlier exclusion.
+   */
   childServicesTotal: number;
   /** (childAccomTotal + childServicesTotal) ÷ numAdultos — prorated supplement per adult. */
   childSupplementPerAdult: number;
@@ -171,6 +176,8 @@ export type HotelBreakdown = {
   // ── Accommodation + local-services totals (this hotel's destino contribution) ──
   /** adultAccomPerAdult × numAdultos. */
   adultAccomTotal: number;
+  /** servicesPerPax × numAdultos — adult local services of THIS destino. */
+  adultServicesTotal: number;
   /** adultAccomTotal + childAccomTotal (accommodation only). */
   accomTotal: number;
   /** servicesPerPax × numAdultos + childServicesTotal — local services of THIS destino. */
@@ -179,9 +186,16 @@ export type HotelBreakdown = {
   stopTotal: number;
 
   // ── Global components (identical for every hotel; counted ONCE per package) ─
+  /** Adult air fare per pax (0 when flight inactive). */
   boletoPerPax: number;
+  /** Child air fare per pax (0 when flight inactive or no child fare declared). */
+  boletoChildPerPax: number;
   markupPerPax: number;
-  boletoTotal: number;          // boletoPerPax × totalPax
+  /** boletoPerPax × numAdultos. */
+  boletoAdultoTotal: number;
+  /** boletoChildPerPax × numNinos. */
+  boletoChildTotal: number;
+  boletoTotal: number;          // boletoAdultoTotal + boletoChildTotal
   /** boletoTotal + agencyMarkup — the ONLY truly global cost, counted once. */
   sharedTotal: number;
 
@@ -224,7 +238,9 @@ export function calcHotelBreakdown(
   flightActive: boolean,
   flightPrice: number,
   agencyMarkup: number,
-  noches: number
+  noches: number,
+  /** Child air fare per pax. Defaults to `flightPrice` (adult fare) when omitted. */
+  flightPriceChild: number = flightPrice
 ): HotelBreakdown {
   const numNinos = cotNinosEdades.length;
   const totalPax = numAdultos + numNinos;
@@ -257,28 +273,35 @@ export function calcHotelBreakdown(
   );
   const servicesPerPax = actPerPax + trsPerPax;
 
-  // Children's own local services: ONLY their child (NINO) activity tariff.
-  // Transfers are deliberately NOT added to children: the transfer cost is already
-  // covered in the adults' fare, and TarifaTraslado has no child-specific rate
-  // (no tipoPasajero column) — so there is nothing child-specific to charge.
+  // Children's own local services: child (NINO) activity tariff + the ADULT transfer
+  // fare per person. Per owner's rule (2026-07-05) the child is charged the same
+  // transfer as an adult (`trsPerPax`), so it is added here per child. This reverses
+  // the earlier exclusion; TarifaTraslado still has no child-specific rate, so the
+  // adult per-pax value is the fare applied to each child.
   const childActPerChild = actividades.reduce(
     (s, a) => s + getActividadChildPerPax(a.tarifas, numNinos),
     0
   );
-  const childServicesTotal = numNinos > 0 ? numNinos * childActPerChild : 0;
+  const childServicesTotal = numNinos > 0 ? numNinos * (childActPerChild + trsPerPax) : 0;
 
   const childSupplementPerAdult =
     numAdultos > 0 ? (childAccomTotal + childServicesTotal) / numAdultos : 0;
 
   // ── Per-destino totals ────────────────────────────────────────────────────
   const accomTotal = adultAccomTotal + childAccomTotal;
-  const servicesLocalTotal = servicesPerPax * numAdultos + childServicesTotal;
+  const adultServicesTotal = servicesPerPax * numAdultos;
+  const servicesLocalTotal = adultServicesTotal + childServicesTotal;
   const stopTotal = accomTotal + servicesLocalTotal;
 
   // ── Global (hotel-independent) totals — counted ONCE per package ───────────
+  // Boleto is now split by passenger type: adults pay `flightPrice`, children pay
+  // `flightPriceChild` (defaults to the adult fare when no child fare is declared).
   const boletoPerPax = flightActive ? flightPrice : 0;
+  const boletoChildPerPax = flightActive ? flightPriceChild : 0;
   const markupPerPax = totalPax > 0 ? agencyMarkup / totalPax : 0;
-  const boletoTotal = boletoPerPax * totalPax;
+  const boletoAdultoTotal = boletoPerPax * numAdultos;
+  const boletoChildTotal = boletoChildPerPax * numNinos;
+  const boletoTotal = boletoAdultoTotal + boletoChildTotal;
   const sharedTotal = boletoTotal + agencyMarkup;
 
   // ── Composed ──────────────────────────────────────────────────────────────
@@ -299,11 +322,15 @@ export function calcHotelBreakdown(
     childServicesTotal,
     childSupplementPerAdult,
     adultAccomTotal,
+    adultServicesTotal,
     accomTotal,
     servicesLocalTotal,
     stopTotal,
     boletoPerPax,
+    boletoChildPerPax,
     markupPerPax,
+    boletoAdultoTotal,
+    boletoChildTotal,
     boletoTotal,
     sharedTotal,
     adultColPerPax,
@@ -311,5 +338,85 @@ export function calcHotelBreakdown(
     total,
     pricePerPax,
     avgChildPerPax: childSupplementPerAdult,
+  };
+}
+
+// ── Multi-destino combinations ────────────────────────────────────────────────
+// A "combination" is one chosen hotel per destino (e.g. París H1 + Cancún H2). The
+// helpers below build every combination (cartesian product) and price it with the
+// per-person adult/child split. Boleto and markup are GLOBAL — counted once per combo.
+
+/** Cartesian product of N groups → every way to pick one item from each group. */
+export function cartesian<T>(groups: T[][]): T[][] {
+  if (groups.length === 0) return [];
+  return groups.reduce<T[][]>(
+    (acc, group) => acc.flatMap((combo) => group.map((item) => [...combo, item])),
+    [[]]
+  );
+}
+
+/** One stop's accommodation + local-services split (adult vs child), from a breakdown or snapshot. */
+export type ComboLeg = {
+  adultAccomTotal: number;
+  adultServicesTotal: number;
+  childAccomTotal: number;
+  childServicesTotal: number;
+};
+
+export type ComboTotals = {
+  adultAccom: number;
+  adultServices: number;
+  childAccom: number;
+  childServices: number;
+  boletoAdultoTotal: number;
+  boletoChildTotal: number;
+  markup: number;
+  /** All-in per adult (accom + services + adult boleto + adult markup share). */
+  precioAdulto: number;
+  /** All-in per child (accom + services + child boleto + child markup share). */
+  precioNino: number;
+  /** accom + services across all legs (NO boleto/markup). */
+  subtotal: number;
+  /** Full combination total (adults + children, boleto + markup once). */
+  total: number;
+};
+
+/**
+ * Aggregates one combination (one leg per destino) into per-person adult/child prices.
+ * Boleto (adult + child fares) and agency markup are added ONCE for the whole combo.
+ * The markup is distributed across every pax (adults + children) proportionally, so
+ * `precioAdulto × numAdultos + precioNino × numNinos === total`.
+ */
+export function combineComboLegs(
+  legs: ComboLeg[],
+  numAdultos: number,
+  numNinos: number,
+  boletoAdultoPerPax: number,
+  boletoNinoPerPax: number,
+  agencyMarkup: number
+): ComboTotals {
+  const adultAccom = legs.reduce((s, l) => s + l.adultAccomTotal, 0);
+  const adultServices = legs.reduce((s, l) => s + l.adultServicesTotal, 0);
+  const childAccom = legs.reduce((s, l) => s + l.childAccomTotal, 0);
+  const childServices = legs.reduce((s, l) => s + l.childServicesTotal, 0);
+  const totalPax = numAdultos + numNinos;
+  const boletoAdultoTotal = boletoAdultoPerPax * numAdultos;
+  const boletoChildTotal = boletoNinoPerPax * numNinos;
+  const markupAdulto = totalPax > 0 ? (agencyMarkup * numAdultos) / totalPax : 0;
+  const markupNino = totalPax > 0 ? (agencyMarkup * numNinos) / totalPax : 0;
+  const adultAll = adultAccom + adultServices + boletoAdultoTotal + markupAdulto;
+  const childAll = childAccom + childServices + boletoChildTotal + markupNino;
+  return {
+    adultAccom,
+    adultServices,
+    childAccom,
+    childServices,
+    boletoAdultoTotal,
+    boletoChildTotal,
+    markup: agencyMarkup,
+    precioAdulto: numAdultos > 0 ? adultAll / numAdultos : 0,
+    precioNino: numNinos > 0 ? childAll / numNinos : 0,
+    subtotal: adultAccom + adultServices + childAccom + childServices,
+    total: adultAll + childAll,
   };
 }
