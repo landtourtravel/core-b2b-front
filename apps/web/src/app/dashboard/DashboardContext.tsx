@@ -23,6 +23,10 @@ export type HotelCompSnapshot = {
   childAccomTotal?: number;     // alojamiento niños de ESTE destino
   childServicesTotal?: number;  // servicios locales niños de ESTE destino (incluye traslado @ tarifa adulto)
   boletoChildPerPax?: number;   // child flight price per pax (global; 0 when not active)
+  // Si el paquete tiene el boleto NO modificable, el B2B no debe ver su precio:
+  // se muestra "Incluido" en vez del monto (en pantalla y en el PDF). El monto sigue
+  // sumado al total; solo se oculta la cifra. undefined/false = precio visible (legado).
+  boletoPrecioOculto?: boolean;
   // Existing
   avgChildPerPax: number | null;  // v3: suplemento de menores por adulto (legacy display)
   pricePerPax: number;        // full all-in price per adult pax (includes markup)

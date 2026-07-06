@@ -52,6 +52,7 @@ import { DashboardContext, type CotizacionExtended, type HotelCompSnapshot } fro
 import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
 import CotizacionesTab from "./components/CotizacionesTab";
+import CotizacionDetailView from "./components/CotizacionDetailView";
 import {
   calcHotelBreakdown,
   getUncoveredChildAges,
@@ -204,6 +205,8 @@ export default function DashboardPage() {
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("dashboard");
+  // Cotización abierta como documento (vista CotizacionDetailView). null = mostrar tabs.
+  const [managedCotId, setManagedCotId] = useState<string | null>(null);
 
   // ── Packages ─────────────────────────────────────────────────────────────────
   const [packages, setPackages]             = useState<Package[]>([]);
@@ -548,6 +551,11 @@ export default function DashboardPage() {
   const cotSelectedPkg     = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
   const cotSelectedDestino = cotizarData?.destinos.find((d) => d.id === cotSelectedDestinoId) ?? null;
   const cotFlightActive    = cotFlightOverride !== null ? cotFlightOverride : (cotSelectedPkg?.incluyeBoleto ?? false);
+  // El precio del boleto solo es visible para el B2B cuando el paquete permite
+  // modificarlo. Si permitirModificarBoleto === false, el boleto se suma al total
+  // pero su monto NO se muestra en el cotizador (solo se indica que está incluido).
+  const cotBoletoPrecioVisible =
+    cotMode !== "catalogo" || (cotSelectedPkg?.permitirModificarBoleto ?? true);
   // Boleto de niño bloqueado: paquete que prohíbe explícitamente boleto de niño
   // (permiteBoletoNino === false) con boleto activo y menores en la cotización.
   const childBoletoBlocked =
@@ -830,9 +838,26 @@ export default function DashboardPage() {
   const cotDuracion = cotMode === "catalogo"
     ? `${cotSelectedPkg?.diasEstancia ?? "—"} Días / ${cotSelectedPkg?.nochesBase ?? "—"} Noches`
     : `${cotCustomDias} Días / ${cotNoches} Noches`;
+  // Fechas en formato día/mes/año (los inputs date entregan YYYY-MM-DD).
+  const fmtFechaDMY = (iso: string) => {
+    const [y, m, d] = (iso || "").split("-");
+    return d && m && y ? `${d}/${m}/${y}` : iso;
+  };
   const cotFechasDisplay = cotFechaSalida
-    ? `${cotFechaSalida}${cotFechaRetorno ? ` → ${cotFechaRetorno}` : ""}`
+    ? `${fmtFechaDMY(cotFechaSalida)}${cotFechaRetorno ? ` → ${fmtFechaDMY(cotFechaRetorno)}` : ""}`
     : "Según disponibilidad";
+
+  // Nombre del paquete y resumen de pasajeros (adultos + niños declarados en el Paso 1).
+  const cotPaqueteNombre = cotMode === "catalogo"
+    ? (cotSelectedPkg?.nombre ?? "—")
+    : "Cotización libre";
+  const cotPasajerosDisplay = (() => {
+    const parts: string[] = [];
+    if (cotNumPersonas > 0) parts.push(`${cotNumPersonas} Adulto${cotNumPersonas !== 1 ? "s" : ""}`);
+    if (cotNumNinos > 0) parts.push(`${cotNumNinos} Niño${cotNumNinos !== 1 ? "s" : ""}`);
+    const totalPax = cotNumPersonas + cotNumNinos;
+    return parts.length > 0 ? `${parts.join(" + ")} (${totalPax} pax)` : "—";
+  })();
 
   // KPIs
   const kpiTotal      = cotizaciones.length;
@@ -962,7 +987,7 @@ export default function DashboardPage() {
     const now    = new Date();
     const fecha  = now.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
     const cliId  = `cli-${Date.now()}`;
-    const codigo = `PRF-${now.getFullYear()}-${String(cotizaciones.length + 1).padStart(3, "0")}`;
+    const codigo = `COT-${now.getFullYear()}-${String(cotizaciones.length + 1).padStart(3, "0")}`;
     const sessionAgenciaId = (sessionData?.user as any)?.agenciaId ?? "unknown";
     const sessionUserId    = (sessionData?.user as any)?.id ?? "unknown";
 
@@ -994,6 +1019,7 @@ export default function DashboardPage() {
               childAccomTotal:    r2(bd.childAccomTotal),
               childServicesTotal: r2(bd.childServicesTotal),
               boletoChildPerPax:  r2(bd.boletoChildPerPax),
+              boletoPrecioOculto: !cotBoletoPrecioVisible,
               pricePerPax:      r2(bd.pricePerPax),
               avgChildPerPax:   bd.childSupplementPerAdult > 0 ? r2(bd.childSupplementPerAdult) : null,
               total:            r2(bd.total),
@@ -1095,429 +1121,6 @@ export default function DashboardPage() {
         } catch {}
       }
     } catch {}
-  };
-
-  // ── Unified preview/approval popup ───────────────────────────────────────────
-  const handleOpenPreview = (cot: CotizacionExtended) => {
-    const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const fmt = (n: number) => (n % 1 === 0 ? n.toLocaleString("es-EC") : n.toFixed(2));
-    const safeJSON = (v: unknown) => JSON.stringify(v).replace(/<\/script>/gi, "<\\/script>");
-    const today = new Date().toLocaleDateString("es-EC", { day: "2-digit", month: "long", year: "numeric" });
-    const isApproved = cot.status === "APROBADA";
-    const canApprove = cot.status === "BORRADOR" || cot.status === "ENVIADA";
-    const hasComparison = (cot.hotelsComparison?.length ?? 0) > 0;
-    const currentSelectedHotelId = cot.selectedHotelId ?? null;
-    const activeHotel = cot.hotelsComparison?.find((h) => h.hotelId === currentSelectedHotelId) ?? null;
-
-    const tipos = ["SGL", "DBL", "TPL", "QUAD", "CHD"] as const;
-    const typeLabelMap: Record<string, string> = {
-      SGL: "Sencilla", DBL: "Doble", TPL: "Triple", QUAD: "Cuádruple", CHD: "Niño (2-11)",
-    };
-    const rooms = tipos
-      .map((t) => ({
-        t,
-        qty:    ((cot.pasajeros as unknown) as Record<string, number>)[`cant${t}`]  ?? 0,
-        precio: ((cot.precios   as unknown) as Record<string, number>)[`precio${t}`] ?? 0,
-      }))
-      .filter((r) => r.qty > 0);
-
-    const logoHTML = agencyLogo
-      ? `<img src="${agencyLogo}" alt="${esc(agencyName)}" style="width:80px;height:32px;object-fit:contain;" />`
-      : `<div style="width:72px;height:30px;background:#0B4339;border-radius:5px;display:flex;align-items:center;justify-content:center;"><span style="color:#28BFA9;font-size:10px;font-weight:900;">LTT</span></div>`;
-
-    // Build hotel comparison section with multi-destino support (v2 snapshot) + v1 fallback
-    const allHotels = cot.hotelsComparison ?? [];
-    const isV2Snapshot = allHotels.length > 0 && allHotels[0].destinoId !== undefined;
-    const hasKids    = allHotels.some((h) => (h.avgChildPerPax ?? 0) > 0);
-    const hasBoleto  = allHotels.some((h) => (h.boletoPerPax  ?? 0) > 0);
-    const tipoPaxLabel = allHotels[0]?.tipoPax ?? "Aloj.";
-
-    // Approved: show only selected hotels (v2: selected flag; v1: fallback to selectedHotelId)
-    const hotelsToDisplay = isApproved
-      ? (allHotels.some((h) => h.selected)
-          ? allHotels.filter((h) => h.selected)
-          : activeHotel ? [activeHotel] : allHotels)
-      : allHotels;
-
-    let hotelSectionHTML = "";
-    if (hotelsToDisplay.length > 0) {
-      if (isV2Snapshot) {
-        const destMap = new Map<number, { ciudad: string; pais: string; hotels: typeof allHotels }>();
-        hotelsToDisplay.forEach((h) => {
-          const dId = h.destinoId ?? 0;
-          if (!destMap.has(dId)) destMap.set(dId, { ciudad: h.destinoCiudad ?? "", pais: h.destinoPais ?? "", hotels: [] });
-          destMap.get(dId)!.hotels.push(h);
-        });
-        const destiEntries = [...destMap.entries()];
-        const isMultiDest  = destiEntries.length > 1;
-        const isInteractive = canApprove && hasComparison;
-
-        const buildRows = (dId: number, hotels: typeof allHotels) =>
-          hotels.map((h) => {
-            const isSel  = h.hotelId === currentSelectedHotelId;
-            const stars  = "★".repeat(Math.min(h.estrellas, 5));
-            const adultP = h.adultColPerPax != null ? h.adultColPerPax : h.pricePerPax;
-            const radioDot = isInteractive
-              ? `<td class="radio-col"><div class="radio-dot${isSel ? " radio-checked" : ""}" id="rdot-${dId}-${h.hotelId}"></div></td>`
-              : "";
-            const onclk   = isInteractive ? ` onclick="selectHotelForDestino(${dId},${h.hotelId})"` : "";
-            const rowStyle = isInteractive ? ` style="cursor:pointer"` : "";
-            return `<tr class="hotel-row${isSel && isInteractive ? " selected" : ""}" data-hotel-id="${h.hotelId}" data-destino-id="${dId}"${rowStyle}${onclk}>
-              ${radioDot}
-              <td class="bold">${esc(h.nombre)}</td>
-              <td class="center amber">${stars}</td>
-              <td class="right">$${fmt(adultP)}</td>
-              ${hasKids   ? `<td class="right">${h.avgChildPerPax != null && h.avgChildPerPax > 0 ? "+$" + fmt(h.avgChildPerPax) : "—"}</td>` : ""}
-              ${hasBoleto ? `<td class="right">${(h.boletoPerPax ?? 0) > 0 ? "$" + fmt(h.boletoPerPax!) : "—"}</td>` : ""}
-            </tr>`;
-          }).join("");
-
-        const buildTable = (dId: number, hotels: typeof allHotels) => `
-          <table class="hotel-comp-table">
-            <thead><tr>
-              ${isInteractive ? `<th class="radio-col"></th>` : ""}
-              <th>Hotel</th><th class="center">★</th>
-              <th class="right">Aloj. ${esc(tipoPaxLabel)}/pax</th>
-              ${hasKids   ? `<th class="right">Supl. menores/pax</th>`    : ""}
-              ${hasBoleto ? `<th class="right">Boleto/pax</th>` : ""}
-            </tr></thead>
-            <tbody>${buildRows(dId, hotels)}</tbody>
-          </table>`;
-
-        const destGroupsHTML = destiEntries.map(([dId, { ciudad, pais, hotels }]) => `
-          <div class="dest-group" data-destino-id="${dId}">
-            ${isMultiDest ? `<div class="dest-label">${esc(ciudad)}${pais ? ", " + esc(pais) : ""}</div>` : ""}
-            ${buildTable(dId, hotels)}
-          </div>`).join("");
-
-        const warnHTML = isInteractive && !currentSelectedHotelId
-          ? `<p id="hotel-select-warn" class="note" style="color:#f59e0b;opacity:1;margin-top:8px;">⚠ Selecciona ${isMultiDest ? "un hotel por destino" : "un hotel"} para habilitar la aprobación.</p>`
-          : "";
-
-        hotelSectionHTML = `
-<div class="section" id="comparison-section">
-  <div class="section-title" id="comparison-main-title">${isApproved ? "Hotel(es) Seleccionado(s)" : "Comparativa de Alojamiento"}</div>
-  ${destGroupsHTML}
-  ${warnHTML}
-</div>`;
-      } else {
-        // v1 backward compat: simple table
-        const rows = hotelsToDisplay.map((h) => `<tr>
-          <td class="bold">${esc(h.nombre)}</td>
-          <td class="center amber">${"★".repeat(h.estrellas)}</td>
-          <td class="right">$${fmt(h.pricePerPax)}</td>
-          <td class="right bold">$${fmt(h.total)}</td>
-        </tr>`).join("");
-        hotelSectionHTML = `
-<div class="section">
-  <div class="section-title">${isApproved ? "Hotel Seleccionado" : "Opciones de Alojamiento"}</div>
-  <table>
-    <thead><tr><th>Hotel</th><th class="center">★</th><th class="right">Precio/pax</th><th class="right">Total</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-</div>`;
-      }
-    }
-
-    const toolbarTitle = `Proforma · ${esc(cot.codigo)}`;
-    const approveBtn = canApprove
-      ? `<button id="btn-approve" onclick="doApprove()" class="btn-approve"${hasComparison && !currentSelectedHotelId ? ` disabled style="opacity:.4;cursor:not-allowed"` : ""}>✓ Aprobar</button>`
-      : "";
-    const printBtn = `<button id="btn-print" class="btn-print" onclick="window.print()"${isApproved ? "" : ` style="display:none"`}>🖨 Imprimir / Guardar PDF</button>`;
-
-    const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Proforma ${esc(cot.codigo)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-@page{margin:15mm 20mm;size:A4 portrait;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;background:#fff;line-height:1.5;}
-.toolbar{position:fixed;top:0;left:0;right:0;z-index:100;background:#0B4339;color:white;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:12px;font-weight:700;gap:8px;flex-wrap:wrap;}
-.toolbar-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.toolbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.toolbar button{padding:6px 16px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;}
-.btn-print{background:#28BFA9;color:#0B4339;}
-.btn-approve{background:#C9A96E;color:#0B4339;}
-.btn-approve:disabled{opacity:.4;cursor:not-allowed;}
-.btn-close{background:transparent;color:white;border:1px solid rgba(255,255,255,0.3)!important;}
-.page{max-width:800px;margin:60px auto 40px;padding:32px;background:white;}
-@media print{.toolbar{display:none!important;}.page{margin:0;padding:0;max-width:none;}}
-.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #28BFA9;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.agency-name{font-size:14px;font-weight:900;color:#0B4339;}
-.agency-contact{font-size:9px;color:#0B4339;opacity:.6;margin-top:2px;}
-.header-right{text-align:right;}
-.proforma-title{font-size:20px;font-weight:900;color:#0B4339;letter-spacing:3px;}
-.proforma-code{font-size:11px;font-weight:700;color:#28BFA9;margin-top:3px;}
-.proforma-date{font-size:9px;color:#0B4339;opacity:.5;margin-top:2px;}
-.section{margin-bottom:20px;}
-.section-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#28BFA9;margin-bottom:10px;padding-bottom:4px;border-bottom:1px solid #EDF7F5;}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
-.field label{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:#0B4339;opacity:.4;display:block;}
-.field span{font-size:11px;font-weight:700;color:#0B4339;}
-table{width:100%;border-collapse:collapse;}
-th{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:#0B4339;opacity:.5;padding:6px 8px 6px 0;border-bottom:1px solid #EDF7F5;}
-td{font-size:11px;font-weight:600;color:#0B4339;padding:7px 8px 7px 0;border-bottom:1px solid #F5FAF9;}
-.right{text-align:right;padding-right:0;}
-.center{text-align:center;}
-.amber{color:#C9A96E;}
-.bold{font-weight:900;}
-.green{color:#28BFA9;}
-.total-row td{border-top:2px solid #28BFA9;border-bottom:none;font-weight:900;font-size:13px;padding-top:10px;}
-.includes-list{display:flex;flex-wrap:wrap;gap:6px;}
-.include-tag{background:#EDF7F5;color:#0B4339;font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid #28BFA9;opacity:.8;}
-.terms-text{font-size:8px;color:#0B4339;opacity:.5;line-height:1.6;}
-.footer{margin-top:24px;padding-top:12px;border-top:1px solid #EDF7F5;display:flex;justify-content:space-between;align-items:flex-end;}
-.footer-left{font-size:9px;font-weight:700;color:#0B4339;opacity:.6;line-height:1.8;}
-.footer-seal{width:52px;height:52px;border-radius:50%;background:#0B4339;color:#28BFA9;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;text-align:center;line-height:1.4;flex-shrink:0;}
-.note{font-size:8px;color:#0B4339;opacity:.4;margin-top:6px;}
-.hotel-comp-table{width:100%;border-collapse:collapse;margin-top:2px;}
-.hotel-row{transition:background .12s;}
-.hotel-row:hover{background:#F5FAF9;}
-.hotel-row.selected{background:#EDFBF6;}
-.radio-col{width:28px;padding-right:6px;}
-.radio-dot{width:15px;height:15px;border-radius:50%;border:2px solid #CBD5E1;display:inline-flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;vertical-align:middle;}
-.radio-dot.radio-checked{border-color:#28BFA9;background:#28BFA9;}
-.radio-dot.radio-checked::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:white;}
-.dest-group{margin-bottom:14px;}
-.dest-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#0B4339;opacity:.45;margin-bottom:4px;}
-@media print{.radio-col{display:none!important;}.hotel-row{cursor:default!important;}}
-</style>
-</head>
-<body>
-<div class="toolbar">
-  <span class="toolbar-title" id="toolbar-title">${toolbarTitle}</span>
-  <div class="toolbar-actions">
-    ${approveBtn}
-    ${printBtn}
-    <button class="btn-close" onclick="window.close()">✕ Cerrar</button>
-  </div>
-</div>
-<div class="page">
-  <div class="header">
-    <div class="header-left">
-      ${logoHTML}
-      <div>
-        <div class="agency-name">${esc(agencyName)}</div>
-        <div class="agency-contact">${esc(agencyPhone)}${agencyAddress ? " · " + esc(agencyAddress) : ""}</div>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="proforma-title">PROFORMA</div>
-      <div class="proforma-code">${esc(cot.codigo)}</div>
-      <div class="proforma-date">${today}</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Datos del Cliente</div>
-    <div class="grid-2">
-      <div class="field"><label>Nombre</label><span>${esc(cot.cliente?.nombre || "—")}</span></div>
-      <div class="field"><label>Email</label><span>${esc(cot.cliente?.email || "—")}</span></div>
-      ${cot.cliente?.telefono ? `<div class="field"><label>Teléfono</label><span>${esc(cot.cliente.telefono)}</span></div>` : ""}
-      ${cot.cliente?.documento ? `<div class="field"><label>Documento</label><span>${esc(cot.cliente.documento)}</span></div>` : ""}
-      ${cot.cliente?.direccion ? `<div class="field" style="grid-column:1/-1"><label>Dirección</label><span>${esc(cot.cliente.direccion)}</span></div>` : ""}
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Detalles del Viaje</div>
-    <div class="grid-2">
-      <div class="field"><label>Programa</label><span>${esc(cot.paqueteNombre || "—")}</span></div>
-      <div class="field"><label>Destino</label><span>${esc(cot.paqueteDestino || "—")}</span></div>
-      <div class="field"><label>Duración</label><span>${esc(cot.paqueteDuracion || "—")}</span></div>
-      ${cot.fechaViaje ? `<div class="field"><label>Salida</label><span>${esc(cot.fechaViaje)}</span></div>` : ""}
-      ${cot.fechaRetorno ? `<div class="field"><label>Retorno</label><span>${esc(cot.fechaRetorno)}</span></div>` : ""}
-      <div class="field"><label>Pasajeros</label><span>${esc(resumenPasajeros(cot.pasajeros))}</span></div>
-      ${cot.incluyeBoleto ? `<div class="field"><label>Boleto</label><span style="color:#28BFA9;">✓ Incluido</span></div>` : ""}
-    </div>
-  </div>
-
-  ${hotelSectionHTML}
-
-  ${(cot.paqueteIncluye?.length ?? 0) > 0 ? `
-  <div class="section">
-    <div class="section-title">Servicios Incluidos</div>
-    <div class="includes-list">
-      ${(cot.paqueteIncluye ?? []).map((inc: string) => `<span class="include-tag">✓ ${esc(inc)}</span>`).join("")}
-    </div>
-  </div>` : ""}
-
-  <div class="section">
-    <div class="section-title">Resumen de Precios</div>
-    <table>
-      <thead><tr><th>Habitación</th><th class="center">Cant.</th><th class="right">$/pax</th><th class="right">Subtotal</th></tr></thead>
-      <tbody>
-        ${rooms.map((r) => `<tr>
-          <td>${typeLabelMap[r.t] ?? r.t}</td>
-          <td class="center">${r.qty}</td>
-          <td class="right">$${fmt(r.precio)}</td>
-          <td class="right bold">$${fmt(r.precio * r.qty)}</td>
-        </tr>`).join("")}
-        ${(cot.precios.precioBoleto ?? 0) > 0 ? `<tr>
-          <td>Boleto aéreo</td><td class="center">—</td>
-          <td class="right">$${fmt(cot.precios.precioBoleto!)}</td>
-          <td class="right bold">$${fmt(cot.precios.precioBoleto!)}</td>
-        </tr>` : ""}
-        <tr class="total-row">
-          <td colspan="3" class="green">TOTAL</td>
-          <td id="total-display" class="right green">$${fmt(activeHotel?.total ?? cot.total)}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Términos y Condiciones</div>
-    <p class="terms-text">${esc(TERMINOS_CONDICIONES)}</p>
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">
-      Preparado por: <strong>${esc(agencyName)}</strong><br>
-      ${esc(agencyPhone)} · ${today}<br>
-      <span style="color:#28BFA9">Land Tour Travel — Mayorista de Turismo</span>
-    </div>
-    <div class="footer-seal">LTT<br>PROFORMA</div>
-  </div>
-</div>
-
-<script>
-var _cotId = ${safeJSON(cot.id)};
-var _hotels = ${safeJSON(cot.hotelsComparison ?? [])};
-var _hasComparison = ${hasComparison ? "true" : "false"};
-
-// Unique destinos from hotels
-var _destinos = (function() {
-  var seen = {}, list = [];
-  _hotels.forEach(function(h) {
-    if (h.destinoId != null && !seen[h.destinoId]) {
-      seen[h.destinoId] = true;
-      list.push({ id: h.destinoId });
-    }
-  });
-  return list;
-}());
-
-// Selection state: destinoId → hotelId
-var _selByDestino = {};
-
-// Initialize from snapshot selected flags (v2) or persisted selectedHotelId (v1)
-_hotels.forEach(function(h) {
-  if (h.selected && h.destinoId != null) _selByDestino[h.destinoId] = h.hotelId;
-});
-if (Object.keys(_selByDestino).length === 0) {
-  var _initSel = ${currentSelectedHotelId !== null ? currentSelectedHotelId : "null"};
-  if (_initSel !== null) {
-    var _initH = _hotels.find(function(h) { return h.hotelId === _initSel; });
-    if (_initH) _selByDestino[_initH.destinoId != null ? _initH.destinoId : 0] = _initH.hotelId;
-  }
-}
-
-function _canApproveNow() {
-  if (_destinos.length === 0) return true;
-  return _destinos.every(function(d) { return _selByDestino[d.id] !== undefined; });
-}
-
-function selectHotelForDestino(destinoId, hotelId) {
-  _selByDestino[destinoId] = hotelId;
-  document.querySelectorAll('.hotel-row[data-destino-id="' + destinoId + '"]').forEach(function(el) {
-    var isThis = parseInt(el.getAttribute('data-hotel-id')) === hotelId;
-    el.classList.toggle('selected', isThis);
-    var dot = el.querySelector('.radio-dot');
-    if (dot) { dot.classList.toggle('radio-checked', isThis); }
-  });
-  var ok = _canApproveNow();
-  var btn = document.getElementById('btn-approve');
-  if (btn) { btn.disabled = !ok; btn.style.opacity = ok ? '1' : '.4'; btn.style.cursor = ok ? 'pointer' : 'not-allowed'; }
-  _updateTotal();
-}
-
-// Combina hoteles seleccionados sin duplicar servicios/boleto/markup (sharedTotal una vez).
-function _combine(selHotels) {
-  if (!selHotels.length) return 0;
-  var hasV3 = selHotels[0].accomTotal != null && selHotels[0].sharedTotal != null;
-  if (!hasV3) return selHotels.reduce(function(s, h) { return s + h.total; }, 0);
-  var accom = selHotels.reduce(function(s, h) { return s + (h.accomTotal || 0); }, 0);
-  return accom + (selHotels[0].sharedTotal || 0);
-}
-
-function _selectedHotels() {
-  return _destinos.map(function(d) {
-    var hId = _selByDestino[d.id];
-    return hId != null ? _hotels.find(function(x) { return x.hotelId === hId; }) : null;
-  }).filter(Boolean);
-}
-
-function _updateTotal() {
-  if (!_canApproveNow()) return;
-  var combined = _combine(_selectedHotels());
-  var td = document.getElementById('total-display');
-  if (td) td.textContent = '$' + (Number.isInteger(combined) ? combined.toLocaleString('es-EC') : combined.toFixed(2));
-}
-
-function doApprove() {
-  var btn = document.getElementById('btn-approve');
-  if (!btn || btn.disabled) return;
-  if (_hasComparison && !_canApproveNow()) return;
-  btn.textContent = '⏳ Aprobando...';
-  btn.disabled = true;
-
-  var selIds = _destinos.length > 0
-    ? _destinos.map(function(d) { return _selByDestino[d.id]; }).filter(function(id) { return id != null; })
-    : [];
-  var primaryId = selIds[0] || null;
-  var selHotels = selIds.map(function(hId) { return _hotels.find(function(h) { return h.hotelId === hId; }); }).filter(Boolean);
-  var combined  = _combine(selHotels);
-  var names     = selHotels.map(function(h) { return h.nombre; }).join(', ');
-
-  var payload = { status: 'APROBADA', nota: 'Hotel(es) seleccionado(s): ' + names };
-  if (primaryId) payload.selectedHotelId = primaryId;
-  if (selIds.length > 1) payload.selectedHotelIds = selIds;
-  payload.total = Math.round(combined * 100) / 100;
-
-  fetch('/api/cotizaciones/' + _cotId + '/status', {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).then(function(r) {
-    if (r.ok) {
-      if (window.opener) {
-        window.opener.postMessage({ type: 'COT_APPROVED', cotId: _cotId, selectedHotelId: primaryId, selectedHotelIds: selIds, total: combined }, '*');
-      }
-      btn.remove();
-      var pBtn = document.getElementById('btn-print');
-      if (pBtn) pBtn.style.display = 'inline-block';
-      var warn = document.getElementById('hotel-select-warn');
-      if (warn) warn.remove();
-      var mainTitle = document.getElementById('comparison-main-title');
-      if (mainTitle) mainTitle.textContent = 'Hotel(es) Seleccionado(s)';
-      document.querySelectorAll('.hotel-row').forEach(function(el) {
-        var hId = parseInt(el.getAttribute('data-hotel-id'));
-        var dId = parseInt(el.getAttribute('data-destino-id'));
-        if (_selByDestino[dId] !== hId) el.style.display = 'none';
-        else { el.style.cursor = 'default'; el.removeAttribute('onclick'); }
-      });
-    } else {
-      btn.textContent = '✓ Aprobar'; btn.disabled = false;
-      alert('Error al aprobar. Por favor intenta nuevamente.');
-    }
-  }).catch(function() {
-    btn.textContent = '✓ Aprobar'; btn.disabled = false;
-    alert('Error de conexión. Por favor intenta nuevamente.');
-  });
-}
-</script>
-</body>
-</html>`;
-
-    const win = window.open("", "_blank");
-    if (!win) { alert("Permite ventanas emergentes para ver la proforma."); return; }
-    win.document.write(html);
-    win.document.close();
-    win.focus();
   };
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -1684,11 +1287,16 @@ function doApprove() {
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-24 lg:pb-8">
 
+          {managedCotId ? (
+            <CotizacionDetailView cotId={managedCotId} onBack={() => setManagedCotId(null)} />
+          ) : (
+          <>
+
           {/* ════════════════════════ DASHBOARD ════════════════════════ */}
           {activeTab === "dashboard" && (
             <DashboardTab
               onGoToCotizaciones={() => setActiveTab("cotizaciones")}
-              onViewCot={handleOpenPreview}
+              onViewCot={(cot) => setManagedCotId(cot.id)}
             />
           )}
 
@@ -2187,14 +1795,14 @@ function doApprove() {
                                   </div>
                                 ) : (
                                   <p className="text-[10px] text-primary/50 font-bold">
-                                    Boleto niño: ${cotBoletoNinoPerPax}/niño · Total: ${(cotBoletoNinoPerPax * cotNumNinos).toLocaleString()}
+                                    Boleto aéreo de niño incluido en el paquete (precio no editable).
                                   </p>
                                 )
                               )}
 
-                              {cotFlightActive && !cotSelectedPkg.permitirModificarBoleto && cotSelectedPkg.precioBoleto && (
+                              {cotFlightActive && !cotSelectedPkg.permitirModificarBoleto && (
                                 <p className="text-[10px] text-primary/50 font-bold">
-                                  {cotNumNinos > 0 ? "Boleto adulto" : "Precio fijo"}: ${cotSelectedPkg.precioBoleto}/persona · Total adultos: ${(cotSelectedPkg.precioBoleto * cotNumPersonas).toLocaleString()}
+                                  Boleto aéreo incluido en el paquete. El precio ya está considerado en el total y no es editable.
                                 </p>
                               )}
                               {cotFlightOverride !== null && cotSelectedPkg.permitirModificarBoleto && (
@@ -2727,7 +2335,7 @@ function doApprove() {
                       })()}
 
                       {/* ── Boleto aéreo (catálogo) ── */}
-                      {cotMode === "catalogo" && cotFlightActive && cotFlightPrice > 0 && (
+                      {cotMode === "catalogo" && cotFlightActive && (!cotBoletoPrecioVisible || cotFlightPrice > 0) && (
                         <div className="flex items-center justify-between p-3 bg-secondary/5 border border-secondary/15 rounded-xl">
                           <div>
                             <span className="text-xs font-bold text-primary block">Boleto aéreo</span>
@@ -2735,7 +2343,9 @@ function doApprove() {
                               <p className="text-[10px] text-primary/40 mt-0.5">{cotSelectedPkg.descripcionBoleto}</p>
                             )}
                           </div>
-                          <span className="font-black text-secondary text-xs shrink-0 ml-3">${cotFlightPrice.toLocaleString()}/pax</span>
+                          <span className="font-black text-secondary text-xs shrink-0 ml-3">
+                            {cotBoletoPrecioVisible ? `$${cotFlightPrice.toLocaleString()}/pax` : "Incluido"}
+                          </span>
                         </div>
                       )}
 
@@ -2836,7 +2446,7 @@ function doApprove() {
                             disabled={!step3CanProceed || quoteLocked}
                             className="px-6 py-3 bg-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
                           >
-                            Revisar Proforma <ChevronRight size={14} />
+                            Revisar Cotización <ChevronRight size={14} />
                           </button>
                         </div>
                       </div>
@@ -2848,13 +2458,14 @@ function doApprove() {
                     <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
                       <div className="border-b border-gray-50 pb-4 flex justify-between items-center">
                         <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Revisión Final de Proforma
+                          <span className="w-2.5 h-2.5 rounded bg-secondary inline-block" /> Revisión Final de Cotización
                         </h3>
                         <span className="text-[10px] font-black uppercase tracking-wider text-secondary">Paso 4 de 4</span>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 p-4 bg-light border border-lighter rounded-2xl text-xs">
                         {[
+                          ["Paquete",    cotPaqueteNombre],
                           ["Cliente",    clientName  || "—"],
                           ["Email",      clientEmail || "—"],
                           ["Teléfono",   clientPhone || "—"],
@@ -2862,9 +2473,9 @@ function doApprove() {
                           ["Destino",    `${cotDestinoCiudad}${cotDestinoPais ? `, ${cotDestinoPais}` : ""}`],
                           ["Duración",   cotDuracion],
                           ["Fechas",     cotFechasDisplay],
-                          ["Pasajeros",  cotPaxResumen],
+                          ["Pasajeros",  cotPasajerosDisplay],
                         ].map(([lbl, val]) => (
-                          <div key={lbl}>
+                          <div key={lbl} className={lbl === "Paquete" ? "col-span-2" : undefined}>
                             <span className="text-[9px] font-black uppercase text-primary/30 tracking-wider block">{lbl}</span>
                             <span className="font-bold text-primary/80 truncate block">{val}</span>
                           </div>
@@ -2966,193 +2577,6 @@ function doApprove() {
                               Precios por persona.{" "}
                               {cotNumNinos > 0 ? "El precio del niño se calcula por separado (alojamiento según política, actividades y traslado propios, y boleto de niño cuando aplica). " : ""}
                               {agencyMarkup > 0 ? `Incluye comisión de $${fmtN(agencyMarkup)} distribuida entre ${totalPax} pasajero${totalPax !== 1 ? "s" : ""}, no visible para el cliente.` : ""}
-                            </p>
-                          </div>
-                        );
-                      })()}
-
-                      {/* ── Tabla comparativa (catálogo) — agrupada por destino (detalle referencial) ── */}
-                      {cotMode === "catalogo" && cotCatBreakdowns.length > 0 && (() => {
-                        const requiredTipoPax = cotReqTipoPax;
-                        const totalPax = cotNumPersonas + cotNumNinos;
-                        const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
-
-                        // Agrupar {hotel, breakdown} por destinoId preservando el orden
-                        type DestGroup = {
-                          ciudad: string; pais: string;
-                          hotels: CotPaqueteHotel[];
-                          breakdowns: HotelBreakdown[];
-                        };
-                        const destMap = new Map<number, DestGroup>();
-                        cotCatBreakdowns.forEach(({ hotel: h, bd }) => {
-                          if (!destMap.has(h.destinoId)) {
-                            const destiInfo = cotSelectedPkg!.destinos.find((d) => d.id === h.destinoId);
-                            destMap.set(h.destinoId, {
-                              ciudad: h.destinoCiudad,
-                              pais: destiInfo?.pais ?? "",
-                              hotels: [], breakdowns: [],
-                            });
-                          }
-                          const g = destMap.get(h.destinoId)!;
-                          g.hotels.push(h);
-                          g.breakdowns.push(bd);
-                        });
-                        const destEntries = [...destMap.entries()];
-                        const isMultiDestino = destEntries.length > 1;
-                        const numDestinos = destEntries.length;
-                        // Markup prorrateado: total → por pax → por destino.
-                        // Markup_Pax = markup / totalPax ; Markup_Destino = Markup_Pax / numDestinos.
-                        // Sumando un hotel por destino se recupera el markup completo una sola vez.
-                        const markupPerPaxTotal = totalPax > 0 ? agencyMarkup / totalPax : 0;
-                        const markupPerDestino = numDestinos > 0 ? markupPerPaxTotal / numDestinos : 0;
-
-                        return (
-                          <div className="space-y-4">
-                            <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider">
-                              Detalle del hotel seleccionado
-                            </p>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                            {destEntries.map(([dId, { ciudad, pais, hotels: dHotels, breakdowns: dBds }]) => {
-                              const dExtraNights = cotExtraNightsByDestino[dId] ?? 0;
-                              return (
-                                <div key={dId} className="space-y-2 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                                  {isMultiDestino && (
-                                    <div className="flex items-center gap-1.5">
-                                      <MapPin size={9} className="text-secondary/60 shrink-0" />
-                                      <p className="text-[9px] font-black uppercase tracking-widest text-primary/50">
-                                        {ciudad}{pais ? `, ${pais}` : ""}
-                                      </p>
-                                    </div>
-                                  )}
-                                  <div className="overflow-x-auto rounded-2xl border border-gray-100">
-                                    <table className="w-full border-collapse text-xs">
-                                      <thead>
-                                        <tr className="bg-light border-b border-gray-100">
-                                          <th className="px-3 py-2.5 text-left text-[8px] font-black uppercase text-primary/40 tracking-wider" style={{ width: "38%" }}>
-                                            Concepto
-                                          </th>
-                                          {dHotels.map((h) => (
-                                            <th key={h.id} className="px-3 py-2 text-center" style={{ minWidth: 110 }}>
-                                              <p className="font-black text-primary text-[11px] leading-snug">{h.nombre}</p>
-                                              <p className="text-amber-400 text-[9px] font-bold mt-0.5">{"★".repeat(Math.min(h.estrellas, 5))}</p>
-                                            </th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-gray-50">
-
-                                        {/* Alojamiento (incl. todas las noches + servicios, por adulto) */}
-                                        <tr>
-                                          <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px] leading-relaxed">
-                                            Alojamiento {requiredTipoPax}
-                                            <br /><span className="text-[9px] text-primary/30 font-normal">
-                                              (hab. {dBds[0]?.noches ?? 0} noche{(dBds[0]?.noches ?? 0) !== 1 ? "s" : ""}{dExtraNights > 0 ? ` · +${dExtraNights} extra` : ""} + act. + traslados)
-                                            </span>
-                                          </td>
-                                          {dBds.map((bd, i) => (
-                                            <td key={dHotels[i].id} className="px-3 py-2.5 text-center font-black text-primary">
-                                              {bd.adultColPerPax > 0 ? `$${fmtN(bd.adultColPerPax)}/pax` : "—"}
-                                            </td>
-                                          ))}
-                                        </tr>
-
-                                        {/* Suplemento de menores prorrateado por adulto */}
-                                        {cotNumNinos > 0 && (
-                                          <tr>
-                                            <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
-                                              Suplemento menores
-                                              <br /><span className="text-[9px] text-primary/30 font-normal">(prorrateado /adulto)</span>
-                                            </td>
-                                            {dBds.map((bd, i) => {
-                                              const hasWarning = bd.childResults.some((r) => !r.aplica);
-                                              return (
-                                                <td key={dHotels[i].id} className="px-3 py-2.5 text-center font-bold">
-                                                  <span className={hasWarning ? "text-amber-600" : "text-primary/60"}>
-                                                    +${fmtN(bd.avgChildPerPax)}/pax{hasWarning ? " ⚠" : ""}
-                                                  </span>
-                                                </td>
-                                              );
-                                            })}
-                                          </tr>
-                                        )}
-
-                                        {/* Boleto aéreo — por fila solo en single-destino (multi se muestra una vez abajo) */}
-                                        {!isMultiDestino && cotFlightActive && cotFlightPrice > 0 && (
-                                          <tr>
-                                            <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
-                                              <span className="flex items-center gap-1">
-                                                <Plane size={9} className="text-secondary/60" /> Boleto aéreo
-                                              </span>
-                                            </td>
-                                            {dBds.map((bd, i) => (
-                                              <td key={dHotels[i].id} className="px-3 py-2.5 text-center font-bold text-secondary/70">
-                                                ${fmtN(bd.boletoPerPax)}/pax
-                                              </td>
-                                            ))}
-                                          </tr>
-                                        )}
-
-                                        {/* Comisión de Agencia — markup prorrateado por pax y por destino (oculto si es 0) */}
-                                        {agencyMarkup > 0 && (
-                                          <tr>
-                                            <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
-                                              <span className="flex items-center gap-1">
-                                                <DollarSign size={9} className="text-secondary/60" /> Comisión de Agencia
-                                              </span>
-                                              <br /><span className="text-[9px] text-primary/30 font-normal">
-                                                (markup / pax{isMultiDestino ? " / destino" : ""})
-                                              </span>
-                                            </td>
-                                            {dHotels.map((h) => (
-                                              <td key={h.id} className="px-3 py-2.5 text-center font-bold text-secondary/70">
-                                                +${fmtN(markupPerDestino)}/pax
-                                              </td>
-                                            ))}
-                                          </tr>
-                                        )}
-
-                                        {/* Precio / Persona — total del tramo por hotel (boleto incluido solo en single-destino) */}
-                                        <tr className="bg-light/60 border-t-2 border-secondary/20">
-                                          <td className="px-3 py-2.5 font-black text-primary text-[10px] uppercase tracking-wide">
-                                            Precio / Persona *
-                                          </td>
-                                          {dBds.map((bd, i) => {
-                                            const boletoInRow = !isMultiDestino && cotFlightActive && cotFlightPrice > 0 ? bd.boletoPerPax : 0;
-                                            const pricePerPax = bd.adultColPerPax + bd.avgChildPerPax + boletoInRow + markupPerDestino;
-                                            return (
-                                              <td key={dHotels[i].id} className="px-3 py-2.5 text-center font-black text-primary">
-                                                {pricePerPax > 0 ? `$${fmtN(pricePerPax)}` : "—"}
-                                              </td>
-                                            );
-                                          })}
-                                        </tr>
-
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            </div>
-
-                            {/* Costo global (una sola vez, no por destino): boleto — solo multi-destino */}
-                            {isMultiDestino && (
-                              <div className="rounded-2xl border border-secondary/20 bg-secondary/5 p-3 space-y-1.5">
-                                {cotFlightActive && cotFlightPrice > 0 && (
-                                  <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                                    <span className="flex items-center gap-1"><Plane size={9} className="text-secondary/60" /> Boleto aéreo (una vez / pax)</span>
-                                    <span>${fmtN(cotFlightPrice)}</span>
-                                  </div>
-                                )}
-                                <p className="text-[9px] text-primary/40 font-bold">Hotel elegido por destino (checkbox del Paso 3). El boleto aéreo se suma una sola vez (no incluido en el Precio/Persona de cada tabla). La comisión de agencia se muestra prorrateada por destino.</p>
-                              </div>
-                            )}
-
-                            <p className="text-[9px] text-primary/35 font-bold">
-                              {agencyMarkup > 0
-                                ? `* Precio/Persona incluye comisión de $${fmtN(agencyMarkup)} distribuida entre ${totalPax} pasajero${totalPax !== 1 ? "s" : ""} ($${fmtN(markupPerPaxTotal)}/pax)${isMultiDestino ? ` y prorrateada entre ${numDestinos} destinos ($${fmtN(markupPerDestino)}/pax/destino); el boleto aéreo se cobra una sola vez (arriba) y no está en el Precio/Persona de cada tabla` : ""}. No visible para el cliente.`
-                                : "* Sin comisión de agencia aplicada."}
                             </p>
                           </div>
                         );
@@ -3360,7 +2784,7 @@ function doApprove() {
                         {quoteLocked && (
                           <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() => { const cot = cotizaciones[0]; if (cot) handleOpenPreview(cot); }}
+                              onClick={() => { const cot = cotizaciones[0]; if (cot) setManagedCotId(cot.id); }}
                               className="px-5 py-3 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                             >
                               <Printer size={14} /> Ver Cotización
@@ -3429,7 +2853,7 @@ function doApprove() {
           {/* ════════════════════════ COTIZACIONES ════════════════════════ */}
           {activeTab === "cotizaciones" && (
             <CotizacionesTab
-              onViewCot={handleOpenPreview}
+              onViewCot={(cot) => setManagedCotId(cot.id)}
               onOpenDelete={(id) => { setConfirmDeleteId(id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }}
             />
           )}
@@ -3527,7 +2951,7 @@ function doApprove() {
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-[9px] font-black text-secondary uppercase tracking-widest">Cotización</span>
-                      <span className="block text-[8px] font-bold text-primary/40 mt-0.5">{cotizaciones[0]?.codigo || "PRF-2025-001"}</span>
+                      <span className="block text-[8px] font-bold text-primary/40 mt-0.5">{cotizaciones[0]?.codigo || "COT-2025-001"}</span>
                     </div>
                   </div>
                   <div className="space-y-1.5">
@@ -3578,6 +3002,9 @@ function doApprove() {
                 <LogOut size={14} /> Cerrar Sesión
               </button>
             </div>
+          )}
+
+          </>
           )}
 
         </main>
