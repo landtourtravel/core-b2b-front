@@ -104,16 +104,20 @@ export interface User {
 // ─── Cotizaciones ──────────────────────────────────────────────────────────
 //
 // Ciclo de vida:
-//   BORRADOR → ENVIADA → APROBADA  (Kevin crea liquidación en lt-core-admin)
+//   BORRADOR → ENVIADA → APROBADA → LIQUIDADA (Kevin liquida en lt-core-admin)
 //                      → RECHAZADA (cliente rechazó, crear nueva cotización)
+//
+// LIQUIDADA es un estado final generado por lt-core-admin (no por este portal):
+// la cotización aprobada fue liquidada/facturada. El portal solo la muestra.
 
-export type CotizacionStatus = 'BORRADOR' | 'ENVIADA' | 'APROBADA' | 'RECHAZADA';
+export type CotizacionStatus = 'BORRADOR' | 'ENVIADA' | 'APROBADA' | 'RECHAZADA' | 'LIQUIDADA';
 
 export const COTIZACION_STATUS_LABEL: Record<CotizacionStatus, string> = {
   BORRADOR:  'Borrador',
   ENVIADA:   'Enviada',
   APROBADA:  'Aprobada',
   RECHAZADA: 'Rechazada',
+  LIQUIDADA: 'Liquidada',
 };
 
 export const COTIZACION_STATUS_COLOR: Record<CotizacionStatus, string> = {
@@ -121,6 +125,7 @@ export const COTIZACION_STATUS_COLOR: Record<CotizacionStatus, string> = {
   ENVIADA:   'bg-amber-50 text-amber-600',
   APROBADA:  'bg-emerald-50 text-emerald-600',
   RECHAZADA: 'bg-red-50 text-red-500',
+  LIQUIDADA: 'bg-violet-50 text-violet-600',
 };
 
 /// Cliente final (el pasajero) — pertenece a una agencia.

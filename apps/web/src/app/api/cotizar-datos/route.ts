@@ -128,6 +128,7 @@ export async function GET() {
         id: p.id,
         nombre: p.nombre,
         numPax: p.numPax,
+        numNinos: p.numNinos,
         diasEstancia: p.diasEstancia,
         nochesBase: p.nochesBase,
         incluyeBoleto: p.incluyeBoleto,

@@ -420,3 +420,58 @@ export function combineComboLegs(
     total: adultAll + childAll,
   };
 }
+
+// ── Grouped-by-destino pricing (varios hoteles en ≥2 destinos) ──────────────────
+// When two or more destinos each have several hotels selected, the cartesian product
+// of combinations explodes, so the UI lists hotels grouped by destino instead. Each
+// hotel then shows a self-contained "total por persona" that already carries its
+// 1/numDestinos share of the GLOBAL costs (boleto + markup). Summing one hotel per
+// destino therefore reconstructs EXACTLY the combineComboLegs total for that pick —
+// boleto and markup are counted once, never duplicated per destino.
+
+export type HotelDestinoPrice = {
+  /** All-in per adult: accom + local services + (boleto+markup share) / numDestinos. */
+  precioAdulto: number;
+  /** All-in per child (0 when no children). */
+  precioNino: number;
+  totalAdultos: number;
+  totalNinos: number;
+  total: number;
+};
+
+export function hotelPerDestinoPrice(args: {
+  /** Per adult: accommodation (precioBase×noches) + local services of THIS destino. */
+  adultColPerPax: number;
+  /** Σ child accommodation for this destino (all children). */
+  childAccomTotal: number;
+  /** Σ child local services for this destino (all children). */
+  childServicesTotal: number;
+  /** Adult air fare per pax (global; 0 when inactive). */
+  boletoAdultoPerPax: number;
+  /** Child air fare per pax (global; 0 when inactive). */
+  boletoNinoPerPax: number;
+  agencyMarkup: number;
+  numAdultos: number;
+  numNinos: number;
+  numDestinos: number;
+}): HotelDestinoPrice {
+  const totalPax = args.numAdultos + args.numNinos;
+  const div = Math.max(1, args.numDestinos);
+  const markupPerPax = totalPax > 0 ? args.agencyMarkup / totalPax : 0;
+  // Global per-pax costs (boleto + markup) split across destinos → counted once when
+  // one hotel per destino is summed.
+  const precioAdulto = args.adultColPerPax + (args.boletoAdultoPerPax + markupPerPax) / div;
+  const childAccomServicesPerChild =
+    args.numNinos > 0 ? (args.childAccomTotal + args.childServicesTotal) / args.numNinos : 0;
+  const precioNino =
+    args.numNinos > 0
+      ? childAccomServicesPerChild + (args.boletoNinoPerPax + markupPerPax) / div
+      : 0;
+  return {
+    precioAdulto,
+    precioNino,
+    totalAdultos: precioAdulto * args.numAdultos,
+    totalNinos: precioNino * args.numNinos,
+    total: precioAdulto * args.numAdultos + precioNino * args.numNinos,
+  };
+}

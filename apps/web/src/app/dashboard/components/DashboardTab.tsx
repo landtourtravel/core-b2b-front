@@ -10,12 +10,14 @@ const STATUS_BADGE: Record<CotizacionStatus, string> = {
   ENVIADA:   "bg-amber-50 text-amber-600",
   APROBADA:  "bg-emerald-50 text-emerald-600",
   RECHAZADA: "bg-rose-50 text-rose-600",
+  LIQUIDADA: "bg-violet-50 text-violet-600",
 };
 const STATUS_DOT: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-500",
   ENVIADA:   "bg-amber-500",
   APROBADA:  "bg-emerald-500",
   RECHAZADA: "bg-rose-500",
+  LIQUIDADA: "bg-violet-500",
 };
 
 interface DashboardTabProps {

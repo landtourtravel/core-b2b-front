@@ -7,7 +7,7 @@ import {
 import { COTIZACION_STATUS_LABEL } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended, type HotelCompSnapshot } from "../DashboardContext";
-import { cartesian, combineComboLegs, type ComboLeg } from "../cotizar-price";
+import { cartesian, combineComboLegs, hotelPerDestinoPrice, type ComboLeg } from "../cotizar-price";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
@@ -16,12 +16,14 @@ const STATUS_BADGE: Record<CotizacionStatus, string> = {
   ENVIADA:   "bg-amber-50 text-amber-600",
   APROBADA:  "bg-emerald-50 text-emerald-600",
   RECHAZADA: "bg-rose-50 text-rose-600",
+  LIQUIDADA: "bg-violet-50 text-violet-600",
 };
 const STATUS_DOT: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-500",
   ENVIADA:   "bg-amber-500",
   APROBADA:  "bg-emerald-500",
   RECHAZADA: "bg-rose-500",
+  LIQUIDADA: "bg-violet-500",
 };
 // Diagonal stamp on the document sheet.
 const STAMP_STYLE: Record<CotizacionStatus, string> = {
@@ -29,6 +31,7 @@ const STAMP_STYLE: Record<CotizacionStatus, string> = {
   ENVIADA:   "text-amber-500/30 border-amber-500/30",
   APROBADA:  "text-emerald-600/40 border-emerald-600/40",
   RECHAZADA: "text-rose-500/40 border-rose-500/40",
+  LIQUIDADA: "text-violet-600/40 border-violet-600/40",
 };
 
 const TERMINOS = `Los precios indicados son por persona en la categoría de habitación seleccionada y están sujetos a disponibilidad hotelera al momento de la reserva. Land Tour Travel actúa como operador mayorista; la agencia minorista es responsable de la relación comercial con el cliente final. El pago del depósito de reserva (40% del total) es obligatorio para confirmar los servicios. Cancelaciones con menos de 15 días de anticipación están sujetas a penalidades del 50%. Los vuelos, cuando son incluidos, están sujetos a las políticas de la aerolínea operadora. El pasajero es responsable de contar con documentación vigente (pasaporte, visa si aplica).`;
@@ -81,15 +84,19 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
 
   // Group hotels by destino (preserve insertion order).
   const destGroups = useMemo(() => {
-    const m = new Map<number, { ciudad: string; pais: string; hotels: HotelCompSnapshot[] }>();
+    const m = new Map<number, { destinoId: number; ciudad: string; pais: string; hotels: HotelCompSnapshot[] }>();
     allHotels.forEach((h) => {
       const dId = h.destinoId ?? 0;
-      if (!m.has(dId)) m.set(dId, { ciudad: h.destinoCiudad ?? "", pais: h.destinoPais ?? "", hotels: [] });
+      if (!m.has(dId)) m.set(dId, { destinoId: dId, ciudad: h.destinoCiudad ?? "", pais: h.destinoPais ?? "", hotels: [] });
       m.get(dId)!.hotels.push(h);
     });
     return [...m.values()];
   }, [allHotels]);
   const isMultiDest = destGroups.length > 1;
+  // ≥2 destinos con varios hoteles → la vista agrupada por destino reemplaza el listado
+  // cartesiano de combinaciones. El asesor elige un hotel por destino (no una combinación).
+  const multiHotelDestCount = destGroups.filter((g) => g.hotels.length >= 2).length;
+  const useGrouped = hasV4 && destGroups.length > 1 && multiHotelDestCount >= 2;
 
   // Every combination (one hotel per destino) with per-person adult/child prices — same
   // model as Step 4 (combineComboLegs). Boleto + markup counted once per combo.
@@ -112,17 +119,16 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
     });
   }, [allHotels, destGroups, numAdultos, numNinos, boletoAdultoPerPax, boletoNinoPerPax, markup, hasV4, cot?.total]);
 
-  // Which combo was approved (matches the hotels flagged `selected` in the snapshot).
-  const approvedComboIdx = useMemo(() => {
-    const selIds = allHotels.filter((h) => h.selected).map((h) => h.hotelId);
-    if (selIds.length === 0) return null;
-    const idx = combos.findIndex(
-      (c) => c.hotelIds.length === selIds.length && c.hotelIds.every((id) => selIds.includes(id))
-    );
-    return idx >= 0 ? idx : null;
-  }, [allHotels, combos]);
+  // Selección unificada: un hotel por destino (destinoId → hotelId). Sirve tanto para la
+  // vista de combinaciones (clic en una combinación fija los hoteles de todos sus destinos)
+  // como para la vista agrupada (clic en un hotel fija solo su destino).
+  const finalizedPick = useMemo<Record<number, number>>(() => {
+    const m: Record<number, number> = {};
+    allHotels.filter((h) => h.selected).forEach((h) => { m[h.destinoId ?? 0] = h.hotelId; });
+    return m;
+  }, [allHotels]);
 
-  const [userPickedIdx, setUserPickedIdx] = useState<number | null>(null);
+  const [pickedByDest, setPickedByDest] = useState<Record<number, number>>({});
   const [isBusy, setIsBusy] = useState(false);
 
   if (!cot) {
@@ -135,15 +141,32 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
 
   const isApproved = cot.status === "APROBADA";
   const isRejected = cot.status === "RECHAZADA";
+  const isLiquidada = cot.status === "LIQUIDADA";
+  // Estados finales (aprobada o liquidada): la selección queda fijada al combo confirmado.
+  const isFinalized = isApproved || isLiquidada;
   const canAct     = cot.status === "BORRADOR" || cot.status === "ENVIADA";
   const hasCombos  = combos.length > 0;
 
-  // When approved, the selection is locked to the approved combo.
-  const selectedComboIdx = isApproved ? approvedComboIdx : userPickedIdx;
-  const selectedCombo = selectedComboIdx != null ? combos[selectedComboIdx] ?? null : null;
+  // When finalized, the selection is locked to the approved/settled combo.
+  const effectivePick = isFinalized ? finalizedPick : pickedByDest;
+  const selectionComplete = destGroups.length > 0 && destGroups.every((g) => effectivePick[g.destinoId] != null);
+  // Unique combo in the cartesian set matching the current one-hotel-per-destino pick.
+  const selectedCombo = selectionComplete
+    ? (combos.find((c) => c.legs.every((leg) => effectivePick[leg.destinoId ?? 0] === leg.hotelId)) ?? null)
+    : null;
+  const selectedComboIdx = selectedCombo ? combos.indexOf(selectedCombo) : null;
 
-  // Screen: approved → only the chosen combo; otherwise all combos.
-  const combosToShow = isApproved && selectedCombo ? [selectedCombo] : combos;
+  // Selección helpers.
+  const pickCombo = (combo: ComboView) => {
+    const m: Record<number, number> = {};
+    combo.legs.forEach((leg) => { m[leg.destinoId ?? 0] = leg.hotelId; });
+    setPickedByDest(m);
+  };
+  const pickHotel = (destinoId: number, hotelId: number) =>
+    setPickedByDest((prev) => ({ ...prev, [destinoId]: hotelId }));
+
+  // Screen: finalized → only the chosen combo; otherwise all combos.
+  const combosToShow = isFinalized && selectedCombo ? [selectedCombo] : combos;
 
   const pasajerosLabel = `${numAdultos} Adulto${numAdultos !== 1 ? "s" : ""}` +
     (numNinos > 0 ? ` + ${numNinos} Niño${numNinos !== 1 ? "s" : ""}` : "") +
@@ -207,40 +230,71 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
     const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const today = new Date().toLocaleDateString("es-EC", { day: "2-digit", month: "long", year: "numeric" });
     const statusLabel = COTIZACION_STATUS_LABEL[cot.status];
+    const stampColor =
+      cot.status === "APROBADA"  ? "#059669" :
+      cot.status === "LIQUIDADA" ? "#7c3aed" :
+      cot.status === "RECHAZADA" ? "#e11d48" : "#64748b";
 
     // Not approved → all combos; approved → only the chosen combo.
-    const combosForPrint = isApproved && selectedCombo ? [selectedCombo] : combos;
+    const combosForPrint = isFinalized && selectedCombo ? [selectedCombo] : combos;
 
     const logoHTML = agencyLogo
       ? `<img src="${agencyLogo}" alt="${esc(agencyName)}" style="width:80px;height:32px;object-fit:contain;" />`
       : `<div style="width:72px;height:30px;background:#0B4339;border-radius:5px;display:flex;align-items:center;justify-content:center;"><span style="color:#28BFA9;font-size:10px;font-weight:900;">LTT</span></div>`;
 
-    // Compact table: one row per combination (hotels inline), adult + child columns.
+    // Vista agrupada por destino (≥2 destinos con varios hoteles): en vez del listado
+    // cartesiano, se imprime cada destino con sus hoteles y el precio por persona de cada uno.
+    const printGrouped = useGrouped && !isFinalized;
     const showChild = numNinos > 0;
     const adultTipoLabel =
       ({ 1: "SGL", 2: "DBL", 3: "TPL", 4: "QUAD" } as Record<number, string>)[numAdultos] ?? "Adulto";
 
-    const comboRowsHTML = combosForPrint.map((combo, i) => {
-      const hotelsLine = combo.legs.map((h) => {
-        const city = isMultiDest && h.destinoCiudad ? `${esc(h.destinoCiudad)} — ` : "";
-        return `${city}${esc(h.nombre)} <span class="amber">${stars(h.estrellas)}</span>`;
-      }).join(` <span class="plus">+</span> `);
-      const title = combosForPrint.length > 1 ? `Combinación ${i + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
-      return `<tr>` +
-        `<td class="ct-name"><span class="ct-title">${esc(title)}</span><span class="ct-hotels">${hotelsLine}</span></td>` +
-        `<td class="ct-price">$${esc(money(combo.adultP))}<em>/pax</em></td>` +
-        (showChild ? `<td class="ct-price">$${esc(money(combo.childP))}<em>/niño</em></td>` : "") +
-        `</tr>`;
-    }).join("");
+    let rowsHTML: string;
+    if (printGrouped) {
+      rowsHTML = destGroups.map((g) => {
+        const header = `<tr><td class="ct-group" colspan="${showChild ? 3 : 2}">${esc(g.ciudad)}</td></tr>`;
+        const hotelRows = g.hotels.map((h) => {
+          const p = hotelPerDestinoPrice({
+            adultColPerPax:     h.adultColPerPax ?? 0,
+            childAccomTotal:    h.childAccomTotal ?? 0,
+            childServicesTotal: h.childServicesTotal ?? 0,
+            boletoAdultoPerPax: boletoAdultoPerPax,
+            boletoNinoPerPax:   boletoNinoPerPax,
+            agencyMarkup:       markup,
+            numAdultos, numNinos,
+            numDestinos: destGroups.length,
+          });
+          return `<tr>` +
+            `<td class="ct-name"><span class="ct-hotels">${esc(h.nombre)} <span class="amber">${stars(h.estrellas)}</span></span></td>` +
+            `<td class="ct-price">$${esc(money(p.precioAdulto))}<em>/pax</em></td>` +
+            (showChild ? `<td class="ct-price">$${esc(money(p.precioNino))}<em>/niño</em></td>` : "") +
+            `</tr>`;
+        }).join("");
+        return header + hotelRows;
+      }).join("");
+    } else {
+      rowsHTML = combosForPrint.map((combo, i) => {
+        const hotelsLine = combo.legs.map((h) => {
+          const city = isMultiDest && h.destinoCiudad ? `${esc(h.destinoCiudad)} — ` : "";
+          return `${city}${esc(h.nombre)} <span class="amber">${stars(h.estrellas)}</span>`;
+        }).join(` <span class="plus">+</span> `);
+        const title = combosForPrint.length > 1 ? `Combinación ${i + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
+        return `<tr>` +
+          `<td class="ct-name"><span class="ct-title">${esc(title)}</span><span class="ct-hotels">${hotelsLine}</span></td>` +
+          `<td class="ct-price">$${esc(money(combo.adultP))}<em>/pax</em></td>` +
+          (showChild ? `<td class="ct-price">$${esc(money(combo.childP))}<em>/niño</em></td>` : "") +
+          `</tr>`;
+      }).join("");
+    }
 
     const combosHTML =
       `<table class="combo-table">` +
       `<thead><tr>` +
-      `<th class="ct-name-h">Combinación</th>` +
+      `<th class="ct-name-h">${printGrouped ? "Hotel" : "Combinación"}</th>` +
       `<th class="ct-price-h">${adultTipoLabel}</th>` +
       (showChild ? `<th class="ct-price-h">CHD</th>` : "") +
       `</tr></thead>` +
-      `<tbody>${comboRowsHTML}</tbody>` +
+      `<tbody>${rowsHTML}</tbody>` +
       `</table>`;
 
     const html = `<!DOCTYPE html>
@@ -281,6 +335,7 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
 .combo-table tbody tr{border-bottom:1px solid #EDF7F5;break-inside:avoid;}
 .combo-table td{padding:9px 0;vertical-align:middle;}
 .ct-name{padding-right:14px;}
+.ct-group{padding:8px 0 3px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1.2px;color:#28BFA9;border-bottom:1px solid #EDF7F5;}
 .ct-title{display:block;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#0B4339;opacity:.4;}
 .ct-hotels{display:block;font-size:11px;font-weight:700;color:#0B4339;margin-top:1px;}
 .ct-price{text-align:right;font-size:14px;font-weight:900;color:#0B4339;white-space:nowrap;}
@@ -305,7 +360,7 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
   </div>
 </div>
 <div class="page">
-  <div class="stamp" style="color:${cot.status === "APROBADA" ? "#059669" : cot.status === "RECHAZADA" ? "#e11d48" : "#64748b"};border-color:${cot.status === "APROBADA" ? "#059669" : cot.status === "RECHAZADA" ? "#e11d48" : "#64748b"};opacity:.28">${esc(statusLabel)}</div>
+  <div class="stamp" style="color:${stampColor};border-color:${stampColor};opacity:.28">${esc(statusLabel)}</div>
   <div class="header">
     <div class="header-left">
       ${logoHTML}
@@ -344,7 +399,7 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
     </div>
   </div>
   ${hasCombos ? `<div class="section">
-    <div class="section-title">${combosForPrint.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento"}</div>
+    <div class="section-title">${printGrouped ? "Hoteles por Destino" : (combosForPrint.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}</div>
     ${combosHTML}
     <p class="note-line">Precios por persona (incluyen alojamiento, actividades y traslados${cot.incluyeBoleto ? ", y boleto aéreo" : ""}). ${numNinos > 0 ? "El niño se calcula por separado del adulto. " : ""}Sujeto a disponibilidad.</p>
   </div>` : ""}
@@ -446,7 +501,9 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
 
       {canAct && hasCombos && !selectedCombo && (
         <p className="max-w-[820px] mx-auto mb-4 text-[11px] font-bold text-amber-700 bg-amber-50 px-4 py-2.5 rounded-2xl border border-amber-200 text-center leading-relaxed">
-          Selecciona una combinación para poder aprobar. También puedes imprimir sin aprobar.
+          {useGrouped
+            ? "Selecciona un hotel en cada destino para poder aprobar. También puedes imprimir sin aprobar."
+            : "Selecciona una combinación para poder aprobar. También puedes imprimir sin aprobar."}
         </p>
       )}
 
@@ -510,90 +567,166 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
             </div>
           </div>
 
-          {/* Combinaciones */}
+          {/* Combinaciones / Hoteles por destino */}
           {hasCombos && (
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest">
-                  {isApproved
+                  {isFinalized
                     ? "Combinación Confirmada"
-                    : (combos.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}
-                  {!isApproved && combos.length > 1 && (
+                    : useGrouped
+                      ? "Hoteles por Destino"
+                      : (combos.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}
+                  {!isFinalized && !useGrouped && combos.length > 1 && (
                     <span className="ml-1 text-primary/25">({combos.length})</span>
                   )}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {combosToShow.map((combo) => {
-                  const idx = combos.indexOf(combo);
-                  const isSel = idx === selectedComboIdx;
-                  const selectable = canAct;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      disabled={!selectable}
-                      onClick={() => selectable && setUserPickedIdx(idx)}
-                      className={`text-left rounded-3xl border-2 p-5 transition-all ${selectable ? "cursor-pointer" : "cursor-default"} ${
-                        isSel
-                          ? "border-secondary bg-secondary/5"
-                          : selectable
-                            ? "border-gray-100 hover:border-secondary/40 hover:bg-light/60"
-                            : "border-gray-100"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-primary/40">
-                          {combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento")}
-                        </span>
-                        {selectable && (
-                          <span className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${isSel ? "border-secondary bg-secondary" : "border-gray-300"}`}>
-                            {isSel && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                          </span>
-                        )}
+              {useGrouped && !isFinalized ? (
+                /* Vista agrupada: el asesor elige un hotel por destino */
+                <div className="space-y-5">
+                  {destGroups.map((g) => (
+                    <div key={g.destinoId}>
+                      <p className="text-[8px] font-black uppercase tracking-widest text-primary/40 mb-2">
+                        {g.ciudad}
+                        <span className="ml-1 text-primary/25">· elige uno</span>
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {g.hotels.map((h) => {
+                          const isSel = effectivePick[g.destinoId] === h.hotelId;
+                          const p = hotelPerDestinoPrice({
+                            adultColPerPax:     h.adultColPerPax ?? 0,
+                            childAccomTotal:    h.childAccomTotal ?? 0,
+                            childServicesTotal: h.childServicesTotal ?? 0,
+                            boletoAdultoPerPax: boletoAdultoPerPax,
+                            boletoNinoPerPax:   boletoNinoPerPax,
+                            agencyMarkup:       markup,
+                            numAdultos, numNinos,
+                            numDestinos: destGroups.length,
+                          });
+                          return (
+                            <button
+                              key={h.hotelId}
+                              type="button"
+                              disabled={!canAct}
+                              onClick={() => canAct && pickHotel(g.destinoId, h.hotelId)}
+                              className={`text-left rounded-3xl border-2 p-4 transition-all ${canAct ? "cursor-pointer" : "cursor-default"} ${
+                                isSel
+                                  ? "border-secondary bg-secondary/5"
+                                  : canAct
+                                    ? "border-gray-100 hover:border-secondary/40 hover:bg-light/60"
+                                    : "border-gray-100"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold text-primary leading-snug">{h.nombre}</p>
+                                  <p className="text-amber-400 text-[9px] font-bold">{stars(h.estrellas)}</p>
+                                </div>
+                                {canAct && (
+                                  <span className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center transition-all ${isSel ? "border-secondary bg-secondary" : "border-gray-300"}`}>
+                                    {isSel && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
+                                <div className="flex items-center justify-between px-3 py-2">
+                                  <span className="text-[10px] font-bold text-primary/60">Adulto</span>
+                                  <span className="text-sm font-black text-primary">
+                                    ${money(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                                  </span>
+                                </div>
+                                {numNinos > 0 && (
+                                  <div className="flex items-center justify-between px-3 py-2">
+                                    <span className="text-[10px] font-bold text-primary/60">Niño</span>
+                                    <span className="text-sm font-black text-primary">
+                                      ${money(p.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
-
-                      {/* Hotels of the combo (one per destino) */}
-                      <div className="space-y-2 mb-3">
-                        {combo.legs.map((h) => (
-                          <div key={h.hotelId}>
-                            {isMultiDest && (
-                              <p className="text-[8px] font-black uppercase tracking-widest text-primary/35">{h.destinoCiudad}</p>
-                            )}
-                            <p className="text-xs font-bold text-primary leading-snug">{h.nombre}</p>
-                            <p className="text-amber-400 text-[9px] font-bold">{stars(h.estrellas)}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Adult / Child per-person prices — no totals */}
-                      <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-2">
-                          <span className="text-[10px] font-bold text-primary/60">Adulto</span>
-                          <span className="text-sm font-black text-primary">
-                            ${money(combo.adultP)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Combinaciones (cartesiano) o combinación confirmada */
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {combosToShow.map((combo) => {
+                    const idx = combos.indexOf(combo);
+                    const isSel = idx === selectedComboIdx;
+                    const selectable = canAct;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        disabled={!selectable}
+                        onClick={() => selectable && pickCombo(combo)}
+                        className={`text-left rounded-3xl border-2 p-5 transition-all ${selectable ? "cursor-pointer" : "cursor-default"} ${
+                          isSel
+                            ? "border-secondary bg-secondary/5"
+                            : selectable
+                              ? "border-gray-100 hover:border-secondary/40 hover:bg-light/60"
+                              : "border-gray-100"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[8px] font-black uppercase tracking-widest text-primary/40">
+                            {combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento")}
                           </span>
+                          {selectable && (
+                            <span className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${isSel ? "border-secondary bg-secondary" : "border-gray-300"}`}>
+                              {isSel && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            </span>
+                          )}
                         </div>
-                        {numNinos > 0 && (
+
+                        {/* Hotels of the combo (one per destino) */}
+                        <div className="space-y-2 mb-3">
+                          {combo.legs.map((h) => (
+                            <div key={h.hotelId}>
+                              {isMultiDest && (
+                                <p className="text-[8px] font-black uppercase tracking-widest text-primary/35">{h.destinoCiudad}</p>
+                              )}
+                              <p className="text-xs font-bold text-primary leading-snug">{h.nombre}</p>
+                              <p className="text-amber-400 text-[9px] font-bold">{stars(h.estrellas)}</p>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Adult / Child per-person prices — no totals */}
+                        <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
                           <div className="flex items-center justify-between px-3 py-2">
-                            <span className="text-[10px] font-bold text-primary/60">Niño</span>
+                            <span className="text-[10px] font-bold text-primary/60">Adulto</span>
                             <span className="text-sm font-black text-primary">
-                              ${money(combo.childP)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                              ${money(combo.adultP)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
                             </span>
                           </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                          {numNinos > 0 && (
+                            <div className="flex items-center justify-between px-3 py-2">
+                              <span className="text-[10px] font-bold text-primary/60">Niño</span>
+                              <span className="text-sm font-black text-primary">
+                                ${money(combo.childP)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
               <p className="text-[9px] text-primary/35 font-bold mt-3 leading-relaxed">
                 Precios por persona (incluyen alojamiento, actividades y traslados
                 {cot.incluyeBoleto ? ", y boleto aéreo" : ""}).
                 {numNinos > 0 ? " El niño se calcula por separado del adulto." : ""}
                 {boletoOculto ? " El boleto aéreo va incluido en el precio." : ""}
+                {useGrouped && !isFinalized ? " Elige un hotel en cada destino para aprobar." : ""}
               </p>
             </div>
           )}

@@ -418,4 +418,5 @@ enum CotizacionStatus {
   ENVIADA
   APROBADA
   RECHAZADA
+  LIQUIDADA // Estado final generado por lt-core-admin (cotización liquidada/facturada)
 }
