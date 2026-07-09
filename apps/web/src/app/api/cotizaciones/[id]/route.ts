@@ -2,6 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logError } from "@/lib/logger";
+import { mapCotizacionRow } from "@/lib/cotizacion-mapper";
+
+// GET /api/cotizaciones/[id] — una cotización de la agencia/usuario activo
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user?.agenciaId) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+
+  const { id } = await params;
+  const userId = (session.user as any).id as string;
+
+  try {
+    const cot = await prisma.cotizacion.findUnique({
+      where: { id },
+      include: { cliente: true, detalles: true },
+    });
+
+    if (!cot) return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+    if (cot.agenciaId !== session.user.agenciaId || cot.creadoPorId !== userId)
+      return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
+
+    return NextResponse.json(mapCotizacionRow(cot));
+  } catch (err) {
+    logError("GET /api/cotizaciones/[id]", err);
+    return NextResponse.json({ error: "Error al cargar cotización" }, { status: 500 });
+  }
+}
 
 // DELETE /api/cotizaciones/[id] — solo BORRADOR o RECHAZADA
 export async function DELETE(

@@ -1,12 +1,9 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import {
-  ArrowLeft, User, Globe, MapPin, FileText, Calendar, Plane,
-  Building2, CheckCircle2, Printer, X, XCircle,
-} from "lucide-react";
+import { CheckCircle2, Printer, X, XCircle } from "lucide-react";
 import { COTIZACION_STATUS_LABEL } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
-import { useDashboard, type CotizacionExtended, type HotelCompSnapshot } from "../DashboardContext";
+import type { CotizacionExtended, HotelCompSnapshot } from "../DashboardContext";
 import { cartesian, combineComboLegs, hotelPerDestinoPrice, type ComboLeg } from "../cotizar-price";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
@@ -25,15 +22,6 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
   RECHAZADA: "bg-rose-500",
   LIQUIDADA: "bg-violet-500",
 };
-// Diagonal stamp on the document sheet.
-const STAMP_STYLE: Record<CotizacionStatus, string> = {
-  BORRADOR:  "text-sky-500/30 border-sky-500/30",
-  ENVIADA:   "text-amber-500/30 border-amber-500/30",
-  APROBADA:  "text-emerald-600/40 border-emerald-600/40",
-  RECHAZADA: "text-rose-500/40 border-rose-500/40",
-  LIQUIDADA: "text-violet-600/40 border-violet-600/40",
-};
-
 const TERMINOS = `Los precios indicados son por persona en la categoría de habitación seleccionada y están sujetos a disponibilidad hotelera al momento de la reserva. Land Tour Travel actúa como operador mayorista; la agencia minorista es responsable de la relación comercial con el cliente final. El pago del depósito de reserva (40% del total) es obligatorio para confirmar los servicios. Cancelaciones con menos de 15 días de anticipación están sujetas a penalidades del 50%. Los vuelos, cuando son incluidos, están sujetos a las políticas de la aerolínea operadora. El pasajero es responsable de contar con documentación vigente (pasaporte, visa si aplica).`;
 
 /** Converts "YYYY-MM-DD" → "DD/MM/YYYY". Returns the original string for other formats. */
@@ -57,30 +45,30 @@ type ComboView = {
 };
 
 interface Props {
-  cotId: string;
-  onBack: () => void;
+  cot: CotizacionExtended;
+  agencyName: string;
+  agencyPhone: string;
+  agencyAddress: string;
+  agencyLogo: string | null;
 }
 
-export default function CotizacionDetailView({ cotId, onBack }: Props) {
-  const {
-    cotizaciones, setCotizaciones,
-    agencyName, agencyPhone, agencyAddress, agencyLogo,
-  } = useDashboard();
+export default function CotizacionDetailView({
+  cot: initialCot, agencyName, agencyPhone, agencyAddress, agencyLogo,
+}: Props) {
+  const [cot, setCot] = useState<CotizacionExtended>(initialCot);
 
-  const cot = cotizaciones.find((c) => c.id === cotId) as CotizacionExtended | undefined;
-
-  const allHotels = cot?.hotelsComparison ?? [];
+  const allHotels = cot.hotelsComparison ?? [];
   const hasV4     = allHotels.length > 0 && allHotels[0].adultAccomTotal != null;
   const boletoOculto = allHotels.some((h) => h.boletoPrecioOculto);
 
   // Passenger counts (from stored room distribution).
-  const numNinos   = (cot?.pasajeros as any)?.cantCHD ?? 0;
+  const numNinos   = (cot.pasajeros as any)?.cantCHD ?? 0;
   const numAdultos = (["SGL", "DBL", "TPL", "QUAD"] as const).reduce(
-    (s, t) => s + (((cot?.pasajeros as any)?.[`cant${t}`] ?? 0) as number) * PAX_BY_TYPE[t], 0);
+    (s, t) => s + (((cot.pasajeros as any)?.[`cant${t}`] ?? 0) as number) * PAX_BY_TYPE[t], 0);
 
   const boletoAdultoPerPax = allHotels[0]?.boletoPerPax ?? 0;
   const boletoNinoPerPax   = allHotels[0]?.boletoChildPerPax ?? 0;
-  const markup             = cot?.markup ?? 0;
+  const markup             = cot.markup ?? 0;
 
   // Group hotels by destino (preserve insertion order).
   const destGroups = useMemo(() => {
@@ -114,10 +102,10 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
       // Legacy (v1/v2) snapshots lack the adult/child split → fall back to pricePerPax.
       const adultP = hasV4 ? t.precioAdulto : legs.reduce((s, h) => s + (h.pricePerPax ?? 0), 0);
       const childP = hasV4 ? t.precioNino   : legs.reduce((s, h) => s + (h.avgChildPerPax ?? 0), 0);
-      const total  = hasV4 ? t.total : (cot?.total ?? 0);
+      const total  = hasV4 ? t.total : cot.total;
       return { legs, hotelIds: legs.map((h) => h.hotelId), adultP, childP, total };
     });
-  }, [allHotels, destGroups, numAdultos, numNinos, boletoAdultoPerPax, boletoNinoPerPax, markup, hasV4, cot?.total]);
+  }, [allHotels, destGroups, numAdultos, numNinos, boletoAdultoPerPax, boletoNinoPerPax, markup, hasV4, cot.total]);
 
   // Selección unificada: un hotel por destino (destinoId → hotelId). Sirve tanto para la
   // vista de combinaciones (clic en una combinación fija los hoteles de todos sus destinos)
@@ -131,16 +119,7 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
   const [pickedByDest, setPickedByDest] = useState<Record<number, number>>({});
   const [isBusy, setIsBusy] = useState(false);
 
-  if (!cot) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm font-bold text-primary/40">Cotización no encontrada.</p>
-      </div>
-    );
-  }
-
   const isApproved = cot.status === "APROBADA";
-  const isRejected = cot.status === "RECHAZADA";
   const isLiquidada = cot.status === "LIQUIDADA";
   // Estados finales (aprobada o liquidada): la selección queda fijada al combo confirmado.
   const isFinalized = isApproved || isLiquidada;
@@ -180,24 +159,21 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
     if (isBusy) return;
     setIsBusy(true);
 
-    setCotizaciones((prev) =>
-      prev.map((c) => {
-        if (c.id !== cotId) return c;
-        const updatedComparison = extra.hotelIds
-          ? c.hotelsComparison?.map((h) => ({ ...h, selected: extra.hotelIds!.includes(h.hotelId) }))
-          : c.hotelsComparison;
-        return {
-          ...c,
-          status,
-          ...(extra.total != null ? { total: extra.total } : {}),
-          ...(extra.hotelIds && extra.hotelIds.length > 0 ? { selectedHotelId: extra.hotelIds[0] } : {}),
-          ...(updatedComparison ? { hotelsComparison: updatedComparison } : {}),
-        };
-      })
-    );
+    setCot((prev) => {
+      const updatedComparison = extra.hotelIds
+        ? prev.hotelsComparison?.map((h) => ({ ...h, selected: extra.hotelIds!.includes(h.hotelId) }))
+        : prev.hotelsComparison;
+      return {
+        ...prev,
+        status,
+        ...(extra.total != null ? { total: extra.total } : {}),
+        ...(extra.hotelIds && extra.hotelIds.length > 0 ? { selectedHotelId: extra.hotelIds[0] } : {}),
+        ...(updatedComparison ? { hotelsComparison: updatedComparison } : {}),
+      };
+    });
 
     try {
-      await fetch(`/api/cotizaciones/${cotId}/status`, {
+      await fetch(`/api/cotizaciones/${cot.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -225,243 +201,42 @@ export default function CotizacionDetailView({ cotId, onBack }: Props) {
     patchStatus("RECHAZADA");
   };
 
-  // ─── Print / PDF (document view) ──────────────────────────────────
-  const handlePrint = () => {
-    const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const today = new Date().toLocaleDateString("es-EC", { day: "2-digit", month: "long", year: "numeric" });
-    const statusLabel = COTIZACION_STATUS_LABEL[cot.status];
-    const stampColor =
-      cot.status === "APROBADA"  ? "#059669" :
-      cot.status === "LIQUIDADA" ? "#7c3aed" :
-      cot.status === "RECHAZADA" ? "#e11d48" : "#64748b";
-
-    // Not approved → all combos; approved → only the chosen combo.
-    const combosForPrint = isFinalized && selectedCombo ? [selectedCombo] : combos;
-
-    const logoHTML = agencyLogo
-      ? `<img src="${agencyLogo}" alt="${esc(agencyName)}" style="width:80px;height:32px;object-fit:contain;" />`
-      : `<div style="width:72px;height:30px;background:#0B4339;border-radius:5px;display:flex;align-items:center;justify-content:center;"><span style="color:#28BFA9;font-size:10px;font-weight:900;">LTT</span></div>`;
-
-    // Vista agrupada por destino (≥2 destinos con varios hoteles): en vez del listado
-    // cartesiano, se imprime cada destino con sus hoteles y el precio por persona de cada uno.
-    const printGrouped = useGrouped && !isFinalized;
-    const showChild = numNinos > 0;
-    const adultTipoLabel =
-      ({ 1: "SGL", 2: "DBL", 3: "TPL", 4: "QUAD" } as Record<number, string>)[numAdultos] ?? "Adulto";
-
-    let rowsHTML: string;
-    if (printGrouped) {
-      rowsHTML = destGroups.map((g) => {
-        const header = `<tr><td class="ct-group" colspan="${showChild ? 3 : 2}">${esc(g.ciudad)}</td></tr>`;
-        const hotelRows = g.hotels.map((h) => {
-          const p = hotelPerDestinoPrice({
-            adultColPerPax:     h.adultColPerPax ?? 0,
-            childAccomTotal:    h.childAccomTotal ?? 0,
-            childServicesTotal: h.childServicesTotal ?? 0,
-            boletoAdultoPerPax: boletoAdultoPerPax,
-            boletoNinoPerPax:   boletoNinoPerPax,
-            agencyMarkup:       markup,
-            numAdultos, numNinos,
-            numDestinos: destGroups.length,
-          });
-          return `<tr>` +
-            `<td class="ct-name"><span class="ct-hotels">${esc(h.nombre)} <span class="amber">${stars(h.estrellas)}</span></span></td>` +
-            `<td class="ct-price">$${esc(money(p.precioAdulto))}<em>/pax</em></td>` +
-            (showChild ? `<td class="ct-price">$${esc(money(p.precioNino))}<em>/niño</em></td>` : "") +
-            `</tr>`;
-        }).join("");
-        return header + hotelRows;
-      }).join("");
-    } else {
-      rowsHTML = combosForPrint.map((combo, i) => {
-        const hotelsLine = combo.legs.map((h) => {
-          const city = isMultiDest && h.destinoCiudad ? `${esc(h.destinoCiudad)} — ` : "";
-          return `${city}${esc(h.nombre)} <span class="amber">${stars(h.estrellas)}</span>`;
-        }).join(` <span class="plus">+</span> `);
-        const title = combosForPrint.length > 1 ? `Combinación ${i + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
-        return `<tr>` +
-          `<td class="ct-name"><span class="ct-title">${esc(title)}</span><span class="ct-hotels">${hotelsLine}</span></td>` +
-          `<td class="ct-price">$${esc(money(combo.adultP))}<em>/pax</em></td>` +
-          (showChild ? `<td class="ct-price">$${esc(money(combo.childP))}<em>/niño</em></td>` : "") +
-          `</tr>`;
-      }).join("");
-    }
-
-    const combosHTML =
-      `<table class="combo-table">` +
-      `<thead><tr>` +
-      `<th class="ct-name-h">${printGrouped ? "Hotel" : "Combinación"}</th>` +
-      `<th class="ct-price-h">${adultTipoLabel}</th>` +
-      (showChild ? `<th class="ct-price-h">CHD</th>` : "") +
-      `</tr></thead>` +
-      `<tbody>${rowsHTML}</tbody>` +
-      `</table>`;
-
-    const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Cotización ${esc(cot.codigo)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-@page{margin:14mm 18mm;size:A4 portrait;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;background:#e9eeed;line-height:1.5;}
-.toolbar{position:fixed;top:0;left:0;right:0;z-index:100;background:#0B4339;color:white;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:12px;font-weight:700;}
-.toolbar button{padding:6px 16px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;margin-left:6px;}
-.btn-print{background:#28BFA9;color:#0B4339;}
-.btn-close{background:transparent;color:white;border:1px solid rgba(255,255,255,0.3)!important;}
-.page{max-width:820px;margin:64px auto 40px;padding:40px;background:white;box-shadow:0 10px 40px rgba(11,67,57,.15);position:relative;}
-@media print{body{background:#fff;}.toolbar{display:none!important;}.page{margin:0;padding:0;max-width:none;box-shadow:none;}}
-.stamp{position:absolute;top:120px;right:44px;border:3px solid;border-radius:10px;padding:6px 16px;font-size:20px;font-weight:900;letter-spacing:3px;text-transform:uppercase;transform:rotate(9deg);opacity:.5;}
-.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #28BFA9;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.agency-name{font-size:14px;font-weight:900;color:#0B4339;}
-.agency-contact{font-size:9px;color:#0B4339;opacity:.6;margin-top:2px;}
-.header-right{text-align:right;}
-.doc-title{font-size:19px;font-weight:900;color:#0B4339;letter-spacing:3px;}
-.doc-code{font-size:11px;font-weight:700;color:#28BFA9;margin-top:3px;}
-.doc-date{font-size:9px;color:#0B4339;opacity:.5;margin-top:2px;}
-.doc-status{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-top:4px;color:#0B4339;opacity:.6;}
-.section{margin-bottom:20px;}
-.section-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#28BFA9;margin-bottom:10px;padding-bottom:4px;border-bottom:1px solid #EDF7F5;}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
-.field label{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:#0B4339;opacity:.4;display:block;}
-.field span{font-size:11px;font-weight:700;color:#0B4339;}
-.combo-table{width:100%;border-collapse:collapse;}
-.combo-table thead th{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#28BFA9;padding:0 0 6px;border-bottom:1.5px solid #DCEEEA;}
-.ct-name-h{text-align:left;}
-.ct-price-h{text-align:right;width:88px;}
-.combo-table tbody tr{border-bottom:1px solid #EDF7F5;break-inside:avoid;}
-.combo-table td{padding:9px 0;vertical-align:middle;}
-.ct-name{padding-right:14px;}
-.ct-group{padding:8px 0 3px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1.2px;color:#28BFA9;border-bottom:1px solid #EDF7F5;}
-.ct-title{display:block;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#0B4339;opacity:.4;}
-.ct-hotels{display:block;font-size:11px;font-weight:700;color:#0B4339;margin-top:1px;}
-.ct-price{text-align:right;font-size:14px;font-weight:900;color:#0B4339;white-space:nowrap;}
-.ct-price em{font-size:8px;font-weight:700;opacity:.4;font-style:normal;margin-left:2px;}
-.plus{color:#28BFA9;font-weight:900;margin:0 2px;}
-.amber{color:#C9A96E;font-size:9px;}
-.includes-list{display:flex;flex-wrap:wrap;gap:6px;}
-.include-tag{background:#EDF7F5;color:#0B4339;font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid #28BFA9;opacity:.8;}
-.terms-text{font-size:8px;color:#0B4339;opacity:.5;line-height:1.6;}
-.note-line{font-size:8px;color:#0B4339;opacity:.45;margin-top:8px;line-height:1.5;}
-.footer{margin-top:24px;padding-top:12px;border-top:1px solid #EDF7F5;display:flex;justify-content:space-between;align-items:flex-end;}
-.footer-left{font-size:9px;font-weight:700;color:#0B4339;opacity:.6;line-height:1.8;}
-.footer-seal{width:52px;height:52px;border-radius:50%;background:#0B4339;color:#28BFA9;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;text-align:center;line-height:1.4;flex-shrink:0;}
-</style>
-</head>
-<body>
-<div class="toolbar">
-  <span>Cotización · ${esc(cot.codigo)}</span>
-  <div>
-    <button class="btn-print" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
-    <button class="btn-close" onclick="window.close()">✕ Cerrar</button>
-  </div>
-</div>
-<div class="page">
-  <div class="stamp" style="color:${stampColor};border-color:${stampColor};opacity:.28">${esc(statusLabel)}</div>
-  <div class="header">
-    <div class="header-left">
-      ${logoHTML}
-      <div>
-        <div class="agency-name">${esc(agencyName)}</div>
-        <div class="agency-contact">${esc(agencyPhone)}${agencyAddress ? " · " + esc(agencyAddress) : ""}</div>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="doc-title">COTIZACIÓN</div>
-      <div class="doc-code">${esc(cot.codigo)}</div>
-      <div class="doc-date">${today}</div>
-      <div class="doc-status">${esc(statusLabel)}</div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">Datos del Cliente</div>
-    <div class="grid-2">
-      <div class="field"><label>Nombre</label><span>${esc(cot.cliente?.nombre || "—")}</span></div>
-      <div class="field"><label>Email</label><span>${esc(cot.cliente?.email || "—")}</span></div>
-      ${cot.cliente?.telefono ? `<div class="field"><label>Teléfono</label><span>${esc(cot.cliente.telefono)}</span></div>` : ""}
-      ${cot.cliente?.documento ? `<div class="field"><label>Documento</label><span>${esc(cot.cliente.documento)}</span></div>` : ""}
-      ${cot.cliente?.direccion ? `<div class="field" style="grid-column:1/-1"><label>Dirección</label><span>${esc(cot.cliente.direccion)}</span></div>` : ""}
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">Detalles del Viaje</div>
-    <div class="grid-2">
-      <div class="field"><label>Programa</label><span>${esc(cot.paqueteNombre || "—")}</span></div>
-      <div class="field"><label>Destino</label><span>${esc(cot.paqueteDestino || "—")}</span></div>
-      <div class="field"><label>Duración</label><span>${esc(cot.paqueteDuracion || "—")}</span></div>
-      ${cot.fechaViaje ? `<div class="field"><label>Salida</label><span>${esc(fmtDate(cot.fechaViaje))}</span></div>` : ""}
-      ${cot.fechaRetorno ? `<div class="field"><label>Retorno</label><span>${esc(fmtDate(cot.fechaRetorno))}</span></div>` : ""}
-      <div class="field"><label>Pasajeros</label><span>${esc(pasajerosLabel)}</span></div>
-      ${cot.incluyeBoleto ? `<div class="field"><label>Boleto</label><span style="color:#28BFA9;">✓ Incluido</span></div>` : ""}
-    </div>
-  </div>
-  ${hasCombos ? `<div class="section">
-    <div class="section-title">${printGrouped ? "Hoteles por Destino" : (combosForPrint.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}</div>
-    ${combosHTML}
-    <p class="note-line">Precios por persona (incluyen alojamiento, actividades y traslados${cot.incluyeBoleto ? ", y boleto aéreo" : ""}). ${numNinos > 0 ? "El niño se calcula por separado del adulto. " : ""}Sujeto a disponibilidad.</p>
-  </div>` : ""}
-  ${(cot.paqueteIncluye?.length ?? 0) > 0 ? `
-  <div class="section">
-    <div class="section-title">Servicios Incluidos</div>
-    <div class="includes-list">
-      ${(cot.paqueteIncluye ?? []).map((inc: string) => `<span class="include-tag">✓ ${esc(inc)}</span>`).join("")}
-    </div>
-  </div>` : ""}
-  ${cot.notas ? `<div class="section"><div class="section-title">Notas</div><p class="terms-text" style="opacity:.7">${esc(cot.notas)}</p></div>` : ""}
-  <div class="section">
-    <div class="section-title">Términos y Condiciones</div>
-    <p class="terms-text">${esc(TERMINOS)}</p>
-  </div>
-  <div class="footer">
-    <div class="footer-left">
-      Preparado por: <strong>${esc(agencyName)}</strong><br>
-      ${esc(agencyPhone)} · ${today}<br>
-      <span style="color:#28BFA9">Land Tour Travel — Mayorista de Turismo</span>
-    </div>
-    <div class="footer-seal">LTT<br>COTIZACIÓN</div>
-  </div>
-</div>
-</body>
-</html>`;
-
-    const win = window.open("", "_blank");
-    if (!win) { alert("Permite ventanas emergentes para ver la cotización."); return; }
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-  };
-
   // ─── Render ───────────────────────────────────────────────────────
-  const clientRows: [React.ReactNode, string, string][] = [
-    [<User size={11} key="n" />,     "Nombre",    cot.cliente?.nombre    || ""],
-    [<Globe size={11} key="e" />,    "Email",     cot.cliente?.email     || ""],
-    [<MapPin size={11} key="t" />,   "Teléfono",  cot.cliente?.telefono  || ""],
-    [<FileText size={11} key="d" />, "Documento", cot.cliente?.documento || ""],
-    [<MapPin size={11} key="a" />,   "Dirección", cot.cliente?.direccion || ""],
+  const clientRows: [string, string][] = [
+    ["Nombre",    cot.cliente?.nombre    || ""],
+    ["Email",     cot.cliente?.email     || ""],
+    ["Teléfono",  cot.cliente?.telefono  || ""],
+    ["Documento", cot.cliente?.documento || ""],
+    ["Dirección", cot.cliente?.direccion || ""],
   ];
-  const tripRows: [React.ReactNode, string, string][] = [
-    [<Building2 size={11} key="p" />, "Programa",  cot.paqueteNombre   || ""],
-    [<MapPin size={11} key="de" />,   "Destino",   cot.paqueteDestino  || ""],
-    [<Calendar size={11} key="du" />, "Duración",  cot.paqueteDuracion || ""],
-    [<Calendar size={11} key="s" />,  "Salida",    fmtDate(cot.fechaViaje)],
-    [<Calendar size={11} key="r" />,  "Retorno",   fmtDate(cot.fechaRetorno)],
-    [<User size={11} key="pa" />,     "Pasajeros", pasajerosLabel],
-    [<Plane size={11} key="b" />,     "Boleto",    cot.incluyeBoleto ? "✓ Incluido" : ""],
+  const tripRows: [string, string][] = [
+    ["Programa",  cot.paqueteNombre   || ""],
+    ["Destino",   cot.paqueteDestino  || ""],
+    ["Duración",  cot.paqueteDuracion || ""],
+    ["Salida",    fmtDate(cot.fechaViaje)],
+    ["Retorno",   fmtDate(cot.fechaRetorno)],
+    ["Pasajeros", pasajerosLabel],
+    ["Boleto",    cot.incluyeBoleto ? "✓ Incluido" : ""],
   ];
+
+  const adultTipoLabel =
+    ({ 1: "SGL", 2: "DBL", 3: "TPL", 4: "QUAD" } as Record<number, string>)[numAdultos] ?? "Adulto";
+  const showChild = numNinos > 0;
+  const printGrouped = useGrouped && !isFinalized;
 
   return (
     <div className="animate-fade-scale pb-10">
 
-      {/* Action toolbar — not part of the document sheet */}
-      <div className="flex items-center gap-2 flex-wrap mb-6">
+      {/* Print layout: A4, no browser header/footer chrome beyond what the browser adds. */}
+      <style>{`@media print { @page { size: A4; margin: 14mm 18mm; } body { background: #fff !important; } }`}</style>
+
+      {/* Action toolbar — not part of the document sheet, hidden when printing */}
+      <div className="print:hidden flex items-center gap-2 flex-wrap mb-6">
         <button
-          onClick={onBack}
+          onClick={() => { window.close(); }}
           className="flex items-center gap-1.5 text-primary/50 hover:text-primary text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer"
         >
-          <ArrowLeft size={13} /> Cotizaciones
+          <X size={13} /> Cerrar pestaña
         </button>
         <span className={`px-2.5 py-0.5 text-[9px] font-black uppercase rounded-md tracking-wider flex items-center gap-1.5 ${STATUS_BADGE[cot.status]}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[cot.status]}`} />
@@ -470,7 +245,7 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
 
         <div className="ml-auto flex items-center gap-2">
           <button
-            onClick={handlePrint}
+            onClick={() => window.print()}
             className="px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all flex items-center gap-2 cursor-pointer active:scale-95"
           >
             <Printer size={13} /> Imprimir / PDF
@@ -500,278 +275,231 @@ body{font-family:'Montserrat',Arial,sans-serif;font-size:11px;color:#0B4339;back
       </div>
 
       {canAct && hasCombos && !selectedCombo && (
-        <p className="max-w-[820px] mx-auto mb-4 text-[11px] font-bold text-amber-700 bg-amber-50 px-4 py-2.5 rounded-2xl border border-amber-200 text-center leading-relaxed">
+        <p className="print:hidden max-w-[820px] mx-auto mb-4 text-[11px] font-bold text-amber-700 bg-amber-50 px-4 py-2.5 rounded-2xl border border-amber-200 text-center leading-relaxed">
           {useGrouped
             ? "Selecciona un hotel en cada destino para poder aprobar. También puedes imprimir sin aprobar."
             : "Selecciona una combinación para poder aprobar. También puedes imprimir sin aprobar."}
         </p>
       )}
 
-      {/* ── The document sheet ── */}
-      <div className="max-w-[820px] mx-auto bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
+      {/* ── The document sheet — mirrors the printed PDF layout ── */}
+      <div className="max-w-[820px] mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-10 print:shadow-none print:border-0 print:rounded-none print:p-0 print:max-w-none text-primary">
 
-        {/* Diagonal status stamp */}
-        <div className={`pointer-events-none absolute top-28 right-8 z-10 border-4 rounded-xl px-4 py-1.5 text-xl font-black uppercase tracking-[3px] rotate-[9deg] ${STAMP_STYLE[cot.status]}`}>
-          {COTIZACION_STATUS_LABEL[cot.status]}
-        </div>
-
-        {/* Header band */}
-        <div className="bg-primary p-6 sm:p-8 flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4 min-w-0">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 pb-4 mb-7 border-b-[3px] border-secondary print:break-inside-avoid">
+          <div className="flex items-center gap-3 min-w-0">
             {agencyLogo
-              ? <img src={agencyLogo} alt={agencyName} className="w-16 h-8 object-contain bg-white/90 rounded-xl p-1 shrink-0" />
-              : <div className="w-12 h-10 bg-secondary/20 rounded-2xl flex items-center justify-center shrink-0"><span className="text-secondary text-[10px] font-black">LTT</span></div>}
+              ? <img src={agencyLogo} alt={agencyName} className="w-20 h-8 object-contain shrink-0" />
+              : <div className="w-[72px] h-[30px] bg-primary rounded-md flex items-center justify-center shrink-0"><span className="text-secondary text-[10px] font-black">LTT</span></div>}
             <div className="min-w-0">
-              <h3 className="text-white font-black text-sm truncate">{agencyName}</h3>
-              <p className="text-white/40 text-[10px] font-bold mt-0.5 truncate">{agencyPhone}{agencyAddress ? ` · ${agencyAddress}` : ""}</p>
+              <p className="text-sm font-black text-primary truncate">{agencyName}</p>
+              <p className="text-[9px] font-bold text-primary/50 mt-0.5 truncate">{agencyPhone}{agencyAddress ? ` · ${agencyAddress}` : ""}</p>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <span className="text-secondary text-base font-black tracking-[3px] block">COTIZACIÓN</span>
-            <span className="text-secondary/70 text-[10px] font-black block mt-0.5">{cot.codigo}</span>
-            <span className="text-white/30 text-[9px] font-bold block mt-0.5">{cot.fechaCreacion}</span>
+            <p className="text-base font-black text-secondary tracking-[3px]">COTIZACIÓN</p>
+            <p className="text-[11px] font-bold text-secondary/70 mt-0.5">{cot.codigo}</p>
+            <p className="text-[9px] font-bold text-primary/40 mt-0.5">{cot.fechaCreacion}</p>
+            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 mt-1.5 text-[8px] font-black uppercase rounded-md tracking-wider ${STATUS_BADGE[cot.status]}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[cot.status]}`} />
+              {COTIZACION_STATUS_LABEL[cot.status]}
+            </span>
           </div>
         </div>
 
-        <div className="p-6 sm:p-10 space-y-8">
-
-          {/* Client + Trip */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-3">Datos del Cliente</span>
-              <div className="space-y-0">
-                {clientRows.filter(([, , v]) => !!v).map(([icon, label, value]) => (
-                  <div key={label} className="flex items-start gap-2 py-2 border-b border-gray-50 last:border-0">
-                    <span className="text-secondary mt-0.5 shrink-0">{icon}</span>
-                    <div className="min-w-0">
-                      <span className="text-[8px] font-black uppercase text-primary/30 tracking-wider block">{label}</span>
-                      <span className="text-xs font-bold text-primary break-words">{value}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-3">Detalles del Viaje</span>
-              <div className="space-y-0">
-                {tripRows.filter(([, , v]) => !!v).map(([icon, label, value]) => (
-                  <div key={label} className="flex items-start gap-2 py-2 border-b border-gray-50 last:border-0">
-                    <span className="text-secondary mt-0.5 shrink-0">{icon}</span>
-                    <div className="min-w-0">
-                      <span className="text-[8px] font-black uppercase text-primary/30 tracking-wider block">{label}</span>
-                      <span className={`text-xs font-bold break-words ${label === "Boleto" ? "text-secondary" : "text-primary"}`}>{value}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* Client + Trip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 mb-6">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Datos del Cliente</p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+              {clientRows.filter(([, v]) => !!v).map(([label, value]) => (
+                <div key={label} className={label === "Dirección" ? "col-span-2" : undefined}>
+                  <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{label}</span>
+                  <span className="block text-[11px] font-bold text-primary mt-0.5 break-words">{value}</span>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Combinaciones / Hoteles por destino */}
-          {hasCombos && (
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest">
-                  {isFinalized
-                    ? "Combinación Confirmada"
-                    : useGrouped
-                      ? "Hoteles por Destino"
-                      : (combos.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}
-                  {!isFinalized && !useGrouped && combos.length > 1 && (
-                    <span className="ml-1 text-primary/25">({combos.length})</span>
-                  )}
-                </span>
-              </div>
-
-              {useGrouped && !isFinalized ? (
-                /* Vista agrupada: el asesor elige un hotel por destino */
-                <div className="space-y-5">
-                  {destGroups.map((g) => (
-                    <div key={g.destinoId}>
-                      <p className="text-[8px] font-black uppercase tracking-widest text-primary/40 mb-2">
-                        {g.ciudad}
-                        <span className="ml-1 text-primary/25">· elige uno</span>
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {g.hotels.map((h) => {
-                          const isSel = effectivePick[g.destinoId] === h.hotelId;
-                          const p = hotelPerDestinoPrice({
-                            adultColPerPax:     h.adultColPerPax ?? 0,
-                            childAccomTotal:    h.childAccomTotal ?? 0,
-                            childServicesTotal: h.childServicesTotal ?? 0,
-                            boletoAdultoPerPax: boletoAdultoPerPax,
-                            boletoNinoPerPax:   boletoNinoPerPax,
-                            agencyMarkup:       markup,
-                            numAdultos, numNinos,
-                            numDestinos: destGroups.length,
-                          });
-                          return (
-                            <button
-                              key={h.hotelId}
-                              type="button"
-                              disabled={!canAct}
-                              onClick={() => canAct && pickHotel(g.destinoId, h.hotelId)}
-                              className={`text-left rounded-3xl border-2 p-4 transition-all ${canAct ? "cursor-pointer" : "cursor-default"} ${
-                                isSel
-                                  ? "border-secondary bg-secondary/5"
-                                  : canAct
-                                    ? "border-gray-100 hover:border-secondary/40 hover:bg-light/60"
-                                    : "border-gray-100"
-                              }`}
-                            >
-                              <div className="flex items-start justify-between gap-2 mb-2">
-                                <div className="min-w-0">
-                                  <p className="text-xs font-bold text-primary leading-snug">{h.nombre}</p>
-                                  <p className="text-amber-400 text-[9px] font-bold">{stars(h.estrellas)}</p>
-                                </div>
-                                {canAct && (
-                                  <span className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center transition-all ${isSel ? "border-secondary bg-secondary" : "border-gray-300"}`}>
-                                    {isSel && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
-                                <div className="flex items-center justify-between px-3 py-2">
-                                  <span className="text-[10px] font-bold text-primary/60">Adulto</span>
-                                  <span className="text-sm font-black text-primary">
-                                    ${money(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
-                                  </span>
-                                </div>
-                                {numNinos > 0 && (
-                                  <div className="flex items-center justify-between px-3 py-2">
-                                    <span className="text-[10px] font-bold text-primary/60">Niño</span>
-                                    <span className="text-sm font-black text-primary">
-                                      ${money(p.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Detalles del Viaje</p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+              {tripRows.filter(([, v]) => !!v).map(([label, value]) => (
+                <div key={label}>
+                  <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{label}</span>
+                  <span className={`block text-[11px] font-bold mt-0.5 break-words ${label === "Boleto" ? "text-secondary" : "text-primary"}`}>{value}</span>
                 </div>
-              ) : (
-                /* Combinaciones (cartesiano) o combinación confirmada */
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {combosToShow.map((combo) => {
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Servicios incluidos */}
+        {(cot.paqueteIncluye?.length ?? 0) > 0 && (
+          <div className="mb-6">
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+            <div className="flex flex-wrap gap-1.5">
+              {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
+                <span key={i} className="px-2 py-1 bg-light text-primary text-[9px] font-bold rounded-md border border-secondary/40">
+                  ✓ {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Combinaciones / Hoteles por destino — table rows, like the printed document */}
+        {hasCombos && (
+          <div className="mb-6">
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">
+              {isFinalized
+                ? "Combinación Confirmada"
+                : printGrouped
+                  ? "Hoteles por Destino"
+                  : (combos.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}
+              {!isFinalized && !printGrouped && combos.length > 1 && (
+                <span className="ml-1 text-primary/25 normal-case tracking-normal">({combos.length})</span>
+              )}
+            </p>
+
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr>
+                  <th className="pb-1.5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary">
+                    {printGrouped ? "Hotel" : "Combinación"}
+                  </th>
+                  <th className="pb-1.5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-24">
+                    {adultTipoLabel}
+                  </th>
+                  {showChild && (
+                    <th className="pb-1.5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20">
+                      Niño
+                    </th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {printGrouped ? (
+                  destGroups.map((g) => (
+                    <React.Fragment key={g.destinoId}>
+                      <tr>
+                        <td colSpan={showChild ? 3 : 2} className="pt-3 pb-1 text-[8px] font-black uppercase tracking-wide text-secondary border-b border-gray-100">
+                          {g.ciudad}
+                        </td>
+                      </tr>
+                      {g.hotels.map((h) => {
+                        const isSel = effectivePick[g.destinoId] === h.hotelId;
+                        const p = hotelPerDestinoPrice({
+                          adultColPerPax:     h.adultColPerPax ?? 0,
+                          childAccomTotal:    h.childAccomTotal ?? 0,
+                          childServicesTotal: h.childServicesTotal ?? 0,
+                          boletoAdultoPerPax: boletoAdultoPerPax,
+                          boletoNinoPerPax:   boletoNinoPerPax,
+                          agencyMarkup:       markup,
+                          numAdultos, numNinos,
+                          numDestinos: destGroups.length,
+                        });
+                        return (
+                          <tr
+                            key={h.hotelId}
+                            onClick={() => canAct && pickHotel(g.destinoId, h.hotelId)}
+                            className={`border-b border-gray-50 last:border-0 transition-colors ${canAct ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
+                          >
+                            <td className="py-2.5 pr-3">
+                              <span className="text-[11px] font-bold text-primary">{h.nombre}</span>{" "}
+                              <span className="text-gold text-[9px]">{stars(h.estrellas)}</span>
+                              {canAct && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
+                            </td>
+                            <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
+                              ${money(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/pax</span>
+                            </td>
+                            {showChild && (
+                              <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
+                                ${money(p.precioNino)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/niño</span>
+                              </td>
+                            )}
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  combosToShow.map((combo) => {
                     const idx = combos.indexOf(combo);
                     const isSel = idx === selectedComboIdx;
                     const selectable = canAct;
+                    const title = combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
                     return (
-                      <button
+                      <tr
                         key={idx}
-                        type="button"
-                        disabled={!selectable}
                         onClick={() => selectable && pickCombo(combo)}
-                        className={`text-left rounded-3xl border-2 p-5 transition-all ${selectable ? "cursor-pointer" : "cursor-default"} ${
-                          isSel
-                            ? "border-secondary bg-secondary/5"
-                            : selectable
-                              ? "border-gray-100 hover:border-secondary/40 hover:bg-light/60"
-                              : "border-gray-100"
-                        }`}
+                        className={`border-b border-gray-50 last:border-0 transition-colors ${selectable ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
                       >
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-[8px] font-black uppercase tracking-widest text-primary/40">
-                            {combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento")}
+                        <td className="py-2.5 pr-3">
+                          {combos.length > 1 && (
+                            <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{title}</span>
+                          )}
+                          <span className="block text-[11px] font-bold text-primary mt-0.5">
+                            {combo.legs.map((h, i) => (
+                              <React.Fragment key={h.hotelId}>
+                                {i > 0 && <span className="text-secondary font-black mx-1">+</span>}
+                                {isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ` : ""}{h.nombre}{" "}
+                                <span className="text-gold text-[9px]">{stars(h.estrellas)}</span>
+                              </React.Fragment>
+                            ))}
+                            {selectable && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
                           </span>
-                          {selectable && (
-                            <span className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${isSel ? "border-secondary bg-secondary" : "border-gray-300"}`}>
-                              {isSel && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Hotels of the combo (one per destino) */}
-                        <div className="space-y-2 mb-3">
-                          {combo.legs.map((h) => (
-                            <div key={h.hotelId}>
-                              {isMultiDest && (
-                                <p className="text-[8px] font-black uppercase tracking-widest text-primary/35">{h.destinoCiudad}</p>
-                              )}
-                              <p className="text-xs font-bold text-primary leading-snug">{h.nombre}</p>
-                              <p className="text-amber-400 text-[9px] font-bold">{stars(h.estrellas)}</p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Adult / Child per-person prices — no totals */}
-                        <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
-                          <div className="flex items-center justify-between px-3 py-2">
-                            <span className="text-[10px] font-bold text-primary/60">Adulto</span>
-                            <span className="text-sm font-black text-primary">
-                              ${money(combo.adultP)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
-                            </span>
-                          </div>
-                          {numNinos > 0 && (
-                            <div className="flex items-center justify-between px-3 py-2">
-                              <span className="text-[10px] font-bold text-primary/60">Niño</span>
-                              <span className="text-sm font-black text-primary">
-                                ${money(combo.childP)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </button>
+                        </td>
+                        <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
+                          ${money(combo.adultP)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/pax</span>
+                        </td>
+                        {showChild && (
+                          <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
+                            ${money(combo.childP)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/niño</span>
+                          </td>
+                        )}
+                      </tr>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                )}
+              </tbody>
+            </table>
 
-              <p className="text-[9px] text-primary/35 font-bold mt-3 leading-relaxed">
-                Precios por persona (incluyen alojamiento, actividades y traslados
-                {cot.incluyeBoleto ? ", y boleto aéreo" : ""}).
-                {numNinos > 0 ? " El niño se calcula por separado del adulto." : ""}
-                {boletoOculto ? " El boleto aéreo va incluido en el precio." : ""}
-                {useGrouped && !isFinalized ? " Elige un hotel en cada destino para aprobar." : ""}
-              </p>
-            </div>
-          )}
-
-          {/* Servicios incluidos */}
-          {(cot.paqueteIncluye?.length ?? 0) > 0 && (
-            <div>
-              <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-3">Servicios Incluidos</span>
-              <div className="flex flex-wrap gap-1.5">
-                {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
-                  <span key={i} className="flex items-center gap-1 px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-lg border border-secondary/15">
-                    <CheckCircle2 size={9} /> {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Notas */}
-          {cot.notas && (
-            <div>
-              <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-2">Notas</span>
-              <p className="text-xs font-bold text-primary/70 leading-relaxed whitespace-pre-wrap">{cot.notas}</p>
-            </div>
-          )}
-
-          {/* Términos */}
-          <div className="border-t border-gray-100 pt-5">
-            <span className="block text-[9px] font-black uppercase text-secondary/70 tracking-widest mb-2">Términos y Condiciones</span>
-            <p className="text-[9px] text-primary/40 font-medium leading-relaxed">{TERMINOS}</p>
+            <p className="text-[9px] text-primary/40 font-medium mt-3 leading-relaxed">
+              Precios por persona (incluyen alojamiento, actividades y traslados
+              {cot.incluyeBoleto ? ", y boleto aéreo" : ""}).
+              {numNinos > 0 ? " El niño se calcula por separado del adulto." : ""}
+              {boletoOculto ? " El boleto aéreo va incluido en el precio." : ""}
+              {printGrouped ? <span className="print:hidden"> Elige un hotel en cada destino para aprobar.</span> : ""}
+            </p>
           </div>
+        )}
 
-          {/* Footer */}
-          <div className="flex items-end justify-between gap-4 pt-2">
-            <div className="text-[9px] font-bold text-primary/50 leading-relaxed">
-              Preparado por: <strong className="text-primary/70">{agencyName}</strong><br />
-              {agencyPhone} · {cot.fechaCreacion}<br />
-              <span className="text-secondary">Land Tour Travel — Mayorista de Turismo</span>
-            </div>
-            <div className="w-14 h-14 rounded-full bg-primary text-secondary flex items-center justify-center text-[8px] font-black text-center leading-tight shrink-0">
-              LTT<br />COTIZACIÓN
-            </div>
+        {/* Notas */}
+        {cot.notas && (
+          <div className="mb-6">
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2">Notas</p>
+            <p className="text-[10px] font-semibold text-primary/70 leading-relaxed whitespace-pre-wrap">{cot.notas}</p>
           </div>
+        )}
 
+        {/* Términos */}
+        <div className="mb-6">
+          <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2">Términos y Condiciones</p>
+          <p className="text-[8px] text-primary/50 leading-relaxed">{TERMINOS}</p>
         </div>
+
+        {/* Footer */}
+        <div className="flex items-end justify-between gap-4 pt-3 border-t border-gray-100">
+          <div className="text-[9px] font-bold text-primary/60 leading-[1.8]">
+            Preparado por: <strong>{agencyName}</strong><br />
+            {agencyPhone} · {cot.fechaCreacion}<br />
+            <span className="text-secondary">Land Tour Travel — Mayorista de Turismo</span>
+          </div>
+          <div className="w-[52px] h-[52px] rounded-full bg-primary text-secondary flex items-center justify-center text-[8px] font-black text-center leading-tight shrink-0">
+            LTT<br />COTIZACIÓN
+          </div>
+        </div>
+
       </div>
     </div>
   );

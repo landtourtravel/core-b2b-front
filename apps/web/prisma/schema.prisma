@@ -96,6 +96,9 @@ model PaqueteRef {
   incluyeBoleto    Boolean
   precioBoleto     Float?
   descripcionBoleto String? @db.Text
+  precioBoletoNino      Float?
+  descripcionBoletoNino String? @db.Text
+  visibleBoleto         Boolean @default(true)
   permitirModificarBoleto Boolean @default(true)
   permitirModificarNoches Boolean @default(false)
   ajustePrecio     Float   @default(0)

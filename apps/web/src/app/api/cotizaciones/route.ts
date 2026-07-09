@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma";
 import { logError } from "@/lib/logger";
+import { mapCotizacionRow } from "@/lib/cotizacion-mapper";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
@@ -29,48 +30,7 @@ export async function GET() {
       orderBy: { fechaCreacion: "desc" },
     });
 
-    const cotizaciones = rows.map((c) => {
-      const getDetalle = (tipoPax: string) => c.detalles.find((d) => d.tipoPax === tipoPax);
-      return {
-        id:            c.id,
-        codigo:        c.codigo,
-        agenciaId:     c.agenciaId,
-        creadoPorId:   c.creadoPorId,
-        paqueteId:     c.paqueteId,
-        clienteId:     c.clienteId,
-        cliente:       c.cliente,
-        paqueteNombre:   c.snapshotNombre,
-        paqueteDuracion: c.snapshotDuracion,
-        paqueteDestino:  c.snapshotDestino,
-        paqueteIncluye:  c.snapshotIncluye,
-        incluyeBoleto:   c.incluyeBoleto,
-        pasajeros: {
-          cantSGL:  getDetalle("SGL")?.cantidad  ?? 0,
-          cantDBL:  getDetalle("DBL")?.cantidad  ?? 0,
-          cantTPL:  getDetalle("TPL")?.cantidad  ?? 0,
-          cantQUAD: getDetalle("QUAD")?.cantidad ?? 0,
-          cantCHD:  getDetalle("CHD")?.cantidad  ?? 0,
-        },
-        precios: {
-          precioSGL:   getDetalle("SGL")?.precioPorPersona  ?? 0,
-          precioDBL:   getDetalle("DBL")?.precioPorPersona  ?? 0,
-          precioTPL:   getDetalle("TPL")?.precioPorPersona  ?? 0,
-          precioQUAD:  getDetalle("QUAD")?.precioPorPersona ?? 0,
-          precioCHD:   getDetalle("CHD")?.precioPorPersona  ?? 0,
-          precioBoleto: c.precioBoleto,
-        },
-        subtotal:      c.subtotal,
-        markup:        c.markup,
-        total:         c.total,
-        fechaViaje:    c.fechaViaje?.toISOString().slice(0, 10)    ?? null,
-        fechaRetorno:  c.fechaRetorno?.toISOString().slice(0, 10)  ?? null,
-        status:        c.status,
-        notas:         c.notas,
-        hotelsComparison: (c.hotelsComparisonSnapshot as any) ?? null,
-        selectedHotelId:  c.selectedHotelId ?? null,
-        fechaCreacion: c.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
-      };
-    });
+    const cotizaciones = rows.map(mapCotizacionRow);
 
     return NextResponse.json(cotizaciones);
   } catch (err) {
@@ -170,47 +130,7 @@ export async function POST(req: NextRequest) {
       include: { cliente: true, detalles: true },
     });
 
-    const getDetalle = (tipoPax: string) => cotizacion.detalles.find((d) => d.tipoPax === tipoPax);
-
-    return NextResponse.json({
-      id:            cotizacion.id,
-      codigo:        cotizacion.codigo,
-      agenciaId:     cotizacion.agenciaId,
-      creadoPorId:   cotizacion.creadoPorId,
-      paqueteId:     cotizacion.paqueteId,
-      clienteId:     cotizacion.clienteId,
-      cliente:       cotizacion.cliente,
-      paqueteNombre:   cotizacion.snapshotNombre,
-      paqueteDuracion: cotizacion.snapshotDuracion,
-      paqueteDestino:  cotizacion.snapshotDestino,
-      paqueteIncluye:  cotizacion.snapshotIncluye,
-      incluyeBoleto:   cotizacion.incluyeBoleto,
-      pasajeros: {
-        cantSGL:  getDetalle("SGL")?.cantidad  ?? 0,
-        cantDBL:  getDetalle("DBL")?.cantidad  ?? 0,
-        cantTPL:  getDetalle("TPL")?.cantidad  ?? 0,
-        cantQUAD: getDetalle("QUAD")?.cantidad ?? 0,
-        cantCHD:  getDetalle("CHD")?.cantidad  ?? 0,
-      },
-      precios: {
-        precioSGL:    getDetalle("SGL")?.precioPorPersona  ?? 0,
-        precioDBL:    getDetalle("DBL")?.precioPorPersona  ?? 0,
-        precioTPL:    getDetalle("TPL")?.precioPorPersona  ?? 0,
-        precioQUAD:   getDetalle("QUAD")?.precioPorPersona ?? 0,
-        precioCHD:    getDetalle("CHD")?.precioPorPersona  ?? 0,
-        precioBoleto: cotizacion.precioBoleto ?? undefined,
-      },
-      subtotal:      cotizacion.subtotal,
-      markup:        cotizacion.markup,
-      total:         cotizacion.total,
-      fechaViaje:    cotizacion.fechaViaje?.toISOString().slice(0, 10)   ?? null,
-      fechaRetorno:  cotizacion.fechaRetorno?.toISOString().slice(0, 10) ?? null,
-      status:        cotizacion.status,
-      notas:         cotizacion.notas,
-      hotelsComparison: (cotizacion.hotelsComparisonSnapshot as any) ?? null,
-      selectedHotelId:  cotizacion.selectedHotelId ?? null,
-      fechaCreacion: cotizacion.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
-    }, { status: 201 });
+    return NextResponse.json(mapCotizacionRow(cotizacion), { status: 201 });
   } catch (err) {
     logError("POST /api/cotizaciones", err);
     return NextResponse.json({ error: "Error al guardar cotización" }, { status: 500 });

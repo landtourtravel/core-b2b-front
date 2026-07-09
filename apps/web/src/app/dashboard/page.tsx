@@ -52,7 +52,6 @@ import { DashboardContext, type CotizacionExtended, type HotelCompSnapshot } fro
 import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
 import CotizacionesTab from "./components/CotizacionesTab";
-import CotizacionDetailView from "./components/CotizacionDetailView";
 import {
   calcHotelBreakdown,
   getUncoveredChildAges,
@@ -93,10 +92,13 @@ interface CotPaqueteHotel {
 interface CotPaquete {
   id: number; nombre: string; numPax: number; numNinos: number; diasEstancia: number; nochesBase: number;
   incluyeBoleto: boolean; precioBoleto: number | null; descripcionBoleto: string | null;
-  // Child air fare — new lt-core-admin fields. `permiteBoletoNino === false` blocks the
-  // boleto flow for children; `null`/`undefined` = column not present yet → treat as allowed
-  // with the adult fare as fallback (see cotFlightPriceChild / childBoletoBlocked).
-  precioBoletoNino: number | null; permiteBoletoNino: boolean | null;
+  // Child air fare — falls back to the adult fare when no child fare is declared
+  // (see cotFlightPriceChild default in the effect below).
+  precioBoletoNino: number | null; descripcionBoletoNino: string | null;
+  // Master visibility switch — applies to BOTH adult and child boleto. When false, the
+  // whole boleto section is hidden everywhere (cotizador + cotización final); the price
+  // is still added to the total automatically. Takes precedence over permitirModificarBoleto.
+  visibleBoleto: boolean;
   permitirModificarBoleto: boolean; permitirModificarNoches: boolean;
   destinoCiudad: string; destinoPais: string;
   destinos: CotPaqueteDestino[];
@@ -208,8 +210,6 @@ export default function DashboardPage() {
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("dashboard");
-  // Cotización abierta como documento (vista CotizacionDetailView). null = mostrar tabs.
-  const [managedCotId, setManagedCotId] = useState<string | null>(null);
 
   // ── Packages ─────────────────────────────────────────────────────────────────
   const [packages, setPackages]             = useState<Package[]>([]);
@@ -554,16 +554,11 @@ export default function DashboardPage() {
   const cotSelectedPkg     = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
   const cotSelectedDestino = cotizarData?.destinos.find((d) => d.id === cotSelectedDestinoId) ?? null;
   const cotFlightActive    = cotFlightOverride !== null ? cotFlightOverride : (cotSelectedPkg?.incluyeBoleto ?? false);
-  // El precio del boleto solo es visible para el B2B cuando el paquete permite
-  // modificarlo. Si permitirModificarBoleto === false, el boleto se suma al total
-  // pero su monto NO se muestra en el cotizador (solo se indica que está incluido).
-  const cotBoletoPrecioVisible =
-    cotMode !== "catalogo" || (cotSelectedPkg?.permitirModificarBoleto ?? true);
-  // Boleto de niño bloqueado: paquete que prohíbe explícitamente boleto de niño
-  // (permiteBoletoNino === false) con boleto activo y menores en la cotización.
-  const childBoletoBlocked =
-    cotMode === "catalogo" && cotFlightActive && cotNumNinos > 0 &&
-    cotSelectedPkg?.permiteBoletoNino === false;
+  // Visibilidad del boleto (adulto Y niño) — manda `visibleBoleto`, no `permitirModificarBoleto`.
+  // Si visibleBoleto === false, el apartado de boleto no se muestra por ningún lado (cotizador
+  // ni cotización final); el monto sigue sumado automáticamente al total.
+  const cotBoletoVisible =
+    cotMode !== "catalogo" || (cotSelectedPkg?.visibleBoleto ?? true);
   // (#5) Total extra nights across all destinos (per-destino counters are summed here).
   const cotExtraNights = Object.values(cotExtraNightsByDestino).reduce((a, b) => a + b, 0);
 
@@ -603,21 +598,23 @@ export default function DashboardPage() {
     (v) => v.numPax === cotNumPersonas && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0
   ) ?? null;
   const hasMatchingVersion = matchesBaseVersion || matchingAdultVersion !== null;
-  // El nº de niños es FIJO por paquete: se vende siempre con `numNinos` base niños
-  // (las versiones solo varían adultos, nunca niños). Si el asesor declara otro nº
-  // de niños, no existe configuración para eso → alerta.
-  const childrenMatchBase = !cotSelectedPkg || cotNumNinos === cotSelectedPkg.numNinos;
+  // El nº de niños del paquete (`numNinos`) es solo una referencia usada por el admin para
+  // configurar tarifas — NO limita cuántos niños puede declarar el asesor. El motor de
+  // precios (calcHotelBreakdown) siempre calcula sobre `cotNinosEdades.length` (los niños
+  // reales de la cotización), nunca sobre `Paquete.numNinos`, así que un paquete puede
+  // cotizarse sin niños o con más/menos niños que los declarados por el admin sin afectar
+  // el cálculo.
   // (#6) Warn only when NONE of the package's hotels has a valid CHD rate (live DB check).
   // If at least one hotel supports children, no alert — the non-apt ones are filtered in Step 3.
   const pkgHasAnyChildHotel = !!cotSelectedPkg &&
     cotSelectedPkg.hoteles.some((h) => h.tarifas.some((t) => t.tipoHabitacion === "CHD"));
   const versionWarning     = cotMode === "catalogo" && cotSelectedPkgId !== null && cotNumPersonas >= 1 &&
-    (!hasMatchingVersion || !childrenMatchBase);
+    !hasMatchingVersion;
   const childNoVersionWarn = cotMode === "catalogo" && cotNumNinos > 0 && cotSelectedPkgId !== null && !pkgHasAnyChildHotel;
 
   // Step guards
   const step1CanProceed = clientName.trim().length > 0 && cotNumPersonas >= 1;
-  const step2CanProceed = cotFechaSalida.trim().length > 0 && !childBoletoBlocked &&
+  const step2CanProceed = cotFechaSalida.trim().length > 0 &&
     (cotMode === "catalogo" ? cotSelectedPkgId !== null && !versionWarning : cotSelectedHotelIds.length > 0);
   const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
   // In Catalogue Mode every destino must have a hotel checked (checkboxes in Step 3)
@@ -661,13 +658,10 @@ export default function DashboardPage() {
   const cotHotelNoches = (h: CotPaqueteHotel) =>
     (h.noches ?? 1) + (cotExtraNightsByDestino[h.destinoId] ?? 0);
 
-  // Boleto por tipo de pasajero. Adulto = cotFlightPrice. Niño = cotFlightPriceChild,
-  // salvo que el paquete lo prohíba explícitamente (permiteBoletoNino === false) → 0.
-  // Con niños + boleto activo + paquete que prohíbe boleto de niño, el flujo se bloquea.
+  // Boleto por tipo de pasajero. Adulto = cotFlightPrice. Niño = cotFlightPriceChild
+  // (por defecto la tarifa de adulto cuando el paquete no declara una propia).
   const cotBoletoAdultoPerPax = cotFlightActive ? cotFlightPrice : 0;
-  const cotBoletoNinoPerPax = cotFlightActive
-    ? (cotSelectedPkg?.permiteBoletoNino === false ? 0 : cotFlightPriceChild)
-    : 0;
+  const cotBoletoNinoPerPax = cotFlightActive ? cotFlightPriceChild : 0;
 
   const cotCatBreakdowns: { hotel: CotPaqueteHotel; bd: HotelBreakdown }[] =
     cotMode === "catalogo" && cotSelectedPkg
@@ -1036,7 +1030,7 @@ export default function DashboardPage() {
               childAccomTotal:    r2(bd.childAccomTotal),
               childServicesTotal: r2(bd.childServicesTotal),
               boletoChildPerPax:  r2(bd.boletoChildPerPax),
-              boletoPrecioOculto: !cotBoletoPrecioVisible,
+              boletoPrecioOculto: !cotBoletoVisible,
               pricePerPax:      r2(bd.pricePerPax),
               avgChildPerPax:   bd.childSupplementPerAdult > 0 ? r2(bd.childSupplementPerAdult) : null,
               total:            r2(bd.total),
@@ -1304,16 +1298,11 @@ export default function DashboardPage() {
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-24 lg:pb-8">
 
-          {managedCotId ? (
-            <CotizacionDetailView cotId={managedCotId} onBack={() => setManagedCotId(null)} />
-          ) : (
-          <>
-
           {/* ════════════════════════ DASHBOARD ════════════════════════ */}
           {activeTab === "dashboard" && (
             <DashboardTab
               onGoToCotizaciones={() => setActiveTab("cotizaciones")}
-              onViewCot={(cot) => setManagedCotId(cot.id)}
+              onViewCot={(cot) => window.open(`/dashboard/cotizaciones/${cot.id}`, "_blank")}
             />
           )}
 
@@ -1649,20 +1638,11 @@ export default function DashboardPage() {
                             <div className="flex items-start gap-3 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl">
                               <AlertCircle size={18} className="text-amber-600 shrink-0 mt-0.5" />
                               <div className="space-y-1.5">
-                                {!hasMatchingVersion ? (
-                                  <p className="text-xs font-black text-amber-700">
-                                    Sin versión configurada para {cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""}.
-                                  </p>
-                                ) : (
-                                  <p className="text-xs font-black text-amber-700">
-                                    Este paquete se cotiza siempre con {cotSelectedPkg?.numNinos} niño{cotSelectedPkg?.numNinos !== 1 ? "s" : ""};
-                                    declaraste {cotNumNinos}.
-                                  </p>
-                                )}
+                                <p className="text-xs font-black text-amber-700">
+                                  Sin versión configurada para {cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""}.
+                                </p>
                                 <p className="text-[10px] font-bold text-amber-600">
-                                  {!hasMatchingVersion
-                                    ? "Solicita al administrador configurar la versión o realiza una "
-                                    : `Ajusta el número de niños a ${cotSelectedPkg?.numNinos} o realiza una `}
+                                  Solicita al administrador configurar la versión o realiza una{" "}
                                   <button
                                     type="button"
                                     onClick={() => setCotMode("libre")}
@@ -1672,7 +1652,7 @@ export default function DashboardPage() {
                                   </button>
                                   .
                                 </p>
-                                {!hasMatchingVersion && cotSelectedPkg && cotSelectedPkg.versiones.filter((v) => v.tipoPax !== "CHD").length > 0 && (
+                                {cotSelectedPkg && cotSelectedPkg.versiones.filter((v) => v.tipoPax !== "CHD").length > 0 && (
                                   <p className="text-[9px] text-amber-500 font-bold">
                                     Versiones disponibles:{" "}
                                     {cotSelectedPkg.versiones
@@ -1725,8 +1705,8 @@ export default function DashboardPage() {
 
                           {/* Noches adicionales: se configuran en el Paso 3 (por destino). */}
 
-                          {/* Flight toggle — controlado por permitirModificarBoleto */}
-                          {cotSelectedPkg && (
+                          {/* Flight toggle — visibilidad controlada por visibleBoleto, edición por permitirModificarBoleto */}
+                          {cotSelectedPkg && cotBoletoVisible && (
                             <div className="mt-4 p-4 bg-light border border-lighter rounded-2xl space-y-3">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -1785,15 +1765,9 @@ export default function DashboardPage() {
                                 </div>
                               )}
 
-                              {/* Boleto de niño — tarifa separada (C) */}
+                              {/* Boleto de niño — tarifa separada */}
                               {cotFlightActive && cotNumNinos > 0 && (
-                                childBoletoBlocked ? (
-                                  <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl">
-                                    <p className="text-[10px] text-rose-600 font-bold leading-relaxed">
-                                      ⚠ Este paquete no admite boleto aéreo para niños. No puede cotizarse con boleto incluyendo menores: quita los niños, desactiva el boleto, o usa Cotización Libre.
-                                    </p>
-                                  </div>
-                                ) : cotSelectedPkg.permitirModificarBoleto ? (
+                                cotSelectedPkg.permitirModificarBoleto ? (
                                   <div className="space-y-1.5">
                                     <label className={labelCls}>Precio boleto niño por persona (USD)</label>
                                     <div className="relative">
@@ -1814,14 +1788,14 @@ export default function DashboardPage() {
                                   </div>
                                 ) : (
                                   <p className="text-[10px] text-primary/50 font-bold">
-                                    Boleto aéreo de niño incluido en el paquete (precio no editable).
+                                    Boleto aéreo de niño incluido — ${(cotSelectedPkg.precioBoletoNino ?? cotSelectedPkg.precioBoleto ?? 0).toLocaleString()}/niño (precio fijo, no editable).
                                   </p>
                                 )
                               )}
 
                               {cotFlightActive && !cotSelectedPkg.permitirModificarBoleto && (
                                 <p className="text-[10px] text-primary/50 font-bold">
-                                  Boleto aéreo incluido en el paquete. El precio ya está considerado en el total y no es editable.
+                                  Boleto aéreo incluido — ${(cotSelectedPkg.precioBoleto ?? 0).toLocaleString()}/persona (precio fijo, no editable).
                                 </p>
                               )}
                               {cotFlightOverride !== null && cotSelectedPkg.permitirModificarBoleto && (
@@ -2028,9 +2002,7 @@ export default function DashboardPage() {
                                     ? "Selecciona un programa turístico."
                                     : versionWarning
                                       ? "No hay versión configurada para la cantidad de adultos."
-                                      : childBoletoBlocked
-                                        ? "Este paquete no admite boleto de niño: quita los menores, desactiva el boleto o usa Cotización Libre."
-                                        : "La fecha de salida es obligatoria.")
+                                      : "La fecha de salida es obligatoria.")
                                 : (cotSelectedHotelIds.length === 0 ? "Selecciona al menos un hotel." : "La fecha de salida es obligatoria.")}
                             </p>
                           )}
@@ -2354,7 +2326,7 @@ export default function DashboardPage() {
                       })()}
 
                       {/* ── Boleto aéreo (catálogo) ── */}
-                      {cotMode === "catalogo" && cotFlightActive && (!cotBoletoPrecioVisible || cotFlightPrice > 0) && (
+                      {cotMode === "catalogo" && cotFlightActive && cotBoletoVisible && cotFlightPrice > 0 && (
                         <div className="flex items-center justify-between p-3 bg-secondary/5 border border-secondary/15 rounded-xl">
                           <div>
                             <span className="text-xs font-bold text-primary block">Boleto aéreo</span>
@@ -2363,7 +2335,7 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <span className="font-black text-secondary text-xs shrink-0 ml-3">
-                            {cotBoletoPrecioVisible ? `$${cotFlightPrice.toLocaleString()}/pax` : "Incluido"}
+                            ${cotFlightPrice.toLocaleString()}/pax
                           </span>
                         </div>
                       )}
@@ -2512,11 +2484,6 @@ export default function DashboardPage() {
                                 Hoteles por destino
                                 <span className="ml-1 text-primary/25">({cotSelectedHotelIds.length})</span>
                               </p>
-                              {childBoletoBlocked && (
-                                <span className="text-[9px] font-black text-rose-600 uppercase tracking-wide">
-                                  ⚠ Boleto de niño no disponible en este paquete
-                                </span>
-                              )}
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -2599,11 +2566,6 @@ export default function DashboardPage() {
                                 {isMulti ? "Combinaciones de hoteles" : "Opciones de hotel"}
                                 <span className="ml-1 text-primary/25">({cotCatCombos.length})</span>
                               </p>
-                              {childBoletoBlocked && (
-                                <span className="text-[9px] font-black text-rose-600 uppercase tracking-wide">
-                                  ⚠ Boleto de niño no disponible en este paquete
-                                </span>
-                              )}
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -2775,7 +2737,7 @@ export default function DashboardPage() {
                                           </tr>
 
                                           {/* Boleto aéreo — por fila solo en single-destino */}
-                                          {!isMultiDestino && boletoPerPax > 0 && (
+                                          {!isMultiDestino && cotBoletoVisible && boletoPerPax > 0 && (
                                             <tr>
                                               <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
                                                 <span className="flex items-center gap-1">
@@ -2835,7 +2797,7 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Costo global (una sola vez, no por destino): boleto — solo multi-destino */}
-                            {isMultiDestino && boletoPerPax > 0 && (
+                            {isMultiDestino && cotBoletoVisible && boletoPerPax > 0 && (
                               <div className="rounded-2xl border border-secondary/20 bg-secondary/5 p-3 space-y-1.5">
                                 <div className="flex justify-between text-[10px] font-bold text-primary/60">
                                   <span className="flex items-center gap-1"><Plane size={9} className="text-secondary/60" /> Boleto aéreo (una vez / pax)</span>
@@ -2889,7 +2851,7 @@ export default function DashboardPage() {
                         {quoteLocked && (
                           <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() => { const cot = cotizaciones[0]; if (cot) setManagedCotId(cot.id); }}
+                              onClick={() => { const cot = cotizaciones[0]; if (cot) window.open(`/dashboard/cotizaciones/${cot.id}`, "_blank"); }}
                               className="px-5 py-3 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                             >
                               <Printer size={14} /> Ver Cotización
@@ -2958,7 +2920,7 @@ export default function DashboardPage() {
           {/* ════════════════════════ COTIZACIONES ════════════════════════ */}
           {activeTab === "cotizaciones" && (
             <CotizacionesTab
-              onViewCot={(cot) => setManagedCotId(cot.id)}
+              onViewCot={(cot) => window.open(`/dashboard/cotizaciones/${cot.id}`, "_blank")}
               onOpenDelete={(id) => { setConfirmDeleteId(id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }}
             />
           )}
@@ -3107,9 +3069,6 @@ export default function DashboardPage() {
                 <LogOut size={14} /> Cerrar Sesión
               </button>
             </div>
-          )}
-
-          </>
           )}
 
         </main>
