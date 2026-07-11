@@ -51,6 +51,7 @@ import {
 import { DashboardContext, type CotizacionExtended, type HotelCompSnapshot } from "./DashboardContext";
 import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
+import { QUICK_QUOTE_PENDING_KEY } from "./components/PaqueteDetailView";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
@@ -173,6 +174,17 @@ export default function DashboardPage() {
       .then(({ data, error }) => { setPackages(data); setPkgError(error); })
       .catch(() => setPkgError("DB_FAIL"))
       .finally(() => setLoadingPkg(false));
+  }, []);
+
+  // Picks up a pending quick-quote request stashed by /dashboard/paquetes/[id]'s
+  // "Cotizar este paquete" button (that route has no access to this component's state).
+  useEffect(() => {
+    const pending = localStorage.getItem(QUICK_QUOTE_PENDING_KEY);
+    if (pending) {
+      localStorage.removeItem(QUICK_QUOTE_PENDING_KEY);
+      handleQuickQuote(pending);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Cotizaciones ─────────────────────────────────────────────────────────────
