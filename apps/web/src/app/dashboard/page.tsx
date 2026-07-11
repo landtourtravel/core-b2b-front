@@ -58,57 +58,16 @@ import {
   cartesian,
   combineComboLegs,
   hotelPerDestinoPrice,
+  numPaxToTipoPax,
   type HotelBreakdown,
   type ComboLeg,
   type ComboTotals,
 } from "./cotizar-price";
-
-// ─── Cotizar-datos API types ──────────────────────────────────────────────────
-interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
-interface CotHotel { id: number; nombre: string; estrellas: number; tarifas: CotHotelTarifa[]; politicaNinos: CotPoliticaNinos[] }
-interface CotActividadTarifa { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }
-interface CotActividad { id: number; nombre: string; descripcion: string | null; tarifas: CotActividadTarifa[] }
-interface CotTrasladoTarifa { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }
-interface CotTraslado { id: number; tipo: string; tarifas: CotTrasladoTarifa[] }
-interface CotDestino { id: number; ciudad: string; pais: string; hoteles: CotHotel[]; actividades: CotActividad[]; traslados: CotTraslado[] }
-interface CotPaqueteVersion { tipoPax: string; numPax: number; precioPorPersona: number | null }
-interface CotPoliticaNinos { edadMin: number; edadMax: number; precio: number | null }
-interface CotPaqueteActividad {
-  id: number; nombre: string; descripcion: string | null;
-  destinoId: number; destinoCiudad: string;
-  tarifas: { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }[];
-}
-interface CotPaqueteTraslado {
-  id: number; tipo: string; destinoId: number; destinoCiudad: string;
-  tarifas: { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }[];
-}
-interface CotPaqueteDestino   { id: number; ciudad: string; pais: string }
-interface CotPaqueteHotel {
-  id: number; nombre: string; estrellas: number;
-  destinoId: number; destinoCiudad: string; noches: number;
-  tarifas: { tipoHabitacion: string; precioBase: number }[];
-  politicaNinos: CotPoliticaNinos[];
-}
-interface CotPaquete {
-  id: number; nombre: string; numPax: number; numNinos: number; diasEstancia: number; nochesBase: number;
-  incluyeBoleto: boolean; precioBoleto: number | null; descripcionBoleto: string | null;
-  // Child air fare — falls back to the adult fare when no child fare is declared
-  // (see cotFlightPriceChild default in the effect below).
-  precioBoletoNino: number | null; descripcionBoletoNino: string | null;
-  // Master visibility switch — applies to BOTH adult and child boleto. When false, the
-  // whole boleto section is hidden everywhere (cotizador + cotización final); the price
-  // is still added to the total automatically. Takes precedence over permitirModificarBoleto.
-  visibleBoleto: boolean;
-  permitirModificarBoleto: boolean; permitirModificarNoches: boolean;
-  destinoCiudad: string; destinoPais: string;
-  destinos: CotPaqueteDestino[];
-  hoteles: CotPaqueteHotel[];
-  hotelTarifas: { hotelId: number; tipoHabitacion: string; precioBase: number }[];
-  actividades: CotPaqueteActividad[];
-  traslados: CotPaqueteTraslado[];
-  versiones: CotPaqueteVersion[];
-}
-interface CotizarData { destinos: CotDestino[]; paquetes: CotPaquete[] }
+import type {
+  CotHotel, CotActividad, CotTraslado, CotDestino, CotPaqueteVersion, CotPoliticaNinos,
+  CotPaqueteActividad, CotPaqueteTraslado, CotPaqueteDestino, CotPaqueteHotel, CotPaquete,
+  CotizarData,
+} from "./cotizar-types";
 
 // ─── Status style maps (must be at file scope for Tailwind scanning) ──────────
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
@@ -173,14 +132,6 @@ const DRAFT_KEY = "cotizador-draft-v1";
 const inputCls = "w-full px-4 py-3 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold outline-none focus:border-secondary focus:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 const inputDisabledCls = "w-full px-4 py-3 bg-light border border-lighter text-primary/50 rounded-2xl text-xs sm:text-sm font-bold outline-none cursor-not-allowed";
 const labelCls = "block text-[10px] font-black uppercase text-primary/40 tracking-wider";
-
-function numPaxToTipoPax(n: number): "SGL" | "DBL" | "TPL" | "QUAD" | null {
-  if (n === 1) return "SGL";
-  if (n === 2) return "DBL";
-  if (n === 3) return "TPL";
-  if (n === 4) return "QUAD";
-  return null;
-}
 
 export default function DashboardPage() {
   // ── Session ─────────────────────────────────────────────────────────────────

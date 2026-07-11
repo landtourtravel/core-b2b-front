@@ -475,3 +475,15 @@ export function hotelPerDestinoPrice(args: {
     total: precioAdulto * args.numAdultos + precioNino * args.numNinos,
   };
 }
+
+// ── Occupancy → room-type mapping ─────────────────────────────────────────────
+// Modo catálogo assumes every adult shares rooms of ONE occupancy type, derived
+// solely from the total adult headcount (no mixed room-type support in this model).
+
+export function numPaxToTipoPax(n: number): "SGL" | "DBL" | "TPL" | "QUAD" | null {
+  if (n === 1) return "SGL";
+  if (n === 2) return "DBL";
+  if (n === 3) return "TPL";
+  if (n === 4) return "QUAD";
+  return null;
+}
