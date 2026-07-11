@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   Search,
   AlertCircle,
@@ -29,6 +30,7 @@ export default function PaquetesTab({
 }: PaquetesTabProps) {
   const [searchPkgTerm, setSearchPkgTerm] = useState("");
   const [activeDestino, setActiveDestino] = useState<string | null>(null);
+  const router = useRouter();
 
   return (
     <div className="space-y-6 animate-fade-scale">
@@ -173,18 +175,26 @@ export default function PaquetesTab({
                               </p>
                             )}
                           </div>
-                          {/* Precio + Botón */}
+                          {/* Precio + Botones */}
                           <div className="flex flex-col items-end gap-2 shrink-0">
                             <div className="text-right">
                               <span className="text-[8px] font-black uppercase text-gray-400 block leading-none">Desde</span>
                               <span className="text-sm font-black text-primary">${pkg.price} <span className="text-[9px] font-bold text-primary/40">USD</span></span>
                             </div>
-                            <button
-                              onClick={() => onQuickQuote(String(pkg.id))}
-                              className="px-3.5 py-2 bg-secondary hover:bg-secondary-light text-primary font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                            >
-                              <Plus size={10} className="stroke-[2.5]" /> Cotizar
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => router.push(`/dashboard/paquetes/${pkg.id}`)}
+                                className="px-3 py-2 bg-light hover:bg-lighter text-primary/70 font-black text-[9px] uppercase tracking-wider rounded-xl transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+                              >
+                                Ver detalles
+                              </button>
+                              <button
+                                onClick={() => onQuickQuote(String(pkg.id))}
+                                className="px-3.5 py-2 bg-secondary hover:bg-secondary-light text-primary font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                              >
+                                <Plus size={10} className="stroke-[2.5]" /> Cotizar
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
