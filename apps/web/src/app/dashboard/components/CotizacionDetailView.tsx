@@ -407,6 +407,9 @@ export default function CotizacionDetailView({
                             <td className="py-2.5 pr-3">
                               <span className="text-[11px] font-bold text-primary">{h.nombre}</span>{" "}
                               <span className="text-gold text-[9px]">{stars(h.estrellas)}</span>
+                              {showChild && h.sinTarifaNino && (
+                                <span className="ml-2 text-[8px] font-black text-amber-600 uppercase tracking-wide">Sin tarifa niño</span>
+                              )}
                               {canAct && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
                             </td>
                             <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
@@ -444,6 +447,9 @@ export default function CotizacionDetailView({
                                 {i > 0 && <span className="text-secondary font-black mx-1">+</span>}
                                 {isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ` : ""}{h.nombre}{" "}
                                 <span className="text-gold text-[9px]">{stars(h.estrellas)}</span>
+                                {showChild && h.sinTarifaNino && (
+                                  <span className="ml-1 text-[8px] font-black text-amber-600 uppercase tracking-wide">Sin tarifa niño</span>
+                                )}
                               </React.Fragment>
                             ))}
                             {selectable && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}

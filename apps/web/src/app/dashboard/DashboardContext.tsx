@@ -27,6 +27,10 @@ export type HotelCompSnapshot = {
   // se muestra "Incluido" en vez del monto (en pantalla y en el PDF). El monto sigue
   // sumado al total; solo se oculta la cifra. undefined/false = precio visible (legado).
   boletoPrecioOculto?: boolean;
+  // Set by the quick-quote endpoint when this hotel has no CHD tarifa: the child's
+  // accommodation at this hotel is $0 (not "free" — just unpriced). Never set by the
+  // normal wizard flow (its hotelAptoNinos filter excludes such hotels beforehand).
+  sinTarifaNino?: boolean;
   // Existing
   avgChildPerPax: number | null;  // v3: suplemento de menores por adulto (legacy display)
   pricePerPax: number;        // full all-in price per adult pax (includes markup)
