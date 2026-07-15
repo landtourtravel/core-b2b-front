@@ -47,13 +47,16 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
         destinoCiudad: ph.hotel.destino?.ciudad ?? "",
         noches: ph.noches ?? 1,
         tarifas: ph.hotel.tarifas.map((t) => ({
+          id: t.id,
           tipoHabitacion: t.tipoHabitacion,
           precioBase: Number(t.precioBase),
         })),
         politicaNinos: ph.hotel.politicaNinos.map((pol) => ({
+          rangoNombre: pol.rangoNombre,
           edadMin: pol.edadMin,
           edadMax: pol.edadMax,
           precio: pol.precio ?? null,
+          tarifaChdId: pol.tarifaChdId ?? null,
         })),
       });
     }

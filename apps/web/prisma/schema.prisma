@@ -259,15 +259,18 @@ model ImagenPaqueteRef {
 }
 
 /// @readonly — gestionado por lt-core-admin
+/// NOTA (2026-07-12): NO es único por (hotelId, tipoHabitacion) — un hotel puede tener
+/// VARIAS filas "CHD", una por cada rango de edad de PoliticaNinos (ver tarifaChdId).
+/// Verificado en vivo contra Supabase: hotel 21 tiene 2 filas CHD (id 138 precio 0, id 139
+/// precio 50), cada una referenciada por una PoliticaNinos distinta.
 model TarifaHotelRef {
   id             Int      @id
   hotelId        Int
-  tipoHabitacion String   // 'SGL' | 'DBL' | 'TPL' | 'QUAD' | 'CHD'
+  tipoHabitacion String   // 'SGL' | 'DBL' | 'TPL' | 'QUAD' | 'CHD' (CHD puede repetirse)
   precioBase     Float
 
   hotel HotelRef @relation(fields: [hotelId], references: [id])
 
-  @@unique([hotelId, tipoHabitacion])
   @@map("TarifaHotel")
 }
 
@@ -280,6 +283,10 @@ model PoliticaNinosRef {
   edadMax     Int
   precio      Float?
   tipoCobro   String?
+  /// FK a la fila TarifaHotel (tipoHabitacion="CHD") específica de ESTE rango de edad —
+  /// el precio real de este rango se lee de ahí cuando `precio` es null, NO de una
+  /// tarifa CHD arbitraria del hotel (había un bug: se tomaba la primera "CHD" del array).
+  tarifaChdId Int?
 
   hotel HotelRef @relation(fields: [hotelId], references: [id])
 

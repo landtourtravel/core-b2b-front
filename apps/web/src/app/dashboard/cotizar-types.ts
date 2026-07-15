@@ -1,8 +1,13 @@
 // Shared type definitions for the catalog cotizador (wizard, package detail page,
 // and the quick-quote API route). No React imports — safe to import from server code.
 
-export interface CotHotelTarifa { tipoHabitacion: string; precioBase: number }
-export interface CotPoliticaNinos { edadMin: number; edadMax: number; precio: number | null }
+export interface CotHotelTarifa { id: number; tipoHabitacion: string; precioBase: number }
+/**
+ * `tarifaChdId` — FK a la fila TarifaHotel (tipoHabitacion="CHD") específica de ESTE rango
+ * de edad. Un hotel puede declarar varios rangos CHD (ej. "Niño" 0-3 y "Menor" 4-12), cada
+ * uno con su propia tarifa — NO hay una única fila "CHD" por hotel.
+ */
+export interface CotPoliticaNinos { rangoNombre: string; edadMin: number; edadMax: number; precio: number | null; tarifaChdId: number | null }
 export interface CotHotel { id: number; nombre: string; estrellas: number; tarifas: CotHotelTarifa[]; politicaNinos: CotPoliticaNinos[] }
 export interface CotActividadTarifa { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }
 export interface CotActividad { id: number; nombre: string; descripcion: string | null; tarifas: CotActividadTarifa[] }
@@ -23,7 +28,7 @@ export interface CotPaqueteDestino { id: number; ciudad: string; pais: string }
 export interface CotPaqueteHotel {
   id: number; nombre: string; estrellas: number;
   destinoId: number; destinoCiudad: string; noches: number;
-  tarifas: { tipoHabitacion: string; precioBase: number }[];
+  tarifas: { id: number; tipoHabitacion: string; precioBase: number }[];
   politicaNinos: CotPoliticaNinos[];
 }
 /** One day of `ItinerarioDiaRef`, mapped for display (no `location` field — table has none). */

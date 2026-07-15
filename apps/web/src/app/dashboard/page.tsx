@@ -56,6 +56,11 @@ import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
   getUncoveredChildAges,
+  getChildPriceForAge,
+  getActividadAdultPerPax,
+  getActividadChildPerPax,
+  getTrasladoPerPax,
+  getTrasladoChildPerPax,
   cartesian,
   combineComboLegs,
   hotelPerDestinoPrice,
@@ -259,6 +264,8 @@ export default function DashboardPage() {
   // Child air fare per pax (separate from the adult fare). Defaults from the package's
   // precioBoletoNino, falling back to the adult precioBoleto when no child fare is declared.
   const [cotFlightPriceChild, setCotFlightPriceChild] = useState<number>(0);
+  // Descripción libre del boleto — solo modo libre (no hay paquete de donde tomarla).
+  const [cotLibreFlightDesc, setCotLibreFlightDesc] = useState<string>("");
   // Noches adicionales por destino (#5). Keyed by destinoId. Total derived as cotExtraNights.
   const [cotExtraNightsByDestino, setCotExtraNightsByDestino] = useState<Record<number, number>>({});
   const [cotLibreActSel,      setCotLibreActSel]      = useState<Record<number, boolean>>({});
@@ -462,6 +469,7 @@ export default function DashboardPage() {
       if (d.cotFlightOverride !== undefined) setCotFlightOverride(d.cotFlightOverride);
       if (d.cotFlightPrice    !== undefined) setCotFlightPrice(d.cotFlightPrice);
       if (d.cotFlightPriceChild !== undefined) setCotFlightPriceChild(d.cotFlightPriceChild);
+      if (d.cotLibreFlightDesc !== undefined) setCotLibreFlightDesc(d.cotLibreFlightDesc);
       if (d.cotLibreActSel    !== undefined) setCotLibreActSel(d.cotLibreActSel);
       if (d.cotLibreTrsSel    !== undefined) setCotLibreTrsSel(d.cotLibreTrsSel);
       if (d.cotNumPersonas    !== undefined) setCotNumPersonas(d.cotNumPersonas);
@@ -487,7 +495,7 @@ export default function DashboardPage() {
         clientName, clientEmail, clientPhone, clientId, clientAddress,
         cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
         cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino,
-        cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreActSel, cotLibreTrsSel, step,
+        cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc, cotLibreActSel, cotLibreTrsSel, step,
         cotNumPersonas, cotNumNinos, cotNinosEdades, cotFromQuickQuote,
       };
       sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
@@ -498,7 +506,7 @@ export default function DashboardPage() {
     clientName, clientEmail, clientPhone, clientId, clientAddress,
     cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
     cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino,
-    cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreActSel, cotLibreTrsSel, step, quoteLocked,
+    cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc, cotLibreActSel, cotLibreTrsSel, step, quoteLocked,
     cotNumPersonas, cotNumNinos, cotNinosEdades, cotFromQuickQuote,
   ]);
 
@@ -713,83 +721,107 @@ export default function DashboardPage() {
       if (tipoPax === cotReqTipoPax) return Math.round(cotCatRep.precioAdulto * 100) / 100;
       return 0;
     }
+    if (cotMode === "libre" && tipoPax === "CHD") {
+      // Tarifa nocturna promedio por niño (política de edad del hotel — #1), para
+      // consistencia con el resto de precios guardados (todos son tarifas por-noche).
+      if (cotNumNinos === 0 || cotNoches === 0) return 0;
+      return Math.round((cotLibreChildAccomTotal / cotNumNinos / cotNoches) * 100) / 100;
+    }
     return getCotPrice(tipoPax);
   };
 
+  // Habitaciones de adultos (SGL/DBL/TPL/QUAD). El "CHD" ya no es un contador manual de
+  // habitación — los niños se declaran en el Paso 1 y su alojamiento se calcula aparte (#1).
   const cotSubtotalAlojamiento = Object.entries(cotHabs)
-    .filter(([, qty]) => qty > 0)
+    .filter(([tipoPax, qty]) => qty > 0 && tipoPax !== "CHD")
     .reduce((sum, [tipoPax, qty]) => {
       const precio = getCotPrice(tipoPax);
       const numPax = COT_NUM_PAX[tipoPax] ?? 1;
       return sum + precio * numPax * qty * cotNoches;
     }, 0);
 
-  // Actividades y traslados seleccionados en modo libre — busca en todos los destinos activos
+  // (#1) Alojamiento de niños en modo libre — según la PoliticaNinos declarada al crear el
+  // hotel (no una tarifa CHD plana). `getChildPriceForAge` resuelve el fallback por cada edad
+  // declarada en Paso 1: política del rango de edad → tarifa CHD del hotel → tarifa de adulto.
+  // `refRate` (tarifa de adulto) es la del primer tipo de habitación de adulto seleccionado.
+  const cotLibreAdultRefTipo = (["DBL", "SGL", "TPL", "QUAD"] as const).find((t) => (cotHabs[t] ?? 0) > 0) ?? null;
+  const cotLibreChildAccomFor = (hotel: CotHotel | null, noches: number): number => {
+    if (!hotel || cotNinosEdades.length === 0) return 0;
+    const refRate = cotLibreAdultRefTipo
+      ? hotel.tarifas.find((t) => t.tipoHabitacion === cotLibreAdultRefTipo)?.precioBase ?? 0
+      : 0;
+    return cotNinosEdades.reduce((sum, age) => sum + getChildPriceForAge(hotel, age, refRate).precio * noches, 0);
+  };
+  const cotLibreChildAccomTotal = cotMode === "libre" ? cotLibreChildAccomFor(cotPrimaryHotel, cotNoches) : 0;
+
+  // Actividades y traslados seleccionados en modo libre — busca en todos los destinos activos.
+  // Precio real por bracket de pax (misma regla que catálogo, no la tarifa mínima plana):
+  // actividades ADULTO/NINO por su propio bracket. (#2) Traslados: si existe tarifa NINO cuyo
+  // bracket cubre la cantidad de niños, se usa esa; si no, el niño paga la tarifa ADULTO del
+  // bracket de adultos (fallback histórico, cuando el traslado no declara tarifa infantil).
   const cotAllActRef = cotAllDestinos.flatMap((d) => d.actividades);
   const cotAllTrsRef = cotAllDestinos.flatMap((d) => d.traslados);
   const cotLibreActTotal = cotAllDestinos.length > 0
     ? Object.entries(cotLibreActSel).filter(([, sel]) => sel).reduce((sum, [idStr]) => {
         const act = cotAllActRef.find((a) => a.id === Number(idStr));
-        const minT = act?.tarifas.sort((a, b) => a.precio - b.precio)[0];
-        return sum + (minT?.precio ?? 0);
+        if (!act) return sum;
+        const adultPerPax = getActividadAdultPerPax(act.tarifas, cotNumPersonas);
+        const childPerPax = getActividadChildPerPax(act.tarifas, cotNumNinos);
+        return sum + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
       }, 0)
     : 0;
   const cotLibreTrsTotal = cotAllDestinos.length > 0
     ? Object.entries(cotLibreTrsSel).filter(([, sel]) => sel).reduce((sum, [idStr]) => {
         const trs = cotAllTrsRef.find((t) => t.id === Number(idStr));
-        const minT = trs?.tarifas.sort((a, b) => a.precio - b.precio)[0];
-        return sum + (minT?.precio ?? 0);
+        if (!trs) return sum;
+        const adultPerPax = getTrasladoPerPax(trs.tarifas, cotNumPersonas);
+        const childPerPax = getTrasladoChildPerPax(trs.tarifas, cotNumNinos) ?? adultPerPax;
+        return sum + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
       }, 0)
     : 0;
 
-  // Costo de noches extra usando tarifas reales de TarifaHotel.
-  // (#5) Catálogo: por destino, nochesDelDestino × tarifa/noche del hotel representativo de ese destino.
+  // Costo de noches extra usando tarifas reales de TarifaHotel — solo modo catálogo.
+  // (#3) Modo libre no tiene UI de noches extra (no se agrega nada extra); siempre 0.
   const cotExtraCost = (() => {
-    if (cotExtraNights <= 0) return 0;
-    if (cotMode === "catalogo" && cotSelectedPkg) {
-      return cotSelectedPkg.destinos.reduce((destSum, d) => {
-        const nights = cotExtraNightsByDestino[d.id] ?? 0;
-        if (nights <= 0) return destSum;
-        const hotelD = cotSelectedPkg.hoteles.find((h) => h.destinoId === d.id) ?? cotSelectedPkg.hoteles[0];
-        if (!hotelD) return destSum;
-        const roomsCost = Object.entries(cotHabs)
-          .filter(([, qty]) => qty > 0)
-          .reduce((sum, [tipoPax, qty]) => {
-            const rate = hotelD.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
-            return sum + rate * (COT_NUM_PAX[tipoPax] ?? 1) * qty * nights;
-          }, 0);
-        return destSum + roomsCost;
-      }, 0);
-    }
-    if (cotMode === "libre" && cotPrimaryHotel) {
-      return Object.entries(cotHabs)
+    if (cotMode !== "catalogo" || !cotSelectedPkg || cotExtraNights <= 0) return 0;
+    return cotSelectedPkg.destinos.reduce((destSum, d) => {
+      const nights = cotExtraNightsByDestino[d.id] ?? 0;
+      if (nights <= 0) return destSum;
+      const hotelD = cotSelectedPkg.hoteles.find((h) => h.destinoId === d.id) ?? cotSelectedPkg.hoteles[0];
+      if (!hotelD) return destSum;
+      const roomsCost = Object.entries(cotHabs)
         .filter(([, qty]) => qty > 0)
         .reduce((sum, [tipoPax, qty]) => {
-          const tarifa = cotPrimaryHotel.tarifas?.find((t) => t.tipoHabitacion === tipoPax);
-          return sum + (tarifa?.precioBase ?? 0) * (COT_NUM_PAX[tipoPax] ?? 1) * qty * cotExtraNights;
+          const rate = hotelD.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
+          return sum + rate * (COT_NUM_PAX[tipoPax] ?? 1) * qty * nights;
         }, 0);
-    }
-    return 0;
+      return destSum + roomsCost;
+    }, 0);
   })();
 
   // subtotal — catálogo: breakdown del hotel representativo (alojamiento×noches +
-  // servicios prorrateados, niños incluidos); libre: alojamiento + extra + servicios libres.
+  // servicios prorrateados, niños incluidos); libre: alojamiento adultos + alojamiento niños
+  // (política) + servicios libres. Sin noches extra en libre (#3).
   const cotSubtotal = cotMode === "catalogo"
     ? (cotCatRep?.subtotal ?? 0)
-    : cotSubtotalAlojamiento + cotExtraCost + cotLibreActTotal + cotLibreTrsTotal;
+    : cotSubtotalAlojamiento + cotLibreChildAccomTotal + cotLibreActTotal + cotLibreTrsTotal;
 
   const cotPaxResumen = Object.entries(cotHabs)
     .filter(([, qty]) => qty > 0)
     .map(([tipoPax, qty]) => `${qty} ${tipoPax}`)
     .join(" + ") || "—";
 
+  // Total de pax en habitaciones + niños declarados en Paso 1 (ya no hay contador manual de
+  // CHD en modo libre — ver #1).
   const cotTotalRoomPax = Object.entries(cotHabs)
-    .reduce((sum, [tipoPax, qty]) => sum + (COT_NUM_PAX[tipoPax] ?? 1) * qty, 0);
+    .filter(([tipoPax]) => tipoPax !== "CHD")
+    .reduce((sum, [tipoPax, qty]) => sum + (COT_NUM_PAX[tipoPax] ?? 1) * qty, 0) + cotNumNinos;
 
-  // boletoTotal = precio por persona × total de pasajeros (catálogo lo toma del breakdown)
+  // (#4) boletoTotal en libre: adultos × tarifa adulto + niños × tarifa niño, cuando el
+  // boleto está activo (catálogo lo toma del breakdown, sin cambios).
   const cotBoletoTotal = cotMode === "catalogo"
     ? (cotCatRep?.boletoTotal ?? 0)
-    : (cotFlightActive ? cotFlightPrice * cotTotalRoomPax : 0);
+    : (cotFlightActive ? cotFlightPrice * cotNumPersonas + cotFlightPriceChild * cotNumNinos : 0);
   // total = subtotal + boleto + markup (markup invisible al cliente)
   const cotTotal = cotSubtotal + cotBoletoTotal + agencyMarkup;
 
@@ -868,6 +900,7 @@ export default function DashboardPage() {
     setCotFlightOverride(null);
     setCotFlightPrice(0);
     setCotFlightPriceChild(0);
+    setCotLibreFlightDesc("");
     setCotExtraNightsByDestino({});
     setCotLibreActSel({});
     setCotLibreTrsSel({});
@@ -956,6 +989,9 @@ export default function DashboardPage() {
       const actNombres = cotAllActRef.filter((a) => cotLibreActSel[a.id]).map((a) => a.nombre);
       const trsNombres = cotAllTrsRef.filter((t) => cotLibreTrsSel[t.id]).map((t) => t.tipo);
       paqueteIncluye = [...actNombres, ...trsNombres];
+      if (incluyeBoleto && cotLibreFlightDesc.trim()) {
+        paqueteIncluye.push(`Boleto aéreo: ${cotLibreFlightDesc.trim()}`);
+      }
     }
 
     const now    = new Date();
@@ -1019,7 +1055,7 @@ export default function DashboardPage() {
       paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
       pasajeros: {
         cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
-        cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotHabs.CHD  ?? 0,
+        cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
       },
       precios: {
         precioSGL:    getSavePrice("SGL"), precioDBL:  getSavePrice("DBL"),
@@ -1064,7 +1100,7 @@ export default function DashboardPage() {
           clienteId: clientData.id, paqueteId,
           paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
           cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
-          cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotHabs.CHD  ?? 0,
+          cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
           precioSGL:  getSavePrice("SGL"),  precioDBL:  getSavePrice("DBL"),
           precioTPL:  getSavePrice("TPL"),  precioQUAD: getSavePrice("QUAD"), precioCHD: getSavePrice("CHD"),
           subtotal: r2(cotSubtotal), markup: r2(agencyMarkup), total: r2(cotTotal),
@@ -1880,6 +1916,69 @@ export default function DashboardPage() {
                             </div>
                           </div>
 
+                          {/* (#4) Boleto Aéreo — cotización libre: opcional, config manual completa (sin paquete de referencia) */}
+                          <div className="p-4 bg-light border border-lighter rounded-2xl space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Plane size={13} className="text-secondary" />
+                                <span className="text-xs font-black text-primary uppercase tracking-wider">Boleto Aéreo</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setCotFlightOverride(!cotFlightActive)}
+                                className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 ${cotFlightActive ? "bg-secondary" : "bg-gray-200"}`}
+                                aria-label="Toggle boleto aéreo"
+                              >
+                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${cotFlightActive ? "translate-x-5" : "translate-x-0"}`} />
+                              </button>
+                            </div>
+                            {cotFlightActive && (
+                              <>
+                                <div className="space-y-1.5">
+                                  <label className={labelCls}>Descripción del boleto (opcional)</label>
+                                  <input
+                                    type="text" value={cotLibreFlightDesc}
+                                    onChange={(e) => setCotLibreFlightDesc(e.target.value.slice(0, 200))}
+                                    placeholder="Ej: Vuelo redondo Quito–Cancún, 23kg equipaje"
+                                    className={inputCls}
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className={labelCls}>
+                                    {cotNumNinos > 0 ? "Precio boleto adulto por persona (USD)" : "Precio boleto por persona (USD)"}
+                                  </label>
+                                  <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-xs font-black">$</span>
+                                    <input
+                                      type="number" min={0} step={1} value={cotFlightPrice}
+                                      onChange={(e) => setCotFlightPrice(Math.max(0, Number(e.target.value)))}
+                                      className={`${inputCls} pl-8`}
+                                    />
+                                  </div>
+                                  <p className="text-[10px] text-primary/40 font-bold">
+                                    Total boleto adultos: ${(cotFlightPrice * cotNumPersonas).toLocaleString()} ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""} × ${cotFlightPrice})
+                                  </p>
+                                </div>
+                                {cotNumNinos > 0 && (
+                                  <div className="space-y-1.5">
+                                    <label className={labelCls}>Precio boleto niño por persona (USD)</label>
+                                    <div className="relative">
+                                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-xs font-black">$</span>
+                                      <input
+                                        type="number" min={0} step={1} value={cotFlightPriceChild}
+                                        onChange={(e) => setCotFlightPriceChild(Math.max(0, Number(e.target.value)))}
+                                        className={`${inputCls} pl-8`}
+                                      />
+                                    </div>
+                                    <p className="text-[10px] text-primary/40 font-bold">
+                                      Total boleto niños: ${(cotFlightPriceChild * cotNumNinos).toLocaleString()} ({cotNumNinos} niño{cotNumNinos > 1 ? "s" : ""} × ${cotFlightPriceChild})
+                                    </p>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+
                           {/* Hoteles, traslados y actividades — agrupados por destino en multidestino */}
                           {cotAllDestinos.length > 0 && (
                             <div className="space-y-4">
@@ -1927,12 +2026,27 @@ export default function DashboardPage() {
                                                 <p className="text-xs font-black text-primary">{hotel.nombre}</p>
                                                 <p className="text-[10px] text-primary/40 font-bold mt-0.5">{"★".repeat(hotel.estrellas)} · DBL ${dblRate}/noche · SGL ${sglRate}/noche</p>
                                                 <div className="flex flex-wrap gap-1 mt-1.5">
-                                                  {hotel.tarifas.map((t) => (
-                                                    <span key={t.tipoHabitacion} className="px-1.5 py-0.5 bg-white border border-gray-100 text-[8px] font-black text-primary/50 rounded">
-                                                      {t.tipoHabitacion} ${t.precioBase}/n
-                                                    </span>
-                                                  ))}
+                                                  {hotel.tarifas.map((t, i) => {
+                                                    // Un hotel puede declarar VARIAS filas "CHD" (una por rango de
+                                                    // edad de PoliticaNinos) — se distinguen por rangoNombre/edad.
+                                                    const pol = t.tipoHabitacion === "CHD"
+                                                      ? hotel.politicaNinos.find((p) => p.tarifaChdId === t.id)
+                                                      : null;
+                                                    const label = pol ? `CHD ${pol.rangoNombre} (${pol.edadMin}-${pol.edadMax})` : t.tipoHabitacion;
+                                                    return (
+                                                      <span key={`${hotel.id}-${t.tipoHabitacion}-${i}`} className="px-1.5 py-0.5 bg-white border border-gray-100 text-[8px] font-black text-primary/50 rounded">
+                                                        {label} ${t.precioBase}/n
+                                                      </span>
+                                                    );
+                                                  })}
                                                 </div>
+                                                {cotNumNinos > 0 && (
+                                                  <ChildPolicyWarning
+                                                    politicaNinos={hotel.politicaNinos}
+                                                    childAges={cotNinosEdades}
+                                                    className="mt-2"
+                                                  />
+                                                )}
                                               </div>
                                             </button>
                                           );
@@ -2035,7 +2149,6 @@ export default function DashboardPage() {
                               { tipoPax: "DBL",  label: "Doble (DBL)",      numPax: 2 },
                               { tipoPax: "TPL",  label: "Triple (TPL)",     numPax: 3 },
                               { tipoPax: "QUAD", label: "Cuádruple (QUAD)", numPax: 4 },
-                              { tipoPax: "CHD",  label: "Niños 2-11 (CHD)", numPax: 1 },
                             ] as const).map(({ tipoPax, label }) => {
                               const precio = getCotPrice(tipoPax);
                               const qty    = cotHabs[tipoPax] ?? 0;
@@ -2064,6 +2177,21 @@ export default function DashboardPage() {
                               );
                             })}
                           </div>
+
+                          {/* (#1) Alojamiento de niños — según la política de edad del hotel, no un contador manual. */}
+                          {cotNumNinos > 0 && cotPrimaryHotel && (
+                            <div className="p-4 bg-secondary/5 border border-secondary/15 rounded-2xl space-y-1.5">
+                              <p className="text-[10px] font-black uppercase text-secondary/70 tracking-wider">
+                                Alojamiento niños ({cotNumNinos})
+                              </p>
+                              <p className="text-[10px] text-primary/50 font-bold">
+                                Calculado según la política de edad de {cotPrimaryHotel.nombre} — $
+                                {cotLibreChildAccomTotal % 1 === 0 ? cotLibreChildAccomTotal.toLocaleString() : cotLibreChildAccomTotal.toFixed(2)}
+                                {" "}en total ({cotNoches} noche{cotNoches !== 1 ? "s" : ""}).
+                              </p>
+                              <ChildPolicyWarning politicaNinos={cotPrimaryHotel.politicaNinos} childAges={cotNinosEdades} className="mt-1" />
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -2631,21 +2759,32 @@ export default function DashboardPage() {
                         // Markup: total → por pax → por destino (misma fórmula que catálogo).
                         const markupPerPaxTotal = totalPax > 0 ? agencyMarkup / totalPax : 0;
                         const markupPerDestino = numDestinos > 0 ? markupPerPaxTotal / numDestinos : 0;
-                        // Alojamiento del hotel: Σ tarifa(tipoPax) × ocupación × cantidad × noches (per-habitación).
+                        // Alojamiento del hotel: adultos (Σ tarifa(tipoPax) × ocupación × cantidad × noches,
+                        // per-habitación) + (#1) niños según la política de edad de ESE hotel.
                         const accomForHotel = (h: CotHotel, noches: number) =>
                           roomEntries.reduce((sum, [tipoPax, qty]) => {
                             const rate = h.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
                             return sum + rate * (COT_NUM_PAX[tipoPax] ?? 1) * qty * noches;
-                          }, 0);
-                        // Servicios locales del destino (actividades/traslados seleccionados, tarifa mínima).
+                          }, 0) + cotLibreChildAccomFor(h, noches);
+                        // Servicios locales del destino (actividades/traslados seleccionados), al mismo
+                        // bracket de pax real que cotLibreActTotal/cotLibreTrsTotal — NO la tarifa mínima.
+                        // (#2) Traslados: tarifa NINO propia si existe y cubre la cantidad de niños.
                         const servicesForDestino = (d: CotDestino) => {
-                          const minPrice = (tarifas: { precio: number }[]) =>
-                            tarifas.slice().sort((a, b) => a.precio - b.precio)[0]?.precio ?? 0;
-                          const acts = d.actividades.filter((a) => cotLibreActSel[a.id]).reduce((s, a) => s + minPrice(a.tarifas), 0);
-                          const trs = d.traslados.filter((t) => cotLibreTrsSel[t.id]).reduce((s, t) => s + minPrice(t.tarifas), 0);
+                          const acts = d.actividades.filter((a) => cotLibreActSel[a.id]).reduce((s, a) => {
+                            const adultPerPax = getActividadAdultPerPax(a.tarifas, cotNumPersonas);
+                            const childPerPax = getActividadChildPerPax(a.tarifas, cotNumNinos);
+                            return s + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
+                          }, 0);
+                          const trs = d.traslados.filter((t) => cotLibreTrsSel[t.id]).reduce((s, t) => {
+                            const adultPerPax = getTrasladoPerPax(t.tarifas, cotNumPersonas);
+                            const childPerPax = getTrasladoChildPerPax(t.tarifas, cotNumNinos) ?? adultPerPax;
+                            return s + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
+                          }, 0);
                           return acts + trs;
                         };
-                        const boletoPerPax = cotFlightActive && cotFlightPrice > 0 ? cotFlightPrice : 0;
+                        // (#4) Boleto promedio/pax: adultos y niños pueden tener tarifas distintas, así que
+                        // se blende sobre el total real de pasajeros (consistente con "Precio/Persona").
+                        const boletoPerPax = cotFlightActive && cotBoletoTotal > 0 ? cotBoletoTotal / totalPax : 0;
                         return (
                           <div className="space-y-4">
                             <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider">
@@ -2782,9 +2921,18 @@ export default function DashboardPage() {
                       {/* ── Total estimado (libre) ── */}
                       {cotMode === "libre" && !isComparativeMode && (
                         <div className="border-t border-gray-100 pt-3 space-y-1">
+                          {(cotSubtotalAlojamiento + cotLibreChildAccomTotal) > 0 && (
+                            <div className="flex justify-between text-[10px] font-bold text-primary/60">
+                              <span>Alojamiento{cotNumNinos > 0 ? " (adultos + niños)" : ""}</span>
+                              <span>${(cotSubtotalAlojamiento + cotLibreChildAccomTotal).toLocaleString()}</span>
+                            </div>
+                          )}
                           {cotBoletoTotal > 0 && (
                             <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                              <span>Boleto aéreo ({cotTotalRoomPax} pax × ${cotFlightPrice})</span>
+                              <span>
+                                Boleto aéreo ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""} × ${cotFlightPrice}
+                                {cotNumNinos > 0 ? ` + ${cotNumNinos} niño${cotNumNinos > 1 ? "s" : ""} × $${cotFlightPriceChild}` : ""})
+                              </span>
                               <span>${cotBoletoTotal.toLocaleString()}</span>
                             </div>
                           )}

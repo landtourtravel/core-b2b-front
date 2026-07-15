@@ -1,8 +1,13 @@
 // Pure price-calculation helpers for the catalog cotizador wizard (Steps 3 & 4).
 // No React imports. No side effects.
 
-export type CotHelperHotelTarifa = { tipoHabitacion: string; precioBase: number };
-export type CotHelperPoliticaNinos = { edadMin: number; edadMax: number; precio: number | null };
+export type CotHelperHotelTarifa = { id: number; tipoHabitacion: string; precioBase: number };
+/**
+ * `tarifaChdId` — FK a la fila TarifaHotel (tipoHabitacion="CHD") específica de este rango
+ * de edad. Un hotel puede declarar VARIAS filas "CHD" (una por rango de PoliticaNinos), así
+ * que nunca hay que asumir que existe una sola tarifa CHD por hotel — ver `getChildPriceForAge`.
+ */
+export type CotHelperPoliticaNinos = { rangoNombre: string; edadMin: number; edadMax: number; precio: number | null; tarifaChdId: number | null };
 export type CotHelperHotel = {
   id: number;
   nombre: string;
@@ -31,8 +36,15 @@ export type ChildPriceResult = { precio: number; aplica: boolean };
 
 /**
  * Per-child per-night price based on PoliticaNinos age match.
- * Falls back: politica.precio → TarifaHotelRef.CHD.precioBase → adultPrice.
+ * Falls back: politica.precio → TarifaHotelRef row pointed to by politica.tarifaChdId
+ * → any "CHD" tarifa on the hotel (legacy data without tarifaChdId set) → adultPrice.
  * If no matching politica → child is charged at adult rate (aplica = false).
+ *
+ * IMPORTANT: a hotel can declare SEVERAL "CHD" tarifa rows — one per PoliticaNinos age
+ * range (e.g. "Niño" 0-3 and "Menor" 4-12 each have their own TarifaHotel row). Do NOT
+ * grab the first tipoHabitacion==="CHD" row blindly — that picks whichever age band
+ * happens to be first in the array, regardless of which one actually matched the child's
+ * age. Always resolve via `politica.tarifaChdId` (the FK to the correct row).
  */
 export function getChildPriceForAge(
   hotel: CotHelperHotel,
@@ -45,6 +57,7 @@ export function getChildPriceForAge(
   if (!politica) return { precio: adultPrice, aplica: false };
   const precioChd =
     politica.precio ??
+    hotel.tarifas.find((t) => t.id === politica.tarifaChdId)?.precioBase ??
     hotel.tarifas.find((t) => t.tipoHabitacion === "CHD")?.precioBase ??
     adultPrice;
   return { precio: precioChd, aplica: true };
@@ -125,7 +138,7 @@ export function getActividadChildPerPax(tarifas: CotHelperActTarifa[], numNinos:
  * volume bracket). Callers pass the count of the pax type being charged (e.g. numAdultos).
  * Mirrors `getActividadAdultPerPax`: picks the ADULTO tariff whose [paxMin,paxMax] covers
  * `paxCount` and returns its per-person price. Children are charged this same adult rate
- * (owner's rule 2026-07-05), so the breakdown reuses this value for each child too.
+ * ONLY when the traslado has no NINO tariff of its own — see `getTrasladoChildPerPax`.
  */
 export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], paxCount: number): number {
   return (
@@ -133,6 +146,20 @@ export function getTrasladoPerPax(tarifas: CotHelperTrsTarifa[], paxCount: numbe
       (t) => t.tipoPasajero === "ADULTO" && paxCount >= t.paxMin && paxCount <= t.paxMax
     )?.precio ?? 0
   );
+}
+
+/**
+ * Per-child NINO transfer price matching the child pax bracket, or `null` if the traslado
+ * has no NINO tariff configured (some traslados now declare a dedicated child rate, mirroring
+ * `TarifaActividad`). Callers should fall back to `getTrasladoPerPax(tarifas, numAdultos)`
+ * (the adult rate) when this returns `null`.
+ */
+export function getTrasladoChildPerPax(tarifas: CotHelperTrsTarifa[], numNinos: number): number | null {
+  if (numNinos <= 0) return null;
+  const t = tarifas.find(
+    (t) => t.tipoPasajero === "NINO" && numNinos >= t.paxMin && numNinos <= t.paxMax
+  );
+  return t ? t.precio : null;
 }
 
 // ── Composite breakdown ───────────────────────────────────────────────────────
@@ -263,26 +290,27 @@ export function calcHotelBreakdown(
     0
   );
   // Adult transfer bracket is chosen by numAdultos (NOT totalPax), mirroring
-  // getActividadAdultPerPax. Children are excluded from transfers (their cost is
-  // covered by the adults' fare), so they must not shift the adult volume bracket
-  // nor the POR_VEHICULO divisor — otherwise adults get the cheaper larger-group
-  // rate for a group size that isn't being charged.
+  // getActividadAdultPerPax.
   const trsPerPax = traslados.reduce(
     (s, t) => s + getTrasladoPerPax(t.tarifas, numAdultos),
     0
   );
   const servicesPerPax = actPerPax + trsPerPax;
 
-  // Children's own local services: child (NINO) activity tariff + the ADULT transfer
-  // fare per person. Per owner's rule (2026-07-05) the child is charged the same
-  // transfer as an adult (`trsPerPax`), so it is added here per child. This reverses
-  // the earlier exclusion; TarifaTraslado still has no child-specific rate, so the
-  // adult per-pax value is the fare applied to each child.
+  // Children's own local services: child (NINO) activity tariff, plus per-traslado either
+  // its own NINO tariff (when one exists and its bracket covers numNinos) or, falling back,
+  // the same ADULTO per-pax fare charged to adults (owner's rule 2026-07-05, extended
+  // 2026-07-12 now that TarifaTraslado can declare a dedicated child rate).
   const childActPerChild = actividades.reduce(
     (s, a) => s + getActividadChildPerPax(a.tarifas, numNinos),
     0
   );
-  const childServicesTotal = numNinos > 0 ? numNinos * (childActPerChild + trsPerPax) : 0;
+  const childTrsPerChild = traslados.reduce((s, t) => {
+    const adultPerPax = getTrasladoPerPax(t.tarifas, numAdultos);
+    const childPerPax = getTrasladoChildPerPax(t.tarifas, numNinos) ?? adultPerPax;
+    return s + childPerPax;
+  }, 0);
+  const childServicesTotal = numNinos > 0 ? numNinos * (childActPerChild + childTrsPerChild) : 0;
 
   const childSupplementPerAdult =
     numAdultos > 0 ? (childAccomTotal + childServicesTotal) / numAdultos : 0;

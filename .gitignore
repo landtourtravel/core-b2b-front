@@ -58,6 +58,7 @@ documentation/
 .claude/
 .mcp.json
 skills-lock.json
+prompts/
 
 # Duplicate / scratch images
 img/

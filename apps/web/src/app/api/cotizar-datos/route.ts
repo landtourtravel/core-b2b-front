@@ -45,13 +45,16 @@ export async function GET() {
           nombre: h.nombre,
           estrellas: h.estrellas,
           tarifas: h.tarifas.map((t) => ({
+            id: t.id,
             tipoHabitacion: t.tipoHabitacion,
             precioBase: t.precioBase,
           })),
           politicaNinos: h.politicaNinos.map((pol) => ({
+            rangoNombre: pol.rangoNombre,
             edadMin: pol.edadMin,
             edadMax: pol.edadMax,
             precio: pol.precio ?? null,
+            tarifaChdId: pol.tarifaChdId ?? null,
           })),
         })),
         actividades: d.actividades.map((a) => ({
