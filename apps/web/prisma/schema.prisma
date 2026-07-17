@@ -364,6 +364,10 @@ model Cotizacion {
   hotelsComparisonSnapshot Json?  // Array de { hotelId, nombre, estrellas, totalPerPax, subtotal, total }
   selectedHotelId          Int?   // Hotel elegido al aprobar
 
+  // Estado crudo del wizard (mismos campos que el draft de sessionStorage) — permite
+  // reabrir una cotización BORRADOR en el cotizador y editarla campo por campo.
+  wizardState Json?
+
   // ── Estado del flujo ────────────────────────────────────────────────
   status          CotizacionStatus @default(BORRADOR)
   notas           String?          @db.Text

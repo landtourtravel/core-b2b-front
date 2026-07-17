@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Destino } from "@land-tour/shared";
 import { api } from "@/services/api";
 import { AlertTriangle, MapPin as MapPinIcon } from "lucide-react";
+import { Skeleton } from "./Skeleton";
 
 // ─── Destination Modal ────────────────────────────────────────────────────────
 
@@ -325,10 +326,36 @@ export const DestinationsSection: React.FC = () => {
 
   if (isLoading) {
     return (
-      <section className="py-20 bg-light flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-          <p className="text-primary/60 font-medium">Buscando destinos increíbles...</p>
+      <section className="py-20 sm:py-28 bg-light overflow-hidden" aria-labelledby="destinations-title">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <span className="inline-block px-4 py-1.5 bg-secondary/15 text-secondary text-xs font-bold rounded-lg mb-4 uppercase tracking-widest">
+              Destinos Destacados
+            </span>
+            <h2 id="destinations-title" className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary leading-tight">
+              Lugares que{" "}
+              <span className="relative">
+                enamoran
+                <span className="absolute -bottom-1 left-0 w-full h-1 bg-secondary/40 rounded-full" />
+              </span>
+            </h2>
+            <p className="mt-4 text-primary/60 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              Explora los destinos más soñados del mundo. Pasa el cursor sobre cada tarjeta
+              y déjate sorprender.
+            </p>
+          </div>
+          {/* Desktop */}
+          <div className="hidden md:flex gap-3 h-[480px]">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="flex-1 h-full rounded-2xl" />
+            ))}
+          </div>
+          {/* Mobile */}
+          <div className="md:hidden flex gap-3 overflow-x-hidden">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="w-64 h-80 shrink-0 rounded-2xl" />
+            ))}
+          </div>
         </div>
       </section>
     );

@@ -47,11 +47,14 @@ import {
   Globe,
   Printer,
   Trash2,
+  Pencil,
 } from "lucide-react";
+import { Skeleton } from "@/components/Skeleton";
 import { DashboardContext, type CotizacionExtended, type HotelCompSnapshot } from "./DashboardContext";
 import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
 import { QUICK_QUOTE_PENDING_KEY } from "./components/PaqueteDetailView";
+import { EDIT_COT_PENDING_KEY } from "./components/CotizacionDetailView";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
@@ -141,16 +144,21 @@ const labelCls = "block text-[10px] font-black uppercase text-primary/40 trackin
 
 export default function DashboardPage() {
   // ── Session ─────────────────────────────────────────────────────────────────
-  let sessionData = null;
+  let sessionData: ReturnType<typeof useSession>["data"] = null;
+  let sessionStatus: "loading" | "authenticated" | "unauthenticated" = "loading";
   try {
-    const { data } = useSession();
+    const { data, status } = useSession();
     sessionData = data;
+    sessionStatus = status;
   } catch {}
 
-  const userName      = sessionData?.user?.name || "Ana Córdova";
-  const rawRole       = (sessionData?.user as any)?.role as string | undefined;
-  const isAdmin       = rawRole === "SUPERADMIN" || rawRole === "COLABORADOR_INTERNO";
-  const agenciaDisplay = (sessionData?.user as any)?.agenciaNombre || "Viajes Andina Tours";
+  // While the session hook is still resolving, identity fields render skeletons
+  // instead of placeholder text (no fake "Ana Córdova" / "Viajes Andina Tours").
+  const sessionReady   = sessionStatus !== "loading";
+  const userName       = sessionData?.user?.name || "";
+  const rawRole        = (sessionData?.user as any)?.role as string | undefined;
+  const isAdmin        = rawRole === "SUPERADMIN" || rawRole === "COLABORADOR_INTERNO";
+  const agenciaDisplay = (sessionData?.user as any)?.agenciaNombre || "";
   const userRoleDisplay =
     rawRole === "SUPERADMIN"         ? "Super Administrador" :
     rawRole === "COLABORADOR_INTERNO" ? "Colaborador Interno" :
@@ -192,6 +200,17 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Picks up a pending "Editar" request stashed by CotizacionDetailView's edit button
+  // (that route is a standalone page with no access to this component's state).
+  useEffect(() => {
+    const pendingEditId = localStorage.getItem(EDIT_COT_PENDING_KEY);
+    if (pendingEditId) {
+      localStorage.removeItem(EDIT_COT_PENDING_KEY);
+      handleEditCot(pendingEditId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Cotizaciones ─────────────────────────────────────────────────────────────
   const [cotizaciones, setCotizaciones] = useState<CotizacionExtended[]>([]);
   const [isLoadingCots, setLoadingCots] = useState(false);
@@ -208,6 +227,10 @@ export default function DashboardPage() {
   }, []);
 
   const confirmDeleteDialogRef = useRef<HTMLDialogElement>(null);
+  // When true, the next "default hotel per destino" effect run skips auto-selecting
+  // and consumes the flag — set right before restoreDraft()/handleEditCot() write a
+  // restored cotSelectedHotelIds, so that restore doesn't get clobbered by the default.
+  const skipHotelDefaultRef = useRef(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // ── Stepper ──────────────────────────────────────────────────────────────────
@@ -216,6 +239,11 @@ export default function DashboardPage() {
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [isSavingQuote,   setIsSavingQuote]   = useState(false);
   const [hasDraft,        setHasDraft]        = useState(false);
+  // Cotización BORRADOR que se está editando (id real en BD). Se setea al abrir
+  // "Editar" desde el listado, y también tras cualquier guardado exitoso — así,
+  // si el asesor desbloquea y vuelve a guardar dentro de la misma sesión, se
+  // actualiza la misma fila en vez de crear una cotización duplicada.
+  const [editingCotId,     setEditingCotId]     = useState<string | null>(null);
 
   // Client fields
   const [clientName,    setClientName]    = useState("");
@@ -277,9 +305,9 @@ export default function DashboardPage() {
 
   // Marca blanca (persiste en localStorage)
   const [agencyLogo,    setAgencyLogo]    = useState<string | null>(null);
-  const [agencyName,    setAgencyName]    = useState("Viajes Andina Tours");
-  const [agencyPhone,   setAgencyPhone]   = useState("+593 912345678");
-  const [agencyAddress, setAgencyAddress] = useState("Av. Francisco de Orellana, Guayaquil");
+  const [agencyName,    setAgencyName]    = useState("");
+  const [agencyPhone,   setAgencyPhone]   = useState("");
+  const [agencyAddress, setAgencyAddress] = useState("");
   const [defaultMarkup, setDefaultMarkup] = useState("0");
   const [isSavingConfig, setSavingConfig] = useState(false);
   const [configSaved,    setConfigSaved]  = useState(false);
@@ -431,6 +459,7 @@ export default function DashboardPage() {
   // of each destino so the checkboxes below start with a valid, priceable choice.
   useEffect(() => {
     if (cotMode !== "catalogo") return;
+    if (skipHotelDefaultRef.current) { skipHotelDefaultRef.current = false; return; }
     const pkg = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
     if (!pkg) return;
     const defaultIds: number[] = [];
@@ -459,6 +488,9 @@ export default function DashboardPage() {
       if (d.clientId      !== undefined) setClientId(d.clientId);
       if (d.clientAddress !== undefined) setClientAddress(d.clientAddress);
       if (d.cotMode       !== undefined) setCotMode(d.cotMode);
+      // Restoring a catalogo selection changes cotSelectedPkgId, which would otherwise
+      // trigger the "default hotel per destino" effect and clobber this exact selection.
+      if (d.cotMode === "catalogo" && d.cotSelectedHotelIds !== undefined) skipHotelDefaultRef.current = true;
       if (d.cotSelectedPkgId     !== undefined) setCotSelectedPkgId(d.cotSelectedPkgId);
       if (d.cotSelectedDestinoId !== undefined) setCotSelectedDestinoId(d.cotSelectedDestinoId);
       if (d.cotSelectedHotelIds  !== undefined) setCotSelectedHotelIds(d.cotSelectedHotelIds);
@@ -877,7 +909,7 @@ export default function DashboardPage() {
   };
 
   const resetForm = () => {
-    setStep(1); setQuoteLocked(false);
+    setStep(1); setQuoteLocked(false); setEditingCotId(null);
     setClientName(""); setClientEmail(""); setClientPhone(""); setClientId(""); setClientAddress("");
     setClientFoundMsg(null);
     setSelectedPkgId("1"); setExpandedCountry(null);
@@ -917,6 +949,68 @@ export default function DashboardPage() {
     setCotSelectedPkgId(Number(pkgId));
     setCotFromQuickQuote(true);
     setActiveTab("cotizar");
+  };
+
+  // Reabre una cotización BORRADOR propia en el wizard, poblando el estado crudo
+  // guardado en `wizardState` (mismos campos que el auto-guardado de sessionStorage).
+  // Cotizaciones guardadas antes de que existiera este campo (wizardState null) solo
+  // recuperan los datos del cliente — el resto debe rearmarse manualmente.
+  const handleEditCot = async (id: string) => {
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}`);
+      if (!res.ok) return;
+      const cot = await res.json();
+      if (cot.status !== "BORRADOR") return;
+
+      resetForm();
+      const ws = (cot.wizardState ?? {}) as Record<string, unknown>;
+      const get = <T,>(key: string, fallback: T): T =>
+        ws[key] !== undefined ? (ws[key] as T) : fallback;
+
+      // Fallback derivado de los campos persistidos — cubre cotizaciones sin wizardState
+      // (creadas antes de que este campo existiera, o por un flujo que aún no lo guardaba,
+      // ej. cotización rápida antes de este fix).
+      const pax = cot.pasajeros ?? {};
+      const REV_TIPO: [string, number][] = [["cantSGL", 1], ["cantDBL", 2], ["cantTPL", 3], ["cantQUAD", 4]];
+      const fallbackNumPersonas = REV_TIPO.find(([key]) => (pax[key] ?? 0) > 0)?.[1] ?? 2;
+      const fallbackHotelIds: number[] = Array.isArray(cot.hotelsComparison)
+        ? [...new Set((cot.hotelsComparison as HotelCompSnapshot[]).map((h) => h.hotelId))]
+        : [];
+
+      const finalCotMode  = get<"catalogo" | "libre">("cotMode", cot.paqueteId ? "catalogo" : "libre");
+      const finalHotelIds = get<number[]>("cotSelectedHotelIds", fallbackHotelIds);
+      // See restoreDraft: avoid the default-hotel effect clobbering the restored selection.
+      if (finalCotMode === "catalogo" && finalHotelIds.length > 0) skipHotelDefaultRef.current = true;
+
+      setClientName(get("clientName", cot.cliente?.nombre ?? ""));
+      setClientEmail(get("clientEmail", cot.cliente?.email ?? ""));
+      setClientPhone(get("clientPhone", cot.cliente?.telefono ?? ""));
+      setClientId(get("clientId", cot.cliente?.documento ?? ""));
+      setClientAddress(get("clientAddress", cot.cliente?.direccion ?? ""));
+      setCotMode(finalCotMode);
+      setCotSelectedPkgId(get("cotSelectedPkgId", cot.paqueteId ?? null));
+      setCotSelectedDestinoId(get("cotSelectedDestinoId", null));
+      setCotSelectedHotelIds(finalHotelIds);
+      setCotHabs(get("cotHabs", {}));
+      setCotFechaSalida(get("cotFechaSalida", cot.fechaViaje ?? ""));
+      setCotCustomDias(get("cotCustomDias", 5));
+      setCotExtraNightsByDestino(get("cotExtraNightsByDestino", {}));
+      setCotFlightOverride(get("cotFlightOverride", null));
+      setCotFlightPrice(get("cotFlightPrice", cot.precios?.precioBoleto ?? 0));
+      setCotFlightPriceChild(get("cotFlightPriceChild", 0));
+      setCotLibreFlightDesc(get("cotLibreFlightDesc", ""));
+      setCotLibreActSel(get("cotLibreActSel", {}));
+      setCotLibreTrsSel(get("cotLibreTrsSel", {}));
+      setCotNumPersonas(get("cotNumPersonas", fallbackNumPersonas));
+      setCotNumNinos(get("cotNumNinos", pax.cantCHD ?? 0));
+      setCotNinosEdades(get("cotNinosEdades", Array(pax.cantCHD ?? 0).fill(5)));
+      setCotFromQuickQuote(get("cotFromQuickQuote", true));
+
+      setEditingCotId(id);
+      setQuoteLocked(false);
+      setStep(1);
+      setActiveTab("cotizar");
+    } catch {}
   };
 
   const handleHotelToggle = (hotelId: string) => {
@@ -1000,6 +1094,7 @@ export default function DashboardPage() {
     const codigo = `COT-${now.getFullYear()}-${String(cotizaciones.length + 1).padStart(3, "0")}`;
     const sessionAgenciaId = (sessionData?.user as any)?.agenciaId ?? "unknown";
     const sessionUserId    = (sessionData?.user as any)?.id ?? "unknown";
+    const isEditing = editingCotId !== null;
 
     const notasParts: string[] = [];
     const notasStr = notasParts.length > 0 ? notasParts.join(" | ") : undefined;
@@ -1036,6 +1131,16 @@ export default function DashboardPage() {
             };
           })
         : [];
+
+    // Estado crudo del wizard — persistido para poder reabrir esta cotización en edición.
+    const wizardState = {
+      clientName, clientEmail, clientPhone, clientId, clientAddress,
+      cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
+      cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino,
+      cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc,
+      cotLibreActSel, cotLibreTrsSel, cotNumPersonas, cotNumNinos, cotNinosEdades,
+      cotFromQuickQuote,
+    };
 
     const newCot: CotizacionExtended = {
       id: `cot-${Date.now()}`,
@@ -1074,7 +1179,26 @@ export default function DashboardPage() {
       selectedHotelId:  null,
     };
 
-    setCotizaciones((prev) => [newCot, ...prev]);
+    if (isEditing && editingCotId) {
+      setCotizaciones((prev) => prev.map((c) => c.id === editingCotId ? {
+        ...c,
+        paqueteId: newCot.paqueteId, paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+        pasajeros: newCot.pasajeros, precios: newCot.precios,
+        subtotal: newCot.subtotal, markup: newCot.markup, total: newCot.total,
+        fechaViaje: newCot.fechaViaje, fechaRetorno: newCot.fechaRetorno,
+        hotelsComparison: newCot.hotelsComparison,
+        cliente: c.cliente ? {
+          ...c.cliente,
+          nombre:    clientName  || "Sin nombre",
+          email:     clientEmail || undefined,
+          telefono:  clientPhone || undefined,
+          documento: clientId    || undefined,
+          direccion: clientAddress || undefined,
+        } : c.cliente,
+      } : c));
+    } else {
+      setCotizaciones((prev) => [newCot, ...prev]);
+    }
     setQuoteLocked(true);
     clearDraft();
 
@@ -1093,42 +1217,52 @@ export default function DashboardPage() {
       const clientData = clientRes.ok ? await clientRes.json() : null;
       if (!clientData?.id) return;
 
-      const cotRes = await fetch("/api/cotizaciones", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clienteId: clientData.id, paqueteId,
-          paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
-          cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
-          cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
-          precioSGL:  getSavePrice("SGL"),  precioDBL:  getSavePrice("DBL"),
-          precioTPL:  getSavePrice("TPL"),  precioQUAD: getSavePrice("QUAD"), precioCHD: getSavePrice("CHD"),
-          subtotal: r2(cotSubtotal), markup: r2(agencyMarkup), total: r2(cotTotal),
-          precioBoleto: cotFlightActive && cotFlightPrice > 0 ? r2(cotFlightPrice) : null,
-          fechaViaje:   cotFechaSalida   || null,
-          fechaRetorno: cotFechaRetorno  || null,
-          notas: notasStr,
-          hotelsComparison: hotelsComparison.length > 0 ? hotelsComparison : undefined,
-        }),
-      });
+      const cotRes = await fetch(
+        isEditing ? `/api/cotizaciones/${editingCotId}` : "/api/cotizaciones",
+        {
+          method: isEditing ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clienteId: clientData.id, paqueteId,
+            paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+            cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
+            cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
+            precioSGL:  getSavePrice("SGL"),  precioDBL:  getSavePrice("DBL"),
+            precioTPL:  getSavePrice("TPL"),  precioQUAD: getSavePrice("QUAD"), precioCHD: getSavePrice("CHD"),
+            subtotal: r2(cotSubtotal), markup: r2(agencyMarkup), total: r2(cotTotal),
+            precioBoleto: cotFlightActive && cotFlightPrice > 0 ? r2(cotFlightPrice) : null,
+            fechaViaje:   cotFechaSalida   || null,
+            fechaRetorno: cotFechaRetorno  || null,
+            notas: notasStr,
+            hotelsComparison: hotelsComparison.length > 0 ? hotelsComparison : undefined,
+            wizardState,
+          }),
+        }
+      );
       if (cotRes.ok) {
         const saved = await cotRes.json();
+        // Se actualiza siempre — así, si el asesor desbloquea y vuelve a guardar en
+        // la misma sesión (aunque haya sido una creación nueva), la próxima vez PUT
+        // actualiza esta misma fila en vez de duplicarla.
+        setEditingCotId(saved.id);
         setCotizaciones((prev) =>
-          prev.map((c) => c.id === newCot.id ? { ...c, id: saved.id, codigo: saved.codigo } : c)
+          prev.map((c) => c.id === (isEditing ? editingCotId : newCot.id) ? { ...c, ...saved } : c)
         );
-        try {
-          await fetch("/api/cotizaciones/notify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              cotizacionId:  saved.id,
-              codigo:        saved.codigo,
-              agenciaEmail:  sessionData?.user?.email,
-              agenciaNombre: agenciaDisplay,
-              clienteNombre: clientName,
-            }),
-          });
-        } catch {}
+        if (!isEditing) {
+          try {
+            await fetch("/api/cotizaciones/notify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                cotizacionId:  saved.id,
+                codigo:        saved.codigo,
+                agenciaEmail:  sessionData?.user?.email,
+                agenciaNombre: agenciaDisplay,
+                clienteNombre: clientName,
+              }),
+            });
+          } catch {}
+        }
       }
     } catch {}
   };
@@ -1229,11 +1363,20 @@ export default function DashboardPage() {
         <div className="p-4 border-t border-white/5 bg-primary-dark/40 flex flex-col gap-3">
           <div className="flex items-center gap-3 px-2 py-1.5">
             <div className="w-10 h-10 rounded-full bg-secondary text-primary flex items-center justify-center font-black text-xs border border-white/10 shrink-0 shadow-inner">
-              {userName.split(" ").map((n) => n[0]).join("")}
+              {sessionReady ? userName.split(" ").map((n) => n[0]).join("") : ""}
             </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-black text-white truncate leading-tight">{userName}</h4>
-              <p className="text-[9px] font-bold text-secondary mt-0.5">{userRoleDisplay}</p>
+            <div className="min-w-0 space-y-1">
+              {sessionReady ? (
+                <>
+                  <h4 className="text-xs font-black text-white truncate leading-tight">{userName}</h4>
+                  <p className="text-[9px] font-bold text-secondary">{userRoleDisplay}</p>
+                </>
+              ) : (
+                <>
+                  <Skeleton className="h-3 w-24 bg-white/10" />
+                  <Skeleton className="h-2.5 w-16 bg-white/10" />
+                </>
+              )}
             </div>
           </div>
           <button
@@ -1290,7 +1433,8 @@ export default function DashboardPage() {
             </div>
             {/* Agency badge — desktop */}
             <div className="hidden lg:flex items-center gap-2 px-4 py-1.5 bg-[#F4FAF8] border border-[#EDF7F5] rounded-xl text-[10px] font-black text-primary uppercase tracking-wider">
-              <Building2 size={12} className="text-secondary" /> {agenciaDisplay}
+              <Building2 size={12} className="text-secondary shrink-0" />
+              {sessionReady ? agenciaDisplay : <Skeleton className="h-2.5 w-20" />}
             </div>
           </div>
         </header>
@@ -1318,6 +1462,18 @@ export default function DashboardPage() {
           {/* ════════════════════════ NUEVA COTIZACIÓN (STEPPER) ════════════════════════ */}
           {activeTab === "cotizar" && (
             <div className="space-y-6 animate-fade-scale">
+
+              {editingCotId && (
+                <div className="p-4 bg-sky-50 border border-sky-200 rounded-2xl flex items-center gap-3">
+                  <Pencil size={16} className="text-sky-600 shrink-0" />
+                  <div>
+                    <p className="text-xs font-black text-sky-700">
+                      Editando cotización {cotizaciones.find((c) => c.id === editingCotId)?.codigo ?? ""}
+                    </p>
+                    <p className="text-[10px] font-bold text-sky-600 mt-0.5">Los cambios reemplazarán la cotización guardada al confirmar.</p>
+                  </div>
+                </div>
+              )}
 
               {hasDraft && !quoteLocked && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1419,16 +1575,24 @@ export default function DashboardPage() {
                         {/* Agency read-only tag */}
                         <div className="space-y-1.5">
                           <label className={labelCls}>Agencia Minorista</label>
-                          <div className="flex items-center gap-2.5 px-4 py-3 bg-secondary/8 border border-secondary/20 rounded-2xl">
-                            <Building2 size={13} className="text-secondary shrink-0" />
-                            <span className="text-xs font-black text-secondary truncate">{agenciaDisplay}</span>
-                          </div>
+                          {sessionReady ? (
+                            <div className="flex items-center gap-2.5 px-4 py-3 bg-secondary/8 border border-secondary/20 rounded-2xl">
+                              <Building2 size={13} className="text-secondary shrink-0" />
+                              <span className="text-xs font-black text-secondary truncate">{agenciaDisplay}</span>
+                            </div>
+                          ) : (
+                            <Skeleton className="h-[46px] w-full rounded-2xl" />
+                          )}
                         </div>
 
                         {/* Agent name disabled */}
                         <div className="space-y-1.5">
                           <label className={labelCls}>Ejecutivo de Cuenta</label>
-                          <input type="text" disabled value={userName} className={inputDisabledCls} />
+                          {sessionReady ? (
+                            <input type="text" disabled value={userName} className={inputDisabledCls} />
+                          ) : (
+                            <Skeleton className="h-[46px] w-full rounded-2xl" />
+                          )}
                         </div>
                       </div>
 
@@ -2956,13 +3120,13 @@ export default function DashboardPage() {
                             onClick={() => setShowSaveConfirm(true)}
                             className="px-6 py-3 bg-secondary hover:bg-secondary-light text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
                           >
-                            <Star size={14} /> Guardar Cotización
+                            <Star size={14} /> {editingCotId ? "Actualizar Cotización" : "Guardar Cotización"}
                           </button>
                         )}
                         {quoteLocked && (
                           <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() => { const cot = cotizaciones[0]; if (cot) window.open(`/dashboard/cotizaciones/${cot.id}`, "_blank"); }}
+                              onClick={() => { if (editingCotId) window.open(`/dashboard/cotizaciones/${editingCotId}`, "_blank"); }}
                               className="px-5 py-3 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                             >
                               <Printer size={14} /> Ver Cotización
@@ -2987,12 +3151,23 @@ export default function DashboardPage() {
                               </div>
                               <div>
                                 <h3 className="text-sm font-black text-primary">¿Estás seguro?</h3>
-                                <p className="text-[10px] text-primary/50 font-bold">Se guardará la cotización y se notificará a las partes.</p>
+                                <p className="text-[10px] text-primary/50 font-bold">
+                                  {editingCotId ? "Se actualizará la cotización con los cambios realizados." : "Se guardará la cotización y se notificará a las partes."}
+                                </p>
                               </div>
                             </div>
                             <ul className="space-y-1.5 text-[10px] font-bold text-primary/60">
-                              <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Se enviará un correo de confirmación a tu agencia.</li>
-                              <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Land Tour Travel recibirá una copia para gestión.</li>
+                              {editingCotId ? (
+                                <>
+                                  <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Se reemplazarán los datos y habitaciones anteriores de esta cotización.</li>
+                                  <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />El código y la fecha de creación se mantienen.</li>
+                                </>
+                              ) : (
+                                <>
+                                  <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Se enviará un correo de confirmación a tu agencia.</li>
+                                  <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Land Tour Travel recibirá una copia para gestión.</li>
+                                </>
+                              )}
                               <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Podrás editar la cotización después si es necesario.</li>
                             </ul>
                             <div className="flex gap-3 pt-2">
@@ -3032,6 +3207,7 @@ export default function DashboardPage() {
           {activeTab === "cotizaciones" && (
             <CotizacionesTab
               onViewCot={(cot) => window.open(`/dashboard/cotizaciones/${cot.id}`, "_blank")}
+              onEditCot={handleEditCot}
               onOpenDelete={(id) => { setConfirmDeleteId(id); if (confirmDeleteDialogRef.current && !confirmDeleteDialogRef.current.open) confirmDeleteDialogRef.current.showModal(); }}
             />
           )}
@@ -3159,16 +3335,24 @@ export default function DashboardPage() {
               {/* Usuario */}
               <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-secondary text-primary flex items-center justify-center font-black text-lg shrink-0 shadow-inner">
-                  {userName.split(" ").map((n) => n[0]).join("")}
+                  {sessionReady ? userName.split(" ").map((n) => n[0]).join("") : ""}
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-sm font-black text-primary truncate">{userName}</h3>
-                  <p className="text-[11px] font-bold text-secondary mt-0.5">{userRoleDisplay}</p>
-                  <div className="flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-[#F4FAF8] border border-[#EDF7F5] rounded-lg w-fit">
-                    <Building2 size={10} className="text-secondary shrink-0" />
-                    <span className="text-[10px] font-black text-primary truncate max-w-[160px]">{agenciaDisplay}</span>
+                {sessionReady ? (
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-primary truncate">{userName}</h3>
+                    <p className="text-[11px] font-bold text-secondary mt-0.5">{userRoleDisplay}</p>
+                    <div className="flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-[#F4FAF8] border border-[#EDF7F5] rounded-lg w-fit">
+                      <Building2 size={10} className="text-secondary shrink-0" />
+                      <span className="text-[10px] font-black text-primary truncate max-w-[160px]">{agenciaDisplay}</span>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-32" />
+                    <Skeleton className="h-2.5 w-20" />
+                    <Skeleton className="h-5 w-28 rounded-lg" />
+                  </div>
+                )}
               </div>
 
 

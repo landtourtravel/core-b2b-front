@@ -9,6 +9,7 @@ import { PackageDetailModal } from "./PackageDetailModal";
 import { AlertTriangle, Package as PackageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Package } from "@land-tour/shared";
 import { api } from "@/services/api";
+import { PackageCardSkeleton } from "./PackageCard";
 
 export const PackagesSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,10 +63,30 @@ export const PackagesSection = () => {
 
   if (isLoading) {
     return (
-      <section className="py-24 bg-white min-h-[300px] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-          <p className="text-primary/60 font-medium text-sm">Cargando paquetes...</p>
+      <section className="py-24 bg-white" id="paquetes">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <span className="inline-block px-4 py-1.5 bg-secondary/15 text-secondary text-xs font-bold rounded-lg mb-4 uppercase tracking-widest">
+              Destacados
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary leading-tight">
+              Paquetes Turísticos{" "}
+              <span className="relative">
+                Más Populares
+                <span className="absolute -bottom-1 left-0 w-full h-1 bg-secondary/40 rounded-full" />
+              </span>
+            </h2>
+            <p className="mt-4 text-primary/60 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              Los destinos favoritos de nuestras agencias aliadas, con todo incluido y al mejor precio mayorista.
+            </p>
+          </div>
+          <div className="flex gap-4 overflow-x-hidden pb-4 -mx-4 px-4 md:-mx-6 md:px-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-[calc(100vw-2rem)] md:w-72">
+                <PackageCardSkeleton />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     );

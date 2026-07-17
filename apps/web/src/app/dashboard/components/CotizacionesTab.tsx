@@ -1,9 +1,10 @@
 "use client";
 import React from "react";
-import { Search, Eye, Trash2 } from "lucide-react";
+import { Search, Eye, Trash2, Pencil } from "lucide-react";
 import { COTIZACION_STATUS_LABEL, resumenPasajeros } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended } from "../DashboardContext";
+import { Skeleton } from "@/components/Skeleton";
 
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-50 text-sky-600",
@@ -22,10 +23,11 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
 
 interface CotizacionesTabProps {
   onViewCot: (cot: CotizacionExtended) => void;
+  onEditCot: (id: string) => void;
   onOpenDelete: (id: string) => void;
 }
 
-export default function CotizacionesTab({ onViewCot, onOpenDelete }: CotizacionesTabProps) {
+export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: CotizacionesTabProps) {
   const { cotizaciones, isLoadingCots, userName } = useDashboard();
 
   return (
@@ -46,9 +48,25 @@ export default function CotizacionesTab({ onViewCot, onOpenDelete }: Cotizacione
       {/* ── Vista de tarjetas (solo móvil) ── */}
       <div className="sm:hidden space-y-3">
         {isLoadingCots ? (
-          <div className="flex justify-center py-10">
-            <div className="w-7 h-7 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-          </div>
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <Skeleton className="h-2.5 w-16" />
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-2.5 w-40" />
+                </div>
+                <Skeleton className="h-5 w-20 rounded-lg shrink-0" />
+              </div>
+              <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+                <Skeleton className="h-6 w-24" />
+                <div className="flex gap-2">
+                  <Skeleton className="w-8 h-8 rounded-xl" />
+                  <Skeleton className="w-8 h-8 rounded-xl" />
+                </div>
+              </div>
+            </div>
+          ))
         ) : cotizaciones.length === 0 ? (
           <div className="text-center py-10 text-primary/40 text-xs font-bold">Sin cotizaciones registradas.</div>
         ) : cotizaciones.map((cot) => (
@@ -77,6 +95,16 @@ export default function CotizacionesTab({ onViewCot, onOpenDelete }: Cotizacione
                 >
                   <Eye size={14} />
                 </button>
+                {cot.status === "BORRADOR" && (
+                  <button
+                    onClick={() => onEditCot(cot.id)}
+                    aria-label={`Editar cotización ${cot.codigo}`}
+                    className="p-2 bg-light hover:bg-sky-50 text-primary hover:text-sky-600 rounded-xl border border-lighter transition-all cursor-pointer"
+                    title="Editar"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                )}
                 {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
                   <button
                     onClick={() => onOpenDelete(cot.id)}
@@ -105,7 +133,13 @@ export default function CotizacionesTab({ onViewCot, onOpenDelete }: Cotizacione
           </thead>
           <tbody className="divide-y divide-gray-50 text-xs font-bold text-primary/80">
             {isLoadingCots ? (
-              <tr><td colSpan={9} className="py-10 text-center"><div className="w-7 h-7 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin mx-auto" /></td></tr>
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i}>
+                  {Array.from({ length: 9 }).map((__, j) => (
+                    <td key={j} className="py-4"><Skeleton className="h-3.5 w-full max-w-[90px]" /></td>
+                  ))}
+                </tr>
+              ))
             ) : cotizaciones.length === 0 ? (
               <tr><td colSpan={9} className="py-10 text-center text-primary/40 font-bold text-xs">Sin cotizaciones registradas.</td></tr>
             ) : cotizaciones.map((cot) => (
@@ -136,6 +170,16 @@ export default function CotizacionesTab({ onViewCot, onOpenDelete }: Cotizacione
                     >
                       <Eye size={12} />
                     </button>
+                    {cot.status === "BORRADOR" && (
+                      <button
+                        onClick={() => onEditCot(cot.id)}
+                        aria-label={`Editar cotización ${cot.codigo}`}
+                        className="p-1.5 bg-light hover:bg-sky-50 text-primary hover:text-sky-600 rounded-lg border border-lighter transition-all cursor-pointer"
+                        title="Editar"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    )}
                     {(cot.status === "BORRADOR" || cot.status === "RECHAZADA") && (
                       <button
                         onClick={() => onOpenDelete(cot.id)}

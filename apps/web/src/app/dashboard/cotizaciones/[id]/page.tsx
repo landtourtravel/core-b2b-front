@@ -3,6 +3,56 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import CotizacionDetailView from "../../components/CotizacionDetailView";
 import type { CotizacionExtended } from "../../DashboardContext";
+import { Skeleton } from "@/components/Skeleton";
+
+/** Mirrors the document sheet's header / client-trip grid / table shape while it loads. */
+function CotizacionDocumentSkeleton() {
+  return (
+    <div className="max-w-[820px] mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-10">
+      <div className="flex items-start justify-between gap-4 pb-4 mb-7 border-b-[3px] border-gray-100">
+        <div className="flex items-center gap-3 min-w-0">
+          <Skeleton className="w-[72px] h-[30px] shrink-0" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-3.5 w-32" />
+            <Skeleton className="h-2.5 w-40" />
+          </div>
+        </div>
+        <div className="space-y-1.5 items-end flex flex-col shrink-0">
+          <Skeleton className="h-3.5 w-28" />
+          <Skeleton className="h-2.5 w-20" />
+          <Skeleton className="h-4 w-16 rounded-md mt-1" />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 mb-6">
+        {Array.from({ length: 2 }).map((_, col) => (
+          <div key={col}>
+            <Skeleton className="h-2.5 w-32 mb-3" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-2 w-16" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Skeleton className="h-2.5 w-40 mb-3" />
+      <div className="flex flex-wrap gap-1.5 mb-6">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-5 w-20 rounded-md" />
+        ))}
+      </div>
+      <Skeleton className="h-2.5 w-32 mb-3" />
+      <div className="space-y-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-10 w-full rounded-xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /**
  * Standalone document view for a single cotización — opened in a new tab from
@@ -15,10 +65,13 @@ export default function CotizacionDocumentPage() {
   const [cot, setCot] = useState<CotizacionExtended | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [agencyName, setAgencyName] = useState("Viajes Andina Tours");
-  const [agencyPhone, setAgencyPhone] = useState("+593 912345678");
-  const [agencyAddress, setAgencyAddress] = useState("Av. Francisco de Orellana, Guayaquil");
+  // No placeholder defaults — the document renders only once this (and `cot`) resolve,
+  // so nothing fake ("Viajes Andina Tours" etc.) can flash before the real DB data.
+  const [agencyName, setAgencyName] = useState("");
+  const [agencyPhone, setAgencyPhone] = useState("");
+  const [agencyAddress, setAgencyAddress] = useState("");
   const [agencyLogo, setAgencyLogo] = useState<string | null>(null);
+  const [isLoadingAgency, setIsLoadingAgency] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("agencyConfig");
@@ -37,7 +90,8 @@ export default function CotizacionDocumentPage() {
         if (data?.nombre)   setAgencyName(data.nombre);
         if (data?.telefono) setAgencyPhone(data.telefono);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setIsLoadingAgency(false));
   }, []);
 
   useEffect(() => {
@@ -67,10 +121,10 @@ export default function CotizacionDocumentPage() {
     );
   }
 
-  if (!cot) {
+  if (!cot || isLoadingAgency) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-light">
-        <div className="w-8 h-8 border-2 border-secondary/30 border-t-secondary rounded-full animate-spin" />
+      <div className="min-h-screen bg-light py-8 px-4">
+        <CotizacionDocumentSkeleton />
       </div>
     );
   }

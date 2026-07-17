@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { PackageCard } from "@/components/PackageCard";
+import { PackageCard, PackageCardSkeleton } from "@/components/PackageCard";
 import { PackageDetailModal } from '@/components/PackageDetailModal';
 import { api } from '@/services/api';
 import { Package, Destino } from '@land-tour/shared';
@@ -420,9 +420,8 @@ export default function PaquetesPage() {
       <section className="py-10 sm:py-14" ref={resultsRef}>
         <div className="container mx-auto px-4">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-28 gap-4">
-              <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-              <p className="text-primary/50 font-medium text-sm">Buscando los mejores destinos...</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
+              {Array.from({ length: 6 }).map((_, i) => <PackageCardSkeleton key={i} />)}
             </div>
           ) : fetchError === "DB_FAIL" ? (
             <div className="flex flex-col items-center justify-center py-28 gap-4 text-center">

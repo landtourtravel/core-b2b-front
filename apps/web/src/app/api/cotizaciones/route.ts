@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     precioSGL = 0, precioDBL = 0, precioTPL = 0, precioQUAD = 0, precioCHD = 0,
     subtotal, markup, total,
     fechaViaje, fechaRetorno, notas,
-    hotelsComparison,
+    hotelsComparison, wizardState,
   } = body;
 
   if (!clienteId || subtotal === undefined) {
@@ -117,6 +117,7 @@ export async function POST(req: NextRequest) {
         snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
         snapshotIncluye:  paqueteIncluye  ?? [],
         hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
+        wizardState: wizardState ?? Prisma.JsonNull,
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto != null ? r2(precioBoleto) : null,
         boletoTotal,

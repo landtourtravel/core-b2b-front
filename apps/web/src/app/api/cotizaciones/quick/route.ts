@@ -168,6 +168,32 @@ export async function POST(req: NextRequest) {
     const count  = await prisma.cotizacion.count({ where: { agenciaId, creadoPorId } });
     const codigo = generateCodigo(agenciaId, creadoPorId, count);
 
+    // Estado crudo del wizard — permite reabrir esta cotización rápida en el cotizador
+    // con el paquete y los hoteles ya seleccionados (mismo shape que el wizard normal).
+    const wizardState = {
+      clientName: cliente.nombre,
+      clientEmail: cliente.email ?? "",
+      clientPhone: "", clientId: "", clientAddress: "",
+      cotMode: "catalogo" as const,
+      cotSelectedPkgId: paquete.id,
+      cotSelectedDestinoId: null,
+      cotSelectedHotelIds: paquete.hoteles.map((h) => h.id),
+      cotHabs: {},
+      cotFechaSalida: fechaSalida.toISOString().slice(0, 10),
+      cotCustomDias: paquete.diasEstancia,
+      cotExtraNightsByDestino: {},
+      cotFlightOverride: null,
+      cotFlightPrice: 0,
+      cotFlightPriceChild: 0,
+      cotLibreFlightDesc: "",
+      cotLibreActSel: {},
+      cotLibreTrsSel: {},
+      cotNumPersonas: numPax,
+      cotNumNinos: numNinos,
+      cotNinosEdades: ninosEdades,
+      cotFromQuickQuote: true,
+    };
+
     const cotizacion = await prisma.cotizacion.create({
       data: {
         codigo, agenciaId, creadoPorId,
@@ -178,6 +204,7 @@ export async function POST(req: NextRequest) {
         snapshotDuracion: `${paquete.diasEstancia} Días / ${paquete.nochesBase} Noches`.slice(0, 100),
         snapshotIncluye:  paqueteIncluye,
         hotelsComparisonSnapshot: hotelsComparison as unknown as Prisma.InputJsonValue,
+        wizardState: wizardState as unknown as Prisma.InputJsonValue,
         incluyeBoleto: flightActive,
         precioBoleto:  flightActive ? (paquete.precioBoleto ?? null) : null,
         boletoTotal,

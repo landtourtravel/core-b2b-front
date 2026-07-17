@@ -42,6 +42,8 @@ export type HotelCompSnapshot = {
 export type CotizacionExtended = Cotizacion & {
   hotelsComparison?: HotelCompSnapshot[];
   selectedHotelId?: number | null;
+  // Estado crudo del wizard al guardar — permite reabrir cotizaciones BORRADOR en edición.
+  wizardState?: Record<string, unknown> | null;
 };
 
 export interface DashboardContextValue {

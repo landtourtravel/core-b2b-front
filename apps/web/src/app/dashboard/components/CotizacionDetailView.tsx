@@ -1,10 +1,16 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { CheckCircle2, Printer, X, XCircle } from "lucide-react";
+import { CheckCircle2, Pencil, Printer, X, XCircle } from "lucide-react";
 import { COTIZACION_STATUS_LABEL } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import type { CotizacionExtended, HotelCompSnapshot } from "../DashboardContext";
 import { cartesian, combineComboLegs, hotelPerDestinoPrice, type ComboLeg } from "../cotizar-price";
+
+// Handoff key: this standalone route has no access to the dashboard SPA's React state,
+// so "Editar" stashes the cotización id in localStorage and navigates to /dashboard,
+// where a mount effect picks it up and calls handleEditCot(id). Same pattern as
+// PaqueteDetailView's QUICK_QUOTE_PENDING_KEY.
+export const EDIT_COT_PENDING_KEY = "ltt-edit-cot-pending";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
@@ -244,6 +250,17 @@ export default function CotizacionDetailView({
         </span>
 
         <div className="ml-auto flex items-center gap-2">
+          {cot.status === "BORRADOR" && (
+            <button
+              onClick={() => {
+                try { localStorage.setItem(EDIT_COT_PENDING_KEY, cot.id); } catch {}
+                window.location.href = "/dashboard";
+              }}
+              className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <Pencil size={13} /> Editar
+            </button>
+          )}
           <button
             onClick={() => window.print()}
             className="px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all flex items-center gap-2 cursor-pointer active:scale-95"

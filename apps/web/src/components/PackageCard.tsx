@@ -8,6 +8,7 @@ import {
   Train,
   ArrowRight,
 } from "lucide-react";
+import { Skeleton } from "./Skeleton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,27 @@ export interface PackageCardProps extends Partial<Package> {
   onClick?: () => void;
   currency?: string;
 }
+
+/** Placeholder shown in card grids while packages are being fetched. Mirrors PackageCard's shape. */
+export const PackageCardSkeleton: React.FC = () => (
+  <article className="relative bg-white rounded-[20px] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-100 flex flex-col h-full">
+    <Skeleton className="h-40 sm:h-52 shrink-0 rounded-none" />
+    <div className="p-3.5 sm:p-5 flex flex-col flex-1 gap-2.5">
+      <Skeleton className="h-3 w-24" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-2/3 mb-1" />
+      <Skeleton className="h-3 w-32" />
+      <hr className="border-gray-100 my-2" />
+      <div className="flex items-end justify-between mt-auto gap-4">
+        <div className="space-y-1.5">
+          <Skeleton className="h-2.5 w-10" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+        <Skeleton className="h-9 w-24 rounded-full shrink-0" />
+      </div>
+    </div>
+  </article>
+);
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

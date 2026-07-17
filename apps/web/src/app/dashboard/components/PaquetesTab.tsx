@@ -14,6 +14,7 @@ import {
   Plus,
 } from "lucide-react";
 import type { Package } from "@land-tour/shared";
+import { Skeleton } from "@/components/Skeleton";
 
 interface PaquetesTabProps {
   packages: Package[];
@@ -57,9 +58,14 @@ export default function PaquetesTab({
       </div>
       {/* ── Estados: cargando / error / vacío ── */}
       {isLoadingPackages ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <div className="w-8 h-8 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
-          <p className="text-primary/50 font-bold text-xs">Cargando programas...</p>
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 flex items-center gap-3">
+              <Skeleton className="w-8 h-8 rounded-xl shrink-0" />
+              <Skeleton className="h-3.5 w-32" />
+              <Skeleton className="h-3 w-20 rounded-md ml-2" />
+            </div>
+          ))}
         </div>
       ) : packagesFetchError === "DB_FAIL" ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
