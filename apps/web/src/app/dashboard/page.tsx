@@ -2612,7 +2612,10 @@ export default function DashboardPage() {
                                     <div className="space-y-2">
                                       {destino.traslados.map((trs) => {
                                         const checked = !!cotLibreTrsSel[trs.id];
-                                        const minPrice = trs.tarifas.length > 0 ? Math.min(...trs.tarifas.map((t) => t.precio)) : 0;
+                                        // Precio real de adulto para el grupo declarado — NO el mínimo entre
+                                        // todas las tarifas (eso mezclaba la tarifa NINO, más barata, aunque
+                                        // no haya niños en la cotización y nunca se vaya a cobrar ese precio).
+                                        const adultPrice = getTrasladoPerPax(trs.tarifas, cotNumPersonas);
                                         return (
                                           <button key={trs.id} type="button"
                                             onClick={() => setCotLibreTrsSel((prev) => ({ ...prev, [trs.id]: !prev[trs.id] }))}
@@ -2623,7 +2626,7 @@ export default function DashboardPage() {
                                             </div>
                                             <div className="flex-grow min-w-0">
                                               <p className="text-xs font-black text-primary">{trs.tipo}</p>
-                                              {minPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">Desde ${minPrice}</p>}
+                                              {adultPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">${adultPrice}/persona ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""})</p>}
                                             </div>
                                           </button>
                                         );
@@ -2637,7 +2640,8 @@ export default function DashboardPage() {
                                     <div className="space-y-2">
                                       {destino.actividades.map((act) => {
                                         const checked = !!cotLibreActSel[act.id];
-                                        const minPrice = act.tarifas.length > 0 ? Math.min(...act.tarifas.map((t) => t.precio)) : 0;
+                                        // Precio real de adulto para el grupo declarado — ver mismo fix en traslados arriba.
+                                        const adultPrice = getActividadAdultPerPax(act.tarifas, cotNumPersonas);
                                         return (
                                           <button key={act.id} type="button"
                                             onClick={() => setCotLibreActSel((prev) => ({ ...prev, [act.id]: !prev[act.id] }))}
@@ -2649,7 +2653,7 @@ export default function DashboardPage() {
                                             <div className="flex-grow min-w-0">
                                               <p className="text-xs font-black text-primary">{act.nombre}</p>
                                               {act.descripcion && <p className="text-[10px] text-primary/40 font-bold mt-0.5">{act.descripcion}</p>}
-                                              {minPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">Desde ${minPrice}/persona</p>}
+                                              {adultPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">${adultPrice}/persona ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""})</p>}
                                             </div>
                                           </button>
                                         );
