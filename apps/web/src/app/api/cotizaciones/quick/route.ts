@@ -79,6 +79,10 @@ export async function POST(req: NextRequest) {
     const flightActive = paquete.incluyeBoleto;
     const boletoAdultoPerPax = flightActive ? (paquete.precioBoleto ?? 0) : 0;
     const boletoNinoPerPax   = flightActive ? (paquete.precioBoletoNino ?? paquete.precioBoleto ?? 0) : 0;
+    // Piso de comisión fijado por el admin en el paquete — igual que en el wizard, la
+    // cotización rápida nunca puede quedar por debajo (no hay input manual aquí, así que
+    // se usa directo, sin posibilidad de que el asesor la suba desde este endpoint).
+    const markup = paquete.ajustePrecio ?? 0;
 
     const breakdowns = paquete.hoteles.map((hotel) => ({
       hotel,
@@ -104,7 +108,7 @@ export async function POST(req: NextRequest) {
         adultAccomTotal: bd.adultAccomTotal, adultServicesTotal: bd.adultServicesTotal,
         childAccomTotal: bd.childAccomTotal, childServicesTotal: bd.childServicesTotal,
       }));
-      return { legs, totals: combineComboLegs(comboLegs, numPax, numNinos, boletoAdultoPerPax, boletoNinoPerPax, 0) };
+      return { legs, totals: combineComboLegs(comboLegs, numPax, numNinos, boletoAdultoPerPax, boletoNinoPerPax, markup) };
     });
     const repCombo = combos.reduce((min, c) => (c.totals.total < min.totals.total ? c : min));
 
@@ -208,7 +212,7 @@ export async function POST(req: NextRequest) {
         incluyeBoleto: flightActive,
         precioBoleto:  flightActive ? (paquete.precioBoleto ?? null) : null,
         boletoTotal,
-        subtotal, markup: 0, total,
+        subtotal, markup, total,
         fechaViaje: fechaSalida,
         fechaRetorno,
         status: "BORRADOR",

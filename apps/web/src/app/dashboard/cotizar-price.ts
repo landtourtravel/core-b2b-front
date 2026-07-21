@@ -326,11 +326,12 @@ export function calcHotelBreakdown(
   // `flightPriceChild` (defaults to the adult fare when no child fare is declared).
   const boletoPerPax = flightActive ? flightPrice : 0;
   const boletoChildPerPax = flightActive ? flightPriceChild : 0;
-  const markupPerPax = totalPax > 0 ? agencyMarkup / totalPax : 0;
+  // `agencyMarkup` es POR PERSONA (ver combineComboLegs) — no se divide entre pax.
+  const markupPerPax = agencyMarkup;
   const boletoAdultoTotal = boletoPerPax * numAdultos;
   const boletoChildTotal = boletoChildPerPax * numNinos;
   const boletoTotal = boletoAdultoTotal + boletoChildTotal;
-  const sharedTotal = boletoTotal + agencyMarkup;
+  const sharedTotal = boletoTotal + agencyMarkup * totalPax;
 
   // ── Composed ──────────────────────────────────────────────────────────────
   const adultColPerPax = adultAccomPerAdult + servicesPerPax;
@@ -411,8 +412,10 @@ export type ComboTotals = {
 
 /**
  * Aggregates one combination (one leg per destino) into per-person adult/child prices.
- * Boleto (adult + child fares) and agency markup are added ONCE for the whole combo.
- * The markup is distributed across every pax (adults + children) proportionally, so
+ * Boleto (adult + child fares) is added ONCE for the whole combo, split by passenger type.
+ * `agencyMarkup` is a PER-PERSON amount (matches lt-core-admin's `Paquete.ajustePrecio`,
+ * labeled "Ajuste por persona" — added to each traveler's price, NOT a pool divided across
+ * the group), so it is added once per adult AND once per child (not split proportionally):
  * `precioAdulto × numAdultos + precioNino × numNinos === total`.
  */
 export function combineComboLegs(
@@ -427,11 +430,10 @@ export function combineComboLegs(
   const adultServices = legs.reduce((s, l) => s + l.adultServicesTotal, 0);
   const childAccom = legs.reduce((s, l) => s + l.childAccomTotal, 0);
   const childServices = legs.reduce((s, l) => s + l.childServicesTotal, 0);
-  const totalPax = numAdultos + numNinos;
   const boletoAdultoTotal = boletoAdultoPerPax * numAdultos;
   const boletoChildTotal = boletoNinoPerPax * numNinos;
-  const markupAdulto = totalPax > 0 ? (agencyMarkup * numAdultos) / totalPax : 0;
-  const markupNino = totalPax > 0 ? (agencyMarkup * numNinos) / totalPax : 0;
+  const markupAdulto = agencyMarkup * numAdultos;
+  const markupNino = agencyMarkup * numNinos;
   const adultAll = adultAccom + adultServices + boletoAdultoTotal + markupAdulto;
   const childAll = childAccom + childServices + boletoChildTotal + markupNino;
   return {
@@ -483,9 +485,11 @@ export function hotelPerDestinoPrice(args: {
   numNinos: number;
   numDestinos: number;
 }): HotelDestinoPrice {
-  const totalPax = args.numAdultos + args.numNinos;
   const div = Math.max(1, args.numDestinos);
-  const markupPerPax = totalPax > 0 ? args.agencyMarkup / totalPax : 0;
+  // `agencyMarkup` is PER-PERSON (not divided across pax — see combineComboLegs), so the
+  // per-pax markup contribution is the raw value; it's still divided by `numDestinos` here
+  // so summing one hotel per destino reconstructs it exactly once (not once per destino).
+  const markupPerPax = args.agencyMarkup;
   // Global per-pax costs (boleto + markup) split across destinos → counted once when
   // one hotel per destino is summed.
   const precioAdulto = args.adultColPerPax + (args.boletoAdultoPerPax + markupPerPax) / div;

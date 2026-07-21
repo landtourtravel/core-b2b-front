@@ -90,6 +90,7 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
     descripcionBoleto: p.descripcionBoleto ?? null,
     permitirModificarBoleto: p.permitirModificarBoleto,
     permitirModificarNoches: p.permitirModificarNoches,
+    ajustePrecio: p.ajustePrecio ?? 0,
     destinoCiudad: primerDestino?.ciudad ?? "",
     destinoPais: primerDestino?.pais ?? "",
     destinos: destinosList,

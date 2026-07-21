@@ -39,6 +39,8 @@ export interface CotPaquete {
   precioBoletoNino: number | null; descripcionBoletoNino: string | null;
   visibleBoleto: boolean;
   permitirModificarBoleto: boolean; permitirModificarNoches: boolean;
+  /** Ajuste de precio mínimo fijado por el admin (Land Tour Travel) — piso de la comisión de agencia. */
+  ajustePrecio: number;
   destinoCiudad: string; destinoPais: string;
   destinos: CotPaqueteDestino[];
   hoteles: CotPaqueteHotel[];

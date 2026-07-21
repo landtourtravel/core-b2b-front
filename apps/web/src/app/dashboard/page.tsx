@@ -450,6 +450,16 @@ export default function DashboardPage() {
     setCotFlightPriceChild(pkg?.precioBoletoNino ?? pkg?.precioBoleto ?? 0);
   }, [cotMode, cotSelectedPkgId, cotizarData, cotFlightOverride]);
 
+  // El admin fija en el paquete (`ajustePrecio`) un piso de comisión — la ganancia mínima
+  // garantizada para Land Tour Travel. Al elegir un paquete, se precarga ese valor en el
+  // campo de comisión de agencia; el asesor puede subirlo pero el input nunca queda por
+  // debajo (ver `min`/`onBlur` en el input y `cotMarkupFloor` más abajo).
+  useEffect(() => {
+    if (cotMode !== "catalogo") return;
+    const pkg = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
+    setAgencyMarkup(pkg?.ajustePrecio ?? 0);
+  }, [cotMode, cotSelectedPkgId, cotizarData]);
+
   // (#5) Reset per-destino extra nights whenever the selected package changes.
   useEffect(() => {
     setCotExtraNightsByDestino({});
@@ -562,6 +572,8 @@ export default function DashboardPage() {
   // ni cotización final); el monto sigue sumado automáticamente al total.
   const cotBoletoVisible =
     cotMode !== "catalogo" || (cotSelectedPkg?.visibleBoleto ?? true);
+  // Piso de comisión fijado por el admin en el paquete — la agencia solo puede aumentarlo.
+  const cotMarkupFloor = cotMode === "catalogo" ? (cotSelectedPkg?.ajustePrecio ?? 0) : 0;
   // (#5) Total extra nights across all destinos (per-destino counters are summed here).
   const cotExtraNights = Object.values(cotExtraNightsByDestino).reduce((a, b) => a + b, 0);
 
@@ -628,7 +640,16 @@ export default function DashboardPage() {
         cotSelectedPkg.hoteles.filter(hotelAptoNinos).filter((h) => h.destinoId === d.id).length === 0 ||
         cotSelectedHotelIds.some((id) => cotSelectedPkg.hoteles.find((h) => h.id === id)?.destinoId === d.id)
       );
-  const step3CanProceed = (isComparativeMode || cotTotalHabs > 0) && cotCatAllDestinosSelected;
+  // Modo libre multi-destino: igual que catálogo, cada destino con hoteles elegibles debe
+  // tener al menos un hotel marcado — si no, ese tramo no tiene tarifa y no se puede combinar
+  // con los demás destinos (ver cotLibreByDestino/cotLibreCombos más abajo).
+  const cotLibreAllDestinosSelected = cotMode !== "libre"
+    ? true
+    : cotAllDestinos.every((d) =>
+        d.hoteles.filter(hotelAptoNinos).length === 0 ||
+        d.hoteles.some((h) => cotSelectedHotelIds.includes(h.id))
+      );
+  const step3CanProceed = (isComparativeMode || cotTotalHabs > 0) && cotCatAllDestinosSelected && cotLibreAllDestinosSelected;
 
   const cotNoches = cotMode === "catalogo"
     ? (cotSelectedPkg?.nochesBase ?? 0) + cotExtraNights
@@ -746,32 +767,6 @@ export default function DashboardPage() {
       }
     : null;
 
-  // Precio por persona para guardar el detalle (catálogo: derivado del breakdown).
-  const getSavePrice = (tipoPax: string): number => {
-    if (cotMode === "catalogo" && cotCatRep) {
-      if (tipoPax === "CHD") return Math.round(cotCatRep.precioCHD * 100) / 100;
-      if (tipoPax === cotReqTipoPax) return Math.round(cotCatRep.precioAdulto * 100) / 100;
-      return 0;
-    }
-    if (cotMode === "libre" && tipoPax === "CHD") {
-      // Tarifa nocturna promedio por niño (política de edad del hotel — #1), para
-      // consistencia con el resto de precios guardados (todos son tarifas por-noche).
-      if (cotNumNinos === 0 || cotNoches === 0) return 0;
-      return Math.round((cotLibreChildAccomTotal / cotNumNinos / cotNoches) * 100) / 100;
-    }
-    return getCotPrice(tipoPax);
-  };
-
-  // Habitaciones de adultos (SGL/DBL/TPL/QUAD). El "CHD" ya no es un contador manual de
-  // habitación — los niños se declaran en el Paso 1 y su alojamiento se calcula aparte (#1).
-  const cotSubtotalAlojamiento = Object.entries(cotHabs)
-    .filter(([tipoPax, qty]) => qty > 0 && tipoPax !== "CHD")
-    .reduce((sum, [tipoPax, qty]) => {
-      const precio = getCotPrice(tipoPax);
-      const numPax = COT_NUM_PAX[tipoPax] ?? 1;
-      return sum + precio * numPax * qty * cotNoches;
-    }, 0);
-
   // (#1) Alojamiento de niños en modo libre — según la PoliticaNinos declarada al crear el
   // hotel (no una tarifa CHD plana). `getChildPriceForAge` resuelve el fallback por cada edad
   // declarada en Paso 1: política del rango de edad → tarifa CHD del hotel → tarifa de adulto.
@@ -786,31 +781,127 @@ export default function DashboardPage() {
   };
   const cotLibreChildAccomTotal = cotMode === "libre" ? cotLibreChildAccomFor(cotPrimaryHotel, cotNoches) : 0;
 
-  // Actividades y traslados seleccionados en modo libre — busca en todos los destinos activos.
-  // Precio real por bracket de pax (misma regla que catálogo, no la tarifa mínima plana):
-  // actividades ADULTO/NINO por su propio bracket. (#2) Traslados: si existe tarifa NINO cuyo
-  // bracket cubre la cantidad de niños, se usa esa; si no, el niño paga la tarifa ADULTO del
-  // bracket de adultos (fallback histórico, cuando el traslado no declara tarifa infantil).
   const cotAllActRef = cotAllDestinos.flatMap((d) => d.actividades);
   const cotAllTrsRef = cotAllDestinos.flatMap((d) => d.traslados);
-  const cotLibreActTotal = cotAllDestinos.length > 0
-    ? Object.entries(cotLibreActSel).filter(([, sel]) => sel).reduce((sum, [idStr]) => {
-        const act = cotAllActRef.find((a) => a.id === Number(idStr));
-        if (!act) return sum;
-        const adultPerPax = getActividadAdultPerPax(act.tarifas, cotNumPersonas);
-        const childPerPax = getActividadChildPerPax(act.tarifas, cotNumNinos);
-        return sum + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
-      }, 0)
-    : 0;
-  const cotLibreTrsTotal = cotAllDestinos.length > 0
-    ? Object.entries(cotLibreTrsSel).filter(([, sel]) => sel).reduce((sum, [idStr]) => {
-        const trs = cotAllTrsRef.find((t) => t.id === Number(idStr));
-        if (!trs) return sum;
-        const adultPerPax = getTrasladoPerPax(trs.tarifas, cotNumPersonas);
-        const childPerPax = getTrasladoChildPerPax(trs.tarifas, cotNumNinos) ?? adultPerPax;
-        return sum + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
-      }, 0)
-    : 0;
+
+  // ── Modo libre: combinación automática multi-destino (mismo patrón que catálogo) ──
+  // Antes el total solo usaba `cotPrimaryHotel` (el primer hotel marcado, sin importar en
+  // qué destino), ignorando los hoteles elegidos en los demás destinos — un multi-destino
+  // con un hotel por destino terminaba cotizando solo con uno de ellos. Ahora se agrupan los
+  // hoteles marcados por destino y se generan todas las combinaciones (un hotel por destino,
+  // producto cartesiano) — la más barata es la representativa (subtotal/total guardados);
+  // el asesor ve y elige entre todas al aprobar (mismo snapshot `hotelsComparison` que
+  // catálogo — ver handleSaveProforma).
+  const cotLibreRoomEntries = Object.entries(cotHabs).filter(([t, q]) => t !== "CHD" && q > 0);
+  // Servicios (actividades/traslados) de ESTE destino — independientes del hotel elegido ahí,
+  // igual que en catálogo. Misma regla de bracket adulto/niño que las sumas planas de antes.
+  const cotLibreServicesForDestino = (d: CotDestino) => {
+    let adultServicesTotal = 0, childServicesTotal = 0;
+    d.actividades.filter((a) => cotLibreActSel[a.id]).forEach((a) => {
+      adultServicesTotal += getActividadAdultPerPax(a.tarifas, cotNumPersonas) * cotNumPersonas;
+      childServicesTotal += getActividadChildPerPax(a.tarifas, cotNumNinos) * cotNumNinos;
+    });
+    d.traslados.filter((t) => cotLibreTrsSel[t.id]).forEach((t) => {
+      const adultPerPax = getTrasladoPerPax(t.tarifas, cotNumPersonas);
+      adultServicesTotal += adultPerPax * cotNumPersonas;
+      const childPerPax = getTrasladoChildPerPax(t.tarifas, cotNumNinos) ?? adultPerPax;
+      childServicesTotal += childPerPax * cotNumNinos;
+    });
+    return { adultServicesTotal, childServicesTotal };
+  };
+  const cotLibreAccomTotalFor = (h: CotHotel, noches: number) =>
+    cotLibreRoomEntries.reduce((sum, [tipoPax, qty]) => {
+      const rate = h.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
+      return sum + rate * (COT_NUM_PAX[tipoPax] ?? 1) * qty * noches;
+    }, 0);
+
+  type CotLibreLeg = {
+    destino: CotDestino; hotel: CotHotel; noches: number;
+    adultAccomTotal: number; adultServicesTotal: number;
+    childAccomTotal: number; childServicesTotal: number; adultColPerPax: number;
+  };
+  const cotLibreBreakdowns: CotLibreLeg[] = cotMode === "libre"
+    ? cotAllDestinos.flatMap((d) => {
+        const { adultServicesTotal, childServicesTotal } = cotLibreServicesForDestino(d);
+        return d.hoteles
+          .filter(hotelAptoNinos)
+          .filter((h) => cotSelectedHotelIds.includes(h.id))
+          .map((hotel) => {
+            const adultAccomTotal = cotLibreAccomTotalFor(hotel, cotNoches);
+            return {
+              destino: d, hotel, noches: cotNoches,
+              adultAccomTotal, adultServicesTotal,
+              childAccomTotal: cotLibreChildAccomFor(hotel, cotNoches),
+              childServicesTotal,
+              adultColPerPax: cotNumPersonas > 0 ? (adultAccomTotal + adultServicesTotal) / cotNumPersonas : 0,
+            };
+          });
+      })
+    : [];
+
+  const cotLibreByDestino = (() => {
+    const m = new Map<number, CotLibreLeg[]>();
+    cotLibreBreakdowns.forEach((leg) => {
+      if (!m.has(leg.destino.id)) m.set(leg.destino.id, []);
+      m.get(leg.destino.id)!.push(leg);
+    });
+    return m;
+  })();
+  // Misma regla que catálogo: si ≥2 destinos tienen ≥2 hoteles marcados, las combinaciones
+  // (cartesiano) explotan → se muestra la lista agrupada por destino en vez de combinaciones.
+  const cotLibreMultiHotelDestinos = [...cotLibreByDestino.values()].filter((hs) => hs.length >= 2).length;
+  const cotLibreUseGrouped = cotLibreByDestino.size > 1 && cotLibreMultiHotelDestinos >= 2;
+
+  const cotBoletoAdultoPerPaxLibre = cotMode === "libre" && cotFlightActive ? cotFlightPrice : 0;
+  const cotBoletoNinoPerPaxLibre   = cotMode === "libre" && cotFlightActive ? cotFlightPriceChild : 0;
+
+  type CotLibreCombo = { legs: CotLibreLeg[]; totals: ComboTotals };
+  const cotLibreCombos: CotLibreCombo[] = (() => {
+    const groups = [...cotLibreByDestino.values()];
+    if (groups.length === 0) return [];
+    return cartesian(groups).map((legs) => {
+      const comboLegs: ComboLeg[] = legs.map((l) => ({
+        adultAccomTotal:    l.adultAccomTotal,
+        adultServicesTotal: l.adultServicesTotal,
+        childAccomTotal:    l.childAccomTotal,
+        childServicesTotal: l.childServicesTotal,
+      }));
+      const totals = combineComboLegs(
+        comboLegs, cotNumPersonas, cotNumNinos,
+        cotBoletoAdultoPerPaxLibre, cotBoletoNinoPerPaxLibre, agencyMarkup,
+      );
+      return { legs, totals };
+    });
+  })();
+  // Combinación representativa = la más barata (define subtotal/total y los precios que
+  // se guardan en el detalle — ver getSavePrice más abajo).
+  const cotLibreRepCombo: CotLibreCombo | null = cotLibreCombos.length > 0
+    ? cotLibreCombos.reduce((min, c) => (c.totals.total < min.totals.total ? c : min))
+    : null;
+
+  // Precio por persona para guardar el detalle (catálogo: derivado del breakdown; libre:
+  // derivado de la combinación representativa — suma, por tipo de habitación, la tarifa del
+  // hotel elegido en cada destino × noches; CHD usa el alojamiento de niños de la combinación).
+  const getSavePrice = (tipoPax: string): number => {
+    if (cotMode === "catalogo" && cotCatRep) {
+      if (tipoPax === "CHD") return Math.round(cotCatRep.precioCHD * 100) / 100;
+      if (tipoPax === cotReqTipoPax) return Math.round(cotCatRep.precioAdulto * 100) / 100;
+      return 0;
+    }
+    if (cotMode === "libre") {
+      if (tipoPax === "CHD") {
+        if (cotNumNinos === 0 || cotNoches === 0 || !cotLibreRepCombo) return 0;
+        return Math.round((cotLibreRepCombo.totals.childAccom / cotNumNinos / cotNoches) * 100) / 100;
+      }
+      if (!cotLibreRepCombo) return 0;
+      const total = cotLibreRepCombo.legs.reduce((sum, leg) => {
+        const rate = leg.hotel.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
+        return sum + rate * cotNoches;
+      }, 0);
+      return Math.round(total * 100) / 100;
+    }
+    return getCotPrice(tipoPax);
+  };
 
   // Costo de noches extra usando tarifas reales de TarifaHotel — solo modo catálogo.
   // (#3) Modo libre no tiene UI de noches extra (no se agrega nada extra); siempre 0.
@@ -832,11 +923,11 @@ export default function DashboardPage() {
   })();
 
   // subtotal — catálogo: breakdown del hotel representativo (alojamiento×noches +
-  // servicios prorrateados, niños incluidos); libre: alojamiento adultos + alojamiento niños
-  // (política) + servicios libres. Sin noches extra en libre (#3).
+  // servicios prorrateados, niños incluidos); libre: combinación representativa
+  // (cotLibreRepCombo) — un hotel por destino, sumado. Sin noches extra en libre (#3).
   const cotSubtotal = cotMode === "catalogo"
     ? (cotCatRep?.subtotal ?? 0)
-    : cotSubtotalAlojamiento + cotLibreChildAccomTotal + cotLibreActTotal + cotLibreTrsTotal;
+    : (cotLibreRepCombo?.totals.subtotal ?? 0);
 
   const cotPaxResumen = Object.entries(cotHabs)
     .filter(([, qty]) => qty > 0)
@@ -1100,6 +1191,10 @@ export default function DashboardPage() {
     const notasStr = notasParts.length > 0 ? notasParts.join(" | ") : undefined;
 
     const r2 = (n: number) => Math.round(n * 100) / 100;
+    // agencyMarkup es POR PERSONA (ver combineComboLegs en cotizar-price.ts) — se multiplica
+    // por el total de pax, no se divide.
+    const cotLibreTotalPax = cotNumPersonas + cotNumNinos;
+    const cotLibreSharedTotal = cotBoletoTotal + agencyMarkup * cotLibreTotalPax;
     const hotelsComparison: HotelCompSnapshot[] =
       cotMode === "catalogo" && cotCatBreakdowns.length > 0
         ? cotCatBreakdowns.map(({ hotel, bd }) => {
@@ -1128,6 +1223,36 @@ export default function DashboardPage() {
               pricePerPax:      r2(bd.pricePerPax),
               avgChildPerPax:   bd.childSupplementPerAdult > 0 ? r2(bd.childSupplementPerAdult) : null,
               total:            r2(bd.total),
+            };
+          })
+        : cotMode === "libre" && cotLibreBreakdowns.length > 0
+        ? cotLibreBreakdowns.map((b) => {
+            const stopTotal = b.adultAccomTotal + b.adultServicesTotal + b.childAccomTotal + b.childServicesTotal;
+            const childSupplementPerAdult = cotNumPersonas > 0
+              ? (b.childAccomTotal + b.childServicesTotal) / cotNumPersonas
+              : 0;
+            const pricePerPax = b.adultColPerPax + childSupplementPerAdult + cotBoletoAdultoPerPaxLibre + agencyMarkup;
+            return {
+              hotelId:          b.hotel.id,
+              nombre:           b.hotel.nombre,
+              estrellas:        b.hotel.estrellas,
+              destinoId:        b.destino.id,
+              destinoCiudad:    b.destino.ciudad,
+              destinoPais:      b.destino.pais,
+              tipoPax:          cotLibreAdultRefTipo ?? undefined,
+              adultColPerPax:   r2(b.adultColPerPax),
+              boletoPerPax:     r2(cotBoletoAdultoPerPaxLibre),
+              accomTotal:       r2(stopTotal),
+              sharedTotal:      r2(cotLibreSharedTotal),
+              adultAccomTotal:    r2(b.adultAccomTotal),
+              adultServicesTotal: r2(b.adultServicesTotal),
+              childAccomTotal:    r2(b.childAccomTotal),
+              childServicesTotal: r2(b.childServicesTotal),
+              boletoChildPerPax:  r2(cotBoletoNinoPerPaxLibre),
+              boletoPrecioOculto: !cotBoletoVisible,
+              pricePerPax:      r2(pricePerPax),
+              avgChildPerPax:   childSupplementPerAdult > 0 ? r2(childSupplementPerAdult) : null,
+              total:            r2(stopTotal + cotLibreSharedTotal),
             };
           })
         : [];
@@ -2668,9 +2793,18 @@ export default function DashboardPage() {
                       )}
 
                       <div className="space-y-1.5">
-                        <label htmlFor="agency-markup" className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD)</label>
-                        <input id="agency-markup" type="number" min={0} value={agencyMarkup} onChange={(e) => setAgencyMarkup(Number(e.target.value))} placeholder="Ej. 100" className={inputCls} />
-                        <p className="text-[10px] text-primary/40 font-bold">Este valor se suma al total final y no es visible para el cliente.</p>
+                        <label htmlFor="agency-markup" className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD por persona)</label>
+                        <input
+                          id="agency-markup" type="number" min={cotMarkupFloor} value={agencyMarkup}
+                          onChange={(e) => setAgencyMarkup(Number(e.target.value))}
+                          onBlur={(e) => { if ((Number(e.target.value) || 0) < cotMarkupFloor) setAgencyMarkup(cotMarkupFloor); }}
+                          placeholder="Ej. 50" className={inputCls}
+                        />
+                        <p className="text-[10px] text-primary/40 font-bold">
+                          {cotMarkupFloor > 0
+                            ? `Este paquete tiene un ajuste mínimo de $${cotMarkupFloor.toLocaleString()}/persona definido por Land Tour Travel — puedes aumentarlo, no reducirlo. Se suma a cada pasajero (adultos y niños) y no es visible para el cliente.`
+                            : "Este valor se suma a cada pasajero (adultos y niños) y no es visible para el cliente."}
+                        </p>
                       </div>
 
                       <div className="space-y-2">
@@ -2686,7 +2820,7 @@ export default function DashboardPage() {
                           {!step3CanProceed && (
                             <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
                               <AlertCircle size={11} className="shrink-0" />
-                              {!cotCatAllDestinosSelected
+                              {(!cotCatAllDestinosSelected || !cotLibreAllDestinosSelected)
                                 ? "Selecciona un hotel para cada destino."
                                 : "Agrega al menos una habitación para continuar."}
                             </p>
@@ -2902,220 +3036,178 @@ export default function DashboardPage() {
                             <p className="text-[9px] text-primary/35 font-bold leading-relaxed">
                               Precios por persona.{" "}
                               {cotNumNinos > 0 ? "El precio del niño se calcula por separado (alojamiento según política, actividades y traslado propios, y boleto de niño cuando aplica). " : ""}
-                              {agencyMarkup > 0 ? `Incluye comisión de $${fmtN(agencyMarkup)} distribuida entre ${totalPax} pasajero${totalPax !== 1 ? "s" : ""}, no visible para el cliente.` : ""}
+                              {agencyMarkup > 0 ? `Incluye comisión de $${fmtN(agencyMarkup)} por persona (${totalPax} pasajero${totalPax !== 1 ? "s" : ""} → $${fmtN(agencyMarkup * totalPax)} en total), no visible para el cliente.` : ""}
                             </p>
                           </div>
                         );
                       })()}
 
-                      {/* ── Tabla comparativa (libre) — agrupada por destino, misma estructura que catálogo ── */}
-                      {/* Modelo per-habitación de libre; la fila "Precio / Persona" es un promedio (total del tramo ÷ pax). */}
-                      {cotMode === "libre" && cotSelectedHotelIds.length > 0 && (() => {
+                      {/* ── Modo libre — agrupado por destino (≥2 destinos con varios hoteles): sin combinaciones ── */}
+                      {cotMode === "libre" && cotLibreUseGrouped && (() => {
                         const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
-                        const totalPax = cotTotalRoomPax || 1;
-                        const roomEntries = Object.entries(cotHabs).filter(([, q]) => q > 0);
-                        // Destinos con al menos un hotel seleccionado
-                        const groups = cotAllDestinos
-                          .map((d) => ({
-                            destino: d,
-                            hotels: d.hoteles.filter(hotelAptoNinos).filter((h) => cotSelectedHotelIds.includes(h.id)),
-                          }))
-                          .filter((g) => g.hotels.length > 0);
-                        if (groups.length === 0) return null;
-                        const numDestinos = groups.length;
-                        const isMultiDestino = numDestinos > 1;
-                        // Markup: total → por pax → por destino (misma fórmula que catálogo).
-                        const markupPerPaxTotal = totalPax > 0 ? agencyMarkup / totalPax : 0;
-                        const markupPerDestino = numDestinos > 0 ? markupPerPaxTotal / numDestinos : 0;
-                        // Alojamiento del hotel: adultos (Σ tarifa(tipoPax) × ocupación × cantidad × noches,
-                        // per-habitación) + (#1) niños según la política de edad de ESE hotel.
-                        const accomForHotel = (h: CotHotel, noches: number) =>
-                          roomEntries.reduce((sum, [tipoPax, qty]) => {
-                            const rate = h.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
-                            return sum + rate * (COT_NUM_PAX[tipoPax] ?? 1) * qty * noches;
-                          }, 0) + cotLibreChildAccomFor(h, noches);
-                        // Servicios locales del destino (actividades/traslados seleccionados), al mismo
-                        // bracket de pax real que cotLibreActTotal/cotLibreTrsTotal — NO la tarifa mínima.
-                        // (#2) Traslados: tarifa NINO propia si existe y cubre la cantidad de niños.
-                        const servicesForDestino = (d: CotDestino) => {
-                          const acts = d.actividades.filter((a) => cotLibreActSel[a.id]).reduce((s, a) => {
-                            const adultPerPax = getActividadAdultPerPax(a.tarifas, cotNumPersonas);
-                            const childPerPax = getActividadChildPerPax(a.tarifas, cotNumNinos);
-                            return s + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
-                          }, 0);
-                          const trs = d.traslados.filter((t) => cotLibreTrsSel[t.id]).reduce((s, t) => {
-                            const adultPerPax = getTrasladoPerPax(t.tarifas, cotNumPersonas);
-                            const childPerPax = getTrasladoChildPerPax(t.tarifas, cotNumNinos) ?? adultPerPax;
-                            return s + adultPerPax * cotNumPersonas + childPerPax * cotNumNinos;
-                          }, 0);
-                          return acts + trs;
-                        };
-                        // (#4) Boleto promedio/pax: adultos y niños pueden tener tarifas distintas, así que
-                        // se blende sobre el total real de pasajeros (consistente con "Precio/Persona").
-                        const boletoPerPax = cotFlightActive && cotBoletoTotal > 0 ? cotBoletoTotal / totalPax : 0;
+                        const numDestinos = cotLibreByDestino.size;
                         return (
                           <div className="space-y-4">
-                            <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider">
-                              Comparativa de alojamiento
-                            </p>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                              {groups.map(({ destino, hotels }) => {
-                                const svc = servicesForDestino(destino);
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider">
+                                Hoteles por destino
+                                <span className="ml-1 text-primary/25">({cotSelectedHotelIds.length})</span>
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                              {[...cotLibreByDestino.values()].map((rows) => {
+                                const ciudad = rows[0]?.destino.ciudad ?? "";
                                 return (
-                                  <div key={destino.id} className="space-y-2 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                                    {isMultiDestino && (
-                                      <div className="flex items-center gap-1.5">
-                                        <MapPin size={9} className="text-secondary/60 shrink-0" />
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-primary/50">
-                                          {destino.ciudad}{destino.pais ? `, ${destino.pais}` : ""}
-                                        </p>
-                                      </div>
-                                    )}
-                                    <div className="overflow-x-auto rounded-2xl border border-gray-100">
-                                      <table className="w-full border-collapse text-xs">
-                                        <thead>
-                                          <tr className="bg-light border-b border-gray-100">
-                                            <th className="px-3 py-2.5 text-left text-[8px] font-black uppercase text-primary/40 tracking-wider" style={{ width: "38%" }}>
-                                              Concepto
-                                            </th>
-                                            {hotels.map((h) => (
-                                              <th key={h.id} className="px-3 py-2 text-center" style={{ minWidth: 110 }}>
-                                                <p className="font-black text-primary text-[11px] leading-snug">{h.nombre}</p>
-                                                <p className="text-amber-400 text-[9px] font-bold mt-0.5">{"★".repeat(Math.min(h.estrellas, 5))}</p>
-                                              </th>
-                                            ))}
-                                          </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-50">
-
-                                          {/* Alojamiento + servicios (promedio por pax) */}
-                                          <tr>
-                                            <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px] leading-relaxed">
-                                              Alojamiento
-                                              <br /><span className="text-[9px] text-primary/30 font-normal">
-                                                ({cotNoches} noche{cotNoches !== 1 ? "s" : ""} + act. + traslados · prom./pax)
+                                  <div key={rows[0]?.destino.id} className="space-y-3 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-primary/40">
+                                      {ciudad}
+                                      <span className="ml-1 text-primary/25">· {rows.length} hotel{rows.length !== 1 ? "es" : ""}</span>
+                                    </p>
+                                    <div className="space-y-2.5">
+                                      {rows.map((leg) => {
+                                        const p = hotelPerDestinoPrice({
+                                          adultColPerPax:     leg.adultColPerPax,
+                                          childAccomTotal:    leg.childAccomTotal,
+                                          childServicesTotal: leg.childServicesTotal,
+                                          boletoAdultoPerPax: cotBoletoAdultoPerPaxLibre,
+                                          boletoNinoPerPax:   cotBoletoNinoPerPaxLibre,
+                                          agencyMarkup,
+                                          numAdultos: cotNumPersonas,
+                                          numNinos:   cotNumNinos,
+                                          numDestinos,
+                                        });
+                                        return (
+                                          <div key={leg.hotel.id} className="rounded-2xl bg-light/60 border border-secondary/15 overflow-hidden">
+                                            <div className="flex items-start justify-between gap-2 px-3 pt-2.5">
+                                              <div className="min-w-0">
+                                                <p className="text-[11px] font-bold text-primary leading-snug truncate">{leg.hotel.nombre}</p>
+                                                <p className="text-amber-400 text-[8px] font-bold">{"★".repeat(Math.min(leg.hotel.estrellas, 5))}</p>
+                                              </div>
+                                              <span className="text-[9px] font-bold text-primary/40 shrink-0 mt-0.5">
+                                                {leg.noches} noche{leg.noches !== 1 ? "s" : ""}
                                               </span>
-                                            </td>
-                                            {hotels.map((h) => {
-                                              const stop = accomForHotel(h, cotNoches) + svc;
-                                              return (
-                                                <td key={h.id} className="px-3 py-2.5 text-center font-black text-primary">
-                                                  {stop > 0 ? `$${fmtN(stop / totalPax)}/pax` : "—"}
-                                                </td>
-                                              );
-                                            })}
-                                          </tr>
-
-                                          {/* Boleto aéreo — por fila solo en single-destino */}
-                                          {!isMultiDestino && cotBoletoVisible && boletoPerPax > 0 && (
-                                            <tr>
-                                              <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
-                                                <span className="flex items-center gap-1">
-                                                  <Plane size={9} className="text-secondary/60" /> Boleto aéreo
+                                            </div>
+                                            <div className="divide-y divide-gray-100 mt-2">
+                                              <div className="flex items-center justify-between px-3 py-1.5">
+                                                <span className="text-[10px] font-bold text-primary/60">Adulto</span>
+                                                <span className="text-sm font-black text-primary">
+                                                  ${fmtN(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
                                                 </span>
-                                              </td>
-                                              {hotels.map((h) => (
-                                                <td key={h.id} className="px-3 py-2.5 text-center font-bold text-secondary/70">
-                                                  ${fmtN(boletoPerPax)}/pax
-                                                </td>
-                                              ))}
-                                            </tr>
-                                          )}
-
-                                          {/* Comisión de Agencia — markup prorrateado por pax y por destino (oculto si es 0) */}
-                                          {agencyMarkup > 0 && (
-                                            <tr>
-                                              <td className="px-3 py-2.5 font-bold text-primary/70 text-[10px]">
-                                                <span className="flex items-center gap-1">
-                                                  <DollarSign size={9} className="text-secondary/60" /> Comisión de Agencia
-                                                </span>
-                                                <br /><span className="text-[9px] text-primary/30 font-normal">
-                                                  (markup / pax{isMultiDestino ? " / destino" : ""})
-                                                </span>
-                                              </td>
-                                              {hotels.map((h) => (
-                                                <td key={h.id} className="px-3 py-2.5 text-center font-bold text-secondary/70">
-                                                  +${fmtN(markupPerDestino)}/pax
-                                                </td>
-                                              ))}
-                                            </tr>
-                                          )}
-
-                                          {/* Precio / Persona — promedio del tramo por hotel (boleto solo en single-destino) */}
-                                          <tr className="bg-light/60 border-t-2 border-secondary/20">
-                                            <td className="px-3 py-2.5 font-black text-primary text-[10px] uppercase tracking-wide">
-                                              Precio / Persona *
-                                            </td>
-                                            {hotels.map((h) => {
-                                              const stop = accomForHotel(h, cotNoches) + svc;
-                                              const boletoInRow = !isMultiDestino ? boletoPerPax : 0;
-                                              const pp = stop / totalPax + boletoInRow + markupPerDestino;
-                                              return (
-                                                <td key={h.id} className="px-3 py-2.5 text-center font-black text-primary">
-                                                  {pp > 0 ? `$${fmtN(pp)}` : "—"}
-                                                </td>
-                                              );
-                                            })}
-                                          </tr>
-
-                                        </tbody>
-                                      </table>
+                                              </div>
+                                              {cotNumNinos > 0 && (
+                                                <div className="flex items-center justify-between px-3 py-1.5">
+                                                  <span className="text-[10px] font-bold text-primary/60">Niño</span>
+                                                  <span className="text-sm font-black text-primary">
+                                                    ${fmtN(p.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 );
                               })}
                             </div>
 
-                            {/* Costo global (una sola vez, no por destino): boleto — solo multi-destino */}
-                            {isMultiDestino && cotBoletoVisible && boletoPerPax > 0 && (
-                              <div className="rounded-2xl border border-secondary/20 bg-secondary/5 p-3 space-y-1.5">
-                                <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                                  <span className="flex items-center gap-1"><Plane size={9} className="text-secondary/60" /> Boleto aéreo (una vez / pax)</span>
-                                  <span>${fmtN(boletoPerPax)}</span>
-                                </div>
-                                <p className="text-[9px] text-primary/40 font-bold">El boleto aéreo se suma una sola vez (no incluido en el Precio/Persona de cada tabla). La comisión de agencia se muestra prorrateada por destino.</p>
-                              </div>
-                            )}
-
-                            <p className="text-[9px] text-primary/35 font-bold">
-                              {agencyMarkup > 0
-                                ? `* Precio/Persona incluye comisión de $${fmtN(agencyMarkup)} distribuida entre ${totalPax} pasajero${totalPax !== 1 ? "s" : ""} ($${fmtN(markupPerPaxTotal)}/pax)${isMultiDestino ? ` y prorrateada entre ${numDestinos} destinos ($${fmtN(markupPerDestino)}/pax/destino); el boleto aéreo se cobra una sola vez (arriba)` : ""}. Precio/Persona es un promedio (total del tramo ÷ pax). No visible para el cliente.`
-                                : "* Precio/Persona es un promedio (total del tramo ÷ pax)."}
+                            <p className="text-[9px] text-primary/35 font-bold leading-relaxed">
+                              Precio por persona por hotel (incluye alojamiento, actividades y traslados de ese destino
+                              {cotFlightActive ? ", y la parte proporcional del boleto aéreo" : ""}
+                              {agencyMarkup > 0 ? " y de la comisión de agencia" : ""}). El asesor elige un hotel por destino;
+                              la combinación final se define al aprobar la cotización.
                             </p>
                           </div>
                         );
                       })()}
 
-                      {/* ── Total estimado (libre) ── */}
-                      {cotMode === "libre" && !isComparativeMode && (
-                        <div className="border-t border-gray-100 pt-3 space-y-1">
-                          {(cotSubtotalAlojamiento + cotLibreChildAccomTotal) > 0 && (
-                            <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                              <span>Alojamiento{cotNumNinos > 0 ? " (adultos + niños)" : ""}</span>
-                              <span>${(cotSubtotalAlojamiento + cotLibreChildAccomTotal).toLocaleString()}</span>
+                      {/* ── Modo libre — combinaciones de hoteles (cartesiano) con precio Adulto / Niño ── */}
+                      {cotMode === "libre" && !cotLibreUseGrouped && cotLibreCombos.length > 0 && (() => {
+                        const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
+                        const isMulti = cotLibreByDestino.size > 1;
+                        return (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <p className="text-[10px] font-black uppercase text-primary/40 tracking-wider">
+                                {isMulti ? "Combinaciones de hoteles" : "Opciones de hotel"}
+                                <span className="ml-1 text-primary/25">({cotLibreCombos.length})</span>
+                              </p>
                             </div>
-                          )}
-                          {cotBoletoTotal > 0 && (
-                            <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                              <span>
-                                Boleto aéreo ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""} × ${cotFlightPrice}
-                                {cotNumNinos > 0 ? ` + ${cotNumNinos} niño${cotNumNinos > 1 ? "s" : ""} × $${cotFlightPriceChild}` : ""})
-                              </span>
-                              <span>${cotBoletoTotal.toLocaleString()}</span>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                              {cotLibreCombos.map((combo, idx) => {
+                                const isCheapest = combo === cotLibreRepCombo;
+                                const t = combo.totals;
+                                return (
+                                  <div
+                                    key={idx}
+                                    className={`space-y-3 bg-white p-5 rounded-3xl border shadow-sm ${isCheapest && cotLibreCombos.length > 1 ? "border-secondary/40 ring-1 ring-secondary/20" : "border-gray-100"}`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-[9px] font-black uppercase tracking-widest text-primary/40">
+                                        {isMulti ? `Combinación ${idx + 1}` : `Opción ${idx + 1}`}
+                                      </p>
+                                      {isCheapest && cotLibreCombos.length > 1 && (
+                                        <span className="text-[8px] font-black uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">
+                                          Más económica
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                      {combo.legs.map((leg) => (
+                                        <div key={leg.hotel.id} className="flex items-start justify-between gap-2">
+                                          <div className="min-w-0">
+                                            {isMulti && (
+                                              <p className="text-[8px] font-black uppercase tracking-widest text-primary/35">
+                                                {leg.destino.ciudad}
+                                              </p>
+                                            )}
+                                            <p className="text-[11px] font-bold text-primary leading-snug truncate">{leg.hotel.nombre}</p>
+                                            <p className="text-amber-400 text-[8px] font-bold">{"★".repeat(Math.min(leg.hotel.estrellas, 5))}</p>
+                                          </div>
+                                          <span className="text-[9px] font-bold text-primary/40 shrink-0">
+                                            {leg.noches} noche{leg.noches !== 1 ? "s" : ""}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+
+                                    <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
+                                      <div className="flex items-center justify-between px-3 py-2">
+                                        <span className="text-[10px] font-bold text-primary/60">Adulto</span>
+                                        <span className="text-sm font-black text-primary">
+                                          ${fmtN(t.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                                        </span>
+                                      </div>
+                                      {cotNumNinos > 0 && (
+                                        <div className="flex items-center justify-between px-3 py-2">
+                                          <span className="text-[10px] font-bold text-primary/60">Niño</span>
+                                          <span className="text-sm font-black text-primary">
+                                            ${fmtN(t.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                          </span>
+                                        </div>
+                                      )}
+                                      <div className="flex items-center justify-between px-3 py-2 bg-secondary/5">
+                                        <span className="text-[9px] font-black text-primary/50 uppercase tracking-wide">
+                                          Total {cotNumPersonas} ad{cotNumNinos > 0 ? ` + ${cotNumNinos} niño${cotNumNinos > 1 ? "s" : ""}` : ""}
+                                        </span>
+                                        <span className="text-sm font-black text-primary">${fmtN(t.total)}</span>
+                                      </div>
+                                    </div>
+
+                                    <p className="text-[8px] text-primary/30 font-bold leading-relaxed">
+                                      Incluye alojamiento, actividades y traslados{cotFlightActive ? ", boleto aéreo" : ""}{agencyMarkup > 0 ? ", comisión de agencia" : ""}.
+                                    </p>
+                                  </div>
+                                );
+                              })}
                             </div>
-                          )}
-                          {(cotLibreActTotal + cotLibreTrsTotal) > 0 && (
-                            <div className="flex justify-between text-[10px] font-bold text-primary/60">
-                              <span>Actividades y traslados</span>
-                              <span>${(cotLibreActTotal + cotLibreTrsTotal).toLocaleString()}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between pt-2 border-t border-secondary/20">
-                            <span className="text-[10px] font-black text-primary uppercase tracking-wider">Total estimado</span>
-                            <span className="font-black text-secondary text-sm">${cotTotal.toLocaleString()}</span>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                         <button onClick={() => setStep(3)} disabled={quoteLocked} className="px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Atrás</button>
