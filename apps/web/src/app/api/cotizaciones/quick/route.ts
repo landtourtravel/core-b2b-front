@@ -19,11 +19,24 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 const GENERIC_CLIENT_EMAIL = "cliente.potencial@landtourtravel.com";
 const GENERIC_CLIENT_NAME = "Cliente Potencial";
 
-function generateCodigo(agenciaId: string, userId: string, count: number): string {
+function generateCodigo(agenciaId: string, userId: string, seq: number): string {
   const agCod  = agenciaId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
   const usrCod = userId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
-  const seq    = String(count + 1).padStart(4, "0");
-  return `${agCod}-${usrCod}-${seq}`;
+  return `${agCod}-${usrCod}-${String(seq).padStart(4, "0")}`;
+}
+
+// `count()` de filas restantes no sirve de base para la secuencia: si se borró alguna
+// cotización, el conteo baja por debajo del máximo ya usado y el próximo código choca con
+// uno que todavía existe (P2002 en `codigo`, @unique). Se toma el máximo sufijo numérico
+// realmente usado por esa agencia+usuario (mismo fix que POST /api/cotizaciones).
+async function nextCodigoSeq(agenciaId: string, creadoPorId: string): Promise<number> {
+  const last = await prisma.cotizacion.findFirst({
+    where: { agenciaId, creadoPorId },
+    orderBy: { codigo: "desc" },
+    select: { codigo: true },
+  });
+  const lastSeq = last ? parseInt(last.codigo.slice(-4), 10) || 0 : 0;
+  return lastSeq + 1;
 }
 
 // POST /api/cotizaciones/quick — genera una Cotización BORRADOR al instante,
@@ -169,9 +182,6 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    const count  = await prisma.cotizacion.count({ where: { agenciaId, creadoPorId } });
-    const codigo = generateCodigo(agenciaId, creadoPorId, count);
-
     // Estado crudo del wizard — permite reabrir esta cotización rápida en el cotizador
     // con el paquete y los hoteles ya seleccionados (mismo shape que el wizard normal).
     const wizardState = {
@@ -198,29 +208,41 @@ export async function POST(req: NextRequest) {
       cotFromQuickQuote: true,
     };
 
-    const cotizacion = await prisma.cotizacion.create({
-      data: {
-        codigo, agenciaId, creadoPorId,
-        clienteId: cliente.id,
-        paqueteId: paquete.id,
-        snapshotNombre:   paquete.nombre.slice(0, 200),
-        snapshotDestino:  destinosLabel.slice(0, 200),
-        snapshotDuracion: `${paquete.diasEstancia} Días / ${paquete.nochesBase} Noches`.slice(0, 100),
-        snapshotIncluye:  paqueteIncluye,
-        hotelsComparisonSnapshot: hotelsComparison as unknown as Prisma.InputJsonValue,
-        wizardState: wizardState as unknown as Prisma.InputJsonValue,
-        incluyeBoleto: flightActive,
-        precioBoleto:  flightActive ? (paquete.precioBoleto ?? null) : null,
-        boletoTotal,
-        subtotal, markup, total,
-        fechaViaje: fechaSalida,
-        fechaRetorno,
-        status: "BORRADOR",
-        detalles: { create: habitaciones },
-      },
-    });
+    let seq = await nextCodigoSeq(agenciaId, creadoPorId);
+    // Reintento acotado ante choque de `codigo` (P2002) — misma lógica que POST /api/cotizaciones.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const codigo = generateCodigo(agenciaId, creadoPorId, seq);
+      try {
+        const cotizacion = await prisma.cotizacion.create({
+          data: {
+            codigo, agenciaId, creadoPorId,
+            clienteId: cliente.id,
+            paqueteId: paquete.id,
+            snapshotNombre:   paquete.nombre.slice(0, 200),
+            snapshotDestino:  destinosLabel.slice(0, 200),
+            snapshotDuracion: `${paquete.diasEstancia} Días / ${paquete.nochesBase} Noches`.slice(0, 100),
+            snapshotIncluye:  paqueteIncluye,
+            hotelsComparisonSnapshot: hotelsComparison as unknown as Prisma.InputJsonValue,
+            wizardState: wizardState as unknown as Prisma.InputJsonValue,
+            incluyeBoleto: flightActive,
+            precioBoleto:  flightActive ? (paquete.precioBoleto ?? null) : null,
+            boletoTotal,
+            subtotal, markup, total,
+            fechaViaje: fechaSalida,
+            fechaRetorno,
+            status: "BORRADOR",
+            detalles: { create: habitaciones },
+          },
+        });
 
-    return NextResponse.json({ id: cotizacion.id }, { status: 201 });
+        return NextResponse.json({ id: cotizacion.id }, { status: 201 });
+      } catch (err) {
+        const isCodigoClash = err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+        if (!isCodigoClash || attempt === 2) throw err;
+        seq += 1;
+      }
+    }
+    throw new Error("No se pudo generar un código único");
   } catch (err) {
     logError("POST /api/cotizaciones/quick", err);
     return NextResponse.json({ error: "Error al generar la cotización rápida" }, { status: 500 });

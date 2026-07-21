@@ -10,11 +10,24 @@ const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, C
 /** Round to 2 decimals to avoid cent drift between UI and DB. */
 const r2 = (n: number) => Math.round(n * 100) / 100;
 
-function generateCodigo(agenciaId: string, userId: string, count: number): string {
+function generateCodigo(agenciaId: string, userId: string, seq: number): string {
   const agCod  = agenciaId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
   const usrCod = userId.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
-  const seq    = String(count + 1).padStart(4, "0");
-  return `${agCod}-${usrCod}-${seq}`;
+  return `${agCod}-${usrCod}-${String(seq).padStart(4, "0")}`;
+}
+
+// `count()` de filas restantes no sirve de base para la secuencia: si se borró alguna
+// cotización (BORRADOR/RECHAZADA son borrables), el conteo baja por debajo del máximo ya
+// usado y el próximo código generado choca con uno que todavía existe (P2002 en `codigo`,
+// @unique). Se toma el máximo sufijo numérico realmente usado por esa agencia+usuario.
+async function nextCodigoSeq(agenciaId: string, creadoPorId: string): Promise<number> {
+  const last = await prisma.cotizacion.findFirst({
+    where: { agenciaId, creadoPorId },
+    orderBy: { codigo: "desc" },
+    select: { codigo: true },
+  });
+  const lastSeq = last ? parseInt(last.codigo.slice(-4), 10) || 0 : 0;
+  return lastSeq + 1;
 }
 
 // GET /api/cotizaciones — lista cotizaciones de la agencia activa
@@ -100,38 +113,49 @@ export async function POST(req: NextRequest) {
       return { tipoPax: h.tipoPax, numPax, cantidad: h.cantidad, precioPorPersona, precioUnitario, subtotal: r2(precioUnitario * h.cantidad) };
     });
 
+  // boletoTotal = precioBoleto × total passengers across all room types
+  const totalPax = habitaciones.reduce((sum, h) => sum + h.numPax * h.cantidad, 0);
+  const boletoTotal = (incluyeBoleto && precioBoleto) ? r2(precioBoleto * totalPax) : 0;
+
   try {
-    const count  = await prisma.cotizacion.count({ where: { agenciaId, creadoPorId } });
-    const codigo = generateCodigo(agenciaId, creadoPorId, count);
+    let seq = await nextCodigoSeq(agenciaId, creadoPorId);
+    // Reintento acotado ante choque de `codigo` (P2002) — cubre la rara carrera de dos
+    // guardados casi simultáneos leyendo la misma secuencia (nextCodigoSeq ya resuelve el
+    // caso normal: huecos por cotizaciones borradas).
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const codigo = generateCodigo(agenciaId, creadoPorId, seq);
+      try {
+        const cotizacion = await prisma.cotizacion.create({
+          data: {
+            codigo, agenciaId, creadoPorId, clienteId,
+            paqueteId: paqueteId && Number(paqueteId) > 0 ? Number(paqueteId) : null,
+            snapshotNombre:   (paqueteNombre   ?? "").slice(0, 200),
+            snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
+            snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
+            snapshotIncluye:  paqueteIncluye  ?? [],
+            hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
+            wizardState: wizardState ?? Prisma.JsonNull,
+            incluyeBoleto:    incluyeBoleto   ?? false,
+            precioBoleto:     precioBoleto != null ? r2(precioBoleto) : null,
+            boletoTotal,
+            subtotal: r2(subtotal), markup: r2(markup ?? 0), total: r2(total),
+            fechaViaje:   fechaViaje   ? new Date(fechaViaje)   : null,
+            fechaRetorno: fechaRetorno ? new Date(fechaRetorno) : null,
+            status: "BORRADOR",
+            notas:  notas ?? null,
+            detalles: { create: habitaciones },
+          },
+          include: { cliente: true, detalles: true },
+        });
 
-    // boletoTotal = precioBoleto × total passengers across all room types
-    const totalPax = habitaciones.reduce((sum, h) => sum + h.numPax * h.cantidad, 0);
-    const boletoTotal = (incluyeBoleto && precioBoleto) ? r2(precioBoleto * totalPax) : 0;
-
-    const cotizacion = await prisma.cotizacion.create({
-      data: {
-        codigo, agenciaId, creadoPorId, clienteId,
-        paqueteId: paqueteId && Number(paqueteId) > 0 ? Number(paqueteId) : null,
-        snapshotNombre:   (paqueteNombre   ?? "").slice(0, 200),
-        snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
-        snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
-        snapshotIncluye:  paqueteIncluye  ?? [],
-        hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
-        wizardState: wizardState ?? Prisma.JsonNull,
-        incluyeBoleto:    incluyeBoleto   ?? false,
-        precioBoleto:     precioBoleto != null ? r2(precioBoleto) : null,
-        boletoTotal,
-        subtotal: r2(subtotal), markup: r2(markup ?? 0), total: r2(total),
-        fechaViaje:   fechaViaje   ? new Date(fechaViaje)   : null,
-        fechaRetorno: fechaRetorno ? new Date(fechaRetorno) : null,
-        status: "BORRADOR",
-        notas:  notas ?? null,
-        detalles: { create: habitaciones },
-      },
-      include: { cliente: true, detalles: true },
-    });
-
-    return NextResponse.json(mapCotizacionRow(cotizacion), { status: 201 });
+        return NextResponse.json(mapCotizacionRow(cotizacion), { status: 201 });
+      } catch (err) {
+        const isCodigoClash = err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+        if (!isCodigoClash || attempt === 2) throw err;
+        seq += 1;
+      }
+    }
+    throw new Error("No se pudo generar un código único");
   } catch (err) {
     logError("POST /api/cotizaciones", err);
     return NextResponse.json({ error: "Error al guardar cotización" }, { status: 500 });
