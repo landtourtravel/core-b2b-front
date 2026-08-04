@@ -10,6 +10,7 @@ import {
   cartesian,
   combineComboLegs,
   numPaxToTipoPax,
+  groupIncluyeByDestino,
   PAX_BY_TYPE,
   type ComboLeg,
 } from "@/app/dashboard/cotizar-price";
@@ -168,6 +169,10 @@ export async function POST(req: NextRequest) {
       ...paquete.actividades.map((a) => a.nombre),
       ...paquete.traslados.map((t) => t.tipo),
     ];
+    const paqueteIncluyeDestinos = groupIncluyeByDestino(
+      paquete.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre })),
+      paquete.traslados.map((t) => ({ destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
+    );
 
     const habitaciones = [
       { tipoPax, cantidad: 1, precioPorPersona: r2(precioAdulto) },
@@ -222,6 +227,7 @@ export async function POST(req: NextRequest) {
             snapshotDestino:  destinosLabel.slice(0, 200),
             snapshotDuracion: `${paquete.diasEstancia} Días / ${paquete.nochesBase} Noches`.slice(0, 100),
             snapshotIncluye:  paqueteIncluye,
+            snapshotIncluyeDestinos: paqueteIncluyeDestinos as unknown as Prisma.InputJsonValue,
             hotelsComparisonSnapshot: hotelsComparison as unknown as Prisma.InputJsonValue,
             wizardState: wizardState as unknown as Prisma.InputJsonValue,
             incluyeBoleto: flightActive,

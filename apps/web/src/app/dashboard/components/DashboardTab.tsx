@@ -21,6 +21,13 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
   LIQUIDADA: "bg-violet-500",
 };
 
+/** cot.fechaViaje llega en formato ISO (YYYY-MM-DD) desde la API — se muestra día/mes/año. */
+const fmtDate = (s: string | null | undefined): string => {
+  if (!s) return "";
+  const [y, m, d] = s.split("-");
+  return d && m && y ? `${d}/${m}/${y}` : s;
+};
+
 interface DashboardTabProps {
   onGoToCotizaciones: () => void;
   onViewCot: (cot: CotizacionExtended) => void;
@@ -120,7 +127,7 @@ export default function DashboardTab({ onGoToCotizaciones, onViewCot }: Dashboar
                   <td className="py-4"><span className="font-black text-secondary block">{cot.codigo}</span></td>
                   <td className="py-4 font-black">{cot.cliente?.nombre || "—"}</td>
                   <td className="py-4 text-primary/60 max-w-[140px] truncate">{cot.paqueteNombre}</td>
-                  <td className="py-4">{cot.fechaViaje || "—"}</td>
+                  <td className="py-4">{fmtDate(cot.fechaViaje) || "—"}</td>
                   <td className="py-4 font-black">${cot.total.toLocaleString()}</td>
                   <td className="py-4">
                     <span className={`px-2.5 py-0.5 text-[9px] font-black uppercase rounded-md tracking-wider flex items-center gap-1.5 w-fit ${STATUS_BADGE[cot.status]}`}>

@@ -160,6 +160,15 @@ export interface PreciosCotizacion {
   precioBoleto?: number;  // por persona (si incluyeBoleto = true)
 }
 
+/// Servicios incluidos de un destino dentro de una cotización (agrupados para el
+/// documento — separa actividades de traslados por cada parada del itinerario).
+export interface IncluyeDestinoGroup {
+  destinoId:     number;
+  destinoCiudad: string;
+  actividades:   string[];
+  traslados:     string[];
+}
+
 /// Cotización / Proforma generada por la agencia para un cliente.
 export interface Cotizacion {
   id: string;
@@ -177,6 +186,8 @@ export interface Cotizacion {
   paqueteDuracion: string;   // "5 Días / 4 Noches"
   paqueteDestino:  string;
   paqueteIncluye:  string[];
+  /** Mismo contenido que `paqueteIncluye`, agrupado por destino/tipo para el documento. Ausente en cotizaciones creadas antes de este campo. */
+  paqueteIncluyeDestinos?: IncluyeDestinoGroup[];
   incluyeBoleto:   boolean;
 
   // Pasajeros y precios

@@ -20,6 +20,7 @@ export function mapCotizacionRow(c: CotizacionRow) {
     paqueteDuracion: c.snapshotDuracion,
     paqueteDestino:  c.snapshotDestino,
     paqueteIncluye:  c.snapshotIncluye,
+    paqueteIncluyeDestinos: (c.snapshotIncluyeDestinos as any) ?? undefined,
     incluyeBoleto:   c.incluyeBoleto,
     pasajeros: Object.fromEntries(
       PAX_TIPOS.map((t) => [`cant${t}`, getDetalle(t)?.cantidad ?? 0])

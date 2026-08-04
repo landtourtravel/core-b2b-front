@@ -324,45 +324,119 @@ export default function CotizacionDetailView({
           </div>
         </div>
 
-        {/* Client + Trip */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 mb-6">
+        {/* Client + Trip — mini-tabla por sección: fila de encabezados + una fila de valores */}
+        <div className="mb-6 space-y-5">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Datos del Cliente</p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-              {clientRows.filter(([, v]) => !!v).map(([label, value]) => (
-                <div key={label} className={label === "Dirección" ? "col-span-2" : undefined}>
-                  <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{label}</span>
-                  <span className="block text-[11px] font-bold text-primary mt-0.5 break-words">{value}</span>
-                </div>
-              ))}
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Datos Cliente</p>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr>
+                    {clientRows.filter(([, v]) => !!v).map(([label]) => (
+                      <th key={label} className="pb-1.5 pr-5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 whitespace-nowrap">
+                        {label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {clientRows.filter(([, v]) => !!v).map(([label, value]) => (
+                      <td key={label} className="pt-2 pr-5 text-[11px] font-bold text-primary align-top break-words">
+                        {value}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Detalles del Viaje</p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-              {tripRows.filter(([, v]) => !!v).map(([label, value]) => (
-                <div key={label}>
-                  <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{label}</span>
-                  <span className={`block text-[11px] font-bold mt-0.5 break-words ${label === "Boleto" ? "text-secondary" : "text-primary"}`}>{value}</span>
-                </div>
-              ))}
+            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Detalles Viaje</p>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr>
+                    {tripRows.filter(([, v]) => !!v).map(([label]) => (
+                      <th key={label} className="pb-1.5 pr-5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 whitespace-nowrap">
+                        {label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {tripRows.filter(([, v]) => !!v).map(([label, value]) => (
+                      <td key={label} className={`pt-2 pr-5 text-[11px] font-bold align-top break-words ${label === "Boleto" ? "text-secondary" : "text-primary"}`}>
+                        {value}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        {/* Servicios incluidos */}
-        {(cot.paqueteIncluye?.length ?? 0) > 0 && (
-          <div className="mb-6">
-            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
-            <div className="flex flex-wrap gap-1.5">
-              {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
-                <span key={i} className="px-2 py-1 bg-light text-primary text-[9px] font-bold rounded-md border border-secondary/40">
-                  ✓ {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Servicios incluidos — agrupados por destino (actividades / traslados separados);
+            cotizaciones guardadas antes de este campo caen a la lista plana anterior. */}
+        {(() => {
+          const incluyeGrupos = (cot.paqueteIncluyeDestinos ?? []).filter((g) => g.actividades.length > 0 || g.traslados.length > 0);
+          if (incluyeGrupos.length > 0) {
+            return (
+              <div className="mb-6">
+                <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+                <div className="space-y-3">
+                  {incluyeGrupos.map((g) => (
+                    <div key={g.destinoId}>
+                      <p className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wide text-primary bg-light px-2 py-1 rounded-md mb-1.5">
+                        <span className="w-1 h-1 rounded-full bg-secondary" />
+                        {g.destinoCiudad}
+                      </p>
+                      <table className="w-full border-collapse text-left">
+                        <thead>
+                          <tr>
+                            {g.actividades.length > 0 && (
+                              <th className="pb-1 pr-5 border-b border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 w-1/2">Actividades</th>
+                            )}
+                            {g.traslados.length > 0 && (
+                              <th className="pb-1 pr-5 border-b border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 w-1/2">Traslados</th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            {g.actividades.length > 0 && (
+                              <td className="pt-1.5 pr-5 text-[10px] font-semibold text-primary align-top">{g.actividades.join(" · ")}</td>
+                            )}
+                            {g.traslados.length > 0 && (
+                              <td className="pt-1.5 pr-5 text-[10px] font-semibold text-primary align-top">{g.traslados.join(" · ")}</td>
+                            )}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          if ((cot.paqueteIncluye?.length ?? 0) > 0) {
+            return (
+              <div className="mb-6">
+                <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
+                    <span key={i} className="px-2 py-1 bg-light text-primary text-[9px] font-bold rounded-md border border-secondary/40">
+                      ✓ {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Combinaciones / Hoteles por destino — table rows, like the printed document */}
         {hasCombos && (
@@ -430,11 +504,11 @@ export default function CotizacionDetailView({
                               {canAct && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
                             </td>
                             <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                              ${money(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/pax</span>
+                              ${money(p.precioAdulto)}
                             </td>
                             {showChild && (
                               <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                                ${money(p.precioNino)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/niño</span>
+                                ${money(p.precioNino)}
                               </td>
                             )}
                           </tr>
@@ -473,11 +547,11 @@ export default function CotizacionDetailView({
                           </span>
                         </td>
                         <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                          ${money(combo.adultP)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/pax</span>
+                          ${money(combo.adultP)}
                         </td>
                         {showChild && (
                           <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                            ${money(combo.childP)}<span className="text-[8px] font-bold text-primary/40 ml-0.5">/niño</span>
+                            ${money(combo.childP)}
                           </td>
                         )}
                       </tr>
@@ -515,12 +589,15 @@ export default function CotizacionDetailView({
         <div className="flex items-end justify-between gap-4 pt-3 border-t border-gray-100">
           <div className="text-[9px] font-bold text-primary/60 leading-[1.8]">
             Preparado por: <strong>{agencyName}</strong><br />
-            {agencyPhone} · {cot.fechaCreacion}<br />
-            <span className="text-secondary">Land Tour Travel — Mayorista de Turismo</span>
+            {agencyPhone} · {cot.fechaCreacion}
           </div>
-          <div className="w-[52px] h-[52px] rounded-full bg-primary text-secondary flex items-center justify-center text-[8px] font-black text-center leading-tight shrink-0">
-            LTT<br />COTIZACIÓN
-          </div>
+          {agencyLogo ? (
+            <img src={agencyLogo} alt={agencyName} className="w-[52px] h-[52px] rounded-full object-cover shrink-0 border border-gray-100" />
+          ) : (
+            <div className="w-[52px] h-[52px] rounded-full bg-primary text-secondary flex items-center justify-center text-[8px] font-black text-center leading-tight shrink-0">
+              COTIZACIÓN
+            </div>
+          )}
         </div>
 
       </div>

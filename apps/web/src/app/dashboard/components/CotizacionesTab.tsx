@@ -21,6 +21,13 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
   LIQUIDADA: "bg-violet-500",
 };
 
+/** cot.fechaViaje llega en formato ISO (YYYY-MM-DD) desde la API — se muestra día/mes/año. */
+const fmtDate = (s: string | null | undefined): string => {
+  if (!s) return "";
+  const [y, m, d] = s.split("-");
+  return d && m && y ? `${d}/${m}/${y}` : s;
+};
+
 interface CotizacionesTabProps {
   onViewCot: (cot: CotizacionExtended) => void;
   onEditCot: (id: string) => void;
@@ -76,7 +83,7 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                 <span className="text-[11px] font-black text-secondary block">{cot.codigo}</span>
                 <span className="text-sm font-black text-primary block mt-0.5 truncate">{cot.cliente?.nombre || "—"}</span>
                 <span className="text-[11px] font-bold text-primary/50 block mt-0.5 truncate">
-                  {cot.paqueteNombre}{cot.fechaViaje ? ` · ${cot.fechaViaje}` : ""}
+                  {cot.paqueteNombre}{cot.fechaViaje ? ` · ${fmtDate(cot.fechaViaje)}` : ""}
                 </span>
               </div>
               <span className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg tracking-wider flex items-center gap-1.5 shrink-0 ${STATUS_BADGE[cot.status]}`}>
@@ -150,7 +157,7 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                 </td>
                 <td className="py-4 font-black">{cot.cliente?.nombre || "—"}</td>
                 <td className="py-4 text-primary/60 max-w-[140px] truncate">{cot.paqueteNombre}</td>
-                <td className="py-4">{cot.fechaViaje || "—"}</td>
+                <td className="py-4">{fmtDate(cot.fechaViaje) || "—"}</td>
                 <td className="py-4">{resumenPasajeros(cot.pasajeros)}</td>
                 <td className="py-4 font-black">${cot.total.toLocaleString()}</td>
                 <td className="py-4 text-gray-400">{cot.fechaCreacion}</td>

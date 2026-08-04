@@ -34,6 +34,7 @@ model Agencia {
   correo      String?
   telefono    String?
   fechaAlta   DateTime
+  logoUrl     String?
 
   usuarios     UsuarioAgencia[]
   clientes     Cliente[]
@@ -342,6 +343,9 @@ model Cotizacion {
   snapshotDestino  String   // "Ciudad, País"
   snapshotDuracion String   // "5 Días / 4 Noches"
   snapshotIncluye  String[] // Servicios incluidos (texto para la proforma PDF)
+  /// Mismo contenido que snapshotIncluye, agrupado por destino/tipo (IncluyeDestinoGroup[])
+  /// para el documento. Null en cotizaciones creadas antes de este campo (fallback a la lista plana).
+  snapshotIncluyeDestinos Json?
 
   // ── Boleto aéreo (si aplica) ────────────────────────────────────────
   incluyeBoleto Boolean @default(false)

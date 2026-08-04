@@ -12,6 +12,7 @@ import {
   CotizacionStatus,
   PreciosCotizacion,
   PasajerosCotizacion,
+  IncluyeDestinoGroup,
   COTIZACION_STATUS_LABEL,
   calcularSubtotal,
   resumenPasajeros,
@@ -68,6 +69,8 @@ import {
   combineComboLegs,
   hotelPerDestinoPrice,
   numPaxToTipoPax,
+  groupIncluyeByDestino,
+  toggleHotelWithSingleDestinoCap,
   type HotelBreakdown,
   type ComboLeg,
   type ComboTotals,
@@ -325,7 +328,6 @@ export default function DashboardPage() {
           setDefaultMarkup(cfg.defaultMarkup);
           setAgencyMarkup(parseInt(cfg.defaultMarkup) || 0);
         }
-        if (cfg.agencyLogo)    setAgencyLogo(cfg.agencyLogo);
       } catch {}
     }
     fetch("/api/agency/config")
@@ -333,6 +335,10 @@ export default function DashboardPage() {
       .then((data) => {
         if (data?.nombre)   setAgencyName(data.nombre);
         if (data?.telefono) setAgencyPhone(data.telefono);
+        // logoUrl vive en Agencia (BD, gestionado desde lt-core-admin) — fuente
+        // única de verdad, nunca localStorage, para que se refleje igual en
+        // todos los agentes de la agencia sin depender de este navegador.
+        setAgencyLogo(data?.logoUrl ?? null);
       })
       .catch(() => {});
   }, []);
@@ -593,6 +599,28 @@ export default function DashboardPage() {
     ? cotAllDestinos.flatMap((d) => d.hoteles)
     : (cotSelectedDestino?.hoteles ?? []);
   const cotPrimaryHotel    = cotAvailableHotels.find((h) => cotSelectedHotelIds.includes(h.id)) ?? null;
+  // hotelId → destinoId lookups, usados para aplicar la regla "solo un destino puede
+  // tener más de un hotel marcado a la vez" (evita explosión combinatoria del cartesiano).
+  const cotLibreDestinoIdByHotelId = new Map<number, number>(
+    cotAllDestinos.flatMap((d) => d.hoteles.map((h) => [h.id, d.id] as [number, number]))
+  );
+  const cotCatDestinoIdByHotelId = new Map<number, number>(
+    (cotSelectedPkg?.hoteles ?? []).map((h) => [h.id, h.destinoId])
+  );
+  const toggleLibreHotel = (hotelId: number) => {
+    const destinoId = cotLibreDestinoIdByHotelId.get(hotelId);
+    if (destinoId === undefined) return;
+    setCotSelectedHotelIds((prev) =>
+      toggleHotelWithSingleDestinoCap(prev, hotelId, destinoId, cotLibreDestinoIdByHotelId)
+    );
+  };
+  const toggleCatHotel = (hotelId: number) => {
+    const destinoId = cotCatDestinoIdByHotelId.get(hotelId);
+    if (destinoId === undefined) return;
+    setCotSelectedHotelIds((prev) =>
+      toggleHotelWithSingleDestinoCap(prev, hotelId, destinoId, cotCatDestinoIdByHotelId)
+    );
+  };
   // Comparative mode: catálogo with >1 hotel OR libre with >1 hotel selected
   const isComparativeMode =
     (cotMode === "catalogo" && (cotSelectedPkg?.hoteles.length ?? 0) > 1) ||
@@ -629,8 +657,14 @@ export default function DashboardPage() {
 
   // Step guards
   const step1CanProceed = clientName.trim().length > 0 && cotNumPersonas >= 1;
+  // Libre: exige destino(s) elegidos explícitamente (no solo "hay hoteles marcados" — esos
+  // ids pueden quedar como residuo de una selección previa en modo catálogo tras cambiar de
+  // modo sin resetear) — con multidestino activo, exige más de un destino.
+  const cotLibreDestinosOk = cotIsMultiDestino ? cotAllDestinoIds.length > 1 : cotAllDestinoIds.length > 0;
   const step2CanProceed = cotFechaSalida.trim().length > 0 &&
-    (cotMode === "catalogo" ? cotSelectedPkgId !== null && !versionWarning : cotSelectedHotelIds.length > 0);
+    (cotMode === "catalogo"
+      ? cotSelectedPkgId !== null && !versionWarning
+      : cotLibreDestinosOk && cotSelectedHotelIds.length > 0);
   const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
   // In Catalogue Mode every destino must have a hotel checked (checkboxes in Step 3)
   // before the quote can be priced — otherwise that destino's stop has no rate.
@@ -1019,7 +1053,11 @@ export default function DashboardPage() {
     setCotFechaSalida("");
     setCotNumPersonas(2);
     setCotNumNinos(0);
-    setCotHabs({});
+    // DBL:1 refleja el default de 2 adultos / catálogo — si se deja en {} y el asesor
+    // nunca toca el campo de adultos (sigue en 2), el efecto que deriva cotHabs desde
+    // cotNumPersonas no se re-ejecuta (la dependencia no cambió) y la cotización se
+    // guarda con 0 pax en las habitaciones.
+    setCotHabs({ DBL: 1 });
     setCotFlightOverride(null);
     setCotFlightPrice(0);
     setCotFlightPriceChild(0);
@@ -1148,6 +1186,7 @@ export default function DashboardPage() {
     let paqueteDestino = "";
     let paqueteDuracion = "";
     let paqueteIncluye: string[] = [];
+    let paqueteIncluyeDestinos: IncluyeDestinoGroup[] = [];
     let incluyeBoleto = false;
 
     if (cotMode === "catalogo" && cotSelectedPkg) {
@@ -1164,6 +1203,10 @@ export default function DashboardPage() {
         ...cotSelectedPkg.actividades.map((a) => a.nombre),
         ...cotSelectedPkg.traslados.map((t) => t.tipo),
       ];
+      paqueteIncluyeDestinos = groupIncluyeByDestino(
+        cotSelectedPkg.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre })),
+        cotSelectedPkg.traslados.map((t) => ({ destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
+      );
     } else if (cotMode === "libre" && cotAllDestinos.length > 0) {
       const cities    = cotAllDestinos.map((d) => d.ciudad).join(" + ");
       const countries = [...new Set(cotAllDestinos.map((d) => d.pais))].join(" / ");
@@ -1177,6 +1220,14 @@ export default function DashboardPage() {
       if (incluyeBoleto && cotLibreFlightDesc.trim()) {
         paqueteIncluye.push(`Boleto aéreo: ${cotLibreFlightDesc.trim()}`);
       }
+      paqueteIncluyeDestinos = groupIncluyeByDestino(
+        cotAllDestinos.flatMap((d) => d.actividades
+          .filter((a) => cotLibreActSel[a.id])
+          .map((a) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: a.nombre }))),
+        cotAllDestinos.flatMap((d) => d.traslados
+          .filter((t) => cotLibreTrsSel[t.id])
+          .map((t) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: t.tipo }))),
+      );
     }
 
     const now    = new Date();
@@ -1282,7 +1333,7 @@ export default function DashboardPage() {
         documento: clientId    || undefined,
         direccion: clientAddress || undefined,
       },
-      paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+      paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, paqueteIncluyeDestinos, incluyeBoleto,
       pasajeros: {
         cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
         cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
@@ -1307,7 +1358,7 @@ export default function DashboardPage() {
     if (isEditing && editingCotId) {
       setCotizaciones((prev) => prev.map((c) => c.id === editingCotId ? {
         ...c,
-        paqueteId: newCot.paqueteId, paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+        paqueteId: newCot.paqueteId, paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, paqueteIncluyeDestinos, incluyeBoleto,
         pasajeros: newCot.pasajeros, precios: newCot.precios,
         subtotal: newCot.subtotal, markup: newCot.markup, total: newCot.total,
         fechaViaje: newCot.fechaViaje, fechaRetorno: newCot.fechaRetorno,
@@ -1349,7 +1400,7 @@ export default function DashboardPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             clienteId: clientData.id, paqueteId,
-            paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto,
+            paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, paqueteIncluyeDestinos, incluyeBoleto,
             cantSGL:  cotHabs.SGL  ?? 0, cantDBL:  cotHabs.DBL  ?? 0, cantTPL:  cotHabs.TPL  ?? 0,
             cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
             precioSGL:  getSavePrice("SGL"),  precioDBL:  getSavePrice("DBL"),
@@ -1487,8 +1538,11 @@ export default function DashboardPage() {
 
         <div className="p-4 border-t border-white/5 bg-primary-dark/40 flex flex-col gap-3">
           <div className="flex items-center gap-3 px-2 py-1.5">
-            <div className="w-10 h-10 rounded-full bg-secondary text-primary flex items-center justify-center font-black text-xs border border-white/10 shrink-0 shadow-inner">
-              {sessionReady ? userName.split(" ").map((n) => n[0]).join("") : ""}
+            <div className="relative w-10 h-10 rounded-full bg-secondary text-primary flex items-center justify-center font-black text-xs border border-white/10 shrink-0 shadow-inner overflow-hidden">
+              {agencyLogo
+                ? <Image src={agencyLogo} alt={agencyName || "Logo de la agencia"} fill className="object-cover" unoptimized />
+                : (sessionReady ? userName.split(" ").map((n) => n[0]).join("") : "")
+              }
             </div>
             <div className="min-w-0 space-y-1">
               {sessionReady ? (
@@ -1731,10 +1785,13 @@ export default function DashboardPage() {
                             <label htmlFor="cot-adultos" className={labelCls}>Adultos *</label>
                             <input
                               id="cot-adultos" type="number" min={1} max={50} required
-                              value={cotNumPersonas}
+                              value={cotNumPersonas === 0 ? "" : cotNumPersonas}
                               onChange={(e) => {
-                                const val = parseInt(e.target.value, 10);
-                                setCotNumPersonas(isNaN(val) ? 2 : Math.max(1, val));
+                                const raw = e.target.value;
+                                if (raw === "") { setCotNumPersonas(0); return; }
+                                const val = parseInt(raw, 10);
+                                if (isNaN(val) || val < 0) return;
+                                setCotNumPersonas(Math.min(50, val));
                               }}
                               placeholder="Ej. 2"
                               className={inputCls}
@@ -1744,10 +1801,13 @@ export default function DashboardPage() {
                             <label htmlFor="cot-ninos" className={labelCls}>Niños (2–11 años)</label>
                             <input
                               id="cot-ninos" type="number" min={0} max={10}
-                              value={cotNumNinos}
+                              value={cotNumNinos === 0 ? "" : cotNumNinos}
                               onChange={(e) => {
-                                const val = parseInt(e.target.value, 10);
-                                setCotNumNinos(isNaN(val) ? 0 : Math.max(0, val));
+                                const raw = e.target.value;
+                                if (raw === "") { setCotNumNinos(0); return; }
+                                const val = parseInt(raw, 10);
+                                if (isNaN(val) || val < 0) return;
+                                setCotNumNinos(Math.min(10, val));
                               }}
                               placeholder="0"
                               className={inputCls}
@@ -1971,7 +2031,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="space-y-1.5">
                               <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
-                              <input type="text" disabled value={cotFechaRetorno || "Calculada automáticamente"} className={inputDisabledCls} />
+                              <input type="text" disabled value={cotFechaRetorno ? fmtFechaDMY(cotFechaRetorno) : "Calculada automáticamente"} className={inputDisabledCls} />
                             </div>
                           </div>
 
@@ -2201,7 +2261,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="space-y-1.5">
                               <label className={`${labelCls} flex items-center gap-1.5`}><Calendar size={10} /> Fecha de Retorno</label>
-                              <input type="text" disabled value={cotFechaRetorno || "—"} className={inputDisabledCls} />
+                              <input type="text" disabled value={cotFechaRetorno ? fmtFechaDMY(cotFechaRetorno) : "—"} className={inputDisabledCls} />
                             </div>
                           </div>
 
@@ -2301,11 +2361,7 @@ export default function DashboardPage() {
                                           return (
                                             <button
                                               key={hotel.id} type="button"
-                                              onClick={() => {
-                                                setCotSelectedHotelIds((prev) =>
-                                                  prev.includes(hotel.id) ? prev.filter((id) => id !== hotel.id) : [...prev, hotel.id]
-                                                );
-                                              }}
+                                              onClick={() => toggleLibreHotel(hotel.id)}
                                               className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left cursor-pointer ${checked ? "border-secondary bg-secondary/5 shadow-sm" : "border-gray-100 hover:border-secondary/40 hover:bg-light/60"}`}
                                             >
                                               <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-secondary border-secondary" : "border-gray-300"}`}>
@@ -2369,7 +2425,11 @@ export default function DashboardPage() {
                                     : versionWarning
                                       ? "No hay versión configurada para la cantidad de adultos."
                                       : "La fecha de salida es obligatoria.")
-                                : (cotSelectedHotelIds.length === 0 ? "Selecciona al menos un hotel." : "La fecha de salida es obligatoria.")}
+                                : (!cotLibreDestinosOk
+                                    ? (cotIsMultiDestino ? "Selecciona al menos dos destinos." : "Selecciona un destino.")
+                                    : cotSelectedHotelIds.length === 0
+                                      ? "Selecciona al menos un hotel."
+                                      : "La fecha de salida es obligatoria.")}
                             </p>
                           )}
                           <button
@@ -2492,13 +2552,9 @@ export default function DashboardPage() {
                         const excluidos = cotSelectedPkg.hoteles.length - elegibles.length;
                         const occupancyLabel = `${requiredTipoPax} · ${cotNumPersonas} ADT${cotNumNinos > 0 ? ` + ${cotNumNinos} CHD` : ""}`;
                         const paxLabel = `${cotNumPersonas} Adulto${cotNumPersonas !== 1 ? "s" : ""}${cotNumNinos > 0 ? ` + ${cotNumNinos} Niño${cotNumNinos !== 1 ? "s" : ""}` : ""}`;
-                        // Selección manual (checkbox): el asesor puede marcar varios hoteles por
-                        // destino; cotCatBreakdowns/cotCatRep suman las tarifas de todos los marcados.
-                        const toggleHotel = (hotelId: number) => {
-                          setCotSelectedHotelIds((prev) =>
-                            prev.includes(hotelId) ? prev.filter((id) => id !== hotelId) : [...prev, hotelId]
-                          );
-                        };
+                        // Selección manual (checkbox): el asesor puede marcar varios hoteles en UN
+                        // destino; los demás quedan limitados a uno solo (toggleCatHotel, ver arriba).
+                        const toggleHotel = toggleCatHotel;
                         return (
                           <div className="space-y-2">
                             <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest flex items-center gap-1.5">
@@ -2795,8 +2851,15 @@ export default function DashboardPage() {
                       <div className="space-y-1.5">
                         <label htmlFor="agency-markup" className={`${labelCls} flex items-center gap-1.5`}><DollarSign size={10} /> Comisión / Markup de la Agencia (USD por persona)</label>
                         <input
-                          id="agency-markup" type="number" min={cotMarkupFloor} value={agencyMarkup}
-                          onChange={(e) => setAgencyMarkup(Number(e.target.value))}
+                          id="agency-markup" type="number" min={cotMarkupFloor}
+                          value={agencyMarkup === 0 ? "" : agencyMarkup}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === "") { setAgencyMarkup(0); return; }
+                            const val = Number(raw);
+                            if (isNaN(val) || val < 0) return;
+                            setAgencyMarkup(val);
+                          }}
                           onBlur={(e) => { if ((Number(e.target.value) || 0) < cotMarkupFloor) setAgencyMarkup(cotMarkupFloor); }}
                           placeholder="Ej. 50" className={inputCls}
                         />
@@ -2916,14 +2979,14 @@ export default function DashboardPage() {
                                               <div className="flex items-center justify-between px-3 py-1.5">
                                                 <span className="text-[10px] font-bold text-primary/60">Adulto</span>
                                                 <span className="text-sm font-black text-primary">
-                                                  ${fmtN(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                                                  ${fmtN(p.precioAdulto)}
                                                 </span>
                                               </div>
                                               {cotNumNinos > 0 && (
                                                 <div className="flex items-center justify-between px-3 py-1.5">
                                                   <span className="text-[10px] font-bold text-primary/60">Niño</span>
                                                   <span className="text-sm font-black text-primary">
-                                                    ${fmtN(p.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                                    ${fmtN(p.precioNino)}
                                                   </span>
                                                 </div>
                                               )}
@@ -2949,7 +3012,6 @@ export default function DashboardPage() {
 
                       {/* ── Combinaciones de hoteles (cartesiano) con precio Adulto / Niño ── */}
                       {cotMode === "catalogo" && !cotCatUseGrouped && cotCatCombos.length > 0 && (() => {
-                        const totalPax = cotNumPersonas + cotNumNinos;
                         const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
                         const isMulti = cotCatByDestino.size > 1;
                         return (
@@ -3006,23 +3068,17 @@ export default function DashboardPage() {
                                       <div className="flex items-center justify-between px-3 py-2">
                                         <span className="text-[10px] font-bold text-primary/60">Adulto</span>
                                         <span className="text-sm font-black text-primary">
-                                          ${fmtN(t.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                                          ${fmtN(t.precioAdulto)}
                                         </span>
                                       </div>
                                       {cotNumNinos > 0 && (
                                         <div className="flex items-center justify-between px-3 py-2">
                                           <span className="text-[10px] font-bold text-primary/60">Niño</span>
                                           <span className="text-sm font-black text-primary">
-                                            ${fmtN(t.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                            ${fmtN(t.precioNino)}
                                           </span>
                                         </div>
                                       )}
-                                      <div className="flex items-center justify-between px-3 py-2 bg-secondary/5">
-                                        <span className="text-[9px] font-black text-primary/50 uppercase tracking-wide">
-                                          Total {cotNumPersonas} ad{cotNumNinos > 0 ? ` + ${cotNumNinos} niño${cotNumNinos > 1 ? "s" : ""}` : ""}
-                                        </span>
-                                        <span className="text-sm font-black text-primary">${fmtN(t.total)}</span>
-                                      </div>
                                     </div>
 
                                     <p className="text-[8px] text-primary/30 font-bold leading-relaxed">
@@ -3036,7 +3092,7 @@ export default function DashboardPage() {
                             <p className="text-[9px] text-primary/35 font-bold leading-relaxed">
                               Precios por persona.{" "}
                               {cotNumNinos > 0 ? "El precio del niño se calcula por separado (alojamiento según política, actividades y traslado propios, y boleto de niño cuando aplica). " : ""}
-                              {agencyMarkup > 0 ? `Incluye comisión de $${fmtN(agencyMarkup)} por persona (${totalPax} pasajero${totalPax !== 1 ? "s" : ""} → $${fmtN(agencyMarkup * totalPax)} en total), no visible para el cliente.` : ""}
+                              {agencyMarkup > 0 ? `Incluye comisión de $${fmtN(agencyMarkup)} por persona, no visible para el cliente.` : ""}
                             </p>
                           </div>
                         );
@@ -3092,14 +3148,14 @@ export default function DashboardPage() {
                                               <div className="flex items-center justify-between px-3 py-1.5">
                                                 <span className="text-[10px] font-bold text-primary/60">Adulto</span>
                                                 <span className="text-sm font-black text-primary">
-                                                  ${fmtN(p.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                                                  ${fmtN(p.precioAdulto)}
                                                 </span>
                                               </div>
                                               {cotNumNinos > 0 && (
                                                 <div className="flex items-center justify-between px-3 py-1.5">
                                                   <span className="text-[10px] font-bold text-primary/60">Niño</span>
                                                   <span className="text-sm font-black text-primary">
-                                                    ${fmtN(p.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                                    ${fmtN(p.precioNino)}
                                                   </span>
                                                 </div>
                                               )}
@@ -3179,23 +3235,17 @@ export default function DashboardPage() {
                                       <div className="flex items-center justify-between px-3 py-2">
                                         <span className="text-[10px] font-bold text-primary/60">Adulto</span>
                                         <span className="text-sm font-black text-primary">
-                                          ${fmtN(t.precioAdulto)}<span className="text-[8px] font-bold text-primary/40"> /pax</span>
+                                          ${fmtN(t.precioAdulto)}
                                         </span>
                                       </div>
                                       {cotNumNinos > 0 && (
                                         <div className="flex items-center justify-between px-3 py-2">
                                           <span className="text-[10px] font-bold text-primary/60">Niño</span>
                                           <span className="text-sm font-black text-primary">
-                                            ${fmtN(t.precioNino)}<span className="text-[8px] font-bold text-primary/40"> /niño</span>
+                                            ${fmtN(t.precioNino)}
                                           </span>
                                         </div>
                                       )}
-                                      <div className="flex items-center justify-between px-3 py-2 bg-secondary/5">
-                                        <span className="text-[9px] font-black text-primary/50 uppercase tracking-wide">
-                                          Total {cotNumPersonas} ad{cotNumNinos > 0 ? ` + ${cotNumNinos} niño${cotNumNinos > 1 ? "s" : ""}` : ""}
-                                        </span>
-                                        <span className="text-sm font-black text-primary">${fmtN(t.total)}</span>
-                                      </div>
                                     </div>
 
                                     <p className="text-[8px] text-primary/30 font-bold leading-relaxed">

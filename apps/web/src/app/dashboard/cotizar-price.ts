@@ -1,6 +1,8 @@
 // Pure price-calculation helpers for the catalog cotizador wizard (Steps 3 & 4).
 // No React imports. No side effects.
 
+import type { IncluyeDestinoGroup } from "@land-tour/shared";
+
 export type CotHelperHotelTarifa = { id: number; tipoHabitacion: string; precioBase: number };
 /**
  * `tarifaChdId` — FK a la fila TarifaHotel (tipoHabitacion="CHD") específica de este rango
@@ -384,6 +386,38 @@ export function cartesian<T>(groups: T[][]): T[][] {
   );
 }
 
+/**
+ * Toggles `hotelId` in the selection, enforcing: at most ONE destino may have more than
+ * one hotel selected at a time (avoids the cartesian combo count exploding). Whichever
+ * destino is first to reach 2+ selections "claims" multi-select; every other destino is
+ * capped to a single hotel — picking a new one there replaces the previous pick instead
+ * of adding to it. Deselecting always just removes (never blocked).
+ */
+export function toggleHotelWithSingleDestinoCap(
+  prev: number[],
+  hotelId: number,
+  destinoId: number,
+  destinoIdByHotelId: Map<number, number>
+): number[] {
+  if (prev.includes(hotelId)) return prev.filter((id) => id !== hotelId);
+
+  const countByDestino = new Map<number, number>();
+  for (const id of prev) {
+    const dId = destinoIdByHotelId.get(id);
+    if (dId === undefined) continue;
+    countByDestino.set(dId, (countByDestino.get(dId) ?? 0) + 1);
+  }
+  const otherDestinoIsMulti = [...countByDestino.entries()].some(
+    ([dId, count]) => dId !== destinoId && count >= 2
+  );
+
+  if (otherDestinoIsMulti) {
+    // This destino is capped to one — replace any prior selection within it.
+    return [...prev.filter((id) => destinoIdByHotelId.get(id) !== destinoId), hotelId];
+  }
+  return [...prev, hotelId];
+}
+
 /** One stop's accommodation + local-services split (adult vs child), from a breakdown or snapshot. */
 export type ComboLeg = {
   adultAccomTotal: number;
@@ -518,4 +552,22 @@ export function numPaxToTipoPax(n: number): "SGL" | "DBL" | "TPL" | "QUAD" | nul
   if (n === 3) return "TPL";
   if (n === 4) return "QUAD";
   return null;
+}
+
+// ── Servicios incluidos, agrupados por destino ────────────────────────────────
+// Usado tanto por el wizard (catálogo y libre) como por la cotización rápida para
+// construir el snapshot que el documento de cotización renderiza separado por
+// destino/tipo (actividades vs. traslados) en vez de una lista plana.
+export type IncluyeItem = { destinoId: number; destinoCiudad: string; label: string };
+
+export function groupIncluyeByDestino(actividades: IncluyeItem[], traslados: IncluyeItem[]): IncluyeDestinoGroup[] {
+  const map = new Map<number, IncluyeDestinoGroup>();
+  const group = (destinoId: number, destinoCiudad: string) => {
+    let g = map.get(destinoId);
+    if (!g) { g = { destinoId, destinoCiudad, actividades: [], traslados: [] }; map.set(destinoId, g); }
+    return g;
+  };
+  actividades.forEach((a) => group(a.destinoId, a.destinoCiudad).actividades.push(a.label));
+  traslados.forEach((t) => group(t.destinoId, t.destinoCiudad).traslados.push(t.label));
+  return [...map.values()];
 }

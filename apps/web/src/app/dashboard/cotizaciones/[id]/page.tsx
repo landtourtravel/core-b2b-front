@@ -81,7 +81,6 @@ export default function CotizacionDocumentPage() {
         if (cfg.agencyName)    setAgencyName(cfg.agencyName);
         if (cfg.agencyPhone)   setAgencyPhone(cfg.agencyPhone);
         if (cfg.agencyAddress) setAgencyAddress(cfg.agencyAddress);
-        if (cfg.agencyLogo)    setAgencyLogo(cfg.agencyLogo);
       } catch {}
     }
     fetch("/api/agency/config")
@@ -89,6 +88,8 @@ export default function CotizacionDocumentPage() {
       .then((data) => {
         if (data?.nombre)   setAgencyName(data.nombre);
         if (data?.telefono) setAgencyPhone(data.telefono);
+        // logoUrl vive en Agencia (BD, gestionado desde lt-core-admin) — nunca localStorage.
+        setAgencyLogo(data?.logoUrl ?? null);
       })
       .catch(() => {})
       .finally(() => setIsLoadingAgency(false));

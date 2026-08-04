@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     clienteId, paqueteId,
-    paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, incluyeBoleto, precioBoleto,
+    paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, paqueteIncluyeDestinos, incluyeBoleto, precioBoleto,
     cantSGL = 0, cantDBL = 0, cantTPL = 0, cantQUAD = 0, cantCHD = 0,
     precioSGL = 0, precioDBL = 0, precioTPL = 0, precioQUAD = 0, precioCHD = 0,
     subtotal, markup, total,
@@ -133,6 +133,7 @@ export async function POST(req: NextRequest) {
             snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
             snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
             snapshotIncluye:  paqueteIncluye  ?? [],
+            snapshotIncluyeDestinos: Array.isArray(paqueteIncluyeDestinos) ? paqueteIncluyeDestinos : Prisma.JsonNull,
             hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
             wizardState: wizardState ?? Prisma.JsonNull,
             incluyeBoleto:    incluyeBoleto   ?? false,
