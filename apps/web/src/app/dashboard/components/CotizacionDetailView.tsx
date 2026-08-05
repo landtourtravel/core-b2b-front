@@ -5,6 +5,7 @@ import { COTIZACION_STATUS_LABEL } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import type { CotizacionExtended, HotelCompSnapshot } from "../DashboardContext";
 import { cartesian, combineComboLegs, hotelPerDestinoPrice, type ComboLeg } from "../cotizar-price";
+import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 
 // Handoff key: this standalone route has no access to the dashboard SPA's React state,
 // so "Editar" stashes the cotización id in localStorage and navigates to /dashboard,
@@ -76,7 +77,9 @@ export default function CotizacionDetailView({
   const boletoNinoPerPax   = allHotels[0]?.boletoChildPerPax ?? 0;
   const markup             = cot.markup ?? 0;
 
-  // Group hotels by destino (preserve insertion order).
+  // Group hotels by destino; cheapest hotel first within each group (per-adult accom+services
+  // price — boleto/markup are constant across hotels of the same destino, so this ordering
+  // matches the full per-destino price too).
   const destGroups = useMemo(() => {
     const m = new Map<number, { destinoId: number; ciudad: string; pais: string; hotels: HotelCompSnapshot[] }>();
     allHotels.forEach((h) => {
@@ -84,7 +87,10 @@ export default function CotizacionDetailView({
       if (!m.has(dId)) m.set(dId, { destinoId: dId, ciudad: h.destinoCiudad ?? "", pais: h.destinoPais ?? "", hotels: [] });
       m.get(dId)!.hotels.push(h);
     });
-    return [...m.values()];
+    return [...m.values()].map((g) => ({
+      ...g,
+      hotels: [...g.hotels].sort((a, b) => (a.adultColPerPax ?? 0) - (b.adultColPerPax ?? 0)),
+    }));
   }, [allHotels]);
   const isMultiDest = destGroups.length > 1;
   // ≥2 destinos con varios hoteles → la vista agrupada por destino reemplaza el listado
@@ -93,7 +99,8 @@ export default function CotizacionDetailView({
   const useGrouped = hasV4 && destGroups.length > 1 && multiHotelDestCount >= 2;
 
   // Every combination (one hotel per destino) with per-person adult/child prices — same
-  // model as Step 4 (combineComboLegs). Boleto + markup counted once per combo.
+  // model as Step 4 (combineComboLegs). Boleto + markup counted once per combo. Sorted
+  // cheapest-first so the printed table always lists combinations most to least economic.
   const combos = useMemo<ComboView[]>(() => {
     if (allHotels.length === 0) return [];
     const groups = destGroups.map((g) => g.hotels);
@@ -110,7 +117,7 @@ export default function CotizacionDetailView({
       const childP = hasV4 ? t.precioNino   : legs.reduce((s, h) => s + (h.avgChildPerPax ?? 0), 0);
       const total  = hasV4 ? t.total : cot.total;
       return { legs, hotelIds: legs.map((h) => h.hotelId), adultP, childP, total };
-    });
+    }).sort((a, b) => a.adultP - b.adultP);
   }, [allHotels, destGroups, numAdultos, numNinos, boletoAdultoPerPax, boletoNinoPerPax, markup, hasV4, cot.total]);
 
   // Selección unificada: un hotel por destino (destinoId → hotelId). Sirve tanto para la
@@ -131,6 +138,11 @@ export default function CotizacionDetailView({
   const isFinalized = isApproved || isLiquidada;
   const canAct     = cot.status === "BORRADOR" || cot.status === "ENVIADA";
   const hasCombos  = combos.length > 0;
+  // Cotización rápida sin editar (cliente placeholder de `POST /api/cotizaciones/quick`):
+  // no tiene sentido comercial aprobarla/rechazarla todavía. La señal se autocorrige sola
+  // — en cuanto el asesor edita la cotización con el cliente real, deja de ser genérica.
+  const isGenericClient = cot.cliente?.email === GENERIC_CLIENT_EMAIL;
+  const canApprove = canAct && !isGenericClient;
 
   // When finalized, the selection is locked to the approved/settled combo.
   const effectivePick = isFinalized ? finalizedPick : pickedByDest;
@@ -197,13 +209,13 @@ export default function CotizacionDetailView({
   };
 
   const handleApprove = () => {
-    if (!canAct || !selectedCombo) return;
+    if (!canApprove || !selectedCombo) return;
     const nota = `Combinación aprobada: ${selectedCombo.legs.map((h) => h.nombre).join(", ")}`;
     patchStatus("APROBADA", { hotelIds: selectedCombo.hotelIds, total: selectedCombo.total, nota });
   };
 
   const handleReject = () => {
-    if (!canAct) return;
+    if (!canApprove) return;
     patchStatus("RECHAZADA");
   };
 
@@ -222,7 +234,6 @@ export default function CotizacionDetailView({
     ["Salida",    fmtDate(cot.fechaViaje)],
     ["Retorno",   fmtDate(cot.fechaRetorno)],
     ["Pasajeros", pasajerosLabel],
-    ["Boleto",    cot.incluyeBoleto ? "✓ Incluido" : ""],
   ];
 
   const adultTipoLabel =
@@ -267,7 +278,7 @@ export default function CotizacionDetailView({
           >
             <Printer size={13} /> Imprimir / PDF
           </button>
-          {canAct && (
+          {canApprove && (
             <>
               <button
                 onClick={handleReject}
@@ -291,7 +302,13 @@ export default function CotizacionDetailView({
         </div>
       </div>
 
-      {canAct && hasCombos && !selectedCombo && (
+      {canAct && isGenericClient && (
+        <p className="print:hidden max-w-[820px] mx-auto mb-4 text-[11px] font-bold text-amber-700 bg-amber-50 px-4 py-2.5 rounded-2xl border border-amber-200 text-center leading-relaxed">
+          Esta es una cotización rápida con cliente genérico — edítala con los datos reales del cliente para poder aprobarla o rechazarla.
+        </p>
+      )}
+
+      {canApprove && hasCombos && !selectedCombo && (
         <p className="print:hidden max-w-[820px] mx-auto mb-4 text-[11px] font-bold text-amber-700 bg-amber-50 px-4 py-2.5 rounded-2xl border border-amber-200 text-center leading-relaxed">
           {useGrouped
             ? "Selecciona un hotel en cada destino para poder aprobar. También puedes imprimir sin aprobar."
@@ -367,7 +384,7 @@ export default function CotizacionDetailView({
                 <tbody>
                   <tr>
                     {tripRows.filter(([, v]) => !!v).map(([label, value]) => (
-                      <td key={label} className={`pt-2 pr-5 text-[11px] font-bold align-top break-words ${label === "Boleto" ? "text-secondary" : "text-primary"}`}>
+                      <td key={label} className="pt-2 pr-5 text-[11px] font-bold text-primary align-top break-words">
                         {value}
                       </td>
                     ))}
@@ -378,14 +395,24 @@ export default function CotizacionDetailView({
           </div>
         </div>
 
-        {/* Servicios incluidos — agrupados por destino (actividades / traslados separados);
-            cotizaciones guardadas antes de este campo caen a la lista plana anterior. */}
+        {/* Servicios incluidos — el boleto va primero (es un servicio general del paquete,
+            no atado a un destino específico), luego actividades/traslados agrupados por
+            destino (o la lista plana anterior, para cotizaciones guardadas antes de ese campo). */}
         {(() => {
           const incluyeGrupos = (cot.paqueteIncluyeDestinos ?? []).filter((g) => g.actividades.length > 0 || g.traslados.length > 0);
-          if (incluyeGrupos.length > 0) {
-            return (
-              <div className="mb-6">
-                <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+          const showFlatIncluye = incluyeGrupos.length === 0 && (cot.paqueteIncluye?.length ?? 0) > 0;
+          if (!cot.incluyeBoleto && incluyeGrupos.length === 0 && !showFlatIncluye) return null;
+          return (
+            <div className="mb-6">
+              <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+              {cot.incluyeBoleto && (
+                <div className="mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary/10 text-secondary text-[9px] font-black uppercase tracking-wide rounded-md">
+                    ✓ Boleto Aéreo Incluido
+                  </span>
+                </div>
+              )}
+              {incluyeGrupos.length > 0 && (
                 <div className="space-y-3">
                   {incluyeGrupos.map((g) => (
                     <div key={g.destinoId}>
@@ -418,13 +445,8 @@ export default function CotizacionDetailView({
                     </div>
                   ))}
                 </div>
-              </div>
-            );
-          }
-          if ((cot.paqueteIncluye?.length ?? 0) > 0) {
-            return (
-              <div className="mb-6">
-                <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+              )}
+              {showFlatIncluye && (
                 <div className="flex flex-wrap gap-1.5">
                   {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
                     <span key={i} className="px-2 py-1 bg-light text-primary text-[9px] font-bold rounded-md border border-secondary/40">
@@ -432,10 +454,9 @@ export default function CotizacionDetailView({
                     </span>
                   ))}
                 </div>
-              </div>
-            );
-          }
-          return null;
+              )}
+            </div>
+          );
         })()}
 
         {/* Combinaciones / Hoteles por destino — table rows, like the printed document */}
@@ -452,120 +473,124 @@ export default function CotizacionDetailView({
               )}
             </p>
 
-            <table className="w-full border-collapse text-left">
-              <thead>
-                <tr>
-                  <th className="pb-1.5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary">
-                    {printGrouped ? "Hotel" : "Combinación"}
-                  </th>
-                  <th className="pb-1.5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-24">
-                    {adultTipoLabel}
-                  </th>
-                  {showChild && (
-                    <th className="pb-1.5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20">
-                      Niño
+            <div className="border border-gray-100 rounded-xl overflow-hidden">
+              <table className="w-full table-fixed border-collapse text-left">
+                <thead>
+                  <tr className="bg-light/50">
+                    <th className="py-2 px-3 border-b-[1.5px] border-r border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary">
+                      {printGrouped ? "Hotel" : "Combinación"}
                     </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {printGrouped ? (
-                  destGroups.map((g) => (
-                    <React.Fragment key={g.destinoId}>
-                      <tr>
-                        <td colSpan={showChild ? 3 : 2} className="pt-3 pb-1 text-[8px] font-black uppercase tracking-wide text-secondary border-b border-gray-100">
-                          {g.ciudad}
-                        </td>
-                      </tr>
-                      {g.hotels.map((h) => {
-                        const isSel = effectivePick[g.destinoId] === h.hotelId;
-                        const p = hotelPerDestinoPrice({
-                          adultColPerPax:     h.adultColPerPax ?? 0,
-                          childAccomTotal:    h.childAccomTotal ?? 0,
-                          childServicesTotal: h.childServicesTotal ?? 0,
-                          boletoAdultoPerPax: boletoAdultoPerPax,
-                          boletoNinoPerPax:   boletoNinoPerPax,
-                          agencyMarkup:       markup,
-                          numAdultos, numNinos,
-                          numDestinos: destGroups.length,
-                        });
-                        return (
-                          <tr
-                            key={h.hotelId}
-                            onClick={() => canAct && pickHotel(g.destinoId, h.hotelId)}
-                            className={`border-b border-gray-50 last:border-0 transition-colors ${canAct ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
-                          >
-                            <td className="py-2.5 pr-3">
-                              <span className="text-[11px] font-bold text-primary">{h.nombre}</span>{" "}
-                              <span className="text-gold text-[9px]">{stars(h.estrellas)}</span>
-                              {showChild && h.sinTarifaNino && (
-                                <span className="ml-2 text-[8px] font-black text-amber-600 uppercase tracking-wide">Sin tarifa niño</span>
-                              )}
-                              {canAct && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
-                            </td>
-                            <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                              ${money(p.precioAdulto)}
-                            </td>
-                            {showChild && (
-                              <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                                ${money(p.precioNino)}
-                              </td>
-                            )}
-                          </tr>
-                        );
-                      })}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  combosToShow.map((combo) => {
-                    const idx = combos.indexOf(combo);
-                    const isSel = idx === selectedComboIdx;
-                    const selectable = canAct;
-                    const title = combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
-                    return (
-                      <tr
-                        key={idx}
-                        onClick={() => selectable && pickCombo(combo)}
-                        className={`border-b border-gray-50 last:border-0 transition-colors ${selectable ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
-                      >
-                        <td className="py-2.5 pr-3">
-                          {combos.length > 1 && (
-                            <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{title}</span>
-                          )}
-                          <span className="block text-[11px] font-bold text-primary mt-0.5">
-                            {combo.legs.map((h, i) => (
-                              <React.Fragment key={h.hotelId}>
-                                {i > 0 && <span className="text-secondary font-black mx-1">+</span>}
-                                {isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ` : ""}{h.nombre}{" "}
-                                <span className="text-gold text-[9px]">{stars(h.estrellas)}</span>
-                                {showChild && h.sinTarifaNino && (
-                                  <span className="ml-1 text-[8px] font-black text-amber-600 uppercase tracking-wide">Sin tarifa niño</span>
-                                )}
-                              </React.Fragment>
-                            ))}
-                            {selectable && isSel && <span className="print:hidden ml-2 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
-                          </span>
-                        </td>
-                        <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                          ${money(combo.adultP)}
-                        </td>
-                        {showChild && (
-                          <td className="py-2.5 text-right text-sm font-black text-primary whitespace-nowrap">
-                            ${money(combo.childP)}
+                    <th className={`py-2 px-3 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20 whitespace-nowrap ${showChild ? "border-r" : ""}`}>
+                      {adultTipoLabel}
+                    </th>
+                    {showChild && (
+                      <th className="py-2 px-3 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20 whitespace-nowrap">
+                        Niño
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {printGrouped ? (
+                    destGroups.map((g) => (
+                      <React.Fragment key={g.destinoId}>
+                        <tr>
+                          <td colSpan={showChild ? 3 : 2} className="pt-3 pb-1 px-3 text-[8px] font-black uppercase tracking-wide text-secondary bg-light/30 border-b border-gray-100">
+                            {g.ciudad}
                           </td>
-                        )}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                        </tr>
+                        {g.hotels.map((h) => {
+                          const isSel = effectivePick[g.destinoId] === h.hotelId;
+                          const p = hotelPerDestinoPrice({
+                            adultColPerPax:     h.adultColPerPax ?? 0,
+                            childAccomTotal:    h.childAccomTotal ?? 0,
+                            childServicesTotal: h.childServicesTotal ?? 0,
+                            boletoAdultoPerPax: boletoAdultoPerPax,
+                            boletoNinoPerPax:   boletoNinoPerPax,
+                            agencyMarkup:       markup,
+                            numAdultos, numNinos,
+                            numDestinos: destGroups.length,
+                          });
+                          return (
+                            <tr
+                              key={h.hotelId}
+                              onClick={() => canAct && pickHotel(g.destinoId, h.hotelId)}
+                              className={`border-b border-gray-50 last:border-0 transition-colors ${canAct ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
+                            >
+                              <td className="py-2.5 px-3 border-r border-gray-100 min-w-0">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className="truncate text-[11px] font-bold text-primary" title={h.nombre}>{h.nombre}</span>
+                                  <span className="shrink-0 text-gold text-[9px]">{stars(h.estrellas)}</span>
+                                  {showChild && h.sinTarifaNino && (
+                                    <span className="shrink-0 text-[8px] font-black text-amber-600 uppercase tracking-wide">Sin tarifa niño</span>
+                                  )}
+                                  {canAct && isSel && <span className="print:hidden shrink-0 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
+                                </div>
+                              </td>
+                              <td className={`py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap ${showChild ? "border-r border-gray-100" : ""}`}>
+                                ${money(p.precioAdulto)}
+                              </td>
+                              {showChild && (
+                                <td className="py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap">
+                                  ${money(p.precioNino)}
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    combosToShow.map((combo) => {
+                      const idx = combos.indexOf(combo);
+                      const isSel = idx === selectedComboIdx;
+                      const selectable = canAct;
+                      const title = combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
+                      const fullName = combo.legs.map((h) => (isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ${h.nombre}` : h.nombre)).join(" + ");
+                      return (
+                        <tr
+                          key={idx}
+                          onClick={() => selectable && pickCombo(combo)}
+                          className={`border-b border-gray-50 last:border-0 transition-colors ${selectable ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
+                        >
+                          <td className="py-2.5 px-3 border-r border-gray-100 min-w-0">
+                            {combos.length > 1 && (
+                              <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{title}</span>
+                            )}
+                            <div className="mt-0.5 space-y-0.5" title={fullName}>
+                              {combo.legs.map((h, i) => (
+                                <div key={h.hotelId} className="flex items-center gap-1.5 min-w-0">
+                                  <span className="truncate text-[11px] font-bold text-primary">
+                                    {isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ` : ""}{h.nombre}
+                                  </span>
+                                  <span className="shrink-0 text-gold text-[9px]">{stars(h.estrellas)}</span>
+                                  {i < combo.legs.length - 1 && <span className="shrink-0 text-secondary font-black text-[10px]">+</span>}
+                                  {showChild && h.sinTarifaNino && (
+                                    <span className="shrink-0 text-[8px] font-black text-amber-600 uppercase tracking-wide">Sin tarifa niño</span>
+                                  )}
+                                </div>
+                              ))}
+                              {selectable && isSel && <span className="print:hidden inline-block text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
+                            </div>
+                          </td>
+                          <td className={`py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap ${showChild ? "border-r border-gray-100" : ""}`}>
+                            ${money(combo.adultP)}
+                          </td>
+                          {showChild && (
+                            <td className="py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap">
+                              ${money(combo.childP)}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
 
             <p className="text-[9px] text-primary/40 font-medium mt-3 leading-relaxed">
-              Precios por persona (incluyen alojamiento, actividades y traslados
-              {cot.incluyeBoleto ? ", y boleto aéreo" : ""}).
-              {numNinos > 0 ? " El niño se calcula por separado del adulto." : ""}
-              {boletoOculto ? " El boleto aéreo va incluido en el precio." : ""}
+              {boletoOculto ? "El boleto aéreo va incluido en el precio." : ""}
               {printGrouped ? <span className="print:hidden"> Elige un hotel en cada destino para aprobar.</span> : ""}
             </p>
           </div>

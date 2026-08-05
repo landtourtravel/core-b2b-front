@@ -15,9 +15,9 @@ import {
   type ComboLeg,
 } from "@/app/dashboard/cotizar-price";
 import type { HotelCompSnapshot } from "@/app/dashboard/DashboardContext";
+import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
-const GENERIC_CLIENT_EMAIL = "cliente.potencial@landtourtravel.com";
 const GENERIC_CLIENT_NAME = "Cliente Potencial";
 
 function generateCodigo(agenciaId: string, userId: string, seq: number): string {
@@ -156,12 +156,6 @@ export async function POST(req: NextRequest) {
       sinTarifaNino:      numNinos > 0 && !hasChd,
     }));
 
-    // ── Fechas por defecto: hoy + 30 días, retorno = salida + diasEstancia ──
-    const fechaSalida = new Date();
-    fechaSalida.setDate(fechaSalida.getDate() + 30);
-    const fechaRetorno = new Date(fechaSalida);
-    fechaRetorno.setDate(fechaRetorno.getDate() + paquete.diasEstancia);
-
     const destinosLabel = paquete.destinos.length > 1
       ? paquete.destinos.map((d) => d.ciudad).join(" + ")
       : `${paquete.destinoCiudad}, ${paquete.destinoPais}`;
@@ -198,7 +192,7 @@ export async function POST(req: NextRequest) {
       cotSelectedDestinoId: null,
       cotSelectedHotelIds: paquete.hoteles.map((h) => h.id),
       cotHabs: {},
-      cotFechaSalida: fechaSalida.toISOString().slice(0, 10),
+      cotFechaSalida: "",
       cotCustomDias: paquete.diasEstancia,
       cotExtraNightsByDestino: {},
       cotFlightOverride: null,
@@ -234,8 +228,8 @@ export async function POST(req: NextRequest) {
             precioBoleto:  flightActive ? (paquete.precioBoleto ?? null) : null,
             boletoTotal,
             subtotal, markup, total,
-            fechaViaje: fechaSalida,
-            fechaRetorno,
+            fechaViaje: null,
+            fechaRetorno: null,
             status: "BORRADOR",
             detalles: { create: habitaciones },
           },

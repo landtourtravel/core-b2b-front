@@ -43,6 +43,6 @@ export function mapCotizacionRow(c: CotizacionRow) {
     hotelsComparison: (c.hotelsComparisonSnapshot as any) ?? null,
     selectedHotelId:  c.selectedHotelId ?? null,
     wizardState:      (c.wizardState as any) ?? null,
-    fechaCreacion: c.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" }),
+    fechaCreacion: c.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Guayaquil" }),
   };
 }

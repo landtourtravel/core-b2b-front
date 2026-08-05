@@ -1231,7 +1231,7 @@ export default function DashboardPage() {
     }
 
     const now    = new Date();
-    const fecha  = now.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
+    const fecha  = now.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Guayaquil" });
     const cliId  = `cli-${Date.now()}`;
     const codigo = `COT-${now.getFullYear()}-${String(cotizaciones.length + 1).padStart(3, "0")}`;
     const sessionAgenciaId = (sessionData?.user as any)?.agenciaId ?? "unknown";
