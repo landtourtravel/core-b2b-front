@@ -161,6 +161,10 @@ export async function GET(req: NextRequest) {
     if (precioMin > 0) packages = packages.filter((p) => p.price >= precioMin);
     if (precioMax > 0) packages = packages.filter((p) => p.price <= precioMax);
 
+    // Más económico primero, siempre — todos los consumidores de este endpoint (landing,
+    // /paquetes, catálogo del panel de agencias) heredan el orden sin ordenar por su cuenta.
+    packages.sort((a, b) => a.price - b.price);
+
     return NextResponse.json(packages satisfies Package[]);
   } catch (error) {
     logError("GET /api/packages", error);

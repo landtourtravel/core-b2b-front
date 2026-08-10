@@ -753,6 +753,9 @@ export default function DashboardPage() {
               cotBoletoNinoPerPax,
             ),
           }))
+          // Más económico primero (por-adulto, alojamiento+servicios locales) — filtrar por
+          // destinoId después conserva este orden dentro de cada grupo (sort estable + subsecuencia).
+          .sort((a, b) => a.bd.adultColPerPax - b.bd.adultColPerPax)
       : [];
 
   // Agrupa los hoteles elegidos por destino y genera TODAS las combinaciones
@@ -790,7 +793,9 @@ export default function DashboardPage() {
         cotBoletoAdultoPerPax, cotBoletoNinoPerPax, cotEffectiveMarkup,
       );
       return { legs, totals };
-    });
+    })
+      // Más económica primero (mismo criterio — precio adulto — que CotizacionDetailView).
+      .sort((a, b) => a.totals.precioAdulto - b.totals.precioAdulto);
   })();
 
   // Combinación representativa = la más barata (define el precio de portada y los
@@ -883,7 +888,9 @@ export default function DashboardPage() {
               childServicesTotal,
               adultColPerPax: cotNumPersonas > 0 ? (adultAccomTotal + adultServicesTotal) / cotNumPersonas : 0,
             };
-          });
+          })
+          // Más económico primero (mismo criterio que catálogo).
+          .sort((a, b) => a.adultColPerPax - b.adultColPerPax);
       })
     : [];
 
@@ -919,7 +926,9 @@ export default function DashboardPage() {
         cotBoletoAdultoPerPaxLibre, cotBoletoNinoPerPaxLibre, cotEffectiveMarkup,
       );
       return { legs, totals };
-    });
+    })
+      // Más económica primero (mismo criterio — precio adulto — que CotizacionDetailView).
+      .sort((a, b) => a.totals.precioAdulto - b.totals.precioAdulto);
   })();
   // Combinación representativa = la más barata (define subtotal/total y los precios que
   // se guardan en el detalle — ver getSavePrice más abajo).
@@ -2820,7 +2829,9 @@ export default function DashboardPage() {
                                   <div className="space-y-2">
                                     <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Traslados en {destino.ciudad}</p>
                                     <div className="space-y-2">
-                                      {destino.traslados.map((trs) => {
+                                      {[...destino.traslados]
+                                        .sort((a, b) => getTrasladoPerPax(a.tarifas, cotNumPersonas) - getTrasladoPerPax(b.tarifas, cotNumPersonas))
+                                        .map((trs) => {
                                         const checked = !!cotLibreTrsSel[trs.id];
                                         // Precio real de adulto para el grupo declarado — NO el mínimo entre
                                         // todas las tarifas (eso mezclaba la tarifa NINO, más barata, aunque
@@ -2848,7 +2859,9 @@ export default function DashboardPage() {
                                   <div className="space-y-2">
                                     <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Actividades en {destino.ciudad}</p>
                                     <div className="space-y-2">
-                                      {destino.actividades.map((act) => {
+                                      {[...destino.actividades]
+                                        .sort((a, b) => getActividadAdultPerPax(a.tarifas, cotNumPersonas) - getActividadAdultPerPax(b.tarifas, cotNumPersonas))
+                                        .map((act) => {
                                         const checked = !!cotLibreActSel[act.id];
                                         // Precio real de adulto para el grupo declarado — ver mismo fix en traslados arriba.
                                         const adultPrice = getActividadAdultPerPax(act.tarifas, cotNumPersonas);
