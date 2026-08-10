@@ -7,12 +7,15 @@ import { logError } from "@/lib/logger";
 import { paqueteInclude, mapPaqueteRow } from "@/lib/cotizar-paquete-mapper";
 import {
   calcHotelBreakdown,
+  calcHotelBreakdownFromRoomMix,
+  mergeRoomDetalle,
   cartesian,
   combineComboLegs,
   numPaxToTipoPax,
   groupIncluyeByDestino,
   PAX_BY_TYPE,
   type ComboLeg,
+  type HotelBreakdownMix,
 } from "@/app/dashboard/cotizar-price";
 import type { HotelCompSnapshot } from "@/app/dashboard/DashboardContext";
 import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
@@ -49,18 +52,28 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}));
   const paqueteId = Number(body?.paqueteId);
-  const numPax = Number(body?.numPax);
-  const numNinos = Number(body?.numNinos);
+  // Modo "composición base" — cotiza la ocupación con la que el admin creó el paquete
+  // (`Paquete.numPax`/`numNinos`), que puede ser una MEZCLA de tipos de habitación (ej.
+  // 1 SGL + 1 DBL + 1 TPL = 6 adultos) sin una sola etiqueta SGL/DBL/TPL/QUAD válida — por
+  // eso ignora `numPax`/`numNinos` del body y los deriva del paquete + `PaqueteHotel`.
+  const baseComposicion = body?.baseComposicion === true;
 
   if (!Number.isInteger(paqueteId) || paqueteId <= 0) {
     return NextResponse.json({ error: "paqueteId inválido" }, { status: 400 });
   }
-  if (!Number.isInteger(numNinos) || numNinos < 0 || numNinos > 10) {
-    return NextResponse.json({ error: "Número de niños inválido" }, { status: 400 });
-  }
-  const tipoPax = numPaxToTipoPax(numPax);
-  if (!tipoPax) {
-    return NextResponse.json({ error: "Cantidad de adultos no soportada (máximo 4)" }, { status: 400 });
+
+  let numPax = Number(body?.numPax);
+  let numNinos = Number(body?.numNinos);
+  let tipoPax: string | null = null;
+
+  if (!baseComposicion) {
+    if (!Number.isInteger(numNinos) || numNinos < 0 || numNinos > 10) {
+      return NextResponse.json({ error: "Número de niños inválido" }, { status: 400 });
+    }
+    tipoPax = numPaxToTipoPax(numPax);
+    if (!tipoPax) {
+      return NextResponse.json({ error: "Cantidad de adultos no soportada (máximo 4)" }, { status: 400 });
+    }
   }
 
   const agenciaId   = session.user.agenciaId;
@@ -74,6 +87,22 @@ export async function POST(req: NextRequest) {
     const paquete = mapPaqueteRow(paqueteRow);
     if (paquete.hoteles.length === 0) {
       return NextResponse.json({ error: "El paquete no tiene hoteles configurados" }, { status: 400 });
+    }
+    if (baseComposicion) {
+      numPax = paquete.numPax;
+      numNinos = paquete.numNinos;
+    }
+
+    // En modo base, solo sirven hoteles con al menos una habitación (no-CHD) configurada —
+    // sin eso no hay forma de saber cuántos adultos caben ni a qué tarifa.
+    const hotelesParaCotizar = baseComposicion
+      ? paquete.hoteles.filter((h) => h.habitaciones.some((r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0))
+      : paquete.hoteles;
+    if (hotelesParaCotizar.length === 0) {
+      return NextResponse.json(
+        { error: "El paquete no tiene habitaciones configuradas para su ocupación base" },
+        { status: 400 }
+      );
     }
 
     // ── Cliente genérico fijo — se reutiliza entre cotizaciones rápidas de la agencia ──
@@ -93,20 +122,28 @@ export async function POST(req: NextRequest) {
     const flightActive = paquete.incluyeBoleto;
     const boletoAdultoPerPax = flightActive ? (paquete.precioBoleto ?? 0) : 0;
     const boletoNinoPerPax   = flightActive ? (paquete.precioBoletoNino ?? paquete.precioBoleto ?? 0) : 0;
-    // Piso de comisión fijado por el admin en el paquete — igual que en el wizard, la
-    // cotización rápida nunca puede quedar por debajo (no hay input manual aquí, así que
-    // se usa directo, sin posibilidad de que el asesor la suba desde este endpoint).
-    const markup = paquete.ajustePrecio ?? 0;
+    // Comisión de agencia (`gananciaAgencia`, piso fijado por el admin — nunca negativa) MÁS
+    // el ajuste de precio automático del paquete (`ajustePrecio`, puede ser negativo si es un
+    // descuento/oferta del admin). Igual que en el wizard: no hay input manual aquí, así que
+    // se usa el neto directo, sin posibilidad de que el asesor lo cambie desde este endpoint.
+    const markup = (paquete.gananciaAgencia ?? 0) + (paquete.ajustePrecio ?? 0);
 
-    const breakdowns = paquete.hoteles.map((hotel) => ({
+    const breakdowns = hotelesParaCotizar.map((hotel) => ({
       hotel,
       hasChd: hotel.tarifas.some((t) => t.tipoHabitacion === "CHD"),
-      bd: calcHotelBreakdown(
-        hotel, tipoPax, ninosEdades, numPax,
-        paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
-        paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
-        flightActive, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
-      ),
+      bd: baseComposicion
+        ? calcHotelBreakdownFromRoomMix(
+            hotel, hotel.habitaciones, ninosEdades, numPax,
+            paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
+            paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
+            flightActive, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
+          )
+        : calcHotelBreakdown(
+            hotel, tipoPax!, ninosEdades, numPax,
+            paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
+            paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
+            flightActive, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
+          ),
     }));
 
     const byDestino = new Map<number, typeof breakdowns>();
@@ -139,7 +176,9 @@ export async function POST(req: NextRequest) {
       destinoId:          hotel.destinoId,
       destinoCiudad:      hotel.destinoCiudad,
       destinoPais:        paquete.destinos.find((d) => d.id === hotel.destinoId)?.pais ?? "",
-      tipoPax,
+      tipoPax: baseComposicion
+        ? hotel.habitaciones.filter((r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0).map((r) => r.tipoHabitacion).join("+")
+        : tipoPax!,
       adultColPerPax:     r2(bd.adultColPerPax),
       boletoPerPax:       r2(bd.boletoPerPax),
       accomTotal:         r2(bd.stopTotal),
@@ -164,22 +203,36 @@ export async function POST(req: NextRequest) {
       ...paquete.traslados.map((t) => t.tipo),
     ];
     const paqueteIncluyeDestinos = groupIncluyeByDestino(
-      paquete.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre })),
+      paquete.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre, detalle: a.descripcion })),
       paquete.traslados.map((t) => ({ destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
     );
 
-    const habitaciones = [
-      { tipoPax, cantidad: 1, precioPorPersona: r2(precioAdulto) },
-      ...(numNinos > 0 ? [{ tipoPax: "CHD", cantidad: numNinos, precioPorPersona: r2(precioChd) }] : []),
-    ].map((h) => {
-      const px = PAX_BY_TYPE[h.tipoPax] ?? 1;
-      const precioUnitario = r2(h.precioPorPersona * px);
-      return {
-        tipoPax: h.tipoPax, numPax: px, cantidad: h.cantidad,
-        precioPorPersona: h.precioPorPersona, precioUnitario,
-        subtotal: r2(precioUnitario * h.cantidad),
-      };
-    });
+    // En modo base, la composición puede tener varios tipos de habitación a la vez (ej. 1
+    // SGL + 1 DBL + 1 TPL) — se fusionan las filas de todas las "legs" del combo elegido
+    // (una por destino) para no repetir un mismo tipo dos veces si 2+ destinos lo usan.
+    const habitaciones = baseComposicion
+      ? [
+          ...mergeRoomDetalle(repCombo.legs.map(({ bd }) => (bd as HotelBreakdownMix).roomDetalle)).map((r) => ({
+            tipoPax: r.tipoHabitacion, numPax: PAX_BY_TYPE[r.tipoHabitacion] ?? 1, cantidad: r.cantidad,
+            precioPorPersona: r2(r.precioPorPersona), precioUnitario: r2(r.precioUnitario), subtotal: r2(r.subtotal),
+          })),
+          ...(numNinos > 0 ? [{
+            tipoPax: "CHD", numPax: 1, cantidad: numNinos,
+            precioPorPersona: r2(precioChd), precioUnitario: r2(precioChd), subtotal: r2(precioChd * numNinos),
+          }] : []),
+        ]
+      : [
+          { tipoPax: tipoPax!, cantidad: 1, precioPorPersona: r2(precioAdulto) },
+          ...(numNinos > 0 ? [{ tipoPax: "CHD", cantidad: numNinos, precioPorPersona: r2(precioChd) }] : []),
+        ].map((h) => {
+          const px = PAX_BY_TYPE[h.tipoPax] ?? 1;
+          const precioUnitario = r2(h.precioPorPersona * px);
+          return {
+            tipoPax: h.tipoPax, numPax: px, cantidad: h.cantidad,
+            precioPorPersona: h.precioPorPersona, precioUnitario,
+            subtotal: r2(precioUnitario * h.cantidad),
+          };
+        });
 
     // Estado crudo del wizard — permite reabrir esta cotización rápida en el cotizador
     // con el paquete y los hoteles ya seleccionados (mismo shape que el wizard normal).

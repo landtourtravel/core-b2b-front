@@ -160,13 +160,20 @@ export interface PreciosCotizacion {
   precioBoleto?: number;  // por persona (si incluyeBoleto = true)
 }
 
+/// Un servicio incluido (actividad o traslado) con detalle opcional para el documento.
+/// `detalle` viene de la descripción real del servicio (solo actividades la tienen en BD).
+export interface IncluyeServicioItem {
+  nombre:  string;
+  detalle?: string;
+}
+
 /// Servicios incluidos de un destino dentro de una cotización (agrupados para el
 /// documento — separa actividades de traslados por cada parada del itinerario).
 export interface IncluyeDestinoGroup {
   destinoId:     number;
   destinoCiudad: string;
-  actividades:   string[];
-  traslados:     string[];
+  actividades:   IncluyeServicioItem[];
+  traslados:     IncluyeServicioItem[];
 }
 
 /// Cotización / Proforma generada por la agencia para un cliente.

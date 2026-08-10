@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const agencia = await prisma.agencia.findUnique({
       where: { id: session.user.agenciaId },
-      select: { id: true, nombre: true, correo: true, telefono: true, logoUrl: true },
+      select: { id: true, nombre: true, descripcion: true, correo: true, telefono: true, logoUrl: true },
     });
     return NextResponse.json(agencia ?? {});
   } catch (err) {

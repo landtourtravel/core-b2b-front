@@ -39,6 +39,10 @@ const fmtDate = (s: string | null | undefined): string => {
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
+/** Normalizes a servicio incluido item — cotizaciones guardadas antes del campo `detalle` traen strings planos. */
+const toServicioItem = (item: string | { nombre: string; detalle?: string }): { nombre: string; detalle?: string } =>
+  typeof item === "string" ? { nombre: item } : item;
+
 const stars = (n: number) => "★".repeat(Math.max(0, Math.min(n, 5)));
 const money = (n: number) => (n % 1 === 0 ? n.toLocaleString("es-EC") : n.toFixed(2));
 
@@ -54,13 +58,14 @@ type ComboView = {
 interface Props {
   cot: CotizacionExtended;
   agencyName: string;
+  agencyEmail: string;
   agencyPhone: string;
-  agencyAddress: string;
+  agencyDescripcion: string;
   agencyLogo: string | null;
 }
 
 export default function CotizacionDetailView({
-  cot: initialCot, agencyName, agencyPhone, agencyAddress, agencyLogo,
+  cot: initialCot, agencyName, agencyEmail, agencyPhone, agencyDescripcion, agencyLogo,
 }: Props) {
   const [cot, setCot] = useState<CotizacionExtended>(initialCot);
 
@@ -269,7 +274,7 @@ export default function CotizacionDetailView({
               }}
               className="px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-black text-[11px] uppercase tracking-wider rounded-2xl transition-all flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <Pencil size={13} /> Editar
+              <Pencil size={13} /> {isGenericClient ? "Cotizar" : "Editar"}
             </button>
           )}
           <button
@@ -327,7 +332,12 @@ export default function CotizacionDetailView({
               : <div className="w-[72px] h-[30px] bg-primary rounded-md flex items-center justify-center shrink-0"><span className="text-secondary text-[10px] font-black">LTT</span></div>}
             <div className="min-w-0">
               <p className="text-sm font-black text-primary truncate">{agencyName}</p>
-              <p className="text-[9px] font-bold text-primary/50 mt-0.5 truncate">{agencyPhone}{agencyAddress ? ` · ${agencyAddress}` : ""}</p>
+              <p className="text-[9px] font-bold text-primary/50 mt-0.5 truncate">
+                {[agencyEmail, agencyPhone].filter(Boolean).join(" · ")}
+              </p>
+              {agencyDescripcion && (
+                <p className="text-[8px] font-medium text-primary/40 mt-0.5 truncate max-w-[280px]">{agencyDescripcion}</p>
+              )}
             </div>
           </div>
           <div className="text-right shrink-0">
@@ -341,123 +351,93 @@ export default function CotizacionDetailView({
           </div>
         </div>
 
-        {/* Client + Trip — mini-tabla por sección: fila de encabezados + una fila de valores */}
-        <div className="mb-6 space-y-5">
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Datos Cliente</p>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr>
-                    {clientRows.filter(([, v]) => !!v).map(([label]) => (
-                      <th key={label} className="pb-1.5 pr-5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 whitespace-nowrap">
-                        {label}
-                      </th>
+        {/* Servicios Incluidos (izq.) + Datos Cliente/Detalles Viaje apilados (der.) — grid de 2 columnas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 mb-6">
+
+          {/* Servicios incluidos — el boleto va primero (es un servicio general del paquete,
+              no atado a un destino específico), luego actividades/traslados agrupados por
+              destino, todo en una sola lista vertical (sin columnas Actividades/Traslados). */}
+          {(() => {
+            const incluyeGrupos = (cot.paqueteIncluyeDestinos ?? []).filter((g) => g.actividades.length > 0 || g.traslados.length > 0);
+            const showFlatIncluye = incluyeGrupos.length === 0 && (cot.paqueteIncluye?.length ?? 0) > 0;
+            if (!cot.incluyeBoleto && incluyeGrupos.length === 0 && !showFlatIncluye) return <div />;
+            return (
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
+                {cot.incluyeBoleto && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary/10 text-secondary text-[9px] font-black uppercase tracking-wide rounded-md">
+                      ✓ Boleto Aéreo Incluido
+                    </span>
+                  </div>
+                )}
+                {incluyeGrupos.length > 0 && (
+                  <div className="space-y-3">
+                    {incluyeGrupos.map((g) => {
+                      const items = [...g.actividades.map(toServicioItem), ...g.traslados.map(toServicioItem)];
+                      return (
+                        <div key={g.destinoId}>
+                          <p className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wide text-primary bg-light px-2 py-1 rounded-md mb-1.5">
+                            <span className="w-1 h-1 rounded-full bg-secondary" />
+                            {g.destinoCiudad}
+                          </p>
+                          <ul className="space-y-2.5">
+                            {items.map((item, i) => (
+                              <li key={i} className="text-[10px]">
+                                <p className="font-bold text-primary flex items-start gap-1.5">
+                                  <span className="text-secondary shrink-0">✓</span>
+                                  <span>{item.nombre}</span>
+                                </p>
+                                {item.detalle && (
+                                  <p className="mt-1 ml-[18px] pl-2.5 border-l-2 border-secondary/20 text-[9.5px] font-medium text-primary/70 leading-relaxed whitespace-pre-line">
+                                    {item.detalle}
+                                  </p>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {showFlatIncluye && (
+                  <ul className="space-y-1.5">
+                    {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
+                      <li key={i} className="text-[10px] font-semibold text-primary">✓ {item}</li>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    {clientRows.filter(([, v]) => !!v).map(([label, value]) => (
-                      <td key={label} className="pt-2 pr-5 text-[11px] font-bold text-primary align-top break-words">
-                        {value}
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
+                  </ul>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Datos Cliente + Detalles Viaje — mini-tabla por sección, apiladas en la misma columna */}
+          <div className="space-y-5">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Datos Cliente</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                {clientRows.filter(([, v]) => !!v).map(([label, value]) => (
+                  <div key={label}>
+                    <p className="text-[8px] font-black uppercase tracking-wide text-primary/40">{label}</p>
+                    <p className="text-[11px] font-bold text-primary break-words mt-0.5">{value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Detalles Viaje</p>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr>
-                    {tripRows.filter(([, v]) => !!v).map(([label]) => (
-                      <th key={label} className="pb-1.5 pr-5 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 whitespace-nowrap">
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    {tripRows.filter(([, v]) => !!v).map(([label, value]) => (
-                      <td key={label} className="pt-2 pr-5 text-[11px] font-bold text-primary align-top break-words">
-                        {value}
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Detalles Viaje</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                {tripRows.filter(([, v]) => !!v).map(([label, value]) => (
+                  <div key={label}>
+                    <p className="text-[8px] font-black uppercase tracking-wide text-primary/40">{label}</p>
+                    <p className="text-[11px] font-bold text-primary break-words mt-0.5">{value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Servicios incluidos — el boleto va primero (es un servicio general del paquete,
-            no atado a un destino específico), luego actividades/traslados agrupados por
-            destino (o la lista plana anterior, para cotizaciones guardadas antes de ese campo). */}
-        {(() => {
-          const incluyeGrupos = (cot.paqueteIncluyeDestinos ?? []).filter((g) => g.actividades.length > 0 || g.traslados.length > 0);
-          const showFlatIncluye = incluyeGrupos.length === 0 && (cot.paqueteIncluye?.length ?? 0) > 0;
-          if (!cot.incluyeBoleto && incluyeGrupos.length === 0 && !showFlatIncluye) return null;
-          return (
-            <div className="mb-6">
-              <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">Servicios Incluidos</p>
-              {cot.incluyeBoleto && (
-                <div className="mb-3">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary/10 text-secondary text-[9px] font-black uppercase tracking-wide rounded-md">
-                    ✓ Boleto Aéreo Incluido
-                  </span>
-                </div>
-              )}
-              {incluyeGrupos.length > 0 && (
-                <div className="space-y-3">
-                  {incluyeGrupos.map((g) => (
-                    <div key={g.destinoId}>
-                      <p className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wide text-primary bg-light px-2 py-1 rounded-md mb-1.5">
-                        <span className="w-1 h-1 rounded-full bg-secondary" />
-                        {g.destinoCiudad}
-                      </p>
-                      <table className="w-full border-collapse text-left">
-                        <thead>
-                          <tr>
-                            {g.actividades.length > 0 && (
-                              <th className="pb-1 pr-5 border-b border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 w-1/2">Actividades</th>
-                            )}
-                            {g.traslados.length > 0 && (
-                              <th className="pb-1 pr-5 border-b border-gray-100 text-[8px] font-black uppercase tracking-wide text-primary/40 w-1/2">Traslados</th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            {g.actividades.length > 0 && (
-                              <td className="pt-1.5 pr-5 text-[10px] font-semibold text-primary align-top">{g.actividades.join(" · ")}</td>
-                            )}
-                            {g.traslados.length > 0 && (
-                              <td className="pt-1.5 pr-5 text-[10px] font-semibold text-primary align-top">{g.traslados.join(" · ")}</td>
-                            )}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {showFlatIncluye && (
-                <div className="flex flex-wrap gap-1.5">
-                  {(cot.paqueteIncluye ?? []).map((item: string, i: number) => (
-                    <span key={i} className="px-2 py-1 bg-light text-primary text-[9px] font-bold rounded-md border border-secondary/40">
-                      ✓ {item}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })()}
 
         {/* Combinaciones / Hoteles por destino — table rows, like the printed document */}
         {hasCombos && (

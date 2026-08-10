@@ -66,29 +66,25 @@ export default function CotizacionDocumentPage() {
   const [error, setError] = useState<string | null>(null);
 
   // No placeholder defaults — the document renders only once this (and `cot`) resolve,
-  // so nothing fake ("Viajes Andina Tours" etc.) can flash before the real DB data.
+  // so nothing fake ("Viajes Andina Tours" etc.) can flash before the real DB data. Every
+  // field comes straight from `Agencia` (BD, gestionada por lt-core-admin) — nunca
+  // localStorage (esa tabla no tiene columna `direccion`; el viejo hack de Marca Blanca
+  // guardaba una dirección inventada ahí, ya no se usa aquí).
   const [agencyName, setAgencyName] = useState("");
+  const [agencyEmail, setAgencyEmail] = useState("");
   const [agencyPhone, setAgencyPhone] = useState("");
-  const [agencyAddress, setAgencyAddress] = useState("");
+  const [agencyDescripcion, setAgencyDescripcion] = useState("");
   const [agencyLogo, setAgencyLogo] = useState<string | null>(null);
   const [isLoadingAgency, setIsLoadingAgency] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("agencyConfig");
-    if (saved) {
-      try {
-        const cfg = JSON.parse(saved);
-        if (cfg.agencyName)    setAgencyName(cfg.agencyName);
-        if (cfg.agencyPhone)   setAgencyPhone(cfg.agencyPhone);
-        if (cfg.agencyAddress) setAgencyAddress(cfg.agencyAddress);
-      } catch {}
-    }
     fetch("/api/agency/config")
       .then((r) => r.json())
       .then((data) => {
-        if (data?.nombre)   setAgencyName(data.nombre);
-        if (data?.telefono) setAgencyPhone(data.telefono);
-        // logoUrl vive en Agencia (BD, gestionado desde lt-core-admin) — nunca localStorage.
+        setAgencyName(data?.nombre ?? "");
+        setAgencyEmail(data?.correo ?? "");
+        setAgencyPhone(data?.telefono ?? "");
+        setAgencyDescripcion(data?.descripcion ?? "");
         setAgencyLogo(data?.logoUrl ?? null);
       })
       .catch(() => {})
@@ -135,8 +131,9 @@ export default function CotizacionDocumentPage() {
       <CotizacionDetailView
         cot={cot}
         agencyName={agencyName}
+        agencyEmail={agencyEmail}
         agencyPhone={agencyPhone}
-        agencyAddress={agencyAddress}
+        agencyDescripcion={agencyDescripcion}
         agencyLogo={agencyLogo}
       />
     </div>

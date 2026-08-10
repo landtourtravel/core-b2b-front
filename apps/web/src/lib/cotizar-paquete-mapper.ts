@@ -35,11 +35,16 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
   const destinosList = [...destinosMap.values()];
   const primerDestino = destinosList[0];
 
-  // Deduplicate hotels by id (PaqueteHotelRef has one row per hotelId+tipoHabitacion)
+  // Deduplicate hotels by id, but ACCUMULATE `habitaciones` across every PaqueteHotelRef
+  // row for that hotel — a hotel can have several rows (one per tipoHabitacion, e.g.
+  // SGL+DBL+TPL+CHD) that together define the package's base room composition. Metadata
+  // (nombre/tarifas/politicaNinos) is only set from the FIRST row seen for that hotel.
   const hotelesMap = new Map<number, CotPaqueteHotel>();
   p.hoteles.forEach((ph) => {
-    if (ph.hotel && !hotelesMap.has(ph.hotel.id)) {
-      hotelesMap.set(ph.hotel.id, {
+    if (!ph.hotel) return;
+    let entry = hotelesMap.get(ph.hotel.id);
+    if (!entry) {
+      entry = {
         id: ph.hotel.id,
         nombre: ph.hotel.nombre,
         estrellas: ph.hotel.estrellas,
@@ -58,8 +63,11 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
           precio: pol.precio ?? null,
           tarifaChdId: pol.tarifaChdId ?? null,
         })),
-      });
+        habitaciones: [],
+      };
+      hotelesMap.set(ph.hotel.id, entry);
     }
+    entry.habitaciones.push({ tipoHabitacion: ph.tipoHabitacion, cantidad: ph.cantidad });
   });
 
   const hotelTarifas: { hotelId: number; tipoHabitacion: string; precioBase: number }[] = [];
@@ -91,6 +99,7 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
     permitirModificarBoleto: p.permitirModificarBoleto,
     permitirModificarNoches: p.permitirModificarNoches,
     ajustePrecio: p.ajustePrecio ?? 0,
+    gananciaAgencia: p.gananciaAgencia ?? 0,
     destinoCiudad: primerDestino?.ciudad ?? "",
     destinoPais: primerDestino?.pais ?? "",
     destinos: destinosList,

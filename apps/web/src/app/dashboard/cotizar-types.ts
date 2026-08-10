@@ -30,6 +30,14 @@ export interface CotPaqueteHotel {
   destinoId: number; destinoCiudad: string; noches: number;
   tarifas: { id: number; tipoHabitacion: string; precioBase: number }[];
   politicaNinos: CotPoliticaNinos[];
+  /**
+   * Composición real de habitaciones que el admin configuró para este hotel dentro del
+   * paquete (`PaqueteHotel.tipoHabitacion`+`cantidad`, una fila por tipo — puede incluir
+   * "CHD"). La ocupación BASE del paquete (`Paquete.numPax`) puede ser una MEZCLA de tipos
+   * (ej. 1 SGL + 1 DBL + 1 TPL = 6 adultos), no necesariamente un solo tipoPax — por eso
+   * `numPaxToTipoPax` no basta para reconstruir la ocupación base. Ver `calcHotelBreakdownFromRoomMix`.
+   */
+  habitaciones: { tipoHabitacion: string; cantidad: number }[];
 }
 /** One day of `ItinerarioDiaRef`, mapped for display (no `location` field — table has none). */
 export interface CotPaqueteItinerarioDia { day: number; title: string; description: string }
@@ -39,8 +47,10 @@ export interface CotPaquete {
   precioBoletoNino: number | null; descripcionBoletoNino: string | null;
   visibleBoleto: boolean;
   permitirModificarBoleto: boolean; permitirModificarNoches: boolean;
-  /** Ajuste de precio mínimo fijado por el admin (Land Tour Travel) — piso de la comisión de agencia. */
+  /** Ajuste de precio (puede ser negativo — oferta/descuento del admin). Ya NO se usa como piso de comisión. */
   ajustePrecio: number;
+  /** Ganancia de agencia fijada por el admin (Land Tour Travel) — piso real de la comisión, siempre >= 0. */
+  gananciaAgencia: number;
   destinoCiudad: string; destinoPais: string;
   destinos: CotPaqueteDestino[];
   hoteles: CotPaqueteHotel[];

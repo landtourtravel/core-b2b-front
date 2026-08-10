@@ -76,20 +76,27 @@ export async function POST(req: NextRequest) {
   const MAX_PRICE = 1_000_000;
   const isValidAmount = (v: unknown): v is number =>
     typeof v === "number" && isFinite(v) && v >= 0 && v <= MAX_PRICE;
+  // `markup` incluye la comisión de agencia (siempre >= 0, piso `Paquete.gananciaAgencia`) MÁS
+  // el ajuste de precio automático del paquete (`Paquete.ajustePrecio`), que puede ser negativo
+  // (descuento del admin) — el neto puede quedar negativo si el descuento supera la comisión.
+  const isValidMarkup = (v: unknown): v is number =>
+    typeof v === "number" && isFinite(v) && v >= -MAX_PRICE && v <= MAX_PRICE;
   const isValidCount = (v: unknown): v is number =>
     typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 99;
   if (
     !isValidAmount(subtotal) ||
     !isValidAmount(total) ||
-    !isValidAmount(markup) ||
+    !isValidMarkup(markup) ||
     !isValidCount(cantSGL) || !isValidCount(cantDBL) ||
     !isValidCount(cantTPL) || !isValidCount(cantQUAD) || !isValidCount(cantCHD)
   ) {
     return NextResponse.json({ error: "Valores numéricos inválidos" }, { status: 400 });
   }
-  if (total < subtotal) {
+  // `total` ya no debe ser siempre >= subtotal: un ajuste de precio negativo puede llevarlo
+  // por debajo del subtotal (alojamiento+servicios). Solo se valida que no sea negativo.
+  if (total < 0) {
     return NextResponse.json(
-      { error: "El total no puede ser menor al subtotal" },
+      { error: "El total no puede ser negativo" },
       { status: 400 }
     );
   }

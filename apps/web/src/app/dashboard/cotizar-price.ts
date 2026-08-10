@@ -372,6 +372,148 @@ export function calcHotelBreakdown(
   };
 }
 
+// ── Ocupación base mixta (varios tipos de habitación a la vez) ─────────────────
+// `numPaxToTipoPax` asume que TODO el grupo cabe en un solo tipo de habitación (máx. 4
+// adultos). Un paquete puede declarar su ocupación BASE combinando varias habitaciones
+// (ej. 1 SGL + 1 DBL + 1 TPL = 6 adultos) vía `PaqueteHotel.tipoHabitacion`+`cantidad`
+// (ver `CotPaqueteHotel.habitaciones`) — no hay una sola "etiqueta" para ese paquete.
+
+export type RoomMixEntry = { tipoHabitacion: string; cantidad: number };
+export type RoomMixDetalle = {
+  tipoHabitacion: string; cantidad: number;
+  precioPorPersona: number; precioUnitario: number; subtotal: number;
+};
+export type HotelBreakdownMix = HotelBreakdown & {
+  /** Adultos que caben en la mezcla de habitaciones configurada (filas CHD excluidas). */
+  numAdultosRooms: number;
+  /** Desglose por tipo de habitación — una fila por tipo, cantidad ya agregada. */
+  roomDetalle: RoomMixDetalle[];
+};
+
+/**
+ * Mismo resultado que `calcHotelBreakdown`, pero para paquetes cuya ocupación BASE es una
+ * MEZCLA de tipos de habitación en vez de un solo tipoPax para todo el grupo — las filas
+ * `PaqueteHotel` (tipoHabitacion+cantidad) de este hotel son la fuente de verdad de cuántas
+ * habitaciones de cada tipo ofrece.
+ *
+ * `numAdultos` (bracket de servicios/boleto/markup) se recibe explícito — debe ser
+ * `Paquete.numPax` (autoritativo), NO derivarse de la mezcla, para que una inconsistencia
+ * en `PaqueteHotel.cantidad` de un hotel puntual no cambie cuántos boletos/markups se cobran.
+ * La mezcla solo fija el monto de ALOJAMIENTO (money-safe: el total en dólares de cada tipo
+ * de habitación no depende de `numAdultos`, solo de su propia cantidad/ocupación).
+ *
+ * El cálculo de servicios/niños es una copia exacta del de `calcHotelBreakdown` — mantener
+ * ambos sincronizados si esa fórmula cambia.
+ */
+export function calcHotelBreakdownFromRoomMix(
+  hotel: CotHelperHotel,
+  habitaciones: RoomMixEntry[],
+  cotNinosEdades: number[],
+  numAdultos: number,
+  actividades: CotHelperActividad[],
+  traslados: CotHelperTraslado[],
+  flightActive: boolean,
+  flightPrice: number,
+  agencyMarkup: number,
+  noches: number,
+  flightPriceChild: number = flightPrice
+): HotelBreakdownMix {
+  const numNinos = cotNinosEdades.length;
+  const totalPax = numAdultos + numNinos;
+  const nights = Math.max(1, noches);
+
+  // ── Alojamiento a partir de la mezcla real (filas CHD excluidas — los niños se
+  // cuentan/tarifan vía `cotNinosEdades`, no vía una fila "CHD" de PaqueteHotel). ──
+  const rooms = habitaciones.filter((h) => h.tipoHabitacion !== "CHD" && h.cantidad > 0);
+  let numAdultosRooms = 0;
+  let adultAccomTotal = 0;
+  const roomDetalle: RoomMixDetalle[] = rooms.map((r) => {
+    const occupancy = PAX_BY_TYPE[r.tipoHabitacion] ?? 1;
+    const precioPorPersona = getAdultAccomPrice(hotel, r.tipoHabitacion) * nights;
+    const precioUnitario = precioPorPersona * occupancy;
+    const subtotal = precioUnitario * r.cantidad;
+    numAdultosRooms += occupancy * r.cantidad;
+    adultAccomTotal += subtotal;
+    return { tipoHabitacion: r.tipoHabitacion, cantidad: r.cantidad, precioPorPersona, precioUnitario, subtotal };
+  });
+  const adultAccomPerAdult = numAdultos > 0 ? adultAccomTotal / numAdultos : 0;
+  // Fallback para niños cuya edad no cae en ninguna PoliticaNinos (último recurso de
+  // `getChildPriceForAge`) — se usa la tarifa del primer tipo de habitación configurado.
+  const fallbackAdultRate = rooms.length > 0 ? getAdultAccomPrice(hotel, rooms[0].tipoHabitacion) : 0;
+
+  const childResults = cotNinosEdades.map((age) => getChildPriceForAge(hotel, age, fallbackAdultRate));
+  const childAccomTotal = childResults.reduce((s, r) => s + r.precio * nights, 0);
+
+  const actPerPax = actividades.reduce((s, a) => s + getActividadAdultPerPax(a.tarifas, numAdultos), 0);
+  const trsPerPax = traslados.reduce((s, t) => s + getTrasladoPerPax(t.tarifas, numAdultos), 0);
+  const servicesPerPax = actPerPax + trsPerPax;
+
+  const childActPerChild = actividades.reduce((s, a) => s + getActividadChildPerPax(a.tarifas, numNinos), 0);
+  const childTrsPerChild = traslados.reduce((s, t) => {
+    const adultPerPax = getTrasladoPerPax(t.tarifas, numAdultos);
+    const childPerPax = getTrasladoChildPerPax(t.tarifas, numNinos) ?? adultPerPax;
+    return s + childPerPax;
+  }, 0);
+  const childServicesTotal = numNinos > 0 ? numNinos * (childActPerChild + childTrsPerChild) : 0;
+  const childSupplementPerAdult = numAdultos > 0 ? (childAccomTotal + childServicesTotal) / numAdultos : 0;
+
+  const accomTotal = adultAccomTotal + childAccomTotal;
+  const adultServicesTotal = servicesPerPax * numAdultos;
+  const servicesLocalTotal = adultServicesTotal + childServicesTotal;
+  const stopTotal = accomTotal + servicesLocalTotal;
+
+  const boletoPerPax = flightActive ? flightPrice : 0;
+  const boletoChildPerPax = flightActive ? flightPriceChild : 0;
+  const markupPerPax = agencyMarkup;
+  const boletoAdultoTotal = boletoPerPax * numAdultos;
+  const boletoChildTotal = boletoChildPerPax * numNinos;
+  const boletoTotal = boletoAdultoTotal + boletoChildTotal;
+  const sharedTotal = boletoTotal + agencyMarkup * totalPax;
+
+  const adultColPerPax = adultAccomPerAdult + servicesPerPax;
+  const subtotal = stopTotal;
+  const total = stopTotal + sharedTotal;
+  const pricePerPax = adultColPerPax + childSupplementPerAdult + boletoPerPax + markupPerPax;
+
+  return {
+    noches: nights,
+    occupancy: numAdultosRooms,
+    adultAccomPerAdult, actPerPax, trsPerPax, servicesPerPax,
+    childResults, childAccomTotal, childServicesTotal, childSupplementPerAdult,
+    adultAccomTotal, adultServicesTotal, accomTotal, servicesLocalTotal, stopTotal,
+    boletoPerPax, boletoChildPerPax, markupPerPax, boletoAdultoTotal, boletoChildTotal, boletoTotal, sharedTotal,
+    adultColPerPax, subtotal, total, pricePerPax, avgChildPerPax: childSupplementPerAdult,
+    numAdultosRooms, roomDetalle,
+  };
+}
+
+/**
+ * Combina el desglose por tipo de habitación de varias "legs" (una por destino, en un
+ * paquete multi-destino) en una sola lista — una fila por tipo, cantidades y subtotales
+ * sumados. Evita mostrar/guardar el mismo tipo dos veces cuando 2+ destinos usan, por
+ * ejemplo, ambos una DBL: se guarda UNA fila "DBL" con `cantidad` combinada y el precio
+ * (`precioUnitario`/`precioPorPersona`) recalculado desde el subtotal agregado, así que
+ * `subtotal === precioUnitario × cantidad` se mantiene exacto tras la fusión.
+ */
+export function mergeRoomDetalle(perLeg: RoomMixDetalle[][]): RoomMixDetalle[] {
+  const merged = new Map<string, { tipoHabitacion: string; cantidad: number; subtotal: number }>();
+  perLeg.flat().forEach((r) => {
+    const existing = merged.get(r.tipoHabitacion);
+    if (existing) {
+      existing.cantidad += r.cantidad;
+      existing.subtotal += r.subtotal;
+    } else {
+      merged.set(r.tipoHabitacion, { tipoHabitacion: r.tipoHabitacion, cantidad: r.cantidad, subtotal: r.subtotal });
+    }
+  });
+  return [...merged.values()].map((r) => {
+    const occupancy = PAX_BY_TYPE[r.tipoHabitacion] ?? 1;
+    const precioUnitario = r.cantidad > 0 ? r.subtotal / r.cantidad : 0;
+    const precioPorPersona = occupancy > 0 ? precioUnitario / occupancy : 0;
+    return { tipoHabitacion: r.tipoHabitacion, cantidad: r.cantidad, precioPorPersona, precioUnitario, subtotal: r.subtotal };
+  });
+}
+
 // ── Multi-destino combinations ────────────────────────────────────────────────
 // A "combination" is one chosen hotel per destino (e.g. París H1 + Cancún H2). The
 // helpers below build every combination (cartesian product) and price it with the
@@ -447,10 +589,15 @@ export type ComboTotals = {
 /**
  * Aggregates one combination (one leg per destino) into per-person adult/child prices.
  * Boleto (adult + child fares) is added ONCE for the whole combo, split by passenger type.
- * `agencyMarkup` is a PER-PERSON amount (matches lt-core-admin's `Paquete.ajustePrecio`,
- * labeled "Ajuste por persona" — added to each traveler's price, NOT a pool divided across
- * the group), so it is added once per adult AND once per child (not split proportionally):
- * `precioAdulto × numAdultos + precioNino × numNinos === total`.
+ * `agencyMarkup` is a PER-PERSON amount — added to each traveler's price, NOT a pool divided
+ * across the group — so it is added once per adult AND once per child (not split
+ * proportionally): `precioAdulto × numAdultos + precioNino × numNinos === total`. Callers
+ * (page.tsx `cotEffectiveMarkup`, quick/route.ts `markup`) fold TWO sources into this single
+ * value: `Paquete.gananciaAgencia` (agency's guaranteed minimum profit, always >= 0, editable
+ * upward by the agent) PLUS `Paquete.ajustePrecio` (the admin's automatic price adjustment,
+ * can be negative for a discount) — the net can go negative if the discount outweighs the
+ * commission. This function itself is agnostic to that split; it just adds whatever value it
+ * receives once per adult and once per child.
  */
 export function combineComboLegs(
   legs: ComboLeg[],
@@ -558,7 +705,7 @@ export function numPaxToTipoPax(n: number): "SGL" | "DBL" | "TPL" | "QUAD" | nul
 // Usado tanto por el wizard (catálogo y libre) como por la cotización rápida para
 // construir el snapshot que el documento de cotización renderiza separado por
 // destino/tipo (actividades vs. traslados) en vez de una lista plana.
-export type IncluyeItem = { destinoId: number; destinoCiudad: string; label: string };
+export type IncluyeItem = { destinoId: number; destinoCiudad: string; label: string; detalle?: string | null };
 
 export function groupIncluyeByDestino(actividades: IncluyeItem[], traslados: IncluyeItem[]): IncluyeDestinoGroup[] {
   const map = new Map<number, IncluyeDestinoGroup>();
@@ -567,7 +714,7 @@ export function groupIncluyeByDestino(actividades: IncluyeItem[], traslados: Inc
     if (!g) { g = { destinoId, destinoCiudad, actividades: [], traslados: [] }; map.set(destinoId, g); }
     return g;
   };
-  actividades.forEach((a) => group(a.destinoId, a.destinoCiudad).actividades.push(a.label));
-  traslados.forEach((t) => group(t.destinoId, t.destinoCiudad).traslados.push(t.label));
+  actividades.forEach((a) => group(a.destinoId, a.destinoCiudad).actividades.push({ nombre: a.label, detalle: a.detalle ?? undefined }));
+  traslados.forEach((t) => group(t.destinoId, t.destinoCiudad).traslados.push({ nombre: t.label, detalle: t.detalle ?? undefined }));
   return [...map.values()];
 }

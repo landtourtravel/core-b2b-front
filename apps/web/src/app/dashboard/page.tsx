@@ -56,6 +56,7 @@ import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
 import { QUICK_QUOTE_PENDING_KEY } from "./components/PaqueteDetailView";
 import { EDIT_COT_PENDING_KEY } from "./components/CotizacionDetailView";
+import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
@@ -456,14 +457,15 @@ export default function DashboardPage() {
     setCotFlightPriceChild(pkg?.precioBoletoNino ?? pkg?.precioBoleto ?? 0);
   }, [cotMode, cotSelectedPkgId, cotizarData, cotFlightOverride]);
 
-  // El admin fija en el paquete (`ajustePrecio`) un piso de comisión — la ganancia mínima
-  // garantizada para Land Tour Travel. Al elegir un paquete, se precarga ese valor en el
+  // El admin fija en el paquete (`gananciaAgencia`) un piso de comisión — la ganancia mínima
+  // garantizada para la agencia. Al elegir un paquete, se precarga ese valor en el
   // campo de comisión de agencia; el asesor puede subirlo pero el input nunca queda por
-  // debajo (ver `min`/`onBlur` en el input y `cotMarkupFloor` más abajo).
+  // debajo (ver `min`/`onBlur` en el input y `cotMarkupFloor` más abajo). Ya NO se usa
+  // `ajustePrecio` (puede ser negativo — es un descuento/oferta del admin, no una ganancia).
   useEffect(() => {
     if (cotMode !== "catalogo") return;
     const pkg = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
-    setAgencyMarkup(pkg?.ajustePrecio ?? 0);
+    setAgencyMarkup(pkg?.gananciaAgencia ?? 0);
   }, [cotMode, cotSelectedPkgId, cotizarData]);
 
   // (#5) Reset per-destino extra nights whenever the selected package changes.
@@ -579,7 +581,16 @@ export default function DashboardPage() {
   const cotBoletoVisible =
     cotMode !== "catalogo" || (cotSelectedPkg?.visibleBoleto ?? true);
   // Piso de comisión fijado por el admin en el paquete — la agencia solo puede aumentarlo.
-  const cotMarkupFloor = cotMode === "catalogo" ? (cotSelectedPkg?.ajustePrecio ?? 0) : 0;
+  const cotMarkupFloor = cotMode === "catalogo" ? (cotSelectedPkg?.gananciaAgencia ?? 0) : 0;
+  // Ajuste de precio del paquete (`Paquete.ajustePrecio`) — automático, NO editable por el
+  // asesor (a diferencia de `agencyMarkup`/comisión). Puede ser negativo (descuento/oferta
+  // del admin) o positivo (recargo); se aplica igual que la comisión: por persona, sumado
+  // una vez por cada adulto Y una vez por cada niño (ver combineComboLegs). El asesor nunca
+  // ve este número por separado — solo se refleja en el total final.
+  const cotAjustePrecio = cotMode === "catalogo" ? (cotSelectedPkg?.ajustePrecio ?? 0) : 0;
+  // Monto por-persona que se pasa a combineComboLegs/hotelPerDestinoPrice/calcHotelBreakdown
+  // en lugar de `agencyMarkup` crudo: comisión editable + ajuste automático del paquete.
+  const cotEffectiveMarkup = agencyMarkup + cotAjustePrecio;
   // (#5) Total extra nights across all destinos (per-destino counters are summed here).
   const cotExtraNights = Object.values(cotExtraNightsByDestino).reduce((a, b) => a + b, 0);
 
@@ -590,6 +601,12 @@ export default function DashboardPage() {
     h.tarifas.some((t) => t.tipoHabitacion === "CHD");
   const hotelAptoNinos = (h: { tarifas: { tipoHabitacion: string; precioBase: number }[] }) =>
     cotNumNinos <= 0 || hotelHasChildRate(h);
+  // Orden "más económico primero": tarifa adulto (DBL, con fallback a SGL) por noche —
+  // misma base per-persona que usa el motor de precios (cotizar-price.ts).
+  const hotelAccomSortPrice = (h: { tarifas: { tipoHabitacion: string; precioBase: number }[] }, tipoPax: string = "DBL") =>
+    h.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase
+    ?? h.tarifas.find((t) => t.tipoHabitacion === "SGL")?.precioBase
+    ?? 0;
   // Multi-destino: all selected destino objects (primary + extra)
   const cotAllDestinoIds  = cotIsMultiDestino
     ? ([cotSelectedDestinoId, ...cotExtraDestinoIds].filter((id): id is number => id !== null && id !== 0))
@@ -692,10 +709,7 @@ export default function DashboardPage() {
   const cotFechaRetorno = cotFechaSalida
     ? (() => {
         const d = new Date(cotFechaSalida + "T00:00:00");
-        const dias = cotMode === "catalogo"
-          ? (cotSelectedPkg?.diasEstancia ?? cotCustomDias) + cotExtraNights
-          : cotCustomDias;
-        d.setDate(d.getDate() + dias);
+        d.setDate(d.getDate() + cotNoches);
         return d.toISOString().split("T")[0];
       })()
     : "";
@@ -734,7 +748,7 @@ export default function DashboardPage() {
               // actividades/traslados. Boleto/markup are global (added once per combo).
               cotSelectedPkg!.actividades.filter((a) => a.destinoId === hotel.destinoId),
               cotSelectedPkg!.traslados.filter((t) => t.destinoId === hotel.destinoId),
-              cotFlightActive, cotBoletoAdultoPerPax, agencyMarkup,
+              cotFlightActive, cotBoletoAdultoPerPax, cotEffectiveMarkup,
               cotHotelNoches(hotel),
               cotBoletoNinoPerPax,
             ),
@@ -773,7 +787,7 @@ export default function DashboardPage() {
       }));
       const totals = combineComboLegs(
         comboLegs, cotNumPersonas, cotNumNinos,
-        cotBoletoAdultoPerPax, cotBoletoNinoPerPax, agencyMarkup,
+        cotBoletoAdultoPerPax, cotBoletoNinoPerPax, cotEffectiveMarkup,
       );
       return { legs, totals };
     });
@@ -902,7 +916,7 @@ export default function DashboardPage() {
       }));
       const totals = combineComboLegs(
         comboLegs, cotNumPersonas, cotNumNinos,
-        cotBoletoAdultoPerPaxLibre, cotBoletoNinoPerPaxLibre, agencyMarkup,
+        cotBoletoAdultoPerPaxLibre, cotBoletoNinoPerPaxLibre, cotEffectiveMarkup,
       );
       return { legs, totals };
     });
@@ -979,8 +993,13 @@ export default function DashboardPage() {
   const cotBoletoTotal = cotMode === "catalogo"
     ? (cotCatRep?.boletoTotal ?? 0)
     : (cotFlightActive ? cotFlightPrice * cotNumPersonas + cotFlightPriceChild * cotNumNinos : 0);
-  // total = subtotal + boleto + markup (markup invisible al cliente)
-  const cotTotal = cotSubtotal + cotBoletoTotal + agencyMarkup;
+  // total = subtotal + boleto + markup (markup invisible al cliente). Se toma directo del
+  // combo representativo (ya multiplicado por persona vía combineComboLegs) en vez de sumar
+  // `agencyMarkup` una sola vez — antes este cálculo NO multiplicaba la comisión por la
+  // cantidad de pasajeros, subestimando el total guardado con 2+ pax y comisión > 0.
+  const cotTotal = cotMode === "catalogo"
+    ? (cotCatRepCombo?.totals.total ?? 0)
+    : (cotLibreRepCombo?.totals.total ?? 0);
 
   // In catalog mode cotHabs is auto-derived so adults always match; only warn in libre mode.
   const cotAdultRoomPax = Object.entries(cotHabs)
@@ -1100,6 +1119,11 @@ export default function DashboardPage() {
       // (creadas antes de que este campo existiera, o por un flujo que aún no lo guardaba,
       // ej. cotización rápida antes de este fix).
       const pax = cot.pasajeros ?? {};
+      // Cotización rápida (cliente genérico, ver GENERIC_CLIENT_EMAIL): siempre entra al
+      // wizard con 0 niños, sin importar lo que traiga guardado — la cotización rápida no
+      // pregunta por niños, así que ese dato nunca fue una decisión real de la agencia.
+      // Es la agencia quien decide si van niños y cuántos al convertirla en una cotización real.
+      const isQuickQuoteEdit = cot.cliente?.email === GENERIC_CLIENT_EMAIL;
       const REV_TIPO: [string, number][] = [["cantSGL", 1], ["cantDBL", 2], ["cantTPL", 3], ["cantQUAD", 4]];
       const fallbackNumPersonas = REV_TIPO.find(([key]) => (pax[key] ?? 0) > 0)?.[1] ?? 2;
       const fallbackHotelIds: number[] = Array.isArray(cot.hotelsComparison)
@@ -1131,8 +1155,8 @@ export default function DashboardPage() {
       setCotLibreActSel(get("cotLibreActSel", {}));
       setCotLibreTrsSel(get("cotLibreTrsSel", {}));
       setCotNumPersonas(get("cotNumPersonas", fallbackNumPersonas));
-      setCotNumNinos(get("cotNumNinos", pax.cantCHD ?? 0));
-      setCotNinosEdades(get("cotNinosEdades", Array(pax.cantCHD ?? 0).fill(5)));
+      setCotNumNinos(isQuickQuoteEdit ? 0 : get("cotNumNinos", pax.cantCHD ?? 0));
+      setCotNinosEdades(isQuickQuoteEdit ? [] : get("cotNinosEdades", Array(pax.cantCHD ?? 0).fill(5)));
       setCotFromQuickQuote(get("cotFromQuickQuote", true));
 
       setEditingCotId(id);
@@ -1204,7 +1228,7 @@ export default function DashboardPage() {
         ...cotSelectedPkg.traslados.map((t) => t.tipo),
       ];
       paqueteIncluyeDestinos = groupIncluyeByDestino(
-        cotSelectedPkg.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre })),
+        cotSelectedPkg.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre, detalle: a.descripcion })),
         cotSelectedPkg.traslados.map((t) => ({ destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
       );
     } else if (cotMode === "libre" && cotAllDestinos.length > 0) {
@@ -1223,7 +1247,7 @@ export default function DashboardPage() {
       paqueteIncluyeDestinos = groupIncluyeByDestino(
         cotAllDestinos.flatMap((d) => d.actividades
           .filter((a) => cotLibreActSel[a.id])
-          .map((a) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: a.nombre }))),
+          .map((a) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: a.nombre, detalle: a.descripcion }))),
         cotAllDestinos.flatMap((d) => d.traslados
           .filter((t) => cotLibreTrsSel[t.id])
           .map((t) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: t.tipo }))),
@@ -1245,7 +1269,7 @@ export default function DashboardPage() {
     // agencyMarkup es POR PERSONA (ver combineComboLegs en cotizar-price.ts) — se multiplica
     // por el total de pax, no se divide.
     const cotLibreTotalPax = cotNumPersonas + cotNumNinos;
-    const cotLibreSharedTotal = cotBoletoTotal + agencyMarkup * cotLibreTotalPax;
+    const cotLibreSharedTotal = cotBoletoTotal + cotEffectiveMarkup * cotLibreTotalPax;
     const hotelsComparison: HotelCompSnapshot[] =
       cotMode === "catalogo" && cotCatBreakdowns.length > 0
         ? cotCatBreakdowns.map(({ hotel, bd }) => {
@@ -1282,7 +1306,7 @@ export default function DashboardPage() {
             const childSupplementPerAdult = cotNumPersonas > 0
               ? (b.childAccomTotal + b.childServicesTotal) / cotNumPersonas
               : 0;
-            const pricePerPax = b.adultColPerPax + childSupplementPerAdult + cotBoletoAdultoPerPaxLibre + agencyMarkup;
+            const pricePerPax = b.adultColPerPax + childSupplementPerAdult + cotBoletoAdultoPerPaxLibre + cotEffectiveMarkup;
             return {
               hotelId:          b.hotel.id,
               nombre:           b.hotel.nombre,
@@ -1344,7 +1368,7 @@ export default function DashboardPage() {
         precioBoleto: cotFlightActive && cotFlightPrice > 0 ? cotFlightPrice : undefined,
       },
       subtotal:      r2(cotSubtotal),
-      markup:        r2(agencyMarkup),
+      markup:        r2(cotEffectiveMarkup),
       total:         r2(cotTotal),
       fechaViaje:    cotFechaSalida  || undefined,
       fechaRetorno:  cotFechaRetorno || undefined,
@@ -1405,7 +1429,7 @@ export default function DashboardPage() {
             cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
             precioSGL:  getSavePrice("SGL"),  precioDBL:  getSavePrice("DBL"),
             precioTPL:  getSavePrice("TPL"),  precioQUAD: getSavePrice("QUAD"), precioCHD: getSavePrice("CHD"),
-            subtotal: r2(cotSubtotal), markup: r2(agencyMarkup), total: r2(cotTotal),
+            subtotal: r2(cotSubtotal), markup: r2(cotEffectiveMarkup), total: r2(cotTotal),
             precioBoleto: cotFlightActive && cotFlightPrice > 0 ? r2(cotFlightPrice) : null,
             fechaViaje:   cotFechaSalida   || null,
             fechaRetorno: cotFechaRetorno  || null,
@@ -2333,7 +2357,11 @@ export default function DashboardPage() {
                             <div className="space-y-4">
                               {cotAllDestinos.map((destino) => {
                                 // (#4) Con niños, ocultar hoteles sin tarifa CHD válida.
-                                const hotelsPorDestino = destino.hoteles.filter(hotelAptoNinos);
+                                // Orden: más económico primero (tarifa DBL/noche).
+                                const hotelsPorDestino = destino.hoteles
+                                  .filter(hotelAptoNinos)
+                                  .slice()
+                                  .sort((a, b) => hotelAccomSortPrice(a) - hotelAccomSortPrice(b));
                                 return (
                                   <div key={destino.id} className={cotIsMultiDestino ? "p-4 bg-light border border-lighter rounded-2xl space-y-3" : "space-y-4"}>
                                     {/* Título de destino solo en multidestino */}
@@ -2576,11 +2604,12 @@ export default function DashboardPage() {
                                 </p>
                               </div>
                             )}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                            <div className={`grid grid-cols-1 ${cotSelectedPkg.destinos.length > 1 ? "lg:grid-cols-2" : ""} gap-6 items-start`}>
                               {cotSelectedPkg.destinos.map((destino) => {
+                                // Orden: más económico primero (tarifa de la ocupación requerida/noche).
                                 const hotelesDestino = elegibles
                                   .filter((h) => h.destinoId === destino.id)
-                                  .sort((a, b) => b.estrellas - a.estrellas);
+                                  .sort((a, b) => hotelAccomSortPrice(a, requiredTipoPax) - hotelAccomSortPrice(b, requiredTipoPax));
                                 const actividadesDestino = cotSelectedPkg.actividades.filter(
                                   (act) => act.destinoId === destino.id
                                 );
@@ -2959,7 +2988,7 @@ export default function DashboardPage() {
                                           childServicesTotal: bd.childServicesTotal,
                                           boletoAdultoPerPax: bd.boletoPerPax,
                                           boletoNinoPerPax:   bd.boletoChildPerPax,
-                                          agencyMarkup,
+                                          agencyMarkup: cotEffectiveMarkup,
                                           numAdultos: cotNumPersonas,
                                           numNinos:   cotNumNinos,
                                           numDestinos,
@@ -3128,7 +3157,7 @@ export default function DashboardPage() {
                                           childServicesTotal: leg.childServicesTotal,
                                           boletoAdultoPerPax: cotBoletoAdultoPerPaxLibre,
                                           boletoNinoPerPax:   cotBoletoNinoPerPaxLibre,
-                                          agencyMarkup,
+                                          agencyMarkup: cotEffectiveMarkup,
                                           numAdultos: cotNumPersonas,
                                           numNinos:   cotNumNinos,
                                           numDestinos,

@@ -103,6 +103,7 @@ model PaqueteRef {
   permitirModificarBoleto Boolean @default(true)
   permitirModificarNoches Boolean @default(false)
   ajustePrecio     Float   @default(0)
+  gananciaAgencia  Float   @default(0)
   numPax           Int
   numNinos         Int
   diasEstancia     Int

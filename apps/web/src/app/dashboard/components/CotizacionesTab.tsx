@@ -5,6 +5,7 @@ import { COTIZACION_STATUS_LABEL, resumenPasajeros } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended } from "../DashboardContext";
 import { Skeleton } from "@/components/Skeleton";
+import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-50 text-sky-600",
@@ -105,9 +106,9 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                 {cot.status === "BORRADOR" && (
                   <button
                     onClick={() => onEditCot(cot.id)}
-                    aria-label={`Editar cotización ${cot.codigo}`}
+                    aria-label={`${cot.cliente?.email === GENERIC_CLIENT_EMAIL ? "Cotizar" : "Editar"} cotización ${cot.codigo}`}
                     className="p-2 bg-light hover:bg-sky-50 text-primary hover:text-sky-600 rounded-xl border border-lighter transition-all cursor-pointer"
-                    title="Editar"
+                    title={cot.cliente?.email === GENERIC_CLIENT_EMAIL ? "Cotizar" : "Editar"}
                   >
                     <Pencil size={14} />
                   </button>
@@ -180,9 +181,9 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                     {cot.status === "BORRADOR" && (
                       <button
                         onClick={() => onEditCot(cot.id)}
-                        aria-label={`Editar cotización ${cot.codigo}`}
+                        aria-label={`${cot.cliente?.email === GENERIC_CLIENT_EMAIL ? "Cotizar" : "Editar"} cotización ${cot.codigo}`}
                         className="p-1.5 bg-light hover:bg-sky-50 text-primary hover:text-sky-600 rounded-lg border border-lighter transition-all cursor-pointer"
-                        title="Editar"
+                        title={cot.cliente?.email === GENERIC_CLIENT_EMAIL ? "Cotizar" : "Editar"}
                       >
                         <Pencil size={12} />
                       </button>
