@@ -69,6 +69,7 @@ import {
   cartesian,
   combineComboLegs,
   hotelPerDestinoPrice,
+  buildRoomRates,
   numPaxToTipoPax,
   groupIncluyeByDestino,
   toggleHotelWithSingleDestinoCap,
@@ -300,6 +301,11 @@ export default function DashboardPage() {
   const [cotLibreFlightDesc, setCotLibreFlightDesc] = useState<string>("");
   // Noches adicionales por destino (#5). Keyed by destinoId. Total derived as cotExtraNights.
   const [cotExtraNightsByDestino, setCotExtraNightsByDestino] = useState<Record<number, number>>({});
+  // Modo libre multi-destino: noches que se pasan en CADA destino (keyed por destinoId).
+  // La "Cantidad de Días" (cotCustomDias) sigue siendo el total global — este mapa se valida
+  // contra ese total (cotLibreNochesMatch) antes de dejar avanzar el wizard, para que el
+  // asesor declare explícitamente cuántas noches van en cada parada (nunca se asume un reparto).
+  const [cotLibreNochesByDestino, setCotLibreNochesByDestino] = useState<Record<number, number>>({});
   const [cotLibreActSel,      setCotLibreActSel]      = useState<Record<number, boolean>>({});
   const [cotLibreTrsSel,      setCotLibreTrsSel]      = useState<Record<number, boolean>>({});
   const [cotIsMultiDestino,   setCotIsMultiDestino]   = useState(false);
@@ -516,6 +522,7 @@ export default function DashboardPage() {
       if (d.cotFechaSalida !== undefined) setCotFechaSalida(d.cotFechaSalida);
       if (d.cotCustomDias  !== undefined) setCotCustomDias(d.cotCustomDias);
       if (d.cotExtraNightsByDestino !== undefined) setCotExtraNightsByDestino(d.cotExtraNightsByDestino);
+      if (d.cotLibreNochesByDestino !== undefined) setCotLibreNochesByDestino(d.cotLibreNochesByDestino);
       if (d.cotFlightOverride !== undefined) setCotFlightOverride(d.cotFlightOverride);
       if (d.cotFlightPrice    !== undefined) setCotFlightPrice(d.cotFlightPrice);
       if (d.cotFlightPriceChild !== undefined) setCotFlightPriceChild(d.cotFlightPriceChild);
@@ -544,7 +551,7 @@ export default function DashboardPage() {
       const draft: Record<string, unknown> = {
         clientName, clientEmail, clientPhone, clientId, clientAddress,
         cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
-        cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino,
+        cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino, cotLibreNochesByDestino,
         cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc, cotLibreActSel, cotLibreTrsSel, step,
         cotNumPersonas, cotNumNinos, cotNinosEdades, cotFromQuickQuote,
       };
@@ -555,7 +562,7 @@ export default function DashboardPage() {
   }, [
     clientName, clientEmail, clientPhone, clientId, clientAddress,
     cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
-    cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino,
+    cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino, cotLibreNochesByDestino,
     cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc, cotLibreActSel, cotLibreTrsSel, step, quoteLocked,
     cotNumPersonas, cotNumNinos, cotNinosEdades, cotFromQuickQuote,
   ]);
@@ -678,10 +685,25 @@ export default function DashboardPage() {
   // ids pueden quedar como residuo de una selección previa en modo catálogo tras cambiar de
   // modo sin resetear) — con multidestino activo, exige más de un destino.
   const cotLibreDestinosOk = cotIsMultiDestino ? cotAllDestinoIds.length > 1 : cotAllDestinoIds.length > 0;
+
+  const cotNoches = cotMode === "catalogo"
+    ? (cotSelectedPkg?.nochesBase ?? 0) + cotExtraNights
+    : Math.max(0, cotCustomDias - 1);
+
+  // Modo libre multi-destino: "Cantidad de Días" (cotCustomDias → cotNoches) es el total
+  // global del viaje, pero con 2+ destinos el sistema no puede adivinar cuántas de esas
+  // noches corresponden a cada parada — se pide explícitamente por destino (cotLibreNochesByDestino,
+  // input en la card de selección de hoteles) y se valida que la suma cuadre con el total
+  // antes de dejar avanzar. Single-destino sigue usando el total global directo (sin input extra).
+  const cotLibreHotelNoches = (destinoId: number): number =>
+    cotMode === "libre" && cotIsMultiDestino ? (cotLibreNochesByDestino[destinoId] ?? 0) : cotNoches;
+  const cotLibreNochesAsignadas = cotAllDestinoIds.reduce((sum, id) => sum + (cotLibreNochesByDestino[id] ?? 0), 0);
+  const cotLibreNochesMatch = cotMode !== "libre" || !cotIsMultiDestino || cotLibreNochesAsignadas === cotNoches;
+
   const step2CanProceed = cotFechaSalida.trim().length > 0 &&
     (cotMode === "catalogo"
       ? cotSelectedPkgId !== null && !versionWarning
-      : cotLibreDestinosOk && cotSelectedHotelIds.length > 0);
+      : cotLibreDestinosOk && cotSelectedHotelIds.length > 0 && cotLibreNochesMatch);
   const cotTotalHabs = Object.values(cotHabs).reduce((sum, qty) => sum + qty, 0);
   // In Catalogue Mode every destino must have a hotel checked (checkboxes in Step 3)
   // before the quote can be priced — otherwise that destino's stop has no rate.
@@ -701,10 +723,6 @@ export default function DashboardPage() {
         d.hoteles.some((h) => cotSelectedHotelIds.includes(h.id))
       );
   const step3CanProceed = (isComparativeMode || cotTotalHabs > 0) && cotCatAllDestinosSelected && cotLibreAllDestinosSelected;
-
-  const cotNoches = cotMode === "catalogo"
-    ? (cotSelectedPkg?.nochesBase ?? 0) + cotExtraNights
-    : Math.max(0, cotCustomDias - 1);
 
   const cotFechaRetorno = cotFechaSalida
     ? (() => {
@@ -832,7 +850,12 @@ export default function DashboardPage() {
       : 0;
     return cotNinosEdades.reduce((sum, age) => sum + getChildPriceForAge(hotel, age, refRate).precio * noches, 0);
   };
-  const cotLibreChildAccomTotal = cotMode === "libre" ? cotLibreChildAccomFor(cotPrimaryHotel, cotNoches) : 0;
+  // Noches del destino de cotPrimaryHotel (preview de un solo hotel en Paso 3) — en
+  // multi-destino usa las noches declaradas para ESE destino, no el total global.
+  const cotPrimaryHotelNoches = cotMode === "libre" && cotPrimaryHotel
+    ? cotLibreHotelNoches(cotLibreDestinoIdByHotelId.get(cotPrimaryHotel.id) ?? -1)
+    : cotNoches;
+  const cotLibreChildAccomTotal = cotMode === "libre" ? cotLibreChildAccomFor(cotPrimaryHotel, cotPrimaryHotelNoches) : 0;
 
   const cotAllActRef = cotAllDestinos.flatMap((d) => d.actividades);
   const cotAllTrsRef = cotAllDestinos.flatMap((d) => d.traslados);
@@ -876,15 +899,16 @@ export default function DashboardPage() {
   const cotLibreBreakdowns: CotLibreLeg[] = cotMode === "libre"
     ? cotAllDestinos.flatMap((d) => {
         const { adultServicesTotal, childServicesTotal } = cotLibreServicesForDestino(d);
+        const nochesDestino = cotLibreHotelNoches(d.id);
         return d.hoteles
           .filter(hotelAptoNinos)
           .filter((h) => cotSelectedHotelIds.includes(h.id))
           .map((hotel) => {
-            const adultAccomTotal = cotLibreAccomTotalFor(hotel, cotNoches);
+            const adultAccomTotal = cotLibreAccomTotalFor(hotel, nochesDestino);
             return {
-              destino: d, hotel, noches: cotNoches,
+              destino: d, hotel, noches: nochesDestino,
               adultAccomTotal, adultServicesTotal,
-              childAccomTotal: cotLibreChildAccomFor(hotel, cotNoches),
+              childAccomTotal: cotLibreChildAccomFor(hotel, nochesDestino),
               childServicesTotal,
               adultColPerPax: cotNumPersonas > 0 ? (adultAccomTotal + adultServicesTotal) / cotNumPersonas : 0,
             };
@@ -953,7 +977,7 @@ export default function DashboardPage() {
       if (!cotLibreRepCombo) return 0;
       const total = cotLibreRepCombo.legs.reduce((sum, leg) => {
         const rate = leg.hotel.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
-        return sum + rate * cotNoches;
+        return sum + rate * leg.noches;
       }, 0);
       return Math.round(total * 100) / 100;
     }
@@ -1091,6 +1115,7 @@ export default function DashboardPage() {
     setCotFlightPriceChild(0);
     setCotLibreFlightDesc("");
     setCotExtraNightsByDestino({});
+    setCotLibreNochesByDestino({});
     setCotLibreActSel({});
     setCotLibreTrsSel({});
     setCotIsMultiDestino(false);
@@ -1157,6 +1182,7 @@ export default function DashboardPage() {
       setCotFechaSalida(get("cotFechaSalida", cot.fechaViaje ?? ""));
       setCotCustomDias(get("cotCustomDias", 5));
       setCotExtraNightsByDestino(get("cotExtraNightsByDestino", {}));
+      setCotLibreNochesByDestino(get("cotLibreNochesByDestino", {}));
       setCotFlightOverride(get("cotFlightOverride", null));
       setCotFlightPrice(get("cotFlightPrice", cot.precios?.precioBoleto ?? 0));
       setCotFlightPriceChild(get("cotFlightPriceChild", 0));
@@ -1279,6 +1305,10 @@ export default function DashboardPage() {
     // por el total de pax, no se divide.
     const cotLibreTotalPax = cotNumPersonas + cotNumNinos;
     const cotLibreSharedTotal = cotBoletoTotal + cotEffectiveMarkup * cotLibreTotalPax;
+    // Composición de habitaciones (sin CHD) — igual en todos los hoteles/legs de esta
+    // cotización, solo la TARIFA por tipo varía según el hotel elegido.
+    const cotCatRoomEntries: [string, number][] =
+      Object.entries(cotHabs).filter(([t, q]) => t !== "CHD" && q > 0) as [string, number][];
     const hotelsComparison: HotelCompSnapshot[] =
       cotMode === "catalogo" && cotCatBreakdowns.length > 0
         ? cotCatBreakdowns.map(({ hotel, bd }) => {
@@ -1291,6 +1321,7 @@ export default function DashboardPage() {
               destinoCiudad:    hotel.destinoCiudad,
               destinoPais,
               tipoPax:          cotReqTipoPax,
+              roomRates:        buildRoomRates(hotel.tarifas, cotCatRoomEntries, cotHotelNoches(hotel)),
               adultColPerPax:   r2(bd.adultColPerPax),
               boletoPerPax:     r2(bd.boletoPerPax),
               // Combinable per-destino total (accom + this destino's local services).
@@ -1324,6 +1355,7 @@ export default function DashboardPage() {
               destinoCiudad:    b.destino.ciudad,
               destinoPais:      b.destino.pais,
               tipoPax:          cotLibreAdultRefTipo ?? undefined,
+              roomRates:        buildRoomRates(b.hotel.tarifas, cotLibreRoomEntries, b.noches),
               adultColPerPax:   r2(b.adultColPerPax),
               boletoPerPax:     r2(cotBoletoAdultoPerPaxLibre),
               accomTotal:       r2(stopTotal),
@@ -1345,7 +1377,7 @@ export default function DashboardPage() {
     const wizardState = {
       clientName, clientEmail, clientPhone, clientId, clientAddress,
       cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
-      cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino,
+      cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino, cotLibreNochesByDestino,
       cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc,
       cotLibreActSel, cotLibreTrsSel, cotNumPersonas, cotNumNinos, cotNinosEdades,
       cotFromQuickQuote,
@@ -2280,7 +2312,19 @@ export default function DashboardPage() {
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                               <label className={labelCls}>Cantidad de Días</label>
-                              <input type="number" min={2} max={30} value={cotCustomDias} onChange={(e) => setCotCustomDias(Math.max(2, Number(e.target.value)))} className={inputCls} />
+                              <input
+                                type="number" min={2} max={30}
+                                value={cotCustomDias === 0 ? "" : cotCustomDias}
+                                onChange={(e) => {
+                                  const raw = e.target.value;
+                                  if (raw === "") { setCotCustomDias(0); return; }
+                                  const val = parseInt(raw, 10);
+                                  if (isNaN(val) || val < 0) return;
+                                  setCotCustomDias(Math.min(30, val));
+                                }}
+                                onBlur={() => { if (cotCustomDias < 2) setCotCustomDias(2); }}
+                                className={inputCls}
+                              />
                             </div>
                             <div className="space-y-1.5">
                               <label className={labelCls}>Noches (calculado)</label>
@@ -2380,6 +2424,30 @@ export default function DashboardPage() {
                                       </p>
                                     )}
 
+                                    {/* ── Noches en este destino (obligatorio en multidestino: el total global no
+                                        alcanza para saber cuántas noches corresponden a cada parada) ── */}
+                                    {cotIsMultiDestino && (
+                                      <div className="space-y-1.5">
+                                        <label className={labelCls}>Noches en {destino.ciudad} *</label>
+                                        <input
+                                          type="number" min={0} max={cotNoches}
+                                          value={(cotLibreNochesByDestino[destino.id] ?? 0) === 0 ? "" : cotLibreNochesByDestino[destino.id]}
+                                          onChange={(e) => {
+                                            const raw = e.target.value;
+                                            if (raw === "") {
+                                              setCotLibreNochesByDestino((prev) => ({ ...prev, [destino.id]: 0 }));
+                                              return;
+                                            }
+                                            const val = parseInt(raw, 10);
+                                            if (isNaN(val) || val < 0) return;
+                                            setCotLibreNochesByDestino((prev) => ({ ...prev, [destino.id]: Math.min(cotNoches, val) }));
+                                          }}
+                                          placeholder="0"
+                                          className={inputCls}
+                                        />
+                                      </div>
+                                    )}
+
                                     {/* ── Hoteles ── */}
                                     <div className="space-y-2">
                                       <div className="flex items-center justify-between">
@@ -2445,6 +2513,14 @@ export default function DashboardPage() {
                               {cotIsMultiDestino && cotSelectedHotelIds.length === 0 && (
                                 <p className="text-[10px] text-amber-600 font-bold flex items-center gap-1.5"><AlertCircle size={11} /> Selecciona al menos un hotel para continuar.</p>
                               )}
+                              {/* ── Validación: la suma de noches por destino debe cuadrar con el total global ── */}
+                              {cotIsMultiDestino && (
+                                <div className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-[10px] font-bold ${cotLibreNochesMatch ? "bg-secondary/5 border-secondary/15 text-secondary" : "bg-amber-50 border-amber-200 text-amber-700"}`}>
+                                  {cotLibreNochesMatch ? <CheckCircle2 size={13} className="shrink-0" /> : <AlertCircle size={13} className="shrink-0" />}
+                                  Noches asignadas: {cotLibreNochesAsignadas} / {cotNoches} requeridas
+                                  {!cotLibreNochesMatch && " — ajusta las noches por destino para que sumen el total de \"Cantidad de Días\"."}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -2466,7 +2542,9 @@ export default function DashboardPage() {
                                     ? (cotIsMultiDestino ? "Selecciona al menos dos destinos." : "Selecciona un destino.")
                                     : cotSelectedHotelIds.length === 0
                                       ? "Selecciona al menos un hotel."
-                                      : "La fecha de salida es obligatoria.")}
+                                      : !cotLibreNochesMatch
+                                        ? `Las noches por destino deben sumar ${cotNoches} (llevas ${cotLibreNochesAsignadas}).`
+                                        : "La fecha de salida es obligatoria.")}
                             </p>
                           )}
                           <button
@@ -2526,7 +2604,7 @@ export default function DashboardPage() {
                           <label className={labelCls}>Distribución por Tipo de Habitación *</label>
                           {cotPrimaryHotel && (
                             <p className="text-[10px] text-primary/40 font-bold -mt-1">
-                              Tarifas: {cotPrimaryHotel.nombre} · {cotNoches} noches
+                              Tarifas: {cotPrimaryHotel.nombre} · {cotPrimaryHotelNoches} noches
                             </p>
                           )}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2573,7 +2651,7 @@ export default function DashboardPage() {
                               <p className="text-[10px] text-primary/50 font-bold">
                                 Calculado según la política de edad de {cotPrimaryHotel.nombre} — $
                                 {cotLibreChildAccomTotal % 1 === 0 ? cotLibreChildAccomTotal.toLocaleString() : cotLibreChildAccomTotal.toFixed(2)}
-                                {" "}en total ({cotNoches} noche{cotNoches !== 1 ? "s" : ""}).
+                                {" "}en total ({cotPrimaryHotelNoches} noche{cotPrimaryHotelNoches !== 1 ? "s" : ""}).
                               </p>
                               <ChildPolicyWarning politicaNinos={cotPrimaryHotel.politicaNinos} childAges={cotNinosEdades} className="mt-1" />
                             </div>
@@ -3353,7 +3431,6 @@ export default function DashboardPage() {
                               ) : (
                                 <>
                                   <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Se enviará un correo de confirmación a tu agencia.</li>
-                                  <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Land Tour Travel recibirá una copia para gestión.</li>
                                 </>
                               )}
                               <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Podrás editar la cotización después si es necesario.</li>

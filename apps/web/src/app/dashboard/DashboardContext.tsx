@@ -23,6 +23,19 @@ export type HotelCompSnapshot = {
   childAccomTotal?: number;     // alojamiento niños de ESTE destino
   childServicesTotal?: number;  // servicios locales niños de ESTE destino (incluye traslado @ tarifa adulto)
   boletoChildPerPax?: number;   // child flight price per pax (global; 0 when not active)
+  // Per-person accommodation total (precioBase×noches) for EACH room type quoted at this
+  // hotel/leg (SGL/DBL/TPL/QUAD, CHD excluded) — a cotización can mix room types (e.g. 1
+  // SGL + 1 DBL), so `adultAccomTotal` alone (blended across the mix) can't reconstruct
+  // the per-type price the document must show. Absent on snapshots saved before this field
+  // existed — consumers must fall back to the blended adult price in that case.
+  roomRates?: Record<string, number>;
+  // Set only by `POST /api/cotizaciones/quick` (cotización rápida never asks for the
+  // child's real age — see `getChildRateTiers`). When true and the hotel has more than one
+  // configured child price tier, the document shows every tier (age range + price) instead
+  // of a single price computed from a guessed default age (previously always 5), which could
+  // silently land on the wrong tier when a hotel declares several (bug reported 2026-08-11).
+  childAgeUnknown?: boolean;
+  childRateTiers?: { label: string; edadMin: number; edadMax: number; accomTotal: number }[];
   // Si el paquete tiene el boleto NO modificable, el B2B no debe ver su precio:
   // se muestra "Incluido" en vez del monto (en pantalla y en el PDF). El monto sigue
   // sumado al total; solo se oculta la cifra. undefined/false = precio visible (legado).

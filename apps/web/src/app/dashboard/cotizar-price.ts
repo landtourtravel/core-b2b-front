@@ -34,6 +34,27 @@ export function getAdultAccomPrice(hotel: CotHelperHotel, tipoPax: string): numb
   return hotel.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
 }
 
+/**
+ * Per-person accommodation total (precioBase × noches) for EACH occupied room type
+ * (SGL/DBL/TPL/QUAD — CHD excluded) at one hotel/leg. A cotización can quote several
+ * room types at once (e.g. 1 SGL + 1 DBL) — this preserves the per-type breakdown so
+ * the printed document can show one price per type instead of a single blended average
+ * across the whole group. `roomEntries` are `[tipoPax, cantidad]` pairs with cantidad > 0
+ * (CHD already excluded by the caller).
+ */
+export function buildRoomRates(
+  tarifas: CotHelperHotelTarifa[],
+  roomEntries: [string, number][],
+  noches: number
+): Record<string, number> {
+  const nights = Math.max(1, noches);
+  const rates: Record<string, number> = {};
+  for (const [tipo] of roomEntries) {
+    rates[tipo] = (tarifas.find((t) => t.tipoHabitacion === tipo)?.precioBase ?? 0) * nights;
+  }
+  return rates;
+}
+
 export type ChildPriceResult = { precio: number; aplica: boolean };
 
 /**
@@ -63,6 +84,30 @@ export function getChildPriceForAge(
     hotel.tarifas.find((t) => t.tipoHabitacion === "CHD")?.precioBase ??
     adultPrice;
   return { precio: precioChd, aplica: true };
+}
+
+export type ChildRateTier = { label: string; edadMin: number; edadMax: number; accomTotal: number };
+
+/**
+ * ALL of a hotel's configured child accommodation price tiers (one per PoliticaNinos age
+ * range), each resolved to its per-child TOTAL for the stay (precio × noches) — same shape
+ * as `buildRoomRates`. Used when the child's real age is unknown (cotización rápida never
+ * asks for it — see `POST /api/cotizaciones/quick`) and the hotel has more than one price
+ * tier: instead of guessing an age (e.g. defaulting to 5) to pick a single price — which can
+ * silently land on the wrong tier — every tier is exposed labeled by the age range it
+ * applies to, and the caller decides whether to show the breakdown (only when the tiers'
+ * prices actually differ; a single flat CHD rate needs no breakdown).
+ */
+export function getChildRateTiers(hotel: CotHelperHotel, noches: number): ChildRateTier[] {
+  const nights = Math.max(1, noches);
+  return hotel.politicaNinos.map((p) => {
+    const precio =
+      p.precio ??
+      hotel.tarifas.find((t) => t.id === p.tarifaChdId)?.precioBase ??
+      hotel.tarifas.find((t) => t.tipoHabitacion === "CHD")?.precioBase ??
+      0;
+    return { label: p.rangoNombre, edadMin: p.edadMin, edadMax: p.edadMax, accomTotal: precio * nights };
+  });
 }
 
 /**

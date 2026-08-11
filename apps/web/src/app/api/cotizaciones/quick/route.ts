@@ -13,6 +13,8 @@ import {
   combineComboLegs,
   numPaxToTipoPax,
   groupIncluyeByDestino,
+  buildRoomRates,
+  getChildRateTiers,
   PAX_BY_TYPE,
   type ComboLeg,
   type HotelBreakdownMix,
@@ -179,6 +181,19 @@ export async function POST(req: NextRequest) {
       tipoPax: baseComposicion
         ? hotel.habitaciones.filter((r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0).map((r) => r.tipoHabitacion).join("+")
         : tipoPax!,
+      roomRates: baseComposicion
+        ? buildRoomRates(
+            hotel.tarifas,
+            hotel.habitaciones
+              .filter((r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0)
+              .map((r) => [r.tipoHabitacion, r.cantidad] as [string, number]),
+            hotel.noches,
+          )
+        : buildRoomRates(hotel.tarifas, [[tipoPax!, 1]], hotel.noches),
+      // La cotización rápida no pregunta la edad real del niño — si el hotel tiene más de
+      // un precio configurado (varias PoliticaNinos), no hay una única respuesta correcta.
+      childAgeUnknown:    numNinos > 0,
+      childRateTiers:     numNinos > 0 ? getChildRateTiers(hotel, hotel.noches) : undefined,
       adultColPerPax:     r2(bd.adultColPerPax),
       boletoPerPax:       r2(bd.boletoPerPax),
       accomTotal:         r2(bd.stopTotal),

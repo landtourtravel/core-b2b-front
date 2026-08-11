@@ -82,6 +82,17 @@ export default function CotizacionDetailView({
   const boletoNinoPerPax   = allHotels[0]?.boletoChildPerPax ?? 0;
   const markup             = cot.markup ?? 0;
 
+  // Habitaciones realmente cotizadas (composición fija de la cotización, independiente del
+  // hotel elegido — un paquete puede reservarse con varios tipos a la vez, ej. 1 SGL + 1 DBL).
+  // Se listan sin repetir tipo: una fila/columna por tipo con cantidad > 0. `roomRates` (por
+  // hotel/leg) solo existe en snapshots guardados después de este campo — sin él no hay forma
+  // de reconstruir el precio por tipo, así que se cae al precio "Adulto" promediado (legado).
+  const roomTypeEntries = (["SGL", "DBL", "TPL", "QUAD"] as const)
+    .map((t) => ({ tipo: t, qty: ((cot.pasajeros as any)?.[`cant${t}`] ?? 0) as number }))
+    .filter((r) => r.qty > 0);
+  const hasRoomRates = allHotels.length > 0 && allHotels.every((h) => h.roomRates != null);
+  const showRoomTypes = hasRoomRates && roomTypeEntries.length > 0;
+
   // Group hotels by destino; cheapest hotel first within each group (per-adult accom+services
   // price — boleto/markup are constant across hotels of the same destino, so this ordering
   // matches the full per-destino price too).
@@ -246,6 +257,81 @@ export default function CotizacionDetailView({
   const showChild = numNinos > 0;
   const printGrouped = useGrouped && !isFinalized;
 
+  // Columnas de adulto a mostrar: una por tipo de habitación realmente cotizado (sin repetir
+  // tipo), o una sola columna genérica "Adulto"/tipo único si el snapshot no trae `roomRates`
+  // (cotizaciones guardadas antes de este campo).
+  const adultColumns = showRoomTypes ? roomTypeEntries : [{ tipo: adultTipoLabel, qty: numAdultos }];
+
+  /** Precio por tipo de habitación para UNA combinación (cartesiano) — actividades, boleto y
+   *  comisión se mantienen como un único monto por adulto (no varían por tipo de habitación);
+   *  solo el alojamiento se separa por tipo. */
+  const comboRoomPrices = (combo: ComboView): { tipo: string; price: number }[] => {
+    if (!showRoomTypes) return [{ tipo: adultTipoLabel, price: combo.adultP }];
+    const adultServices = combo.legs.reduce((s, h) => s + (h.adultServicesTotal ?? 0), 0);
+    const servicesPerAdult = numAdultos > 0 ? adultServices / numAdultos : 0;
+    return roomTypeEntries.map(({ tipo }) => {
+      const accom = combo.legs.reduce((s, h) => s + (h.roomRates?.[tipo] ?? 0), 0);
+      return { tipo, price: accom + servicesPerAdult + boletoAdultoPerPax + markup };
+    });
+  };
+
+  /** Mismo criterio que `comboRoomPrices`, para UN hotel en la vista agrupada por destino —
+   *  boleto/comisión se dividen entre destinos igual que `hotelPerDestinoPrice`. */
+  const hotelRoomPrices = (h: HotelCompSnapshot): { tipo: string; price: number }[] => {
+    const div = Math.max(1, destGroups.length);
+    if (!showRoomTypes) {
+      const p = hotelPerDestinoPrice({
+        adultColPerPax: h.adultColPerPax ?? 0,
+        childAccomTotal: h.childAccomTotal ?? 0,
+        childServicesTotal: h.childServicesTotal ?? 0,
+        boletoAdultoPerPax, boletoNinoPerPax,
+        agencyMarkup: markup, numAdultos, numNinos,
+        numDestinos: div,
+      });
+      return [{ tipo: adultTipoLabel, price: p.precioAdulto }];
+    }
+    const servicesPerAdult = numAdultos > 0 ? (h.adultServicesTotal ?? 0) / numAdultos : 0;
+    return roomTypeEntries.map(({ tipo }) => {
+      const accom = h.roomRates?.[tipo] ?? 0;
+      return { tipo, price: accom + servicesPerAdult + (boletoAdultoPerPax + markup) / div };
+    });
+  };
+
+  /**
+   * Precio de niño por rango de edad, SOLO cuando la edad real es desconocida (cotización
+   * rápida — `childAgeUnknown`) y el hotel tiene más de un precio de niño configurado (varias
+   * PoliticaNinos con precios distintos): no hay una única respuesta correcta, así que se
+   * listan todas las tarifas en vez de un solo número adivinado. Con una sola tarifa (o edad
+   * conocida, cotización normal del wizard) devuelve `null` y el llamador usa el precio único
+   * de siempre. Solo se resuelve para combinaciones de UN hotel (single-destino) — en
+   * multi-destino el precio de niño combinado se deja como antes.
+   */
+  const comboChildTiers = (combo: ComboView): { label: string; price: number }[] | null => {
+    if (combo.legs.length !== 1) return null;
+    const leg = combo.legs[0];
+    if (!leg.childAgeUnknown || !leg.childRateTiers) return null;
+    const distinct = new Set(leg.childRateTiers.map((t) => t.accomTotal));
+    if (distinct.size < 2) return null;
+    const servicesPerChild = numNinos > 0 ? (leg.childServicesTotal ?? 0) / numNinos : 0;
+    return leg.childRateTiers.map((t) => ({
+      label: `${t.edadMin}-${t.edadMax} años`,
+      price: t.accomTotal + servicesPerChild + boletoNinoPerPax + markup,
+    }));
+  };
+
+  /** Mismo criterio que `comboChildTiers`, para UN hotel en la vista agrupada por destino. */
+  const hotelChildTiers = (h: HotelCompSnapshot): { label: string; price: number }[] | null => {
+    if (!h.childAgeUnknown || !h.childRateTiers) return null;
+    const distinct = new Set(h.childRateTiers.map((t) => t.accomTotal));
+    if (distinct.size < 2) return null;
+    const div = Math.max(1, destGroups.length);
+    const servicesPerChild = numNinos > 0 ? (h.childServicesTotal ?? 0) / numNinos : 0;
+    return h.childRateTiers.map((t) => ({
+      label: `${t.edadMin}-${t.edadMax} años`,
+      price: t.accomTotal + servicesPerChild + (boletoNinoPerPax + markup) / div,
+    }));
+  };
+
   return (
     <div className="animate-fade-scale pb-10">
 
@@ -374,7 +460,8 @@ export default function CotizacionDetailView({
                 {incluyeGrupos.length > 0 && (
                   <div className="space-y-3">
                     {incluyeGrupos.map((g) => {
-                      const items = [...g.actividades.map(toServicioItem), ...g.traslados.map(toServicioItem)];
+                      // Orden pedido: boleto(s) primero (badge aparte, arriba) → traslados → actividades (con detalle).
+                      const items = [...g.traslados.map(toServicioItem), ...g.actividades.map(toServicioItem)];
                       return (
                         <div key={g.destinoId}>
                           <p className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wide text-primary bg-light px-2 py-1 rounded-md mb-1.5">
@@ -460,9 +547,15 @@ export default function CotizacionDetailView({
                     <th className="py-2 px-3 border-b-[1.5px] border-r border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary">
                       {printGrouped ? "Hotel" : "Combinación"}
                     </th>
-                    <th className={`py-2 px-3 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20 whitespace-nowrap ${showChild ? "border-r" : ""}`}>
-                      {adultTipoLabel}
-                    </th>
+                    {adultColumns.map((c, i) => (
+                      <th
+                        key={c.tipo}
+                        className={`py-2 px-3 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20 whitespace-nowrap ${(i < adultColumns.length - 1 || showChild) ? "border-r" : ""}`}
+                      >
+                        {c.tipo}
+                        {showRoomTypes && <span className="block text-[7px] normal-case font-semibold text-primary/40">{c.qty} hab.</span>}
+                      </th>
+                    ))}
                     {showChild && (
                       <th className="py-2 px-3 border-b-[1.5px] border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary text-right w-20 whitespace-nowrap">
                         Niño
@@ -475,13 +568,14 @@ export default function CotizacionDetailView({
                     destGroups.map((g) => (
                       <React.Fragment key={g.destinoId}>
                         <tr>
-                          <td colSpan={showChild ? 3 : 2} className="pt-3 pb-1 px-3 text-[8px] font-black uppercase tracking-wide text-secondary bg-light/30 border-b border-gray-100">
+                          <td colSpan={1 + adultColumns.length + (showChild ? 1 : 0)} className="pt-3 pb-1 px-3 text-[8px] font-black uppercase tracking-wide text-secondary bg-light/30 border-b border-gray-100">
                             {g.ciudad}
                           </td>
                         </tr>
                         {g.hotels.map((h) => {
                           const isSel = effectivePick[g.destinoId] === h.hotelId;
-                          const p = hotelPerDestinoPrice({
+                          const adultPrices = hotelRoomPrices(h);
+                          const childP = hotelPerDestinoPrice({
                             adultColPerPax:     h.adultColPerPax ?? 0,
                             childAccomTotal:    h.childAccomTotal ?? 0,
                             childServicesTotal: h.childServicesTotal ?? 0,
@@ -490,7 +584,7 @@ export default function CotizacionDetailView({
                             agencyMarkup:       markup,
                             numAdultos, numNinos,
                             numDestinos: destGroups.length,
-                          });
+                          }).precioNino;
                           return (
                             <tr
                               key={h.hotelId}
@@ -507,14 +601,29 @@ export default function CotizacionDetailView({
                                   {canAct && isSel && <span className="print:hidden shrink-0 text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
                                 </div>
                               </td>
-                              <td className={`py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap ${showChild ? "border-r border-gray-100" : ""}`}>
-                                ${money(p.precioAdulto)}
-                              </td>
-                              {showChild && (
-                                <td className="py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap">
-                                  ${money(p.precioNino)}
+                              {adultPrices.map((r, i) => (
+                                <td key={r.tipo} className={`py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap ${(i < adultPrices.length - 1 || showChild) ? "border-r border-gray-100" : ""}`}>
+                                  ${money(r.price)}
                                 </td>
-                              )}
+                              ))}
+                              {showChild && (() => {
+                                const tiers = hotelChildTiers(h);
+                                return (
+                                  <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                                    {tiers ? (
+                                      <div className="space-y-0.5">
+                                        {tiers.map((t) => (
+                                          <div key={t.label} className="text-[10px] font-black text-primary leading-tight">
+                                            ${money(t.price)} <span className="text-[8px] font-bold text-primary/40">({t.label})</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <span className="text-sm font-black text-primary">${money(childP)}</span>
+                                    )}
+                                  </td>
+                                );
+                              })()}
                             </tr>
                           );
                         })}
@@ -527,6 +636,7 @@ export default function CotizacionDetailView({
                       const selectable = canAct;
                       const title = combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
                       const fullName = combo.legs.map((h) => (isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ${h.nombre}` : h.nombre)).join(" + ");
+                      const adultPrices = comboRoomPrices(combo);
                       return (
                         <tr
                           key={idx}
@@ -553,14 +663,29 @@ export default function CotizacionDetailView({
                               {selectable && isSel && <span className="print:hidden inline-block text-[8px] font-black text-secondary uppercase tracking-wide">✓ Elegido</span>}
                             </div>
                           </td>
-                          <td className={`py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap ${showChild ? "border-r border-gray-100" : ""}`}>
-                            ${money(combo.adultP)}
-                          </td>
-                          {showChild && (
-                            <td className="py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap">
-                              ${money(combo.childP)}
+                          {adultPrices.map((r, i) => (
+                            <td key={r.tipo} className={`py-2.5 px-3 text-right text-sm font-black text-primary whitespace-nowrap ${(i < adultPrices.length - 1 || showChild) ? "border-r border-gray-100" : ""}`}>
+                              ${money(r.price)}
                             </td>
-                          )}
+                          ))}
+                          {showChild && (() => {
+                            const tiers = comboChildTiers(combo);
+                            return (
+                              <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                                {tiers ? (
+                                  <div className="space-y-0.5">
+                                    {tiers.map((t) => (
+                                      <div key={t.label} className="text-[10px] font-black text-primary leading-tight">
+                                        ${money(t.price)} <span className="text-[8px] font-bold text-primary/40">({t.label})</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-sm font-black text-primary">${money(combo.childP)}</span>
+                                )}
+                              </td>
+                            );
+                          })()}
                         </tr>
                       );
                     })
@@ -571,6 +696,9 @@ export default function CotizacionDetailView({
 
             <p className="text-[9px] text-primary/40 font-medium mt-3 leading-relaxed">
               {boletoOculto ? "El boleto aéreo va incluido en el precio." : ""}
+              {showChild && allHotels.some((h) => h.childAgeUnknown && (h.childRateTiers?.length ?? 0) > 1)
+                ? " El precio de niño varía según su edad — se muestran todas las tarifas configuradas por rango de edad."
+                : ""}
               {printGrouped ? <span className="print:hidden"> Elige un hotel en cada destino para aprobar.</span> : ""}
             </p>
           </div>
