@@ -108,6 +108,18 @@ export default function CotizacionDetailView({
       hotels: [...g.hotels].sort((a, b) => (a.adultColPerPax ?? 0) - (b.adultColPerPax ?? 0)),
     }));
   }, [allHotels]);
+  // Nombre de ciudad por destinoId — el snapshot solo lo guarda una vez por destino (no
+  // repetido en cada hotel de ese destino), así que cualquier lectura por-hotel debe resolver
+  // aquí en vez de leer `h.destinoCiudad` directo (puede venir vacío en el 2do+ hotel del
+  // mismo destino).
+  const destinoLabelById = useMemo(() => {
+    const m = new Map<number, string>();
+    destGroups.forEach((g) => m.set(g.destinoId, g.ciudad));
+    return m;
+  }, [destGroups]);
+  const hotelDestinoCiudad = (h: HotelCompSnapshot) =>
+    (h.destinoId != null ? destinoLabelById.get(h.destinoId) : undefined) ?? h.destinoCiudad ?? "";
+
   const isMultiDest = destGroups.length > 1;
   // ≥2 destinos con varios hoteles → la vista agrupada por destino reemplaza el listado
   // cartesiano de combinaciones. El asesor elige un hotel por destino (no una combinación).
@@ -635,7 +647,7 @@ export default function CotizacionDetailView({
                       const isSel = idx === selectedComboIdx;
                       const selectable = canAct;
                       const title = combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
-                      const fullName = combo.legs.map((h) => (isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ${h.nombre}` : h.nombre)).join(" + ");
+                      const fullName = combo.legs.map((h) => (isMultiDest && hotelDestinoCiudad(h) ? `${hotelDestinoCiudad(h)} — ${h.nombre}` : h.nombre)).join(" + ");
                       const adultPrices = comboRoomPrices(combo);
                       return (
                         <tr
@@ -651,7 +663,7 @@ export default function CotizacionDetailView({
                               {combo.legs.map((h, i) => (
                                 <div key={h.hotelId} className="flex items-center gap-1.5 min-w-0">
                                   <span className="truncate text-[11px] font-bold text-primary">
-                                    {isMultiDest && h.destinoCiudad ? `${h.destinoCiudad} — ` : ""}{h.nombre}
+                                    {isMultiDest && hotelDestinoCiudad(h) ? `${hotelDestinoCiudad(h)} — ` : ""}{h.nombre}
                                   </span>
                                   <span className="shrink-0 text-gold text-[9px]">{stars(h.estrellas)}</span>
                                   {i < combo.legs.length - 1 && <span className="shrink-0 text-secondary font-black text-[10px]">+</span>}

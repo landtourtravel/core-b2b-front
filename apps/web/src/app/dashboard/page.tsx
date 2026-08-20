@@ -72,6 +72,7 @@ import {
   buildRoomRates,
   numPaxToTipoPax,
   groupIncluyeByDestino,
+  dedupeDestinoLabels,
   toggleHotelWithSingleDestinoCap,
   type HotelBreakdown,
   type ComboLeg,
@@ -1263,8 +1264,8 @@ export default function DashboardPage() {
         ...cotSelectedPkg.traslados.map((t) => t.tipo),
       ];
       paqueteIncluyeDestinos = groupIncluyeByDestino(
-        cotSelectedPkg.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre, detalle: a.descripcion })),
-        cotSelectedPkg.traslados.map((t) => ({ destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
+        cotSelectedPkg.actividades.map((a) => ({ id: a.id, destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre })),
+        cotSelectedPkg.traslados.map((t) => ({ id: t.id, destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
       );
     } else if (cotMode === "libre" && cotAllDestinos.length > 0) {
       const cities    = cotAllDestinos.map((d) => d.ciudad).join(" + ");
@@ -1282,10 +1283,10 @@ export default function DashboardPage() {
       paqueteIncluyeDestinos = groupIncluyeByDestino(
         cotAllDestinos.flatMap((d) => d.actividades
           .filter((a) => cotLibreActSel[a.id])
-          .map((a) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: a.nombre, detalle: a.descripcion }))),
+          .map((a) => ({ id: a.id, destinoId: d.id, destinoCiudad: d.ciudad, label: a.nombre }))),
         cotAllDestinos.flatMap((d) => d.traslados
           .filter((t) => cotLibreTrsSel[t.id])
-          .map((t) => ({ destinoId: d.id, destinoCiudad: d.ciudad, label: t.tipo }))),
+          .map((t) => ({ id: t.id, destinoId: d.id, destinoCiudad: d.ciudad, label: t.tipo }))),
       );
     }
 
@@ -1309,7 +1310,7 @@ export default function DashboardPage() {
     // cotización, solo la TARIFA por tipo varía según el hotel elegido.
     const cotCatRoomEntries: [string, number][] =
       Object.entries(cotHabs).filter(([t, q]) => t !== "CHD" && q > 0) as [string, number][];
-    const hotelsComparison: HotelCompSnapshot[] =
+    const hotelsComparison: HotelCompSnapshot[] = dedupeDestinoLabels(
       cotMode === "catalogo" && cotCatBreakdowns.length > 0
         ? cotCatBreakdowns.map(({ hotel, bd }) => {
             const destinoPais = cotSelectedPkg!.destinos.find((d) => d.id === hotel.destinoId)?.pais ?? "";
@@ -1371,11 +1372,14 @@ export default function DashboardPage() {
               total:            r2(stopTotal + cotLibreSharedTotal),
             };
           })
-        : [];
+        : []
+    );
 
     // Estado crudo del wizard — persistido para poder reabrir esta cotización en edición.
+    // Los datos de cliente (nombre/email/teléfono/etc.) NO se guardan aquí — ya viven
+    // normalizados en `Cliente` (FK `clienteId`); `handleEditCot` los reconstruye desde
+    // `cot.cliente` al reabrir, así nunca quedan desactualizados frente al registro real.
     const wizardState = {
-      clientName, clientEmail, clientPhone, clientId, clientAddress,
       cotMode, cotSelectedPkgId, cotSelectedDestinoId, cotSelectedHotelIds,
       cotHabs, cotFechaSalida, cotCustomDias, cotExtraNightsByDestino, cotLibreNochesByDestino,
       cotFlightOverride, cotFlightPrice, cotFlightPriceChild, cotLibreFlightDesc,

@@ -750,7 +750,33 @@ export function numPaxToTipoPax(n: number): "SGL" | "DBL" | "TPL" | "QUAD" | nul
 // Usado tanto por el wizard (catálogo y libre) como por la cotización rápida para
 // construir el snapshot que el documento de cotización renderiza separado por
 // destino/tipo (actividades vs. traslados) en vez de una lista plana.
-export type IncluyeItem = { destinoId: number; destinoCiudad: string; label: string; detalle?: string | null };
+//
+// Solo se congela `nombre` (+ `id`, para poder resolver `detalle` en vivo después) — la
+// descripción larga (`detalle`) NO se persiste aquí a propósito, para no duplicar texto
+// largo en cada cotización. Se resuelve por `id` al leer (ver `attachLiveActividadDetalle`
+// en cotizacion-mapper.ts).
+export type IncluyeItem = { id: number; destinoId: number; destinoCiudad: string; label: string };
+
+// ── Dedup de nombre de destino en el snapshot de hoteles ──────────────────────
+// `hotelsComparisonSnapshot` es una lista plana de hoteles que puede tener varios hoteles
+// del MISMO destino (ej. 2 hoteles en Cartagena a comparar) — sin este paso, `destinoCiudad`/
+// `destinoPais` se repetían íntegros en cada hotel de ese destino. Se guardan solo en la
+// PRIMERA aparición de cada destinoId; los lectores (CotizacionDetailView) resuelven el resto
+// por `destinoId` contra esa primera aparición (ver `destinoLabelById`/`hotelDestinoCiudad`).
+export function dedupeDestinoLabels<T extends { destinoId?: number; destinoCiudad?: string; destinoPais?: string }>(
+  hoteles: T[]
+): T[] {
+  const seen = new Set<number>();
+  return hoteles.map((h) => {
+    if (h.destinoId == null) return h;
+    if (seen.has(h.destinoId)) {
+      const { destinoCiudad, destinoPais, ...rest } = h;
+      return rest as T;
+    }
+    seen.add(h.destinoId);
+    return h;
+  });
+}
 
 export function groupIncluyeByDestino(actividades: IncluyeItem[], traslados: IncluyeItem[]): IncluyeDestinoGroup[] {
   const map = new Map<number, IncluyeDestinoGroup>();
@@ -759,7 +785,7 @@ export function groupIncluyeByDestino(actividades: IncluyeItem[], traslados: Inc
     if (!g) { g = { destinoId, destinoCiudad, actividades: [], traslados: [] }; map.set(destinoId, g); }
     return g;
   };
-  actividades.forEach((a) => group(a.destinoId, a.destinoCiudad).actividades.push({ nombre: a.label, detalle: a.detalle ?? undefined }));
-  traslados.forEach((t) => group(t.destinoId, t.destinoCiudad).traslados.push({ nombre: t.label, detalle: t.detalle ?? undefined }));
+  actividades.forEach((a) => group(a.destinoId, a.destinoCiudad).actividades.push({ nombre: a.label, id: a.id }));
+  traslados.forEach((t) => group(t.destinoId, t.destinoCiudad).traslados.push({ nombre: t.label, id: t.id }));
   return [...map.values()];
 }

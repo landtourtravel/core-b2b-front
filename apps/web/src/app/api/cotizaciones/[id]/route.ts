@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma";
 import { logError } from "@/lib/logger";
-import { mapCotizacionRow } from "@/lib/cotizacion-mapper";
+import { mapCotizacionRow, attachLiveActividadDetalle } from "@/lib/cotizacion-mapper";
 
 const PAX_BY_TYPE: Record<string, number> = { SGL: 1, DBL: 2, TPL: 3, QUAD: 4, CHD: 1 };
 
@@ -31,7 +31,8 @@ export async function GET(
     if (cot.agenciaId !== session.user.agenciaId || cot.creadoPorId !== userId)
       return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
 
-    return NextResponse.json(mapCotizacionRow(cot));
+    const dto = await attachLiveActividadDetalle(mapCotizacionRow(cot), prisma);
+    return NextResponse.json(dto);
   } catch (err) {
     logError("GET /api/cotizaciones/[id]", err);
     return NextResponse.json({ error: "Error al cargar cotización" }, { status: 500 });
@@ -52,7 +53,7 @@ export async function PUT(
   const body = await req.json();
   const {
     clienteId, paqueteId,
-    paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluye, paqueteIncluyeDestinos, incluyeBoleto, precioBoleto,
+    paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluyeDestinos, incluyeBoleto, precioBoleto,
     cantSGL = 0, cantDBL = 0, cantTPL = 0, cantQUAD = 0, cantCHD = 0,
     precioSGL = 0, precioDBL = 0, precioTPL = 0, precioQUAD = 0, precioCHD = 0,
     subtotal, markup, total,
@@ -132,7 +133,9 @@ export async function PUT(
         snapshotNombre:   (paqueteNombre   ?? "").slice(0, 200),
         snapshotDestino:  (paqueteDestino  ?? "").slice(0, 200),
         snapshotDuracion: (paqueteDuracion ?? "").slice(0, 100),
-        snapshotIncluye:  paqueteIncluye  ?? [],
+        // snapshotIncluye (array plano) ya no se escribe — snapshotIncluyeDestinos lo
+        // reemplaza (mismos datos, agrupados, sin duplicar). La columna se conserva solo
+        // como fallback de lectura para cotizaciones creadas antes de este cambio.
         snapshotIncluyeDestinos: Array.isArray(paqueteIncluyeDestinos) ? paqueteIncluyeDestinos : Prisma.JsonNull,
         hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
         wizardState: wizardState ?? Prisma.JsonNull,

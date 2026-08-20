@@ -13,6 +13,7 @@ import {
   combineComboLegs,
   numPaxToTipoPax,
   groupIncluyeByDestino,
+  dedupeDestinoLabels,
   buildRoomRates,
   getChildRateTiers,
   PAX_BY_TYPE,
@@ -171,7 +172,7 @@ export async function POST(req: NextRequest) {
     const precioAdulto = numPax   > 0 ? (repCombo.totals.adultAccom + repCombo.totals.adultServices) / numPax   : 0;
     const precioChd    = numNinos > 0 ? (repCombo.totals.childAccom + repCombo.totals.childServices) / numNinos : 0;
 
-    const hotelsComparison: HotelCompSnapshot[] = breakdowns.map(({ hotel, bd, hasChd }) => ({
+    const hotelsComparison: HotelCompSnapshot[] = dedupeDestinoLabels(breakdowns.map(({ hotel, bd, hasChd }) => ({
       hotelId:            hotel.id,
       nombre:             hotel.nombre,
       estrellas:          hotel.estrellas,
@@ -208,18 +209,14 @@ export async function POST(req: NextRequest) {
       avgChildPerPax:     bd.childSupplementPerAdult > 0 ? r2(bd.childSupplementPerAdult) : null,
       total:              r2(bd.total),
       sinTarifaNino:      numNinos > 0 && !hasChd,
-    }));
+    })));
 
     const destinosLabel = paquete.destinos.length > 1
       ? paquete.destinos.map((d) => d.ciudad).join(" + ")
       : `${paquete.destinoCiudad}, ${paquete.destinoPais}`;
-    const paqueteIncluye = [
-      ...paquete.actividades.map((a) => a.nombre),
-      ...paquete.traslados.map((t) => t.tipo),
-    ];
     const paqueteIncluyeDestinos = groupIncluyeByDestino(
-      paquete.actividades.map((a) => ({ destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre, detalle: a.descripcion })),
-      paquete.traslados.map((t) => ({ destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
+      paquete.actividades.map((a) => ({ id: a.id, destinoId: a.destinoId, destinoCiudad: a.destinoCiudad, label: a.nombre })),
+      paquete.traslados.map((t) => ({ id: t.id, destinoId: t.destinoId, destinoCiudad: t.destinoCiudad, label: t.tipo })),
     );
 
     // En modo base, la composición puede tener varios tipos de habitación a la vez (ej. 1
@@ -251,10 +248,9 @@ export async function POST(req: NextRequest) {
 
     // Estado crudo del wizard — permite reabrir esta cotización rápida en el cotizador
     // con el paquete y los hoteles ya seleccionados (mismo shape que el wizard normal).
+    // Sin datos de cliente: ya viven en `Cliente` (FK `clienteId`); `handleEditCot` los toma
+    // de ahí al reabrir.
     const wizardState = {
-      clientName: cliente.nombre,
-      clientEmail: cliente.email ?? "",
-      clientPhone: "", clientId: "", clientAddress: "",
       cotMode: "catalogo" as const,
       cotSelectedPkgId: paquete.id,
       cotSelectedDestinoId: null,
@@ -288,7 +284,9 @@ export async function POST(req: NextRequest) {
             snapshotNombre:   paquete.nombre.slice(0, 200),
             snapshotDestino:  destinosLabel.slice(0, 200),
             snapshotDuracion: `${paquete.diasEstancia} Días / ${paquete.nochesBase} Noches`.slice(0, 100),
-            snapshotIncluye:  paqueteIncluye,
+            // snapshotIncluye (array plano) ya no se escribe — snapshotIncluyeDestinos lo
+            // reemplaza (mismos datos, agrupados, sin duplicar). La columna se conserva solo
+            // como fallback de lectura para cotizaciones creadas antes de este cambio.
             snapshotIncluyeDestinos: paqueteIncluyeDestinos as unknown as Prisma.InputJsonValue,
             hotelsComparisonSnapshot: hotelsComparison as unknown as Prisma.InputJsonValue,
             wizardState: wizardState as unknown as Prisma.InputJsonValue,

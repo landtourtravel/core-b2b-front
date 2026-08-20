@@ -161,9 +161,14 @@ export interface PreciosCotizacion {
 }
 
 /// Un servicio incluido (actividad o traslado) con detalle opcional para el documento.
-/// `detalle` viene de la descripción real del servicio (solo actividades la tienen en BD).
+/// Solo `nombre` (+ `id`) se congela en BD — es lo comercialmente crítico (qué se vendió) y
+/// pesa pocos bytes. `detalle` (descripción larga) NO se congela: se resuelve en vivo por
+/// `id` contra Actividad/Traslado al leer la cotización, para no duplicar texto largo en cada
+/// fila. Si el servicio fue borrado del catálogo después de cotizado, `detalle` llega vacío
+/// pero `nombre` se mantiene intacto siempre.
 export interface IncluyeServicioItem {
   nombre:  string;
+  id?:     number;
   detalle?: string;
 }
 

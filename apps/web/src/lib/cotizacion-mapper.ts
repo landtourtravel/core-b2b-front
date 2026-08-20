@@ -1,4 +1,5 @@
-import type { Cliente, Cotizacion, CotizacionDetalle } from "@/generated/prisma";
+import type { Cliente, Cotizacion, CotizacionDetalle, PrismaClient } from "@/generated/prisma";
+import type { IncluyeDestinoGroup } from "@land-tour/shared";
 
 type CotizacionRow = Cotizacion & { cliente: Cliente; detalles: CotizacionDetalle[] };
 
@@ -45,4 +46,38 @@ export function mapCotizacionRow(c: CotizacionRow) {
     wizardState:      (c.wizardState as any) ?? null,
     fechaCreacion: c.fechaCreacion.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Guayaquil" }),
   };
+}
+
+/**
+ * Resuelve `detalle` (descripción larga) de cada actividad EN VIVO contra `Actividad.descripcion`,
+ * por `id` — nunca se congela en BD (solo `nombre`+`id` se persisten, ver `groupIncluyeByDestino`
+ * en cotizar-price.ts). Si la actividad fue borrada del catálogo después de cotizada, `detalle`
+ * llega vacío pero `nombre` se mantiene intacto (viene congelado). Los traslados no tienen
+ * `detalle` en BD (tabla `Traslado` no tiene columna de descripción) — se dejan tal cual.
+ *
+ * Cotizaciones guardadas antes de este cambio no tienen `id` en sus ítems de actividad; para
+ * esas se conserva el `detalle` congelado que ya traían (fallback, sin romper documentos viejos).
+ */
+export async function attachLiveActividadDetalle<T extends { paqueteIncluyeDestinos?: IncluyeDestinoGroup[] }>(
+  dto: T,
+  prisma: PrismaClient
+): Promise<T> {
+  const grupos = dto.paqueteIncluyeDestinos;
+  if (!Array.isArray(grupos) || grupos.length === 0) return dto;
+
+  const ids = [...new Set(
+    grupos.flatMap((g) => g.actividades.map((a) => a.id).filter((id): id is number => typeof id === "number"))
+  )];
+  if (ids.length === 0) return dto;
+
+  const rows = await prisma.actividadRef.findMany({ where: { id: { in: ids } }, select: { id: true, descripcion: true } });
+  const byId = new Map(rows.map((r) => [r.id, r.descripcion ?? undefined]));
+
+  dto.paqueteIncluyeDestinos = grupos.map((g) => ({
+    ...g,
+    actividades: g.actividades.map((a) =>
+      typeof a.id === "number" ? { ...a, detalle: byId.get(a.id) } : a
+    ),
+  }));
+  return dto;
 }
