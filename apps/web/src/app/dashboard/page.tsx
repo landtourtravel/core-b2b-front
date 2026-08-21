@@ -1139,11 +1139,12 @@ export default function DashboardPage() {
   // Cotizaciones guardadas antes de que existiera este campo (wizardState null) solo
   // recuperan los datos del cliente — el resto debe rearmarse manualmente.
   const handleEditCot = async (id: string) => {
+    console.log("[handleEditCot] llamada con id", id);
     try {
       const res = await fetch(`/api/cotizaciones/${id}`);
-      if (!res.ok) return;
+      if (!res.ok) { console.log("[handleEditCot] fetch no-ok", res.status); return; }
       const cot = await res.json();
-      if (cot.status !== "BORRADOR") return;
+      if (cot.status !== "BORRADOR") { console.log("[handleEditCot] status no es BORRADOR", cot.status); return; }
 
       resetForm();
       const ws = (cot.wizardState ?? {}) as Record<string, unknown>;
@@ -1170,6 +1171,31 @@ export default function DashboardPage() {
       // See restoreDraft: avoid the default-hotel effect clobbering the restored selection.
       if (finalCotMode === "catalogo" && finalHotelIds.length > 0) skipHotelDefaultRef.current = true;
 
+      const finalNumPersonas = get("cotNumPersonas", fallbackNumPersonas);
+      const finalNumNinos    = isQuickQuoteEdit ? 0 : get("cotNumNinos", pax.cantCHD ?? 0);
+
+      // cotHabs guardado puede venir vacío a propósito — la cotización rápida nunca pregunta
+      // habitaciones (ver wizardState en quick/route.ts). En modo catálogo, si no trae nada
+      // útil, se deriva de los pasajeros (mismo cálculo que el useEffect "Auto-derive room
+      // distribution", líneas ~405-413): sin este fallback, ese efecto no vuelve a dispararse
+      // cuando cotNumPersonas/cotNumNinos no cambian de valor (p.ej. ya estaban en el default
+      // 2/0), y cotHabs se queda en `{}` — la cotización se guarda sin ninguna habitación.
+      const storedHabs = get<Record<string, number>>("cotHabs", {});
+      const habTypeMap: Record<number, string> = { 1: "SGL", 2: "DBL", 3: "TPL", 4: "QUAD" };
+      const derivedHabs: Record<string, number> = {};
+      const adultHabType = habTypeMap[finalNumPersonas];
+      if (adultHabType) derivedHabs[adultHabType] = 1;
+      if (finalNumNinos > 0) derivedHabs["CHD"] = finalNumNinos;
+      const finalHabs = finalCotMode === "catalogo" && Object.keys(storedHabs).length === 0
+        ? derivedHabs
+        : storedHabs;
+      // TEMP DEBUG — remove once confirmed. console.debug es "Verbose" y Chrome/Edge lo
+      // oculta por default en DevTools — usar console.log para que siempre se vea.
+      console.log("[handleEditCot debug]", {
+        finalCotMode, finalNumPersonas, finalNumNinos, storedHabs, derivedHabs, finalHabs,
+        isQuickQuoteEdit, wizardStateRaw: cot.wizardState,
+      });
+
       setClientName(get("clientName", cot.cliente?.nombre ?? ""));
       setClientEmail(get("clientEmail", cot.cliente?.email ?? ""));
       setClientPhone(get("clientPhone", cot.cliente?.telefono ?? ""));
@@ -1179,7 +1205,7 @@ export default function DashboardPage() {
       setCotSelectedPkgId(get("cotSelectedPkgId", cot.paqueteId ?? null));
       setCotSelectedDestinoId(get("cotSelectedDestinoId", null));
       setCotSelectedHotelIds(finalHotelIds);
-      setCotHabs(get("cotHabs", {}));
+      setCotHabs(finalHabs);
       setCotFechaSalida(get("cotFechaSalida", cot.fechaViaje ?? ""));
       setCotCustomDias(get("cotCustomDias", 5));
       setCotExtraNightsByDestino(get("cotExtraNightsByDestino", {}));
@@ -1190,8 +1216,8 @@ export default function DashboardPage() {
       setCotLibreFlightDesc(get("cotLibreFlightDesc", ""));
       setCotLibreActSel(get("cotLibreActSel", {}));
       setCotLibreTrsSel(get("cotLibreTrsSel", {}));
-      setCotNumPersonas(get("cotNumPersonas", fallbackNumPersonas));
-      setCotNumNinos(isQuickQuoteEdit ? 0 : get("cotNumNinos", pax.cantCHD ?? 0));
+      setCotNumPersonas(finalNumPersonas);
+      setCotNumNinos(finalNumNinos);
       setCotNinosEdades(isQuickQuoteEdit ? [] : get("cotNinosEdades", Array(pax.cantCHD ?? 0).fill(5)));
       setCotFromQuickQuote(get("cotFromQuickQuote", true));
 

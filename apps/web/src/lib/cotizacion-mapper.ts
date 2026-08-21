@@ -1,7 +1,12 @@
 import type { Cliente, Cotizacion, CotizacionDetalle, PrismaClient } from "@/generated/prisma";
 import type { IncluyeDestinoGroup } from "@land-tour/shared";
 
-type CotizacionRow = Cotizacion & { cliente: Cliente; detalles: CotizacionDetalle[] };
+// Los campos JSON pesados son opcionales: el listado (`GET /api/cotizaciones`) los omite a
+// nivel de query (Prisma `omit`) porque sus consumidores solo usan campos planos; las rutas
+// de detalle/creación/edición pasan la fila completa.
+type HeavyField = "snapshotIncluye" | "snapshotIncluyeDestinos" | "hotelsComparisonSnapshot" | "wizardState";
+type CotizacionRow = Omit<Cotizacion, HeavyField> &
+  Partial<Pick<Cotizacion, HeavyField>> & { cliente: Cliente; detalles: CotizacionDetalle[] };
 
 const PAX_TIPOS = ["SGL", "DBL", "TPL", "QUAD", "CHD"] as const;
 
@@ -20,7 +25,7 @@ export function mapCotizacionRow(c: CotizacionRow) {
     paqueteNombre:   c.snapshotNombre,
     paqueteDuracion: c.snapshotDuracion,
     paqueteDestino:  c.snapshotDestino,
-    paqueteIncluye:  c.snapshotIncluye,
+    paqueteIncluye:  c.snapshotIncluye ?? [],
     paqueteIncluyeDestinos: (c.snapshotIncluyeDestinos as any) ?? undefined,
     incluyeBoleto:   c.incluyeBoleto,
     pasajeros: Object.fromEntries(

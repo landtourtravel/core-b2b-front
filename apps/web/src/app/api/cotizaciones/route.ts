@@ -40,6 +40,10 @@ export async function GET() {
     const rows = await prisma.cotizacion.findMany({
       where: { agenciaId: session.user.agenciaId, creadoPorId: userId },
       include: { cliente: true, detalles: true },
+      // El listado solo consume campos planos (tabla, dashboard, preview marca blanca).
+      // Los JSON pesados se omiten aquí; la vista de detalle y la edición traen la fila
+      // completa vía GET /api/cotizaciones/[id].
+      omit: { snapshotIncluye: true, snapshotIncluyeDestinos: true, hotelsComparisonSnapshot: true, wizardState: true },
       orderBy: { fechaCreacion: "desc" },
     });
 

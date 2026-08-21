@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma";
 import { logError } from "@/lib/logger";
 import { mapCotizacionRow, attachLiveActividadDetalle } from "@/lib/cotizacion-mapper";
 
@@ -136,9 +135,11 @@ export async function PUT(
         // snapshotIncluye (array plano) ya no se escribe — snapshotIncluyeDestinos lo
         // reemplaza (mismos datos, agrupados, sin duplicar). La columna se conserva solo
         // como fallback de lectura para cotizaciones creadas antes de este cambio.
-        snapshotIncluyeDestinos: Array.isArray(paqueteIncluyeDestinos) ? paqueteIncluyeDestinos : Prisma.JsonNull,
-        hotelsComparisonSnapshot: Array.isArray(hotelsComparison) ? hotelsComparison : Prisma.JsonNull,
-        wizardState: wizardState ?? Prisma.JsonNull,
+        // Un body sin estos campos NO debe vaciarlos: se omiten del update para
+        // conservar el snapshot ya congelado en la fila.
+        ...(Array.isArray(paqueteIncluyeDestinos) ? { snapshotIncluyeDestinos: paqueteIncluyeDestinos } : {}),
+        ...(Array.isArray(hotelsComparison) ? { hotelsComparisonSnapshot: hotelsComparison } : {}),
+        ...(wizardState != null ? { wizardState } : {}),
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto != null ? r2(precioBoleto) : null,
         boletoTotal,

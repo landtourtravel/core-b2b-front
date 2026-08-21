@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma";
 import { logError } from "@/lib/logger";
 
 export async function PATCH(
@@ -78,16 +79,37 @@ export async function PATCH(
         updateData.subtotal = derivedSubtotal > 0 ? derivedSubtotal : cotizacion.subtotal;
       }
 
-      // Mark selected hotels in comparison snapshot (v2 multi-destino support)
+      // Al aprobar, el snapshot de comparación se PODA a los hoteles elegidos (uno por
+      // destino): las alternativas descartadas ya no aportan valor histórico y son el
+      // mayor peso JSON de la fila. Los sobrevivientes quedan con `selected: true`.
       const allIds = Array.isArray(selectedHotelIds) && selectedHotelIds.length > 0
         ? selectedHotelIds
         : (primaryId ? [primaryId] : []);
       if (allIds.length > 0 && Array.isArray(snapshot) && snapshot.length > 0) {
-        updateData.hotelsComparisonSnapshot = snapshot.map((h: any) => ({
-          ...h,
-          selected: allIds.includes(h.hotelId),
-        }));
+        // dedupeDestinoLabels (cotizar-price.ts) deja destinoCiudad/destinoPais solo en la
+        // primera aparición de cada destinoId; antes de podar se rehidratan en los hoteles
+        // sobrevivientes, o la vista mostraría ciudades vacías.
+        const labelByDestino = new Map<number, { ciudad?: string; pais?: string }>();
+        for (const h of snapshot) {
+          const dId = h.destinoId ?? 0;
+          if (!labelByDestino.has(dId) && (h.destinoCiudad || h.destinoPais))
+            labelByDestino.set(dId, { ciudad: h.destinoCiudad, pais: h.destinoPais });
+        }
+        updateData.hotelsComparisonSnapshot = snapshot
+          .filter((h: any) => allIds.includes(h.hotelId))
+          .map((h: any) => ({
+            ...h,
+            destinoCiudad: h.destinoCiudad ?? labelByDestino.get(h.destinoId ?? 0)?.ciudad,
+            destinoPais:   h.destinoPais   ?? labelByDestino.get(h.destinoId ?? 0)?.pais,
+            selected: true,
+          }));
       }
+    }
+
+    // wizardState solo sirve para reeditar BORRADORes (handleEditCot aborta en cualquier
+    // otro estado y el PUT solo acepta BORRADOR): en estados finales es peso muerto.
+    if (status === "APROBADA" || status === "RECHAZADA") {
+      updateData.wizardState = Prisma.JsonNull;
     }
 
     const [updated] = await prisma.$transaction([
