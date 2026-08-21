@@ -261,7 +261,7 @@ export default function CotizacionDetailView({
     ["Duración",  cot.paqueteDuracion || ""],
     ["Salida",    fmtDate(cot.fechaViaje)],
     ["Retorno",   fmtDate(cot.fechaRetorno)],
-    ["Pasajeros", pasajerosLabel],
+    ...(isGenericClient ? [] : [["Pasajeros", pasajerosLabel] as [string, string]]),
   ];
 
   const adultTipoLabel =
