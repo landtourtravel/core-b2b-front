@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, MapPin, Clock, Plane, CheckCircle, Calendar, Mail, Phone,
   MessageCircle, CreditCard, ChevronRight, ShieldCheck, AlertCircle,
-  Building2, Car, UtensilsCrossed, Map, Waves, TreePine, Moon,
+  Building2, Car, UtensilsCrossed, Map, Waves, TreePine, Moon, Quote,
 } from "lucide-react";
 import Image from "next/image";
 import { Package } from "@land-tour/shared";
@@ -309,39 +309,84 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                   </div>
 
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                    {/* Section header */}
-                    <div className="px-6 pt-5 pb-4 border-b border-gray-50">
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/15 text-secondary text-[9px] font-black rounded-lg uppercase tracking-widest">
-                          <CheckCircle size={10} /> Incluye
-                        </span>
-                        <h3 className="text-sm font-black text-primary tracking-tight">Lo más destacado</h3>
-                      </div>
-                      <p className="text-[11px] font-medium text-primary/40 mt-1">Servicios y experiencias incluidas en este programa</p>
-                    </div>
-                    {/* Pills grid */}
-                    <div className="p-5">
-                      {(packageData.includes?.length ?? 0) > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {packageData.includes!.map((item, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 rounded-xl hover:bg-secondary/20 hover:border-secondary/40 hover:scale-[1.02] transition-all duration-200 cursor-default group"
-                            >
-                              <div className="w-7 h-7 rounded-lg bg-white/80 flex items-center justify-center shadow-sm shrink-0 group-hover:bg-white transition-colors">
-                                {getIncludeIcon(item)}
-                              </div>
-                              <span className="text-[12px] font-bold text-primary/80 leading-tight">{item}</span>
+                    {packageData.description?.trim() ? (
+                      <>
+                        {/* Section header */}
+                        <div className="px-6 pt-5 pb-4 border-b border-gray-50">
+                          <div className="flex items-center gap-3">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/15 text-secondary text-[9px] font-black rounded-lg uppercase tracking-widest">
+                              <CheckCircle size={10} /> Descripción
+                            </span>
+                            <h3 className="text-sm font-black text-primary tracking-tight">Lo más destacado</h3>
+                          </div>
+                        </div>
+                        {/* Description text — editorial styling */}
+                        <div className="relative px-6 sm:px-8 py-6 sm:py-7 overflow-hidden">
+                          <div className="absolute -top-2 right-3 sm:right-6 text-secondary/[0.06] pointer-events-none">
+                            <Quote size={96} strokeWidth={1.5} />
+                          </div>
+                          <div className="relative flex gap-4">
+                            <div className="hidden sm:flex w-9 h-9 rounded-full bg-gold/15 items-center justify-center shrink-0 mt-0.5">
+                              <Quote size={16} className="text-gold" />
                             </div>
-                          ))}
+                            <div className="space-y-3 max-w-2xl">
+                              {packageData.description
+                                .split(/\n{2,}/)
+                                .map((s) => s.trim())
+                                .filter(Boolean)
+                                .map((para, i) => (
+                                  <p
+                                    key={i}
+                                    className={
+                                      i === 0
+                                        ? "text-sm sm:text-[15px] font-bold text-primary leading-relaxed"
+                                        : "text-[13px] sm:text-sm font-medium text-primary/60 leading-relaxed"
+                                    }
+                                  >
+                                    {para}
+                                  </p>
+                                ))}
+                            </div>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center py-8 gap-2">
-                          <CheckCircle size={28} className="text-primary/10" />
-                          <p className="text-xs font-bold text-primary/30">Servicios incluidos próximamente</p>
+                      </>
+                    ) : (
+                      <>
+                        {/* Section header */}
+                        <div className="px-6 pt-5 pb-4 border-b border-gray-50">
+                          <div className="flex items-center gap-3">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/15 text-secondary text-[9px] font-black rounded-lg uppercase tracking-widest">
+                              <CheckCircle size={10} /> Incluye
+                            </span>
+                            <h3 className="text-sm font-black text-primary tracking-tight">Lo más destacado</h3>
+                          </div>
+                          <p className="text-[11px] font-medium text-primary/40 mt-1">Servicios y experiencias incluidas en este programa</p>
                         </div>
-                      )}
-                    </div>
+                        {/* Pills grid */}
+                        <div className="p-5">
+                          {(packageData.includes?.length ?? 0) > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                              {packageData.includes!.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 rounded-xl hover:bg-secondary/20 hover:border-secondary/40 hover:scale-[1.02] transition-all duration-200 cursor-default group"
+                                >
+                                  <div className="w-7 h-7 rounded-lg bg-white/80 flex items-center justify-center shadow-sm shrink-0 group-hover:bg-white transition-colors">
+                                    {getIncludeIcon(item)}
+                                  </div>
+                                  <span className="text-[12px] font-bold text-primary/80 leading-tight">{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center py-8 gap-2">
+                              <CheckCircle size={28} className="text-primary/10" />
+                              <p className="text-xs font-bold text-primary/30">Servicios incluidos próximamente</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -483,7 +528,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                   <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
                     <div className="bg-primary p-6 rounded-2xl text-white shadow-xl relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-12 translate-x-12 blur-2xl" />
-                      <span className="text-[10px] font-black uppercase text-secondary tracking-widest">Inversión Total</span>
+                      <span className="text-[10px] font-black uppercase text-secondary tracking-widest">Tu inversión desde</span>
                       <div className="flex items-baseline gap-2 mt-1">
                         <span className="text-4xl font-black tracking-tighter">${packageData.price}</span>
                         <span className="text-xs font-bold text-white/60">USD / pax</span>
@@ -574,6 +619,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                             <input type="text" placeholder="Tu Nombre" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
                             <input type="email" placeholder="Tu Email" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
                           </div>
+                          <input type="tel" placeholder="Tu Teléfono" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
                           <input type="text" readOnly value={packageData.title ?? ""} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold outline-none cursor-default text-primary/50" />
                           <textarea
                             placeholder="Mensaje... (Indica fechas, número de personas, etc)"
