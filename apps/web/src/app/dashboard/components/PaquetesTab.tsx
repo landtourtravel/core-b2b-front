@@ -147,43 +147,45 @@ export default function PaquetesTab({
                       {pkgs.map((pkg) => (
                         <div
                           key={pkg.id}
-                          className="flex items-center gap-4 px-6 py-4 hover:bg-light/40 transition-colors group/row"
+                          className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-light/40 transition-colors group/row"
                         >
-                          {/* Miniatura */}
-                          <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                            <Image
-                              src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80"}
-                              alt={pkg.title}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-cover transition-transform duration-300 group-hover/row:scale-105"
-                            />
-                          </div>
-                          {/* Info */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-black text-primary leading-tight line-clamp-1 group-hover/row:text-secondary transition-colors">
-                              {pkg.title}
-                            </h4>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
-                              <span className="flex items-center gap-1 text-[10px] font-bold text-primary/40">
-                                <Clock size={9} /> {pkg.duration || `${pkg.diasEstancia}d / ${pkg.nochesBase}n`}
-                              </span>
-                              {pkg.flightIncluded && (
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-secondary">
-                                  <Plane size={9} /> Vuelo incluido
+                          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                            {/* Miniatura */}
+                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0">
+                              <Image
+                                src={pkg.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80"}
+                                alt={pkg.title}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover/row:scale-105"
+                              />
+                            </div>
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-xs font-black text-primary leading-tight line-clamp-1 group-hover/row:text-secondary transition-colors">
+                                {pkg.title}
+                              </h4>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-primary/40 whitespace-nowrap">
+                                  <Clock size={9} /> {pkg.duration || `${pkg.diasEstancia}d / ${pkg.nochesBase}n`}
                                 </span>
+                                {pkg.flightIncluded && (
+                                  <span className="flex items-center gap-1 text-[10px] font-bold text-secondary whitespace-nowrap">
+                                    <Plane size={9} /> Vuelo incluido
+                                  </span>
+                                )}
+                              </div>
+                              {pkg.includes && pkg.includes.length > 0 && (
+                                <p className="text-[10px] font-medium text-primary/35 mt-1 line-clamp-1">
+                                  Incluye: {pkg.includes.slice(0, 3).join(" · ")}
+                                  {pkg.includes.length > 3 && ` y ${pkg.includes.length - 3} más`}
+                                </p>
                               )}
                             </div>
-                            {pkg.includes && pkg.includes.length > 0 && (
-                              <p className="text-[10px] font-medium text-primary/35 mt-1 line-clamp-1">
-                                Incluye: {pkg.includes.slice(0, 3).join(" · ")}
-                                {pkg.includes.length > 3 && ` y ${pkg.includes.length - 3} más`}
-                              </p>
-                            )}
                           </div>
                           {/* Precio + Botones */}
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <div className="text-right">
+                          <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-2 sm:gap-2 sm:shrink-0 sm:ml-4">
+                            <div className="text-left sm:text-right">
                               <span className="text-[8px] font-black uppercase text-gray-400 block leading-none">Desde</span>
                               <span className="text-sm font-black text-primary">${pkg.price} <span className="text-[9px] font-bold text-primary/40">USD</span></span>
                             </div>

@@ -2599,33 +2599,33 @@ export default function DashboardPage() {
                         </div>
                       )}
 
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-gray-50">
-                        <button onClick={() => setStep(1)} disabled={quoteLocked} className="px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Atrás</button>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:ml-auto">
-                          {!step2CanProceed && (
-                            <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
-                              <AlertCircle size={11} className="shrink-0" />
-                              {cotMode === "catalogo"
-                                ? (!cotSelectedPkgId
-                                    ? "Selecciona un programa turístico."
-                                    : versionWarning
-                                      ? "No hay versión configurada para la cantidad de adultos."
-                                      : "La fecha de salida es obligatoria.")
-                                : (!cotLibreDestinosOk
-                                    ? (cotIsMultiDestino ? "Selecciona al menos dos destinos." : "Selecciona un destino.")
-                                    : cotSelectedHotelIds.length === 0
-                                      ? "Selecciona al menos un hotel."
-                                        : !cotLibreNochesMatch
-                                          ? (!cotLibreNochesAllMin1
-                                              ? "Cada destino debe tener mínimo 1 noche."
-                                              : `Las noches por destino deben sumar ${cotNoches} (llevas ${cotLibreNochesAsignadas}).`)
-                                          : "La fecha de salida es obligatoria.")}
-                            </p>
-                          )}
+                      <div className="flex flex-col gap-3 pt-2 border-t border-gray-50">
+                        {!step2CanProceed && (
+                          <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
+                            <AlertCircle size={11} className="shrink-0" />
+                            {cotMode === "catalogo"
+                              ? (!cotSelectedPkgId
+                                  ? "Selecciona un programa turístico."
+                                  : versionWarning
+                                    ? "No hay versión configurada para la cantidad de adultos."
+                                    : "La fecha de salida es obligatoria.")
+                              : (!cotLibreDestinosOk
+                                  ? (cotIsMultiDestino ? "Selecciona al menos dos destinos." : "Selecciona un destino.")
+                                  : cotSelectedHotelIds.length === 0
+                                    ? "Selecciona al menos un hotel."
+                                      : !cotLibreNochesMatch
+                                        ? (!cotLibreNochesAllMin1
+                                            ? "Cada destino debe tener mínimo 1 noche."
+                                            : `Las noches por destino deben sumar ${cotNoches} (llevas ${cotLibreNochesAsignadas}).`)
+                                        : "La fecha de salida es obligatoria.")}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between gap-3">
+                          <button onClick={() => setStep(1)} disabled={quoteLocked} className="px-4 sm:px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Atrás</button>
                           <button
                             onClick={() => { if (step2CanProceed) setStep(3); }}
                             disabled={!step2CanProceed || quoteLocked}
-                            className="px-6 py-3 bg-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                            className="px-4 sm:px-6 py-3 bg-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
                           >
                             Siguiente Paso <ChevronRight size={14} />
                           </button>
@@ -2995,6 +2995,9 @@ export default function DashboardPage() {
                                         // todas las tarifas (eso mezclaba la tarifa NINO, más barata, aunque
                                         // no haya niños en la cotización y nunca se vaya a cobrar ese precio).
                                         const adultPrice = getTrasladoPerPax(trs.tarifas, cotNumPersonas);
+                                        // Mismo fallback que el cálculo real del total (cotLibreServicesForDestino):
+                                        // si el traslado no tiene tarifa NINO propia, el niño paga la tarifa de adulto.
+                                        const childPrice = getTrasladoChildPerPax(trs.tarifas, cotNumNinos) ?? adultPrice;
                                         return (
                                           <button key={trs.id} type="button"
                                             onClick={() => setCotLibreTrsSel((prev) => ({ ...prev, [trs.id]: !prev[trs.id] }))}
@@ -3006,6 +3009,7 @@ export default function DashboardPage() {
                                             <div className="flex-grow min-w-0">
                                               <p className="text-xs font-black text-primary">{trs.tipo}</p>
                                               {adultPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">${adultPrice}/persona ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""})</p>}
+                                              {cotNumNinos > 0 && <p className="text-[10px] text-rose-400 font-bold mt-0.5">${childPrice}/niño ({cotNumNinos} niño{cotNumNinos !== 1 ? "s" : ""})</p>}
                                             </div>
                                           </button>
                                         );
@@ -3023,6 +3027,9 @@ export default function DashboardPage() {
                                         const checked = !!cotLibreActSel[act.id];
                                         // Precio real de adulto para el grupo declarado — ver mismo fix en traslados arriba.
                                         const adultPrice = getActividadAdultPerPax(act.tarifas, cotNumPersonas);
+                                        // Mismo cálculo que el total real (cotLibreServicesForDestino): sin fallback
+                                        // a tarifa de adulto — si no hay tarifa NINO configurada, el niño no paga extra.
+                                        const childPrice = getActividadChildPerPax(act.tarifas, cotNumNinos);
                                         return (
                                           <button key={act.id} type="button"
                                             onClick={() => setCotLibreActSel((prev) => ({ ...prev, [act.id]: !prev[act.id] }))}
@@ -3035,6 +3042,7 @@ export default function DashboardPage() {
                                               <p className="text-xs font-black text-primary">{act.nombre}</p>
                                               {act.descripcion && <p className="text-[10px] text-primary/40 font-bold mt-0.5">{act.descripcion}</p>}
                                               {adultPrice > 0 && <p className="text-[10px] text-secondary font-bold mt-0.5">${adultPrice}/persona ({cotNumPersonas} adulto{cotNumPersonas !== 1 ? "s" : ""})</p>}
+                                              {cotNumNinos > 0 && <p className="text-[10px] text-rose-400 font-bold mt-0.5">${childPrice}/niño ({cotNumNinos} niño{cotNumNinos !== 1 ? "s" : ""})</p>}
                                             </div>
                                           </button>
                                         );
@@ -3077,21 +3085,21 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-gray-50">
-                        <button onClick={() => setStep(2)} disabled={quoteLocked} className="px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Atrás</button>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:ml-auto">
-                          {!step3CanProceed && (
-                            <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
-                              <AlertCircle size={11} className="shrink-0" />
-                              {(!cotCatAllDestinosSelected || !cotLibreAllDestinosSelected)
-                                ? "Selecciona un hotel para cada destino."
-                                : "Agrega al menos una habitación para continuar."}
-                            </p>
-                          )}
+                      <div className="flex flex-col gap-3 pt-2 border-t border-gray-50">
+                        {!step3CanProceed && (
+                          <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
+                            <AlertCircle size={11} className="shrink-0" />
+                            {(!cotCatAllDestinosSelected || !cotLibreAllDestinosSelected)
+                              ? "Selecciona un hotel para cada destino."
+                              : "Agrega al menos una habitación para continuar."}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between gap-3">
+                          <button onClick={() => setStep(2)} disabled={quoteLocked} className="px-4 sm:px-6 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Atrás</button>
                           <button
                             onClick={() => { if (step3CanProceed) setStep(4); }}
                             disabled={!step3CanProceed || quoteLocked}
-                            className="px-6 py-3 bg-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                            className="px-4 sm:px-6 py-3 bg-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
                           >
                             Revisar Cotización <ChevronRight size={14} />
                           </button>
