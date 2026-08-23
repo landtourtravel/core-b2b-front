@@ -93,22 +93,24 @@ export const PackageCard: React.FC<PackageCardProps> = ({
       {/* ── Body ── */}
       <div className="p-3.5 sm:p-5 flex flex-col flex-1">
 
-        {/* Location tag */}
-        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+        {/* Location tag — una sola línea siempre (evita que un nombre largo de
+            destinos o la pill "Multi-destino" hagan crecer la card frente a las demás). */}
+        <div className="flex items-center gap-1.5 mb-2">
           <MapPin size={13} className="text-secondary shrink-0" />
-          <span className="text-secondary text-xs font-semibold tracking-wide">
+          <span className="text-secondary text-xs font-semibold tracking-wide truncate min-w-0">
             {locationLabel}
           </span>
           {isMultiDestino && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold/15 text-gold border border-gold/30 text-[9px] font-black uppercase tracking-wider rounded-md">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold/15 text-gold border border-gold/30 text-[9px] font-black uppercase tracking-wider rounded-md shrink-0">
               <MapPin size={8} />
               Multi-destino
             </span>
           )}
         </div>
 
-        {/* Title */}
-        <h3 className="text-primary font-bold text-sm sm:text-[17px] leading-snug mb-2 sm:mb-3 line-clamp-2 min-h-[2.5rem] sm:min-h-0">
+        {/* Title — altura fija (2 líneas) en todos los breakpoints, así un título
+            largo nunca estira la card por encima de las demás de la misma fila. */}
+        <h3 className="text-primary font-bold text-sm sm:text-[17px] leading-snug mb-2 sm:mb-3 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
           {title}
         </h3>
 

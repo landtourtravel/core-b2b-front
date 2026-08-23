@@ -624,6 +624,16 @@ export default function DashboardPage() {
     ? cotAllDestinos.flatMap((d) => d.hoteles)
     : (cotSelectedDestino?.hoteles ?? []);
   const cotPrimaryHotel    = cotAvailableHotels.find((h) => cotSelectedHotelIds.includes(h.id)) ?? null;
+  // Todos los hoteles actualmente marcados (puede ser más de uno por destino, o uno por
+  // cada destino en multidestino) — la distribución de habitaciones del Paso 3 es única y
+  // se cotiza igual contra CADA hotel/leg, así que un tipo de habitación solo es válido si
+  // TODOS los hoteles marcados tienen esa tarifa cargada (si a cualquiera le falta, esa
+  // habitación se calcularía a $0 en ese hotel).
+  const cotLibreSelectedHotels = cotAvailableHotels.filter((h) => cotSelectedHotelIds.includes(h.id));
+  const cotLibreTipoPaxAvailable = (tipoPax: string): boolean =>
+    cotLibreSelectedHotels.length === 0
+      ? true
+      : cotLibreSelectedHotels.every((h) => (h.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0) > 0);
   // hotelId → destinoId lookups, usados para aplicar la regla "solo un destino puede
   // tener más de un hotel marcado a la vez" (evita explosión combinatoria del cartesiano).
   const cotLibreDestinoIdByHotelId = new Map<number, number>(
@@ -646,6 +656,23 @@ export default function DashboardPage() {
       toggleHotelWithSingleDestinoCap(prev, hotelId, destinoId, cotCatDestinoIdByHotelId)
     );
   };
+  // Limpieza defensiva: si el asesor cambia de hotel y la cantidad ya cargada de un tipo
+  // de habitación deja de tener tarifa en la nueva selección, se descarta esa cantidad —
+  // de lo contrario esa habitación se seguiría cotizando a $0 en ese hotel sin aviso.
+  useEffect(() => {
+    if (cotMode !== "libre") return;
+    setCotHabs((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const tipoPax of Object.keys(prev)) {
+        if (tipoPax === "CHD") continue;
+        if ((prev[tipoPax] ?? 0) <= 0) continue;
+        if (!cotLibreTipoPaxAvailable(tipoPax)) { delete next[tipoPax]; changed = true; }
+      }
+      return changed ? next : prev;
+    });
+  }, [cotMode, cotLibreSelectedHotels]);
+
   // Comparative mode: catálogo with >1 hotel OR libre with >1 hotel selected
   const isComparativeMode =
     (cotMode === "catalogo" && (cotSelectedPkg?.hoteles.length ?? 0) > 1) ||
@@ -699,7 +726,11 @@ export default function DashboardPage() {
   const cotLibreHotelNoches = (destinoId: number): number =>
     cotMode === "libre" && cotIsMultiDestino ? (cotLibreNochesByDestino[destinoId] ?? 0) : cotNoches;
   const cotLibreNochesAsignadas = cotAllDestinoIds.reduce((sum, id) => sum + (cotLibreNochesByDestino[id] ?? 0), 0);
-  const cotLibreNochesMatch = cotMode !== "libre" || !cotIsMultiDestino || cotLibreNochesAsignadas === cotNoches;
+  // Ningún destino puede quedar en 0 noches — cada parada del itinerario debe tener al
+  // menos 1 noche declarada, además de que la suma cuadre con el total global.
+  const cotLibreNochesAllMin1 = cotAllDestinoIds.every((id) => (cotLibreNochesByDestino[id] ?? 0) >= 1);
+  const cotLibreNochesMatch = cotMode !== "libre" || !cotIsMultiDestino ||
+    (cotLibreNochesAsignadas === cotNoches && cotLibreNochesAllMin1);
 
   const step2CanProceed = cotFechaSalida.trim().length > 0 &&
     (cotMode === "catalogo"
@@ -1064,9 +1095,11 @@ export default function DashboardPage() {
     : "Según disponibilidad";
 
   // Nombre del paquete y resumen de pasajeros (adultos + niños declarados en el Paso 1).
+  // Toda cotización libre se guarda/muestra siempre con este nombre fijo — no es editable
+  // por el asesor.
   const cotPaqueteNombre = cotMode === "catalogo"
     ? (cotSelectedPkg?.nombre ?? "—")
-    : "Cotización libre";
+    : "Paquete Personalizado";
   const cotPasajerosDisplay = (() => {
     const parts: string[] = [];
     if (cotNumPersonas > 0) parts.push(`${cotNumPersonas} Adulto${cotNumPersonas !== 1 ? "s" : ""}`);
@@ -1296,7 +1329,7 @@ export default function DashboardPage() {
     } else if (cotMode === "libre" && cotAllDestinos.length > 0) {
       const cities    = cotAllDestinos.map((d) => d.ciudad).join(" + ");
       const countries = [...new Set(cotAllDestinos.map((d) => d.pais))].join(" / ");
-      paqueteNombre   = `Cotización Libre — ${cities}`;
+      paqueteNombre   = "Paquete Personalizado";
       paqueteDestino  = countries ? `${cities}, ${countries}` : cities;
       paqueteDuracion = `${cotCustomDias} Días / ${cotNoches} Noches`;
       incluyeBoleto   = cotFlightActive;
@@ -2460,7 +2493,7 @@ export default function DashboardPage() {
                                       <div className="space-y-1.5">
                                         <label className={labelCls}>Noches en {destino.ciudad} *</label>
                                         <input
-                                          type="number" min={0} max={cotNoches}
+                                          type="number" min={1} max={cotNoches}
                                           value={(cotLibreNochesByDestino[destino.id] ?? 0) === 0 ? "" : cotLibreNochesByDestino[destino.id]}
                                           onChange={(e) => {
                                             const raw = e.target.value;
@@ -2472,7 +2505,13 @@ export default function DashboardPage() {
                                             if (isNaN(val) || val < 0) return;
                                             setCotLibreNochesByDestino((prev) => ({ ...prev, [destino.id]: Math.min(cotNoches, val) }));
                                           }}
-                                          placeholder="0"
+                                          onBlur={() => {
+                                            setCotLibreNochesByDestino((prev) => {
+                                              const current = prev[destino.id] ?? 0;
+                                              return current < 1 ? { ...prev, [destino.id]: 1 } : prev;
+                                            });
+                                          }}
+                                          placeholder="1"
                                           className={inputCls}
                                         />
                                       </div>
@@ -2548,7 +2587,11 @@ export default function DashboardPage() {
                                 <div className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-[10px] font-bold ${cotLibreNochesMatch ? "bg-secondary/5 border-secondary/15 text-secondary" : "bg-amber-50 border-amber-200 text-amber-700"}`}>
                                   {cotLibreNochesMatch ? <CheckCircle2 size={13} className="shrink-0" /> : <AlertCircle size={13} className="shrink-0" />}
                                   Noches asignadas: {cotLibreNochesAsignadas} / {cotNoches} requeridas
-                                  {!cotLibreNochesMatch && " — ajusta las noches por destino para que sumen el total de \"Cantidad de Días\"."}
+                                  {!cotLibreNochesMatch && (
+                                    !cotLibreNochesAllMin1
+                                      ? " — cada destino debe tener mínimo 1 noche."
+                                      : " — ajusta las noches por destino para que sumen el total de \"Cantidad de Días\"."
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -2572,9 +2615,11 @@ export default function DashboardPage() {
                                     ? (cotIsMultiDestino ? "Selecciona al menos dos destinos." : "Selecciona un destino.")
                                     : cotSelectedHotelIds.length === 0
                                       ? "Selecciona al menos un hotel."
-                                      : !cotLibreNochesMatch
-                                        ? `Las noches por destino deben sumar ${cotNoches} (llevas ${cotLibreNochesAsignadas}).`
-                                        : "La fecha de salida es obligatoria.")}
+                                        : !cotLibreNochesMatch
+                                          ? (!cotLibreNochesAllMin1
+                                              ? "Cada destino debe tener mínimo 1 noche."
+                                              : `Las noches por destino deben sumar ${cotNoches} (llevas ${cotLibreNochesAsignadas}).`)
+                                          : "La fecha de salida es obligatoria.")}
                             </p>
                           )}
                           <button
@@ -2644,14 +2689,17 @@ export default function DashboardPage() {
                               { tipoPax: "TPL",  label: "Triple (TPL)",     numPax: 3 },
                               { tipoPax: "QUAD", label: "Cuádruple (QUAD)", numPax: 4 },
                             ] as const).map(({ tipoPax, label }) => {
+                              const available = cotLibreTipoPaxAvailable(tipoPax);
                               const precio = getCotPrice(tipoPax);
                               const qty    = cotHabs[tipoPax] ?? 0;
-                              const tarifaLabel = precio > 0 ? `$${precio}/p/noche` : "Sin tarifa";
+                              const tarifaLabel = !available
+                                ? "No disponible"
+                                : (precio > 0 ? `$${precio}/p/noche` : "Sin tarifa");
                               return (
-                                <div key={tipoPax} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${precio > 0 || qty > 0 ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-60"}`}>
+                                <div key={tipoPax} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${available || qty > 0 ? "bg-light border-lighter hover:border-secondary/30" : "bg-gray-50 border-gray-100 opacity-60"}`}>
                                   <div className="space-y-0.5 min-w-0">
                                     <span className="text-xs font-black text-primary block">{label}</span>
-                                    <span className={`text-[10px] font-bold block ${precio > 0 ? "text-secondary" : "text-primary/30"}`}>{tarifaLabel}</span>
+                                    <span className={`text-[10px] font-bold block ${available && precio > 0 ? "text-secondary" : "text-primary/30"}`}>{tarifaLabel}</span>
                                   </div>
                                   <div className="flex items-center gap-2 shrink-0 ml-4">
                                     <button type="button" onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: Math.max(0, (prev[tipoPax] ?? 0) - 1) }))} disabled={qty === 0} aria-label={`Reducir cantidad de ${label}`} className="w-11 h-11 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary hover:border-secondary hover:text-secondary transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
@@ -2661,7 +2709,9 @@ export default function DashboardPage() {
                                     <button
                                       type="button"
                                       onClick={() => setCotHabs((prev) => ({ ...prev, [tipoPax]: (prev[tipoPax] ?? 0) + 1 }))}
+                                      disabled={!available}
                                       aria-label={`Aumentar cantidad de ${label}`}
+                                      title={available ? undefined : "El hotel seleccionado no tiene esta habitación disponible"}
                                       className="w-11 h-11 rounded-lg bg-secondary text-primary flex items-center justify-center hover:bg-secondary-light transition-all cursor-pointer shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
                                     >
                                       <Plus size={12} />
@@ -3173,7 +3223,7 @@ export default function DashboardPage() {
                               </p>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                            <div className={`grid grid-cols-1 ${cotCatCombos.length > 1 ? "lg:grid-cols-2" : ""} gap-4 items-start`}>
                               {cotCatCombos.map((combo, idx) => {
                                 const isCheapest = combo === cotCatRepCombo;
                                 const t = combo.totals;
@@ -3342,7 +3392,7 @@ export default function DashboardPage() {
                               </p>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                            <div className={`grid grid-cols-1 ${cotLibreCombos.length > 1 ? "lg:grid-cols-2" : ""} gap-4 items-start`}>
                               {cotLibreCombos.map((combo, idx) => {
                                 const isCheapest = combo === cotLibreRepCombo;
                                 const t = combo.totals;

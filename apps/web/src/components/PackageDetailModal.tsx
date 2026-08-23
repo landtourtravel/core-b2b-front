@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, MapPin, Clock, Plane, CheckCircle, Calendar, Mail, Phone,
-  MessageCircle, CreditCard, ChevronRight, ShieldCheck, AlertCircle,
+  MessageCircle, CreditCard, ChevronRight, ShieldCheck,
   Building2, Car, UtensilsCrossed, Map, Waves, TreePine, Moon, Quote,
 } from "lucide-react";
 import Image from "next/image";
@@ -506,17 +506,55 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                             <span className="text-[11px] font-bold text-primary/60 leading-tight">{text}</span>
                           </div>
                         ))}
+                        <p className="text-[11px] font-bold text-primary/60 leading-relaxed">
+                          Servicios, alimentación, entradas, actividades, gastos personales, propinas y
+                          cualquier otro concepto que no esté expresamente indicado en &ldquo;Incluye&rdquo;.
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                      <AlertCircle size={16} />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Importante */}
+                    <div className="bg-amber-50 p-5 rounded-2xl border border-amber-100">
+                      <p className="text-xs font-black text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span>📌</span> Importante
+                      </p>
+                      <ul className="space-y-2 text-[11px] font-bold text-amber-800/90 leading-relaxed list-disc list-inside marker:text-amber-400">
+                        <li>
+                          Los servicios están sujetos a disponibilidad. Los horarios e itinerarios pueden
+                          presentar modificaciones por razones operativas, climáticas o de fuerza mayor.
+                          Los servicios terrestres y excursiones serán compartidos, salvo indicación contraria.
+                        </li>
+                        <li>Los servicios terrestres y excursiones pueden ser compartidos, salvo que se indique lo contrario.</li>
+                        <li>Los horarios de check-in y check-out están sujetos a las políticas de cada hotel.</li>
+                        <li>LT TOURS no se responsabiliza por inconvenientes ocasionados por documentación incorrecta, vencida o insuficiente.</li>
+                      </ul>
+                      {packageData.notes && packageData.notes.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-amber-200 space-y-1">
+                          {packageData.notes.map((n) => (
+                            <p key={n} className="text-[11px] font-bold text-amber-800 leading-relaxed">{n}</p>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-[10px] font-bold text-amber-800 leading-snug">
-                      <span className="font-black">NOTA IMPORTANTE:</span><br />
-                      {packageData.notes?.map((n) => <span key={n}>{n}<br /></span>)}
-                    </p>
+
+                    {/* Condiciones */}
+                    <div className="bg-primary/[0.04] p-5 rounded-2xl border border-primary/10">
+                      <p className="text-xs font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span>💼</span> Condiciones
+                      </p>
+                      <ul className="space-y-2 text-[11px] font-bold text-primary/70 leading-relaxed list-disc list-inside marker:text-secondary">
+                        <li>
+                          La cotización no constituye una reserva. Los precios están sujetos a disponibilidad
+                          y pueden variar sin previo aviso. Una vez confirmado el servicio, aplicarán las
+                          políticas de cambios, cancelaciones y penalidades de los proveedores correspondientes.
+                        </li>
+                        <li>Los pagos realizados pueden estar sujetos a condiciones de no reembolso, de acuerdo con las políticas de cada servicio contratado.</li>
+                        <li>LT TOURS actúa como intermediario entre el pasajero/agencia y los proveedores de servicios turísticos.</li>
+                        <li>Cualquier modificación realizada por la aerolínea, hotel, operador u otro proveedor será comunicada según corresponda.</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               )}

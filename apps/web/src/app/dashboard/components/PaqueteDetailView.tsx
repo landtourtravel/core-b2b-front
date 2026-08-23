@@ -118,11 +118,10 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
 
   const variantCards: VariantCard[] = useMemo(() => {
     const baseTipoPax = numPaxToTipoPax(paquete.numPax);
-    // La ocupación BASE solo se muestra como tarjeta propia cuando es una MEZCLA de
-    // habitaciones (sin una sola etiqueta SGL/DBL/TPL/QUAD) — es el único caso donde no
-    // hay otra forma de cotizarla desde esta grilla. Si el base es de una sola habitación,
-    // ya queda representado por su tipoPax si existe una `VersionPaquete` igual; si no
-    // existe ninguna versión, simplemente no se muestra tarjeta base.
+    // La ocupación BASE solo se muestra como tarjeta propia ("BASE") cuando es una MEZCLA de
+    // habitaciones (sin una sola etiqueta SGL/DBL/TPL/QUAD) — es el único caso donde no hay
+    // otra forma de cotizarla desde esta grilla. Si el base coincide con una nomenclatura ya
+    // definida, se representa con la tarjeta de esa nomenclatura (sin duplicar tarjeta).
     const cards: VariantCard[] = [];
     const seen = new Set<string>();
     if (!baseTipoPax) {
@@ -303,7 +302,7 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
               const key = `${v.tipoPax}-${v.numPax}`;
               return (
                 <div key={key} className={`bg-light rounded-xl p-3 border-t-4 ${TIPO_PAX_COLOR[v.tipoPax] ?? "border-t-secondary"}`}>
-                  <p className="text-xs font-black text-primary mb-1.5">{v.mixed ? "Base" : v.tipoPax}</p>
+                  <p className="text-xs font-black text-primary mb-1.5">{v.mixed ? "BASE" : v.tipoPax}</p>
                   {price != null ? (
                     <>
                       <span className="text-[7px] font-black uppercase text-gray-400 block leading-none">Desde</span>
