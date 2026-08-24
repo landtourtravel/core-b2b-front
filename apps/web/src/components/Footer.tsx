@@ -1,7 +1,6 @@
 // Server Component
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Instagram, Facebook } from "lucide-react";
 
 // ─── TikTok SVG icon (not in lucide-react) ────────────────────────────────────
@@ -45,17 +44,18 @@ export const Footer: React.FC = () => {
 
           {/* Col 1 — Brand */}
           <div className="flex flex-col gap-5">
-            {/* Logo — same as Navbar, white pill for contrast */}
+            {/* Logo blanco (sin fondo) — pensado para el footer oscuro, sin el pill blanco del Navbar.
+                SVG local servido directo (sin next/image): el optimizador de imágenes bloquea SVG
+                locales por defecto salvo que se habilite dangerouslyAllowSVG en next.config. */}
             <Link href="/" aria-label="Land Tour & Travel - Inicio" className="inline-flex w-fit">
-              <div className="bg-white rounded-2xl px-4 py-2.5 shadow-sm">
-                <Image
-                  src="/images/lttlogo.png"
-                  alt="Land Tour & Travel"
-                  width={110}
-                  height={36}
-                  className="object-contain"
-                />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/lttlogo-footer.svg"
+                alt="Land Tour & Travel"
+                width={190}
+                height={64}
+                className="object-contain"
+              />
             </Link>
 
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">

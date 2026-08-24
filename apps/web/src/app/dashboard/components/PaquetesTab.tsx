@@ -149,7 +149,7 @@ export default function PaquetesTab({
                           key={pkg.id}
                           className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-light/40 transition-colors group/row"
                         >
-                          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                          <div className="flex items-center gap-3 sm:gap-4 min-w-0 sm:flex-1">
                             {/* Miniatura */}
                             <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0">
                               <Image
