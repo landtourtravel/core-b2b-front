@@ -63,6 +63,8 @@ export const ContactSection: React.FC = () => {
     package: "",
     message: "",
   });
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -70,10 +72,32 @@ export const ContactSection: React.FC = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: connect to API / email service
-    console.log("Form submitted:", form);
+    setStatus("sending");
+    setStatusMessage("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus("error");
+        setStatusMessage(data.error || "No se pudo enviar el mensaje. Intenta de nuevo.");
+        return;
+      }
+
+      setStatus("success");
+      setStatusMessage(data.message || "Mensaje enviado. Te contactaremos pronto.");
+      setForm({ name: "", email: "", package: "", message: "" });
+    } catch {
+      setStatus("error");
+      setStatusMessage("No se pudo enviar el mensaje. Intenta de nuevo.");
+    }
   };
 
   return (
@@ -161,61 +185,77 @@ export const ContactSection: React.FC = () => {
           >
             <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
 
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Nombre completo"
-                className={inputCls}
-                required
-                autoComplete="name"
-              />
+              <fieldset disabled={status === "sending"} className="flex flex-col gap-4">
 
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Correo electrónico"
-                className={inputCls}
-                required
-                autoComplete="email"
-              />
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Nombre completo"
+                  className={inputCls}
+                  required
+                  autoComplete="name"
+                />
 
-              <input
-                type="text"
-                name="package"
-                value={form.package}
-                onChange={handleChange}
-                placeholder="Paquete de interés"
-                className={inputCls}
-              />
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="Correo electrónico"
+                  className={inputCls}
+                  required
+                  autoComplete="email"
+                />
 
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                placeholder="Tu mensaje"
-                rows={5}
-                className={`${inputCls} resize-none`}
-                required
-              />
+                <input
+                  type="text"
+                  name="package"
+                  value={form.package}
+                  onChange={handleChange}
+                  placeholder="Paquete de interés"
+                  className={inputCls}
+                />
 
-              <button
-                type="submit"
-                className="
-                  w-full flex items-center justify-center gap-2.5
-                  bg-primary hover:bg-primary-light active:scale-95
-                  text-white font-bold text-sm
-                  py-3.5 rounded-full
-                  transition-all duration-200 shadow-md hover:shadow-lg
-                  mt-2
-                "
-              >
-                <Send size={16} strokeWidth={2} />
-                Enviar mensaje
-              </button>
+                <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  placeholder="Tu mensaje"
+                  rows={5}
+                  className={`${inputCls} resize-none`}
+                  required
+                />
+
+                <button
+                  type="submit"
+                  className="
+                    w-full flex items-center justify-center gap-2.5
+                    bg-primary hover:bg-primary-light active:scale-95
+                    disabled:opacity-60 disabled:active:scale-100
+                    text-white font-bold text-sm
+                    py-3.5 rounded-full
+                    transition-all duration-200 shadow-md hover:shadow-lg
+                    mt-2
+                  "
+                >
+                  <Send size={16} strokeWidth={2} />
+                  {status === "sending" ? "Enviando..." : "Enviar mensaje"}
+                </button>
+
+              </fieldset>
+
+              {statusMessage && (
+                <p
+                  className={`text-sm font-medium text-center ${
+                    status === "success" ? "text-secondary" : "text-red-500"
+                  }`}
+                  role="status"
+                >
+                  {statusMessage}
+                </p>
+              )}
 
             </form>
           </motion.div>

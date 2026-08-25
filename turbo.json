@@ -14,8 +14,10 @@
         "SMTP_USER",
         "SMTP_PASS",
         "SMTP_FROM",
-        "ADMIN_EMAIL",
-        "LAND_TOUR_NOTIFY_EMAIL"
+        "SMTP_USER_CTZ",
+        "SMTP_PASS_CTZ",
+        "SMTP_FROM_CTZ",
+        "ADMIN_EMAIL"
       ]
     },
     "lint": {

@@ -81,6 +81,9 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const [agencyForm, setAgencyForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [agencyFormStatus, setAgencyFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [agencyFormMessage, setAgencyFormMessage] = useState("");
 
   const packageData: PackageDetail = incomingData ?? {};
 
@@ -153,6 +156,50 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
   // Close when clicking the backdrop (the dialog element itself, outside the card)
   const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     if (e.target === dialogRef.current) onClose();
+  };
+
+  const closeAgencyForm = () => {
+    setSelectedAgency(null);
+    setAgencyForm({ name: "", email: "", phone: "", message: "" });
+    setAgencyFormStatus("idle");
+    setAgencyFormMessage("");
+  };
+
+  const handleAgencyFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAgency) return;
+
+    setAgencyFormStatus("sending");
+    setAgencyFormMessage("");
+
+    try {
+      const res = await fetch("/api/agencies/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          agencyId:     selectedAgency.id,
+          name:         agencyForm.name,
+          email:        agencyForm.email,
+          phone:        agencyForm.phone,
+          message:      agencyForm.message,
+          packageTitle: packageData.title ?? "",
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAgencyFormStatus("error");
+        setAgencyFormMessage(data.error || "No se pudo enviar el mensaje. Intenta de nuevo.");
+        return;
+      }
+
+      setAgencyFormStatus("success");
+      setAgencyFormMessage(data.message || "Mensaje enviado a la agencia. Te contactarán pronto.");
+      setAgencyForm({ name: "", email: "", phone: "", message: "" });
+    } catch {
+      setAgencyFormStatus("error");
+      setAgencyFormMessage("No se pudo enviar el mensaje. Intenta de nuevo.");
+    }
   };
 
   return (
@@ -252,7 +299,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
             {tabs.map((tab) => (
               <button
                 key={tab}
-                onClick={() => { setActiveTab(tab); setSelectedAgency(null); }}
+                onClick={() => { setActiveTab(tab); closeAgencyForm(); }}
                 className={`relative py-4 text-xs font-black uppercase tracking-widest transition-all ${
                   activeTab === tab ? "text-primary" : "text-gray-400 hover:text-primary/70"
                 }`}
@@ -640,7 +687,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                       >
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center gap-3">
-                            <button onClick={() => setSelectedAgency(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button onClick={closeAgencyForm} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
                               <ChevronRight size={18} className="rotate-180 text-gray-400" />
                             </button>
                             <div>
@@ -648,24 +695,61 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                               <p className="text-[10px] font-bold text-gray-400">{selectedAgency.correo}</p>
                             </div>
                           </div>
-                          <button onClick={() => setSelectedAgency(null)} className="text-gray-400 hover:text-primary">
+                          <button onClick={closeAgencyForm} className="text-gray-400 hover:text-primary">
                             <X size={18} />
                           </button>
                         </div>
-                        <form className="flex-1 flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
-                          <div className="grid grid-cols-2 gap-3">
-                            <input type="text" placeholder="Tu Nombre" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
-                            <input type="email" placeholder="Tu Email" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
-                          </div>
-                          <input type="tel" placeholder="Tu Teléfono" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none" />
-                          <input type="text" readOnly value={packageData.title ?? ""} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold outline-none cursor-default text-primary/50" />
-                          <textarea
-                            placeholder="Mensaje... (Indica fechas, número de personas, etc)"
-                            className="flex-1 w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-xs font-medium focus:border-secondary focus:ring-0 transition-all outline-none resize-none"
-                          />
-                          <button className="w-full py-3 bg-secondary text-primary font-black text-xs rounded-xl shadow-lg hover:brightness-105 transition-all">
-                            Enviar Cotización
-                          </button>
+                        <form className="flex-1 flex flex-col gap-3" onSubmit={handleAgencyFormSubmit}>
+                          <fieldset disabled={agencyFormStatus === "sending"} className="flex-1 flex flex-col gap-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <input
+                                type="text"
+                                placeholder="Tu Nombre"
+                                value={agencyForm.name}
+                                onChange={(e) => setAgencyForm((p) => ({ ...p, name: e.target.value }))}
+                                required
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none"
+                              />
+                              <input
+                                type="email"
+                                placeholder="Tu Email"
+                                value={agencyForm.email}
+                                onChange={(e) => setAgencyForm((p) => ({ ...p, email: e.target.value }))}
+                                required
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none"
+                              />
+                            </div>
+                            <input
+                              type="tel"
+                              placeholder="Tu Teléfono"
+                              value={agencyForm.phone}
+                              onChange={(e) => setAgencyForm((p) => ({ ...p, phone: e.target.value }))}
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold focus:border-secondary focus:ring-0 transition-all outline-none"
+                            />
+                            <input type="text" readOnly value={packageData.title ?? ""} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold outline-none cursor-default text-primary/50" />
+                            <textarea
+                              placeholder="Mensaje... (Indica fechas, número de personas, etc)"
+                              value={agencyForm.message}
+                              onChange={(e) => setAgencyForm((p) => ({ ...p, message: e.target.value }))}
+                              className="flex-1 w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-xs font-medium focus:border-secondary focus:ring-0 transition-all outline-none resize-none"
+                            />
+                            <button
+                              type="submit"
+                              className="w-full py-3 bg-secondary text-primary font-black text-xs rounded-xl shadow-lg hover:brightness-105 disabled:opacity-60 transition-all"
+                            >
+                              {agencyFormStatus === "sending" ? "Enviando..." : "Enviar Cotización"}
+                            </button>
+                          </fieldset>
+                          {agencyFormMessage && (
+                            <p
+                              className={`text-xs font-bold text-center ${
+                                agencyFormStatus === "success" ? "text-secondary" : "text-red-500"
+                              }`}
+                              role="status"
+                            >
+                              {agencyFormMessage}
+                            </p>
+                          )}
                         </form>
                       </motion.div>
                     )}
