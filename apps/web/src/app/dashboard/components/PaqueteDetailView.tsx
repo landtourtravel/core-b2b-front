@@ -118,13 +118,17 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
 
   const variantCards: VariantCard[] = useMemo(() => {
     const baseTipoPax = numPaxToTipoPax(paquete.numPax);
-    // La ocupación BASE solo se muestra como tarjeta propia ("BASE") cuando es una MEZCLA de
-    // habitaciones (sin una sola etiqueta SGL/DBL/TPL/QUAD) — es el único caso donde no hay
-    // otra forma de cotizarla desde esta grilla. Si el base coincide con una nomenclatura ya
-    // definida, se representa con la tarjeta de esa nomenclatura (sin duplicar tarjeta).
+    // La ocupación BASE (Paquete.numPax/numNinos) es implícita — NO se guarda como fila propia
+    // en VersionPaquete (esa tabla solo tiene las versiones adicionales que el admin crea después).
+    // Por eso su tarjeta se agrega aquí explícitamente: con nomenclatura simple (SGL/DBL/TPL/QUAD)
+    // si un solo tipo de habitación cubre el numPax base, o como "MIXTA" si es una combinación de
+    // varios tipos de habitación (sin una sola etiqueta válida).
     const cards: VariantCard[] = [];
     const seen = new Set<string>();
-    if (!baseTipoPax) {
+    if (baseTipoPax) {
+      cards.push({ tipoPax: baseTipoPax, numPax: paquete.numPax, isBase: true });
+      seen.add(`${baseTipoPax}-${paquete.numPax}`);
+    } else {
       const base: VariantCard = { tipoPax: "MIXTA", numPax: paquete.numPax, isBase: true, mixed: true };
       cards.push(base);
       seen.add(`${base.tipoPax}-${base.numPax}`);
