@@ -38,6 +38,8 @@ export const api = {
       incluyeBoleto?: boolean;
       precioMin?: number;
       precioMax?: number;
+      /** Precio real de agencia (BD + ajuste admin + ganancia agencia, sin el +9% público). Requiere sesión. */
+      agency?: boolean;
     }
   ): Promise<{ data: Package[]; error: "DB_FAIL" | "EMPTY" | null }> => {
     const url = new URL(`${getBaseUrl()}/api/packages`);
@@ -50,6 +52,7 @@ export const api = {
       url.searchParams.append("incluyeBoleto", String(params.incluyeBoleto));
     if (params?.precioMin) url.searchParams.append("precioMin", String(params.precioMin));
     if (params?.precioMax) url.searchParams.append("precioMax", String(params.precioMax));
+    if (params?.agency)    url.searchParams.append("agency", "true");
 
     const result = await safeFetch<Package[]>(url.toString());
     return { data: (result.data as Package[]) ?? [], error: result.error };

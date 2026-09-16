@@ -29,7 +29,15 @@ const STATUS_DOT: Record<CotizacionStatus, string> = {
   RECHAZADA: "bg-rose-500",
   LIQUIDADA: "bg-violet-500",
 };
-const TERMINOS = `Los precios indicados son por persona en la categoría de habitación seleccionada y están sujetos a disponibilidad hotelera al momento de la reserva. Land Tour Travel actúa como operador mayorista; la agencia minorista es responsable de la relación comercial con el cliente final. El pago del depósito de reserva (40% del total) es obligatorio para confirmar los servicios. Cancelaciones con menos de 15 días de anticipación están sujetas a penalidades del 50%. Los vuelos, cuando son incluidos, están sujetos a las políticas de la aerolínea operadora. El pasajero es responsable de contar con documentación vigente (pasaporte, visa si aplica).`;
+// Mismo texto que "No incluye" / "Condiciones" en el modal de detalle de paquete de la
+// página pública (PackageDetailModal.tsx) — una sola fuente de verdad para ambos textos legales.
+const NO_INCLUYE =
+  "Servicios, alimentación, entradas, actividades, gastos personales, propinas y cualquier otro concepto que no esté expresamente indicado en “Incluye”.";
+const CONDICIONES: string[] = [
+  "La cotización no constituye una reserva. Los precios están sujetos a disponibilidad y pueden variar sin previo aviso. Una vez confirmado el servicio, aplicarán las políticas de cambios, cancelaciones y penalidades de los proveedores correspondientes.",
+  "Los pagos realizados pueden estar sujetos a condiciones de no reembolso, de acuerdo con las políticas de cada servicio contratado.",
+  "LT TOURS actúa como intermediario entre el pasajero/agencia y los proveedores de servicios turísticos.",
+];
 
 /** Converts "YYYY-MM-DD" → "DD/MM/YYYY". Returns the original string for other formats. */
 const fmtDate = (s: string | null | undefined): string => {
@@ -541,23 +549,22 @@ export default function CotizacionDetailView({
         {/* Combinaciones / Hoteles por destino — table rows, like the printed document */}
         {hasCombos && (
           <div className="mb-6">
-            <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">
-              {isFinalized
-                ? "Combinación Confirmada"
-                : printGrouped
-                  ? "Hoteles por Destino"
-                  : (combos.length > 1 ? "Combinaciones de Hoteles" : "Alojamiento")}
-              {!isFinalized && !printGrouped && combos.length > 1 && (
-                <span className="ml-1 text-primary/25 normal-case tracking-normal">({combos.length})</span>
-              )}
-            </p>
+            {(isFinalized || printGrouped || combos.length <= 1) && (
+              <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2.5">
+                {isFinalized
+                  ? "Combinación Confirmada"
+                  : printGrouped
+                    ? "Hoteles por Destino"
+                    : "Alojamiento"}
+              </p>
+            )}
 
             <div className="border border-gray-100 rounded-xl overflow-hidden">
               <table className="w-full table-fixed border-collapse text-left">
                 <thead>
                   <tr className="bg-light/50">
                     <th className="py-2 px-3 border-b-[1.5px] border-r border-gray-100 text-[8px] font-black uppercase tracking-wide text-secondary">
-                      {printGrouped ? "Hotel" : "Combinación"}
+                      {printGrouped ? "Hotel" : "Hotel a elegir"}
                     </th>
                     {adultColumns.map((c, i) => (
                       <th
@@ -646,7 +653,6 @@ export default function CotizacionDetailView({
                       const idx = combos.indexOf(combo);
                       const isSel = idx === selectedComboIdx;
                       const selectable = canAct;
-                      const title = combos.length > 1 ? `Combinación ${idx + 1}` : (isMultiDest ? "Combinación" : "Alojamiento");
                       const fullName = combo.legs.map((h) => (isMultiDest && hotelDestinoCiudad(h) ? `${hotelDestinoCiudad(h)} — ${h.nombre}` : h.nombre)).join(" + ");
                       const adultPrices = comboRoomPrices(combo);
                       return (
@@ -656,10 +662,7 @@ export default function CotizacionDetailView({
                           className={`border-b border-gray-50 last:border-0 transition-colors ${selectable ? "cursor-pointer hover:bg-light/60" : ""} ${isSel ? "bg-secondary/5" : ""}`}
                         >
                           <td className="py-2.5 px-3 border-r border-gray-100 min-w-0">
-                            {combos.length > 1 && (
-                              <span className="block text-[8px] font-black uppercase tracking-wide text-primary/40">{title}</span>
-                            )}
-                            <div className="mt-0.5 space-y-0.5" title={fullName}>
+                            <div className="space-y-0.5" title={fullName}>
                               {combo.legs.map((h, i) => (
                                 <div key={h.hotelId} className="flex items-center gap-1.5 min-w-0">
                                   <span className="truncate text-[11px] font-bold text-primary">
@@ -727,7 +730,12 @@ export default function CotizacionDetailView({
         {/* Términos */}
         <div className="mb-6">
           <p className="text-[9px] font-black uppercase tracking-widest text-secondary border-b border-gray-100 pb-1 mb-2">Términos y Condiciones</p>
-          <p className="text-[8px] text-primary/50 leading-relaxed">{TERMINOS}</p>
+          <p className="text-[8px] font-black text-primary/70 uppercase tracking-wide mb-1">No incluye</p>
+          <p className="text-[8px] text-primary/50 leading-relaxed mb-2.5">{NO_INCLUYE}</p>
+          <p className="text-[8px] font-black text-primary/70 uppercase tracking-wide mb-1">💼 Condiciones</p>
+          <ul className="text-[8px] text-primary/50 leading-relaxed list-disc list-inside space-y-1">
+            {CONDICIONES.map((t, i) => <li key={i}>{t}</li>)}
+          </ul>
         </div>
 
         {/* Footer */}

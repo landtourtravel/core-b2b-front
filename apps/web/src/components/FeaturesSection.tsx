@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BadgeDollarSign, Headphones, ShieldCheck, Globe } from "lucide-react";
+import { BadgeDollarSign, Headphones, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -29,13 +29,6 @@ const FEATURES: Feature[] = [
     description:
       "Atención personalizada antes, durante y después del viaje de tus clientes.",
     icon: <Headphones size={28} className="text-primary" strokeWidth={1.75} />,
-  },
-  {
-    id: 3,
-    title: "Viajes Seguros",
-    description:
-      "Todos nuestros paquetes incluyen asistencia médica y seguro de viaje.",
-    icon: <ShieldCheck size={28} className="text-primary" strokeWidth={1.75} />,
   },
   {
     id: 4,
@@ -110,7 +103,7 @@ export const FeaturesSection: React.FC = () => (
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
-        className="hidden md:grid md:grid-cols-4 gap-6 items-stretch"
+        className="hidden md:grid md:grid-cols-3 gap-6 items-stretch"
       >
         {FEATURES.map((f) => (
           <FeatureCard key={f.id} feature={f} />

@@ -100,6 +100,7 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
     permitirModificarNoches: p.permitirModificarNoches,
     ajustePrecio: p.ajustePrecio ?? 0,
     gananciaAgencia: p.gananciaAgencia ?? 0,
+    precioPorPersona: p.precioPorPersona ?? null,
     destinoCiudad: primerDestino?.ciudad ?? "",
     destinoPais: primerDestino?.pais ?? "",
     destinos: destinosList,

@@ -54,7 +54,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { DashboardContext, type CotizacionExtended, type HotelCompSnapshot } from "./DashboardContext";
 import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
-import { QUICK_QUOTE_PENDING_KEY } from "./components/PaqueteDetailView";
+import { QUICK_QUOTE_PENDING_KEY, RETURN_TAB_PENDING_KEY } from "./components/PaqueteDetailView";
 import { EDIT_COT_PENDING_KEY } from "./components/CotizacionDetailView";
 import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 import CotizacionesTab from "./components/CotizacionesTab";
@@ -189,10 +189,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setLoadingPkg(true);
-    api.getPackagesDetailed()
+    api.getPackagesDetailed({ agency: true })
       .then(({ data, error }) => { setPackages(data); setPkgError(error); })
       .catch(() => setPkgError("DB_FAIL"))
       .finally(() => setLoadingPkg(false));
+  }, []);
+
+  // Picks up a pending tab restore stashed by /dashboard/paquetes/[id]'s "Volver a Paquetes"
+  // button (that route is a separate page, so this component remounts and loses activeTab).
+  useEffect(() => {
+    const pendingTab = localStorage.getItem(RETURN_TAB_PENDING_KEY);
+    if (pendingTab) {
+      localStorage.removeItem(RETURN_TAB_PENDING_KEY);
+      setActiveTab(pendingTab);
+    }
   }, []);
 
   // Picks up a pending quick-quote request stashed by /dashboard/paquetes/[id]'s

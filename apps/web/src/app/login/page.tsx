@@ -86,7 +86,7 @@ function LoginForm() {
         </Link>
         <div className="mt-6 text-center">
           <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-lg mb-2">
-            Portal Colaboradores
+            Portal de Agencias
           </span>
           <h1 className="text-primary font-black text-2xl md:text-3xl tracking-tight leading-none mt-1">
             Bienvenido de vuelta
@@ -127,7 +127,7 @@ function LoginForm() {
               disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu.correo@landtour.com"
+              placeholder="tu.correo@landtourtravel.com"
               className="w-full pl-11 pr-4 py-3.5 bg-light border border-lighter text-primary rounded-2xl text-xs sm:text-sm font-bold placeholder-primary/30 outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:border-secondary focus-visible:bg-white transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
@@ -235,7 +235,7 @@ function LoginForm() {
       </div>
 
       <p className="mt-8 text-center text-[9px] font-bold text-primary/30 uppercase tracking-widest leading-none">
-        © {new Date().getFullYear()} Land Tour & Travel SAS. Todos los derechos reservados.
+        © {new Date().getFullYear()} Land Tour & Travel. Todos los derechos reservados.
       </p>
 
       {/* Modales */}

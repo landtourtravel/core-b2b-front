@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +15,10 @@ import {
 } from "lucide-react";
 import type { Package } from "@land-tour/shared";
 import { Skeleton } from "@/components/Skeleton";
+
+/** Stashed by "Ver detalles" before navigating to /dashboard/paquetes/[id], read back on mount
+ * so returning to this tab re-opens the destino accordion the user was browsing. */
+export const RETURN_DESTINO_PENDING_KEY = "dashboard-pending-return-destino";
 
 interface PaquetesTabProps {
   packages: Package[];
@@ -32,6 +36,14 @@ export default function PaquetesTab({
   const [searchPkgTerm, setSearchPkgTerm] = useState("");
   const [activeDestino, setActiveDestino] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const pending = localStorage.getItem(RETURN_DESTINO_PENDING_KEY);
+    if (pending) {
+      localStorage.removeItem(RETURN_DESTINO_PENDING_KEY);
+      setActiveDestino(pending);
+    }
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-scale">
@@ -191,7 +203,10 @@ export default function PaquetesTab({
                             </div>
                             <div className="flex items-center gap-1.5">
                               <button
-                                onClick={() => router.push(`/dashboard/paquetes/${pkg.id}`)}
+                                onClick={() => {
+                                  localStorage.setItem(RETURN_DESTINO_PENDING_KEY, ciudad);
+                                  router.push(`/dashboard/paquetes/${pkg.id}`);
+                                }}
                                 className="px-3 py-2 bg-light hover:bg-lighter text-primary/70 font-black text-[9px] uppercase tracking-wider rounded-xl transition-all active:scale-95 cursor-pointer whitespace-nowrap"
                               >
                                 Ver detalles

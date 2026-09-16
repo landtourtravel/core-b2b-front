@@ -13,69 +13,52 @@ import {
 /** Read by page.tsx on mount (Task 7) to auto-trigger handleQuickQuote after navigating back. */
 export const QUICK_QUOTE_PENDING_KEY = "dashboard-pending-quick-quote";
 
+/** Read by page.tsx on mount so "Volver a Paquetes" restores the Paquetes tab instead of
+ * defaulting to Inicio — this route is a separate page, so page.tsx remounts on navigation
+ * back and loses its in-memory `activeTab` state. */
+export const RETURN_TAB_PENDING_KEY = "dashboard-pending-return-tab";
+
 const TIPO_PAX_COLOR: Record<string, string> = {
   SGL: "border-t-sky-400", DBL: "border-t-secondary", TPL: "border-t-gold", QUAD: "border-t-violet-400",
 };
 
-type VariantCard = { tipoPax: string; numPax: number; isBase?: boolean; mixed?: boolean };
+type VariantCard = { tipoPax: string; numPax: number; precio: number | null; isBase?: boolean; mixed?: boolean };
 
 const TIPO_PAX_ORDER = ["SGL", "DBL", "TPL", "QUAD"];
 
 /**
- * Precio de la ocupación BASE del paquete (`Paquete.numPax`/`numNinos`) cuando esa ocupación
- * es una MEZCLA de tipos de habitación (ej. 1 SGL + 1 DBL + 1 TPL = 6 adultos) y por eso
- * `numPaxToTipoPax` no devuelve un solo tipo válido — usa la composición real declarada en
- * `PaqueteHotel` (`hotel.habitaciones`) en vez de asumir un tipoPax único para todo el grupo.
+ * Precio de niño (informativo, sin variante propia) para una ocupación de adultos dada —
+ * NO existe una `VersionPaquete` con tipoPax="CHD" en el modelo de datos del admin (verificado:
+ * cero filas en toda la tabla). "CHD" ahí es un tipo de HABITACIÓN dentro de un hotel, nunca una
+ * versión vendible con precio final propio — por eso esta tarjeta se calcula en vivo (sin ajuste
+ * ni ganancia, no hay con qué compararla) en vez de leer un campo que nunca se guarda.
  */
-function computeBaseVariantCombo(paquete: CotPaquete, numNinosOverride?: number) {
-  const hoteles = paquete.hoteles.filter((h) => h.habitaciones.some((r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0));
+function computeChildPriceCombo(paquete: CotPaquete, tipoPax: string, numPax: number, mixed?: boolean) {
+  const numNinos = 1;
+  const ninosEdades = [5];
+  const boletoAdultoPerPax = paquete.incluyeBoleto ? (paquete.precioBoleto ?? 0) : 0;
+  const boletoNinoPerPax   = paquete.incluyeBoleto ? (paquete.precioBoletoNino ?? paquete.precioBoleto ?? 0) : 0;
+
+  const hoteles = mixed
+    ? paquete.hoteles.filter((h) => h.habitaciones.some((r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0))
+    : paquete.hoteles;
   if (hoteles.length === 0) return null;
-  const numPax = paquete.numPax;
-  const numNinos = numNinosOverride ?? paquete.numNinos;
-  const ninosEdades = Array(numNinos).fill(5);
-  const boletoAdultoPerPax = paquete.incluyeBoleto ? (paquete.precioBoleto ?? 0) : 0;
-  const boletoNinoPerPax   = paquete.incluyeBoleto ? (paquete.precioBoletoNino ?? paquete.precioBoleto ?? 0) : 0;
-
-  const byDestino = new Map<number, { hotel: CotPaqueteHotel; bd: ReturnType<typeof calcHotelBreakdownFromRoomMix> }[]>();
-  hoteles.forEach((hotel) => {
-    const bd = calcHotelBreakdownFromRoomMix(
-      hotel, hotel.habitaciones, ninosEdades, numPax,
-      paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
-      paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
-      paquete.incluyeBoleto, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
-    );
-    const arr = byDestino.get(hotel.destinoId) ?? [];
-    arr.push({ hotel, bd });
-    byDestino.set(hotel.destinoId, arr);
-  });
-
-  const groups = [...byDestino.values()];
-  if (groups.length === 0) return null;
-  const combos = cartesian(groups).map((legs) => {
-    const comboLegs: ComboLeg[] = legs.map(({ bd }) => ({
-      adultAccomTotal: bd.adultAccomTotal, adultServicesTotal: bd.adultServicesTotal,
-      childAccomTotal: bd.childAccomTotal, childServicesTotal: bd.childServicesTotal,
-    }));
-    return combineComboLegs(comboLegs, numPax, numNinos, boletoAdultoPerPax, boletoNinoPerPax, 0);
-  });
-  return combos.reduce((min, c) => (c.total < min.total ? c : min));
-}
-
-/** Cheapest combo (across hotel selections) for a given occupancy, using the same engine as the wizard. */
-function computeVariantCombo(paquete: CotPaquete, tipoPax: string, numPax: number, numNinos: number) {
-  if (paquete.hoteles.length === 0) return null;
-  const ninosEdades = Array(numNinos).fill(5);
-  const boletoAdultoPerPax = paquete.incluyeBoleto ? (paquete.precioBoleto ?? 0) : 0;
-  const boletoNinoPerPax   = paquete.incluyeBoleto ? (paquete.precioBoletoNino ?? paquete.precioBoleto ?? 0) : 0;
 
   const byDestino = new Map<number, { hotel: CotPaqueteHotel; bd: ReturnType<typeof calcHotelBreakdown> }[]>();
-  paquete.hoteles.forEach((hotel) => {
-    const bd = calcHotelBreakdown(
-      hotel, tipoPax, ninosEdades, numPax,
-      paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
-      paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
-      paquete.incluyeBoleto, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
-    );
+  hoteles.forEach((hotel) => {
+    const bd = mixed
+      ? calcHotelBreakdownFromRoomMix(
+          hotel, hotel.habitaciones, ninosEdades, numPax,
+          paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
+          paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
+          paquete.incluyeBoleto, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
+        )
+      : calcHotelBreakdown(
+          hotel, tipoPax, ninosEdades, numPax,
+          paquete.actividades.filter((a) => a.destinoId === hotel.destinoId),
+          paquete.traslados.filter((t) => t.destinoId === hotel.destinoId),
+          paquete.incluyeBoleto, boletoAdultoPerPax, 0, hotel.noches, boletoNinoPerPax,
+        );
     const arr = byDestino.get(hotel.destinoId) ?? [];
     arr.push({ hotel, bd });
     byDestino.set(hotel.destinoId, arr);
@@ -93,18 +76,11 @@ function computeVariantCombo(paquete: CotPaquete, tipoPax: string, numPax: numbe
   return combos.reduce((min, c) => (c.total < min.total ? c : min));
 }
 
-/** Cheapest per-adult price for a given occupancy, using the same engine as the wizard. */
-function computeVariantPrice(paquete: CotPaquete, tipoPax: string, numPax: number): number | null {
-  return computeVariantCombo(paquete, tipoPax, numPax, paquete.numNinos)?.precioAdulto ?? null;
-}
-
-/** Cheapest per-child price across all adult occupancies, for the informational CHD card. */
+/** Precio de niño más económico entre todas las ocupaciones de adultos disponibles. */
 function computeChildFromPrice(paquete: CotPaquete, variantCards: VariantCard[]): number | null {
   let min: number | null = null;
   for (const v of variantCards) {
-    const combo = v.mixed
-      ? computeBaseVariantCombo(paquete, 1)
-      : computeVariantCombo(paquete, v.tipoPax, v.numPax, 1);
+    const combo = computeChildPriceCombo(paquete, v.tipoPax, v.numPax, v.mixed);
     if (combo && (min === null || combo.precioNino < min)) min = combo.precioNino;
   }
   return min;
@@ -116,26 +92,33 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
   const [quickQuoteBusy, setQuickQuoteBusy] = useState<string | null>(null);
   const [quickQuoteError, setQuickQuoteError] = useState<string | null>(null);
 
+  // Precios leídos DIRECTO de `precioPorPersona` (ya guardado por el admin con su ajuste +
+  // ganancia horneados) — nunca recalculados en vivo desde tarifas de hotel, para que coincida
+  // exactamente con el "Precio final de venta" que ve el admin en su propio editor.
   const variantCards: VariantCard[] = useMemo(() => {
     const baseTipoPax = numPaxToTipoPax(paquete.numPax);
     // La ocupación BASE (Paquete.numPax/numNinos) es implícita — NO se guarda como fila propia
     // en VersionPaquete (esa tabla solo tiene las versiones adicionales que el admin crea después).
     // Por eso su tarjeta se agrega aquí explícitamente: con nomenclatura simple (SGL/DBL/TPL/QUAD)
     // si un solo tipo de habitación cubre el numPax base, o como "MIXTA" si es una combinación de
-    // varios tipos de habitación (sin una sola etiqueta válida).
+    // varios tipos de habitación (sin una sola etiqueta válida). En ambos casos el precio es
+    // `paquete.precioPorPersona` — ya es el final de la ocupación base sin importar su composición.
     const cards: VariantCard[] = [];
     const seen = new Set<string>();
     if (baseTipoPax) {
-      cards.push({ tipoPax: baseTipoPax, numPax: paquete.numPax, isBase: true });
+      cards.push({ tipoPax: baseTipoPax, numPax: paquete.numPax, precio: paquete.precioPorPersona, isBase: true });
       seen.add(`${baseTipoPax}-${paquete.numPax}`);
     } else {
-      const base: VariantCard = { tipoPax: "MIXTA", numPax: paquete.numPax, isBase: true, mixed: true };
+      const base: VariantCard = { tipoPax: "MIXTA", numPax: paquete.numPax, precio: paquete.precioPorPersona, isBase: true, mixed: true };
       cards.push(base);
       seen.add(`${base.tipoPax}-${base.numPax}`);
     }
     paquete.versiones.forEach((v) => {
       const key = `${v.tipoPax}-${v.numPax}`;
-      if (!seen.has(key)) { seen.add(key); cards.push({ tipoPax: v.tipoPax, numPax: v.numPax }); }
+      if (!seen.has(key) && v.tipoPax !== "CHD") {
+        seen.add(key);
+        cards.push({ tipoPax: v.tipoPax, numPax: v.numPax, precio: v.precioPorPersona });
+      }
     });
     return cards.sort((a, b) => {
       const ia = TIPO_PAX_ORDER.indexOf(a.tipoPax);
@@ -143,6 +126,13 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
       return (ia === -1 ? TIPO_PAX_ORDER.length : ia) - (ib === -1 ? TIPO_PAX_ORDER.length : ib);
     });
   }, [paquete]);
+
+  // Precio "Desde" informativo para niños — calculado en vivo (ver computeChildFromPrice):
+  // no hay un campo de BD equivalente a `precioPorPersona` para esto.
+  const childFromPrice = useMemo(
+    () => computeChildFromPrice(paquete, variantCards),
+    [paquete, variantCards]
+  );
 
   const destinosView = useMemo(() => paquete.destinos.map((d) => ({
     ...d,
@@ -191,7 +181,10 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              localStorage.setItem(RETURN_TAB_PENDING_KEY, "paquetes");
+              router.push("/dashboard");
+            }}
             className="flex items-center gap-1.5 text-primary/50 hover:text-primary text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer"
           >
             <ArrowLeft size={14} /> Volver a Paquetes
@@ -302,7 +295,7 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
           <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Variantes Disponibles</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-flow-col lg:auto-cols-fr gap-3">
             {variantCards.map((v) => {
-              const price = v.mixed ? computeBaseVariantCombo(paquete)?.precioAdulto ?? null : computeVariantPrice(paquete, v.tipoPax, v.numPax);
+              const price = v.precio;
               const key = `${v.tipoPax}-${v.numPax}`;
               return (
                 <div key={key} className={`bg-light rounded-xl p-3 border-t-4 ${TIPO_PAX_COLOR[v.tipoPax] ?? "border-t-secondary"}`}>
@@ -313,7 +306,7 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
                       <span className="text-sm font-black text-primary">${Math.round(price)} <span className="text-[8px] font-bold text-primary/40">USD/pax</span></span>
                     </>
                   ) : (
-                    <p className="text-[9px] font-bold text-primary/40">Sin hoteles</p>
+                    <p className="text-[9px] font-bold text-primary/40">Sin precio configurado</p>
                   )}
                   <button
                     onClick={() => runQuickQuote(key, v.numPax, paquete.numNinos, v.mixed)}
@@ -326,23 +319,20 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
                 </div>
               );
             })}
-            {pkgAllowsNinos && (() => {
-              const childPrice = computeChildFromPrice(paquete, variantCards);
-              return (
-                <div className="bg-light rounded-xl p-3 border-t-4 border-t-rose-300">
-                  <p className="text-xs font-black text-primary mb-1.5">CHD</p>
-                  {childPrice != null ? (
-                    <>
-                      <span className="text-[7px] font-black uppercase text-gray-400 block leading-none">Desde</span>
-                      <span className="text-sm font-black text-primary">${Math.round(childPrice)} <span className="text-[8px] font-bold text-primary/40">USD/pax</span></span>
-                    </>
-                  ) : (
-                    <p className="text-[9px] font-bold text-primary/40">Sin hoteles</p>
-                  )}
-                  <p className="mt-2 text-[8px] font-bold text-primary/40 text-center leading-tight">Informativo — sin variante propia</p>
-                </div>
-              );
-            })()}
+            {pkgAllowsNinos && (
+              <div className="bg-light rounded-xl p-3 border-t-4 border-t-rose-300">
+                <p className="text-xs font-black text-primary mb-1.5">CHD</p>
+                {childFromPrice != null ? (
+                  <>
+                    <span className="text-[7px] font-black uppercase text-gray-400 block leading-none">Desde</span>
+                    <span className="text-sm font-black text-primary">${Math.round(childFromPrice)} <span className="text-[8px] font-bold text-primary/40">USD/pax</span></span>
+                  </>
+                ) : (
+                  <p className="text-[9px] font-bold text-primary/40">Sin precio configurado</p>
+                )}
+                <p className="mt-2 text-[8px] font-bold text-primary/40 text-center leading-tight">Informativo — sin variante propia</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -379,7 +369,7 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
         {/* Itinerario */}
         {paquete.itinerario.length > 0 && (
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 sm:p-8 mt-6">
-            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Itinerario</h3>
+            <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Itinerario Tentativo</h3>
             <div className="space-y-4">
               {paquete.itinerario.map((day) => (
                 <div key={day.day} className="flex gap-3">

@@ -88,24 +88,25 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
+        {isMultiDestino && (
+          <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-1 bg-gold text-white text-[9px] font-black uppercase tracking-wider rounded-md shadow-sm">
+            <MapPin size={8} />
+            Multi-destino
+          </span>
+        )}
       </div>
 
       {/* ── Body ── */}
       <div className="p-3.5 sm:p-5 flex flex-col flex-1">
 
         {/* Location tag — una sola línea siempre (evita que un nombre largo de
-            destinos o la pill "Multi-destino" hagan crecer la card frente a las demás). */}
+            destinos haga crecer la card frente a las demás); la pill "Multi-destino"
+            va sobre la imagen para no competir por espacio con el texto. */}
         <div className="flex items-center gap-1.5 mb-2">
           <MapPin size={13} className="text-secondary shrink-0" />
           <span className="text-secondary text-xs font-semibold tracking-wide truncate min-w-0">
             {locationLabel}
           </span>
-          {isMultiDestino && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold/15 text-gold border border-gold/30 text-[9px] font-black uppercase tracking-wider rounded-md shrink-0">
-              <MapPin size={8} />
-              Multi-destino
-            </span>
-          )}
         </div>
 
         {/* Title — altura fija (2 líneas) en todos los breakpoints, así un título

@@ -51,6 +51,9 @@ export interface CotPaquete {
   ajustePrecio: number;
   /** Ganancia de agencia fijada por el admin (Land Tour Travel) — piso real de la comisión, siempre >= 0. */
   gananciaAgencia: number;
+  /** Precio final de venta de la ocupación BASE ya guardado por el admin (costo + ajuste + ganancia
+   * horneados) — fuente de verdad para "Desde $X", igual que `VersionPaqueteVersion.precioPorPersona`. */
+  precioPorPersona: number | null;
   destinoCiudad: string; destinoPais: string;
   destinos: CotPaqueteDestino[];
   hoteles: CotPaqueteHotel[];

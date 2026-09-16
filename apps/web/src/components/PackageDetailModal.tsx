@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  X, MapPin, Clock, Plane, CheckCircle, Calendar, Mail, Phone,
+  X, MapPin, Clock, Plane, CheckCircle, Calendar, Mail,
   MessageCircle, CreditCard, ChevronRight, ShieldCheck,
   Building2, Car, UtensilsCrossed, Map, Waves, TreePine, Moon, Quote,
 } from "lucide-react";
@@ -523,13 +523,21 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                             </span>
                           </div>
                         )}
-                        {packageData.includes?.map((text, i) => (
-                          <div key={i} className="flex items-start gap-3">
+                        {packageData.traslados?.map((text, i) => (
+                          <div key={`trs-${i}`} className="flex items-start gap-3">
                             <CheckCircle size={12} className="text-secondary mt-0.5 shrink-0" />
                             <span className="text-[11px] font-bold text-primary/70 leading-tight">{text}</span>
                           </div>
                         ))}
-                        {packageData.incluyeBoleto !== true && (packageData.includes?.length ?? 0) === 0 && (
+                        {packageData.actividades?.map((text, i) => (
+                          <div key={`act-${i}`} className="flex items-start gap-3">
+                            <CheckCircle size={12} className="text-secondary mt-0.5 shrink-0" />
+                            <span className="text-[11px] font-bold text-primary/70 leading-tight">{text}</span>
+                          </div>
+                        ))}
+                        {packageData.incluyeBoleto !== true
+                          && (packageData.traslados?.length ?? 0) === 0
+                          && (packageData.actividades?.length ?? 0) === 0 && (
                           <p className="text-[11px] font-bold text-primary/30 italic">No definidos</p>
                         )}
                       </div>
@@ -768,11 +776,7 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
           <div className="flex gap-6">
             <div className="flex items-center gap-2 text-primary/50">
               <Mail size={10} className="text-secondary" />
-              <span className="text-[10px] font-bold">info@landtour.com</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary/50">
-              <Phone size={10} className="text-secondary" />
-              <span className="text-[10px] font-bold">+593 4 123 4567</span>
+              <span className="text-[10px] font-bold">info@landtourtravel.com</span>
             </div>
           </div>
           <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest hidden lg:block">
