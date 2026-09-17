@@ -1093,7 +1093,9 @@ export default function DashboardPage() {
         ? [...new Set(cotAllDestinos.map((d) => d.pais))].join(" / ")
         : (cotSelectedDestino?.pais ?? ""));
   const cotDuracion = cotMode === "catalogo"
-    ? `${cotSelectedPkg?.diasEstancia ?? "—"} Días / ${cotSelectedPkg?.nochesBase ?? "—"} Noches`
+    ? (cotSelectedPkg
+        ? `${cotSelectedPkg.diasEstancia + cotExtraNights} Días / ${cotSelectedPkg.nochesBase + cotExtraNights} Noches`
+        : "—")
     : `${cotCustomDias} Días / ${cotNoches} Noches`;
   // Fechas en formato día/mes/año (los inputs date entregan YYYY-MM-DD).
   const fmtFechaDMY = (iso: string) => {
@@ -1239,11 +1241,18 @@ export default function DashboardPage() {
         isQuickQuoteEdit, wizardStateRaw: cot.wizardState,
       });
 
-      setClientName(get("clientName", cot.cliente?.nombre ?? ""));
-      setClientEmail(get("clientEmail", cot.cliente?.email ?? ""));
-      setClientPhone(get("clientPhone", cot.cliente?.telefono ?? ""));
-      setClientId(get("clientId", cot.cliente?.documento ?? ""));
-      setClientAddress(get("clientAddress", cot.cliente?.direccion ?? ""));
+      // Cotización rápida: el cliente es el placeholder compartido de la agencia
+      // (GENERIC_CLIENT_EMAIL) — nunca precargar su nombre/correo. Si se precargara y el
+      // asesor solo cambiara el nombre sin tocar el correo, "/api/clients" (find-or-create
+      // por email) encontraría ese MISMO registro compartido y le actualizaría el nombre en
+      // sitio, corrompiendo el cliente genérico para TODAS las futuras cotizaciones rápidas
+      // de la agencia (y la cotización actual seguiría con email genérico → isGenericClient
+      // seguiría bloqueando Aprobar/Rechazar). Se fuerza a que el asesor escriba datos reales.
+      setClientName(isQuickQuoteEdit ? get("clientName", "") : get("clientName", cot.cliente?.nombre ?? ""));
+      setClientEmail(isQuickQuoteEdit ? get("clientEmail", "") : get("clientEmail", cot.cliente?.email ?? ""));
+      setClientPhone(get("clientPhone", isQuickQuoteEdit ? "" : (cot.cliente?.telefono ?? "")));
+      setClientId(get("clientId", isQuickQuoteEdit ? "" : (cot.cliente?.documento ?? "")));
+      setClientAddress(get("clientAddress", isQuickQuoteEdit ? "" : (cot.cliente?.direccion ?? "")));
       setCotMode(finalCotMode);
       setCotSelectedPkgId(get("cotSelectedPkgId", cot.paqueteId ?? null));
       setCotSelectedDestinoId(get("cotSelectedDestinoId", null));
@@ -3401,6 +3410,23 @@ export default function DashboardPage() {
                       {cotMode === "libre" && !cotLibreUseGrouped && cotLibreCombos.length > 0 && (() => {
                         const fmtN = (n: number) => (n % 1 === 0 ? n.toLocaleString() : n.toFixed(2));
                         const isMulti = cotLibreByDestino.size > 1;
+                        // Precio por tipo de habitación realmente cotizado (sin repetir tipo) —
+                        // mismo motor que CotizacionDetailView.tsx (comboRoomPrices): solo el
+                        // alojamiento varía por tipo (roomRates vía buildRoomRates); actividades,
+                        // traslados, boleto y comisión son un único monto por adulto, igual para
+                        // todos los tipos de habitación.
+                        const comboRoomPricesLibre = (combo: CotLibreCombo): { tipo: string; price: number }[] => {
+                          if (cotLibreRoomEntries.length === 0) return [{ tipo: "Adulto", price: combo.totals.precioAdulto }];
+                          const adultServices = combo.legs.reduce((s, l) => s + l.adultServicesTotal, 0);
+                          const servicesPerAdult = cotNumPersonas > 0 ? adultServices / cotNumPersonas : 0;
+                          return cotLibreRoomEntries.map(([tipo]) => {
+                            const accom = combo.legs.reduce(
+                              (s, l) => s + (buildRoomRates(l.hotel.tarifas, cotLibreRoomEntries, l.noches)[tipo] ?? 0),
+                              0
+                            );
+                            return { tipo, price: accom + servicesPerAdult + cotBoletoAdultoPerPaxLibre + cotEffectiveMarkup };
+                          });
+                        };
                         return (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -3450,12 +3476,14 @@ export default function DashboardPage() {
                                     </div>
 
                                     <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
-                                      <div className="flex items-center justify-between px-3 py-2">
-                                        <span className="text-[10px] font-bold text-primary/60">Adulto</span>
-                                        <span className="text-sm font-black text-primary">
-                                          ${fmtN(t.precioAdulto)}
-                                        </span>
-                                      </div>
+                                      {comboRoomPricesLibre(combo).map((r) => (
+                                        <div key={r.tipo} className="flex items-center justify-between px-3 py-2">
+                                          <span className="text-[10px] font-bold text-primary/60">{r.tipo}</span>
+                                          <span className="text-sm font-black text-primary">
+                                            ${fmtN(r.price)}
+                                          </span>
+                                        </div>
+                                      ))}
                                       {cotNumNinos > 0 && (
                                         <div className="flex items-center justify-between px-3 py-2">
                                           <span className="text-[10px] font-bold text-primary/60">Niño</span>

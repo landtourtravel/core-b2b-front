@@ -105,6 +105,13 @@ export default function CotizacionDocumentPage() {
       .catch((err: Error) => setError(err.message));
   }, [id]);
 
+  // El navegador usa `document.title` como nombre sugerido al Imprimir/Guardar como PDF —
+  // sin esto sugiere el título genérico del layout ("Land Tour & Travel | ...").
+  useEffect(() => {
+    if (!cot) return;
+    document.title = `${cot.codigo} - ${cot.paqueteNombre}`;
+  }, [cot]);
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-light p-6">

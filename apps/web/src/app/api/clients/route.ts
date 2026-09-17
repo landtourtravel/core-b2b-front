@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logError } from "@/lib/logger";
+import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 
 // GET /api/clients?email=&documento= — busca cliente existente
 export async function GET(req: NextRequest) {
@@ -40,6 +41,18 @@ export async function POST(req: NextRequest) {
   const { nombre, email, telefono, documento, direccion } = body;
 
   if (!nombre) return NextResponse.json({ error: "Nombre requerido" }, { status: 400 });
+
+  // El correo genérico solo lo asigna POST /api/cotizaciones/quick para el cliente
+  // placeholder compartido de la agencia — nunca debe llegar aquí desde el wizard normal.
+  // Si se permitiera, el find-or-create de abajo reutilizaría y sobreescribiría ese
+  // registro compartido con datos de un cliente real, corrompiéndolo para el resto de
+  // cotizaciones rápidas de la agencia.
+  if (typeof email === "string" && email.trim().toLowerCase() === GENERIC_CLIENT_EMAIL) {
+    return NextResponse.json(
+      { error: "Ingresa el correo real del cliente para guardar esta cotización." },
+      { status: 400 }
+    );
+  }
 
   const agenciaId = session.user.agenciaId;
 
