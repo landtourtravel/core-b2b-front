@@ -3794,15 +3794,18 @@ export default function DashboardPage() {
       </nav>
 
       {/* ── Modal confirmar eliminación ── */}
+      {/* El <dialog> queda transparente a propósito (regla global en globals.css: solo
+          centra en pantalla) — el fondo/tarjeta lo pone el <div> interno, mismo patrón que
+          ForgotPasswordModal/RequestAccessModal. Antes todo el estilo (incluido el fondo)
+          estaba directo en el <dialog>, así que se veía flotando sin tarjeta sobre el backdrop. */}
       <dialog
         ref={confirmDeleteDialogRef}
-        className="backdrop:bg-primary/40 backdrop:backdrop-blur-sm rounded-3xl border-0 p-0 shadow-2xl w-[90vw] max-w-sm"
         onCancel={(e) => { e.preventDefault(); confirmDeleteDialogRef.current?.close(); setConfirmDeleteId(null); }}
       >
         {(() => {
           const cot = cotizaciones.find((c) => c.id === confirmDeleteId);
           return (
-            <div className="p-6 space-y-5">
+            <div className="bg-white rounded-3xl shadow-2xl w-[90vw] max-w-sm p-6 space-y-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0">
                   <Trash2 size={18} className="text-rose-500" />
