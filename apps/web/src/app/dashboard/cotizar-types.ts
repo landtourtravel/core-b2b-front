@@ -14,7 +14,11 @@ export interface CotActividad { id: number; nombre: string; descripcion: string 
 export interface CotTrasladoTarifa { precio: number; tipoPasajero: string; paxMin: number; paxMax: number }
 export interface CotTraslado { id: number; tipo: string; tarifas: CotTrasladoTarifa[] }
 export interface CotDestino { id: number; ciudad: string; pais: string; hoteles: CotHotel[]; actividades: CotActividad[]; traslados: CotTraslado[] }
-export interface CotPaqueteVersion { tipoPax: string; numPax: number; precioPorPersona: number | null }
+export interface CotPaqueteVersion {
+  tipoPax: string; numPax: number; precioPorPersona: number | null;
+  /** Comisión/ajuste propios de ESTA versión (independientes de Paquete.ajustePrecio/gananciaAgencia). */
+  ajuste: number; gananciaAgencia: number;
+}
 export interface CotPaqueteActividad {
   id: number; nombre: string; descripcion: string | null;
   destinoId: number; destinoCiudad: string;

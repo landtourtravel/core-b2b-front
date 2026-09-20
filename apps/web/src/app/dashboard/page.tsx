@@ -482,8 +482,16 @@ export default function DashboardPage() {
   useEffect(() => {
     if (cotMode !== "catalogo") return;
     const pkg = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
-    setAgencyMarkup(pkg?.gananciaAgencia ?? 0);
-  }, [cotMode, cotSelectedPkgId, cotizarData]);
+    // Mismo criterio que `cotMarkupFloor` más abajo: cada VersionPaquete adicional tiene su
+    // propia comisión, distinta de la del paquete base — se precarga la de la ocupación
+    // realmente elegida (cotNumPersonas), no siempre la del paquete. También reacciona a
+    // cambios de ocupación (antes solo recalculaba al cambiar de paquete).
+    const matchesBase = !!pkg && cotNumPersonas === pkg.numPax;
+    const matchingVersion = pkg?.versiones.find(
+      (v) => v.numPax === cotNumPersonas && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0
+    ) ?? null;
+    setAgencyMarkup(matchesBase ? (pkg?.gananciaAgencia ?? 0) : (matchingVersion?.gananciaAgencia ?? 0));
+  }, [cotMode, cotSelectedPkgId, cotNumPersonas, cotizarData]);
 
   // (#5) Reset per-destino extra nights whenever the selected package changes.
   useEffect(() => {
@@ -598,14 +606,34 @@ export default function DashboardPage() {
   // ni cotización final); el monto sigue sumado automáticamente al total.
   const cotBoletoVisible =
     cotMode !== "catalogo" || (cotSelectedPkg?.visibleBoleto ?? true);
-  // Piso de comisión fijado por el admin en el paquete — la agencia solo puede aumentarlo.
-  const cotMarkupFloor = cotMode === "catalogo" ? (cotSelectedPkg?.gananciaAgencia ?? 0) : 0;
-  // Ajuste de precio del paquete (`Paquete.ajustePrecio`) — automático, NO editable por el
-  // asesor (a diferencia de `agencyMarkup`/comisión). Puede ser negativo (descuento/oferta
-  // del admin) o positivo (recargo); se aplica igual que la comisión: por persona, sumado
-  // una vez por cada adulto Y una vez por cada niño (ver combineComboLegs). El asesor nunca
-  // ve este número por separado — solo se refleja en el total final.
-  const cotAjustePrecio = cotMode === "catalogo" ? (cotSelectedPkg?.ajustePrecio ?? 0) : 0;
+  // Ocupación cotizada: la base implícita del paquete, o una VersionPaquete adicional creada
+  // por el admin — cada una tiene su PROPIA comisión/ajuste (ver VersionPaqueteRef), distinta
+  // de la del paquete base. Se calculan aquí (antes de usarse) porque el piso de comisión
+  // depende de cuál ocupación está cotizando el asesor, no siempre la del paquete.
+  const matchesBaseVersion = !!cotSelectedPkg && cotNumPersonas === cotSelectedPkg.numPax;
+  const matchingAdultVersion = cotSelectedPkg?.versiones.find(
+    (v) => v.numPax === cotNumPersonas && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0
+  ) ?? null;
+  // Piso de comisión fijado por el admin — la agencia solo puede aumentarlo. Antes tomaba
+  // siempre `Paquete.gananciaAgencia` sin importar la ocupación cotizada: si el asesor
+  // cotizaba una versión adicional (ej. QUAD), ignoraba la comisión propia de esa versión y
+  // usaba la del paquete base por error.
+  const cotMarkupFloor = cotMode === "catalogo"
+    ? (matchesBaseVersion
+        ? (cotSelectedPkg?.gananciaAgencia ?? 0)
+        : (matchingAdultVersion?.gananciaAgencia ?? 0))
+    : 0;
+  // Ajuste de precio (`ajustePrecio`/`ajuste`) — automático, NO editable por el asesor (a
+  // diferencia de `agencyMarkup`/comisión). Puede ser negativo (descuento/oferta del admin) o
+  // positivo (recargo); se aplica igual que la comisión: por persona, sumado una vez por cada
+  // adulto Y una vez por cada niño (ver combineComboLegs). El asesor nunca ve este número por
+  // separado — solo se refleja en el total final. Mismo criterio que el piso de comisión: usa
+  // el ajuste de la versión específica cotizada, no siempre el del paquete base.
+  const cotAjustePrecio = cotMode === "catalogo"
+    ? (matchesBaseVersion
+        ? (cotSelectedPkg?.ajustePrecio ?? 0)
+        : (matchingAdultVersion?.ajuste ?? 0))
+    : 0;
   // Monto por-persona que se pasa a combineComboLegs/hotelPerDestinoPrice/calcHotelBreakdown
   // en lugar de `agencyMarkup` crudo: comisión editable + ajuste automático del paquete.
   const cotEffectiveMarkup = agencyMarkup + cotAjustePrecio;
@@ -698,10 +726,7 @@ export default function DashboardPage() {
   //   (b) existe una VersionPaquete (no-CHD) con numPax === N.
   // Si no ocurre ninguna → alerta. (Ej: pkg 17 base=2 → 2 adultos válido por base
   // aunque no haya fila DBL; 3/4 adultos válidos por versión TPL/QUAD.)
-  const matchesBaseVersion = !!cotSelectedPkg && cotNumPersonas === cotSelectedPkg.numPax;
-  const matchingAdultVersion = cotSelectedPkg?.versiones.find(
-    (v) => v.numPax === cotNumPersonas && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0
-  ) ?? null;
+  // (matchesBaseVersion/matchingAdultVersion ya se calcularon arriba, junto al piso de comisión.)
   const hasMatchingVersion = matchesBaseVersion || matchingAdultVersion !== null;
   // El nº de niños del paquete (`numNinos`) es solo una referencia usada por el admin para
   // configurar tarifas — NO limita cuántos niños puede declarar el asesor. El motor de
@@ -2248,8 +2273,14 @@ export default function DashboardPage() {
                                   <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-xs font-black">$</span>
                                     <input
-                                      type="number" min={0} step={1} value={cotFlightPrice}
-                                      onChange={(e) => setCotFlightPrice(Math.max(0, Number(e.target.value)))}
+                                      type="number" min={0} step={1} value={cotFlightPrice === 0 ? "" : cotFlightPrice}
+                                      onChange={(e) => {
+                                        const raw = e.target.value;
+                                        if (raw === "") { setCotFlightPrice(0); return; }
+                                        const val = Number(raw);
+                                        if (isNaN(val) || val < 0) return;
+                                        setCotFlightPrice(val);
+                                      }}
                                       placeholder={String(cotSelectedPkg.precioBoleto ?? 0)}
                                       className={`${inputCls} pl-8`}
                                     />
@@ -2268,8 +2299,14 @@ export default function DashboardPage() {
                                     <div className="relative">
                                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-xs font-black">$</span>
                                       <input
-                                        type="number" min={0} step={1} value={cotFlightPriceChild}
-                                        onChange={(e) => setCotFlightPriceChild(Math.max(0, Number(e.target.value)))}
+                                        type="number" min={0} step={1} value={cotFlightPriceChild === 0 ? "" : cotFlightPriceChild}
+                                        onChange={(e) => {
+                                          const raw = e.target.value;
+                                          if (raw === "") { setCotFlightPriceChild(0); return; }
+                                          const val = Number(raw);
+                                          if (isNaN(val) || val < 0) return;
+                                          setCotFlightPriceChild(val);
+                                        }}
                                         placeholder={String(cotSelectedPkg.precioBoletoNino ?? cotSelectedPkg.precioBoleto ?? 0)}
                                         className={`${inputCls} pl-8`}
                                       />
@@ -2458,8 +2495,14 @@ export default function DashboardPage() {
                                   <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-xs font-black">$</span>
                                     <input
-                                      type="number" min={0} step={1} value={cotFlightPrice}
-                                      onChange={(e) => setCotFlightPrice(Math.max(0, Number(e.target.value)))}
+                                      type="number" min={0} step={1} value={cotFlightPrice === 0 ? "" : cotFlightPrice}
+                                      onChange={(e) => {
+                                        const raw = e.target.value;
+                                        if (raw === "") { setCotFlightPrice(0); return; }
+                                        const val = Number(raw);
+                                        if (isNaN(val) || val < 0) return;
+                                        setCotFlightPrice(val);
+                                      }}
                                       className={`${inputCls} pl-8`}
                                     />
                                   </div>
@@ -2473,8 +2516,14 @@ export default function DashboardPage() {
                                     <div className="relative">
                                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-xs font-black">$</span>
                                       <input
-                                        type="number" min={0} step={1} value={cotFlightPriceChild}
-                                        onChange={(e) => setCotFlightPriceChild(Math.max(0, Number(e.target.value)))}
+                                        type="number" min={0} step={1} value={cotFlightPriceChild === 0 ? "" : cotFlightPriceChild}
+                                        onChange={(e) => {
+                                          const raw = e.target.value;
+                                          if (raw === "") { setCotFlightPriceChild(0); return; }
+                                          const val = Number(raw);
+                                          if (isNaN(val) || val < 0) return;
+                                          setCotFlightPriceChild(val);
+                                        }}
                                         className={`${inputCls} pl-8`}
                                       />
                                     </div>

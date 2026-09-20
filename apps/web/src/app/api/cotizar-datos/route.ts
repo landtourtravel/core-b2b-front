@@ -27,8 +27,10 @@ export async function GET() {
       orderBy: { ciudad: "asc" },
     });
 
+    // `visibleEnFront` solo controla la visibilidad en la web pública — este endpoint es
+    // exclusivo del portal B2B (requiere sesión, arriba), así que la agencia debe ver TODOS
+    // los paquetes que el admin creó, los oculte o no del front.
     const paquetes = await prisma.paqueteRef.findMany({
-      where: { visibleEnFront: true },
       include: paqueteInclude,
       orderBy: { nombre: "asc" },
     });

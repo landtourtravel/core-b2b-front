@@ -83,8 +83,11 @@ export async function POST(req: NextRequest) {
   const creadoPorId = (session.user as any).id as string;
 
   try {
+    // `visibleEnFront` solo controla la visibilidad en la web pública — este endpoint es
+    // exclusivo del portal B2B (requiere sesión, arriba), así que un paquete oculto del front
+    // igual debe poder cotizarse rápido aquí.
     const paqueteRow = await prisma.paqueteRef.findUnique({ where: { id: paqueteId }, include: paqueteInclude });
-    if (!paqueteRow || !paqueteRow.visibleEnFront) {
+    if (!paqueteRow) {
       return NextResponse.json({ error: "Paquete no encontrado" }, { status: 404 });
     }
     const paquete = mapPaqueteRow(paqueteRow);
@@ -126,10 +129,19 @@ export async function POST(req: NextRequest) {
     const boletoAdultoPerPax = flightActive ? (paquete.precioBoleto ?? 0) : 0;
     const boletoNinoPerPax   = flightActive ? (paquete.precioBoletoNino ?? paquete.precioBoleto ?? 0) : 0;
     // Comisión de agencia (`gananciaAgencia`, piso fijado por el admin — nunca negativa) MÁS
-    // el ajuste de precio automático del paquete (`ajustePrecio`, puede ser negativo si es un
+    // el ajuste de precio automático (`ajustePrecio`/`ajuste`, puede ser negativo si es un
     // descuento/oferta del admin). Igual que en el wizard: no hay input manual aquí, así que
     // se usa el neto directo, sin posibilidad de que el asesor lo cambie desde este endpoint.
-    const markup = (paquete.gananciaAgencia ?? 0) + (paquete.ajustePrecio ?? 0);
+    // Cada VersionPaquete adicional tiene su PROPIA comisión/ajuste, distinta de la del
+    // paquete base — se usa la de la ocupación realmente cotizada (numPax), no siempre la
+    // del paquete (bug: una cotización rápida de una versión QUAD usaba la comisión base).
+    const matchesBaseOccupancy = numPax === paquete.numPax;
+    const matchingVersionForMarkup = !matchesBaseOccupancy
+      ? paquete.versiones.find((v) => v.numPax === numPax && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0) ?? null
+      : null;
+    const markup = matchesBaseOccupancy
+      ? (paquete.gananciaAgencia ?? 0) + (paquete.ajustePrecio ?? 0)
+      : (matchingVersionForMarkup?.gananciaAgencia ?? 0) + (matchingVersionForMarkup?.ajuste ?? 0);
 
     const breakdowns = hotelesParaCotizar.map((hotel) => ({
       hotel,

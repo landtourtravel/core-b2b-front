@@ -160,7 +160,9 @@ export async function GET(req: NextRequest) {
     : null;
 
   const where: Prisma.PaqueteRefWhereInput = {
-    visibleEnFront: true,
+    // `visibleEnFront` solo controla la visibilidad en la web pública — el portal B2B
+    // (modo agencia) debe ver TODOS los paquetes que el admin creó, los oculte o no del front.
+    ...(mode === "public" ? { visibleEnFront: true } : {}),
     ...(destinoFilter
       ? { hoteles: { some: { hotel: { destino: destinoFilter } } } }
       : {}),

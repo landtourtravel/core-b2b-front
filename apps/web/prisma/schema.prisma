@@ -241,6 +241,12 @@ model VersionPaqueteRef {
   tipoPax          String
   precioTotal      Float?
   precioPorPersona Float?
+  // Ajuste/ganancia POR VERSIÓN — independientes de Paquete.ajustePrecio/gananciaAgencia.
+  // El admin los fija por separado para cada versión (ej. QUAD puede tener otra comisión que
+  // la ocupación base); ya vienen horneados dentro de precioPorPersona, pero el cotizador B2B
+  // necesita los valores crudos para aplicar la comisión correcta según la ocupación cotizada.
+  ajuste           Float  @default(0)
+  gananciaAgencia  Float  @default(0)
 
   paquete PaqueteRef @relation(fields: [paqueteId], references: [id])
 

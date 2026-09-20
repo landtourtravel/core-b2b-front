@@ -112,6 +112,8 @@ export function mapPaqueteRow(p: PaqueteRow): CotPaquete {
         tipoPax: v.tipoPax,
         numPax: v.numPax,
         precioPorPersona: v.precioPorPersona,
+        ajuste: v.ajuste ?? 0,
+        gananciaAgencia: v.gananciaAgencia ?? 0,
       })),
     actividades: p.actividades.map((pa) => ({
       id: pa.actividad.id,
