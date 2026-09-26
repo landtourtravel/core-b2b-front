@@ -22,7 +22,7 @@ const TIPO_PAX_COLOR: Record<string, string> = {
   SGL: "border-t-sky-400", DBL: "border-t-secondary", TPL: "border-t-gold", QUAD: "border-t-violet-400",
 };
 
-type VariantCard = { tipoPax: string; numPax: number; precio: number | null; isBase?: boolean; mixed?: boolean };
+type VariantCard = { tipoPax: string; numPax: number; precio: number | null; mixed?: boolean };
 
 const TIPO_PAX_ORDER = ["SGL", "DBL", "TPL", "QUAD"];
 
@@ -95,31 +95,20 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
   // Precios leídos DIRECTO de `precioPorPersona` (ya guardado por el admin con su ajuste +
   // ganancia horneados) — nunca recalculados en vivo desde tarifas de hotel, para que coincida
   // exactamente con el "Precio final de venta" que ve el admin en su propio editor.
+  // Solo se muestran las versiones que el admin creó explícitamente, CADA UNA con su propia
+  // nomenclatura — no se dedupica entre versiones. La ocupación BASE del paquete (implícita,
+  // NO vive como fila en VersionPaquete) cuenta como una versión más y se agrega con su
+  // nomenclatura real (ej. "DBL") SOLO si numPaxToTipoPax la resuelve a un tipo simple
+  // (nunca como tarjeta "MIXTA"/"BASE" genérica) y solo si esa nomenclatura no está ya cubierta
+  // por una versión explícita (evita duplicar la misma tarjeta dos veces).
   const variantCards: VariantCard[] = useMemo(() => {
+    const cards: VariantCard[] = paquete.versiones
+      .filter((v) => v.tipoPax !== "CHD")
+      .map((v) => ({ tipoPax: v.tipoPax, numPax: v.numPax, precio: v.precioPorPersona }));
     const baseTipoPax = numPaxToTipoPax(paquete.numPax);
-    // La ocupación BASE (Paquete.numPax/numNinos) es implícita — NO se guarda como fila propia
-    // en VersionPaquete (esa tabla solo tiene las versiones adicionales que el admin crea después).
-    // Por eso su tarjeta se agrega aquí explícitamente: con nomenclatura simple (SGL/DBL/TPL/QUAD)
-    // si un solo tipo de habitación cubre el numPax base, o como "MIXTA" si es una combinación de
-    // varios tipos de habitación (sin una sola etiqueta válida). En ambos casos el precio es
-    // `paquete.precioPorPersona` — ya es el final de la ocupación base sin importar su composición.
-    const cards: VariantCard[] = [];
-    const seen = new Set<string>();
-    if (baseTipoPax) {
-      cards.push({ tipoPax: baseTipoPax, numPax: paquete.numPax, precio: paquete.precioPorPersona, isBase: true });
-      seen.add(`${baseTipoPax}-${paquete.numPax}`);
-    } else {
-      const base: VariantCard = { tipoPax: "MIXTA", numPax: paquete.numPax, precio: paquete.precioPorPersona, isBase: true, mixed: true };
-      cards.push(base);
-      seen.add(`${base.tipoPax}-${base.numPax}`);
+    if (baseTipoPax && !cards.some((c) => c.tipoPax === baseTipoPax)) {
+      cards.push({ tipoPax: baseTipoPax, numPax: paquete.numPax, precio: paquete.precioPorPersona });
     }
-    paquete.versiones.forEach((v) => {
-      const key = `${v.tipoPax}-${v.numPax}`;
-      if (!seen.has(key) && v.tipoPax !== "CHD") {
-        seen.add(key);
-        cards.push({ tipoPax: v.tipoPax, numPax: v.numPax, precio: v.precioPorPersona });
-      }
-    });
     return cards.sort((a, b) => {
       const ia = TIPO_PAX_ORDER.indexOf(a.tipoPax);
       const ib = TIPO_PAX_ORDER.indexOf(b.tipoPax);
@@ -299,7 +288,7 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
               const key = `${v.tipoPax}-${v.numPax}`;
               return (
                 <div key={key} className={`bg-light rounded-xl p-3 border-t-4 ${TIPO_PAX_COLOR[v.tipoPax] ?? "border-t-secondary"}`}>
-                  <p className="text-xs font-black text-primary mb-1.5">{v.mixed ? "BASE" : v.tipoPax}</p>
+                  <p className="text-xs font-black text-primary mb-1.5">{v.tipoPax}</p>
                   {price != null ? (
                     <>
                       <span className="text-[7px] font-black uppercase text-gray-400 block leading-none">Desde</span>
@@ -309,7 +298,7 @@ export default function PaqueteDetailView({ paquete }: { paquete: CotPaquete }) 
                     <p className="text-[9px] font-bold text-primary/40">Sin precio configurado</p>
                   )}
                   <button
-                    onClick={() => runQuickQuote(key, v.numPax, paquete.numNinos, v.mixed)}
+                    onClick={() => runQuickQuote(key, v.numPax, paquete.numNinos)}
                     disabled={quickQuoteBusy !== null || price == null}
                     className="mt-2 w-full flex items-center justify-center gap-1 px-2 py-1.5 bg-secondary/10 hover:bg-secondary/20 text-secondary disabled:opacity-40 disabled:cursor-not-allowed font-black text-[8px] uppercase tracking-wider rounded-lg transition-all cursor-pointer"
                   >
