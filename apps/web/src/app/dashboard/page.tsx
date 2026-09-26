@@ -56,7 +56,7 @@ import DashboardTab from "./components/DashboardTab";
 import PaquetesTab from "./components/PaquetesTab";
 import { QUICK_QUOTE_PENDING_KEY, RETURN_TAB_PENDING_KEY } from "./components/PaqueteDetailView";
 import { EDIT_COT_PENDING_KEY } from "./components/CotizacionDetailView";
-import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
+import { GENERIC_CLIENT_EMAIL, OPTIMISTIC_COT_ID_PREFIX } from "@/lib/constants";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
@@ -1491,7 +1491,7 @@ export default function DashboardPage() {
     };
 
     const newCot: CotizacionExtended = {
-      id: `cot-${Date.now()}`,
+      id: `${OPTIMISTIC_COT_ID_PREFIX}${Date.now()}`,
       codigo,
       agenciaId:   sessionAgenciaId,
       creadoPorId: sessionUserId,
@@ -3567,10 +3567,14 @@ export default function DashboardPage() {
                         {quoteLocked && (
                           <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() => { if (editingCotId) window.open(`/dashboard/cotizaciones/${editingCotId}`, "_blank"); }}
-                              className="px-5 py-3 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                              onClick={() => { if (editingCotId && !isSavingQuote) window.open(`/dashboard/cotizaciones/${editingCotId}`, "_blank"); }}
+                              disabled={isSavingQuote || !editingCotId}
+                              className="px-5 py-3 bg-secondary/10 hover:bg-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed text-secondary border border-secondary/30 font-black text-xs uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                             >
-                              <Printer size={14} /> Ver Cotización
+                              {isSavingQuote
+                                ? <div className="w-3.5 h-3.5 border-2 border-secondary/30 border-t-secondary rounded-full animate-spin" />
+                                : <Printer size={14} />}
+                              {isSavingQuote ? "Guardando..." : "Ver Cotización"}
                             </button>
                             <button
                               onClick={() => setQuoteLocked(false)}

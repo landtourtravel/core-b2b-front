@@ -5,6 +5,7 @@ import { COTIZACION_STATUS_LABEL } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended } from "../DashboardContext";
 import { Skeleton } from "@/components/Skeleton";
+import { OPTIMISTIC_COT_ID_PREFIX } from "@/lib/constants";
 
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-50 text-sky-600",
@@ -122,7 +123,12 @@ export default function DashboardTab({ onGoToCotizaciones, onViewCot }: Dashboar
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-xs font-bold text-primary/80">
-              {cotizaciones.slice(0, 3).map((cot) => (
+              {cotizaciones.slice(0, 3).map((cot) => {
+                // Fila recién creada, update optimista: el guardado real en el servidor sigue
+                // en curso y este id temporal todavía no existe en la BD — navegar con él da
+                // "No encontrada". Se deshabilita "Ver" hasta que el id real lo reemplace.
+                const isSaving = cot.id.startsWith(OPTIMISTIC_COT_ID_PREFIX);
+                return (
                 <tr key={cot.id} className="hover:bg-light/40 transition-colors">
                   <td className="py-4"><span className="font-black text-secondary block">{cot.codigo}</span></td>
                   <td className="py-4 font-black">{cot.cliente?.nombre || "—"}</td>
@@ -136,6 +142,9 @@ export default function DashboardTab({ onGoToCotizaciones, onViewCot }: Dashboar
                     </span>
                   </td>
                   <td className="py-4">
+                    {isSaving ? (
+                      <div className="w-3 h-3 border-2 border-primary/20 border-t-primary/50 rounded-full animate-spin" />
+                    ) : (
                     <button
                       onClick={() => onViewCot(cot as CotizacionExtended)}
                       aria-label={`Ver cotización ${cot.codigo}`}
@@ -144,9 +153,11 @@ export default function DashboardTab({ onGoToCotizaciones, onViewCot }: Dashboar
                     >
                       <Eye size={12} />
                     </button>
+                    )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

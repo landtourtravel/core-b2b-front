@@ -5,7 +5,7 @@ import { COTIZACION_STATUS_LABEL, resumenPasajeros } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended } from "../DashboardContext";
 import { Skeleton } from "@/components/Skeleton";
-import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
+import { GENERIC_CLIENT_EMAIL, OPTIMISTIC_COT_ID_PREFIX } from "@/lib/constants";
 
 const STATUS_BADGE: Record<CotizacionStatus, string> = {
   BORRADOR:  "bg-sky-50 text-sky-600",
@@ -77,7 +77,12 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
           ))
         ) : cotizaciones.length === 0 ? (
           <div className="text-center py-10 text-primary/40 text-xs font-bold">Sin cotizaciones registradas.</div>
-        ) : cotizaciones.map((cot) => (
+        ) : cotizaciones.map((cot) => {
+          // Fila recién creada, update optimista: el guardado real en el servidor sigue en
+          // curso y este id temporal todavía no existe en la BD — navegar con él da "No
+          // encontrada". Se deshabilitan las acciones hasta que el id real lo reemplace.
+          const isSaving = cot.id.startsWith(OPTIMISTIC_COT_ID_PREFIX);
+          return (
           <div key={cot.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -94,6 +99,11 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
             </div>
             <div className="flex items-center justify-between border-t border-gray-50 pt-3">
               <span className="text-lg font-black text-primary">${cot.total.toLocaleString()} <span className="text-[10px] font-bold text-primary/40">USD</span></span>
+              {isSaving ? (
+                <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-primary/40">
+                  <div className="w-3 h-3 border-2 border-primary/20 border-t-primary/50 rounded-full animate-spin" /> Guardando...
+                </span>
+              ) : (
               <div className="flex gap-2">
                 <button
                   onClick={() => onViewCot(cot as CotizacionExtended)}
@@ -124,9 +134,11 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                   </button>
                 )}
               </div>
+              )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* ── Vista de tabla (sm y arriba) ── */}
@@ -150,7 +162,12 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
               ))
             ) : cotizaciones.length === 0 ? (
               <tr><td colSpan={9} className="py-10 text-center text-primary/40 font-bold text-xs">Sin cotizaciones registradas.</td></tr>
-            ) : cotizaciones.map((cot) => (
+            ) : cotizaciones.map((cot) => {
+              // Fila recién creada, update optimista: el guardado real en el servidor sigue en
+              // curso y este id temporal todavía no existe en la BD — navegar con él da "No
+              // encontrada". Se deshabilitan las acciones hasta que el id real lo reemplace.
+              const isSaving = cot.id.startsWith(OPTIMISTIC_COT_ID_PREFIX);
+              return (
               <tr key={cot.id} className="hover:bg-light/40 transition-colors">
                 <td className="py-4">
                   <span className="font-black text-secondary block">{cot.codigo}</span>
@@ -169,6 +186,11 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                   </span>
                 </td>
                 <td className="py-4">
+                  {isSaving ? (
+                    <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-primary/40">
+                      <div className="w-3 h-3 border-2 border-primary/20 border-t-primary/50 rounded-full animate-spin" /> Guardando...
+                    </span>
+                  ) : (
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => onViewCot(cot as CotizacionExtended)}
@@ -199,9 +221,11 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                       </button>
                     )}
                   </div>
+                  )}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
