@@ -57,6 +57,7 @@ import PaquetesTab from "./components/PaquetesTab";
 import { QUICK_QUOTE_PENDING_KEY, RETURN_TAB_PENDING_KEY } from "./components/PaqueteDetailView";
 import { EDIT_COT_PENDING_KEY } from "./components/CotizacionDetailView";
 import { GENERIC_CLIENT_EMAIL, OPTIMISTIC_COT_ID_PREFIX } from "@/lib/constants";
+import { isBuildStale } from "@/lib/staleBuild";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
@@ -3625,6 +3626,14 @@ export default function DashboardPage() {
                                 disabled={isSavingQuote}
                                 onClick={async () => {
                                   setIsSavingQuote(true);
+                                  // Si el navegador quedó con JS de un deploy anterior, guardar
+                                  // ahora podría fallar en silencio contra la API actual — se
+                                  // recarga antes de intentarlo (el borrador ya autoguardado en
+                                  // sessionStorage se restaura solo al volver a entrar).
+                                  if (await isBuildStale()) {
+                                    window.location.reload();
+                                    return;
+                                  }
                                   await handleSaveProforma();
                                   setShowSaveConfirm(false);
                                   setIsSavingQuote(false);
