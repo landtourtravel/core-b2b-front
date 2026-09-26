@@ -139,9 +139,17 @@ export async function POST(req: NextRequest) {
     const matchingVersionForMarkup = !matchesBaseOccupancy
       ? paquete.versiones.find((v) => v.numPax === numPax && v.tipoPax !== "CHD" && (v.precioPorPersona ?? 0) > 0) ?? null
       : null;
-    const markup = matchesBaseOccupancy
-      ? (paquete.gananciaAgencia ?? 0) + (paquete.ajustePrecio ?? 0)
-      : (matchingVersionForMarkup?.gananciaAgencia ?? 0) + (matchingVersionForMarkup?.ajuste ?? 0);
+    // Se persisten por separado (Cotizacion.markup = ganancia pura, Cotizacion.ajuste = ajuste
+    // de precio) — antes se combinaban en un solo campo `markup`, inflando/desinflando la
+    // liquidación de agencia en lt-core-admin (que lee `markup` asumiendo que es ganancia pura).
+    // El motor de precios (combineComboLegs) sigue recibiendo el neto combinado, sin cambios.
+    const gananciaAgenciaValue = matchesBaseOccupancy
+      ? (paquete.gananciaAgencia ?? 0)
+      : (matchingVersionForMarkup?.gananciaAgencia ?? 0);
+    const ajusteValue = matchesBaseOccupancy
+      ? (paquete.ajustePrecio ?? 0)
+      : (matchingVersionForMarkup?.ajuste ?? 0);
+    const markup = gananciaAgenciaValue + ajusteValue;
 
     const breakdowns = hotelesParaCotizar.map((hotel) => ({
       hotel,
@@ -305,7 +313,7 @@ export async function POST(req: NextRequest) {
             incluyeBoleto: flightActive,
             precioBoleto:  flightActive ? (paquete.precioBoleto ?? null) : null,
             boletoTotal,
-            subtotal, markup, total,
+            subtotal, markup: gananciaAgenciaValue, ajuste: ajusteValue, total,
             fechaViaje: null,
             fechaRetorno: null,
             status: "BORRADOR",

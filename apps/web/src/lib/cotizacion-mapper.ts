@@ -41,6 +41,10 @@ export function mapCotizacionRow(c: CotizacionRow) {
     },
     subtotal:      c.subtotal,
     markup:        c.markup,
+    // Cotizaciones creadas antes de separar estos campos tienen `ajuste = null` en BD y ya
+    // llevaban el ajuste horneado dentro de `markup` — exponer 0 aquí reconstruye el mismo
+    // total combinado de siempre (markup + 0) sin cambiar nada para esas filas viejas.
+    ajuste:        c.ajuste ?? 0,
     total:         c.total,
     fechaViaje:    c.fechaViaje?.toISOString().slice(0, 10)   ?? null,
     fechaRetorno:  c.fechaRetorno?.toISOString().slice(0, 10) ?? null,

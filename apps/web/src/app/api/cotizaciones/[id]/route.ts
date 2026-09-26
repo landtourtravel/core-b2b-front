@@ -55,7 +55,7 @@ export async function PUT(
     paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluyeDestinos, incluyeBoleto, precioBoleto,
     cantSGL = 0, cantDBL = 0, cantTPL = 0, cantQUAD = 0, cantCHD = 0,
     precioSGL = 0, precioDBL = 0, precioTPL = 0, precioQUAD = 0, precioCHD = 0,
-    subtotal, markup, total,
+    subtotal, markup, ajuste, total,
     fechaViaje, fechaRetorno, notas,
     hotelsComparison, wizardState,
   } = body;
@@ -68,17 +68,18 @@ export async function PUT(
   const MAX_PRICE = 1_000_000;
   const isValidAmount = (v: unknown): v is number =>
     typeof v === "number" && isFinite(v) && v >= 0 && v <= MAX_PRICE;
-  // `markup` incluye la comisión de agencia (siempre >= 0, piso `Paquete.gananciaAgencia`) MÁS
-  // el ajuste de precio automático del paquete (`Paquete.ajustePrecio`), que puede ser negativo
-  // (descuento del admin) — el neto puede quedar negativo si el descuento supera la comisión.
-  const isValidMarkup = (v: unknown): v is number =>
+  // `ajuste` (Paquete.ajustePrecio/VersionPaquete.ajuste) puede ser negativo — descuento/oferta
+  // del admin. `markup` (ganancia de agencia, Paquete.gananciaAgencia) en cambio siempre es >= 0
+  // desde que se separó de `ajuste` (antes venían combinados en un solo campo `markup`).
+  const isValidAdjustment = (v: unknown): v is number =>
     typeof v === "number" && isFinite(v) && v >= -MAX_PRICE && v <= MAX_PRICE;
   const isValidCount = (v: unknown): v is number =>
     typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 99;
   if (
     !isValidAmount(subtotal) ||
     !isValidAmount(total) ||
-    !isValidMarkup(markup) ||
+    !isValidAmount(markup ?? 0) ||
+    (ajuste !== undefined && ajuste !== null && !isValidAdjustment(ajuste)) ||
     !isValidCount(cantSGL) || !isValidCount(cantDBL) ||
     !isValidCount(cantTPL) || !isValidCount(cantQUAD) || !isValidCount(cantCHD)
   ) {
@@ -143,7 +144,9 @@ export async function PUT(
         incluyeBoleto:    incluyeBoleto   ?? false,
         precioBoleto:     precioBoleto != null ? r2(precioBoleto) : null,
         boletoTotal,
-        subtotal: r2(subtotal), markup: r2(markup ?? 0), total: r2(total),
+        subtotal: r2(subtotal), markup: r2(markup ?? 0),
+        ajuste: ajuste != null ? r2(ajuste) : null,
+        total: r2(total),
         fechaViaje:   fechaViaje   ? new Date(fechaViaje)   : null,
         fechaRetorno: fechaRetorno ? new Date(fechaRetorno) : null,
         notas: notas ?? null,

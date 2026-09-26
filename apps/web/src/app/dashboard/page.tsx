@@ -255,6 +255,7 @@ export default function DashboardPage() {
   const [quoteLocked,       setQuoteLocked]       = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [isSavingQuote,   setIsSavingQuote]   = useState(false);
+  const [saveError,       setSaveError]       = useState<string | null>(null);
   const [hasDraft,        setHasDraft]        = useState(false);
   // Cotización BORRADOR que se está editando (id real en BD). Se setea al abrir
   // "Editar" desde el listado, y también tras cualquier guardado exitoso — así,
@@ -744,7 +745,17 @@ export default function DashboardPage() {
   const childNoVersionWarn = cotMode === "catalogo" && cotNumNinos > 0 && cotSelectedPkgId !== null && !pkgHasAnyChildHotel;
 
   // Step guards
-  const step1CanProceed = clientName.trim().length > 0 && cotNumPersonas >= 1;
+  // El correo es obligatorio y debe tener formato válido — antes no se validaba en absoluto
+  // acá, así que un correo vacío o mal escrito solo se detectaba (o ni eso) hasta guardar.
+  // Además, el correo genérico (placeholder de cotización rápida, ver GENERIC_CLIENT_EMAIL)
+  // nunca debe llegar a guardarse como si fuera un cliente real — /api/clients lo rechaza
+  // server-side (400), pero ese rechazo fallaba en silencio al asesor (llegaba hasta el Paso 4
+  // sin ningún aviso). Todo se bloquea aquí, en el mismo Paso 1 donde se escribe el correo.
+  const clientEmailTrimmed = clientEmail.trim();
+  const clientEmailIsGeneric = clientEmailTrimmed.toLowerCase() === GENERIC_CLIENT_EMAIL;
+  const clientEmailIsValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmailTrimmed);
+  const step1CanProceed = clientName.trim().length > 0 && cotNumPersonas >= 1
+    && clientEmailIsValidFormat && !clientEmailIsGeneric;
   // Libre: exige destino(s) elegidos explícitamente (no solo "hay hoteles marcados" — esos
   // ids pueden quedar como residuo de una selección previa en modo catálogo tras cambiar de
   // modo sin resetear) — con multidestino activo, exige más de un destino.
@@ -1517,7 +1528,10 @@ export default function DashboardPage() {
         precioBoleto: cotFlightActive && cotFlightPrice > 0 ? cotFlightPrice : undefined,
       },
       subtotal:      r2(cotSubtotal),
-      markup:        r2(cotEffectiveMarkup),
+      // Persistidos por separado: `markup` = ganancia de agencia pura, `ajuste` = ajuste de
+      // precio del paquete — antes se combinaban en un solo campo (ver POST /api/cotizaciones).
+      markup:        r2(agencyMarkup),
+      ajuste:        r2(cotAjustePrecio),
       total:         r2(cotTotal),
       fechaViaje:    cotFechaSalida  || undefined,
       fechaRetorno:  cotFechaRetorno || undefined,
@@ -1549,7 +1563,17 @@ export default function DashboardPage() {
       setCotizaciones((prev) => [newCot, ...prev]);
     }
     setQuoteLocked(true);
-    clearDraft();
+    setSaveError(null);
+
+    // Revierte el bloqueo optimista del formulario y, si era una cotización nueva, quita la
+    // fila fantasma de la lista (su id temporal — ver OPTIMISTIC_COT_ID_PREFIX — nunca llegó a
+    // existir en la BD). El borrador en sessionStorage NO se toca aquí (solo se limpia tras un
+    // guardado exitoso), así el asesor no pierde lo que llevaba escrito si necesita reintentar.
+    const rollback = (message: string) => {
+      setSaveError(message);
+      setQuoteLocked(false);
+      if (!isEditing) setCotizaciones((prev) => prev.filter((c) => c.id !== newCot.id));
+    };
 
     try {
       const clientRes = await fetch("/api/clients", {
@@ -1563,8 +1587,16 @@ export default function DashboardPage() {
           direccion: clientAddress || undefined,
         }),
       });
-      const clientData = clientRes.ok ? await clientRes.json() : null;
-      if (!clientData?.id) return;
+      if (!clientRes.ok) {
+        const body = await clientRes.json().catch(() => null);
+        rollback(body?.error || "No se pudieron guardar los datos del cliente. Intenta de nuevo.");
+        return false;
+      }
+      const clientData = await clientRes.json();
+      if (!clientData?.id) {
+        rollback("No se pudieron guardar los datos del cliente. Intenta de nuevo.");
+        return false;
+      }
 
       const cotRes = await fetch(
         isEditing ? `/api/cotizaciones/${editingCotId}` : "/api/cotizaciones",
@@ -1578,7 +1610,7 @@ export default function DashboardPage() {
             cantQUAD: cotHabs.QUAD ?? 0, cantCHD:  cotNumNinos,
             precioSGL:  getSavePrice("SGL"),  precioDBL:  getSavePrice("DBL"),
             precioTPL:  getSavePrice("TPL"),  precioQUAD: getSavePrice("QUAD"), precioCHD: getSavePrice("CHD"),
-            subtotal: r2(cotSubtotal), markup: r2(cotEffectiveMarkup), total: r2(cotTotal),
+            subtotal: r2(cotSubtotal), markup: r2(agencyMarkup), ajuste: r2(cotAjustePrecio), total: r2(cotTotal),
             precioBoleto: cotFlightActive && cotFlightPrice > 0 ? r2(cotFlightPrice) : null,
             fechaViaje:   cotFechaSalida   || null,
             fechaRetorno: cotFechaRetorno  || null,
@@ -1588,32 +1620,41 @@ export default function DashboardPage() {
           }),
         }
       );
-      if (cotRes.ok) {
-        const saved = await cotRes.json();
-        // Se actualiza siempre — así, si el asesor desbloquea y vuelve a guardar en
-        // la misma sesión (aunque haya sido una creación nueva), la próxima vez PUT
-        // actualiza esta misma fila en vez de duplicarla.
-        setEditingCotId(saved.id);
-        setCotizaciones((prev) =>
-          prev.map((c) => c.id === (isEditing ? editingCotId : newCot.id) ? { ...c, ...saved } : c)
-        );
-        if (!isEditing) {
-          try {
-            await fetch("/api/cotizaciones/notify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                cotizacionId:  saved.id,
-                codigo:        saved.codigo,
-                agenciaEmail:  sessionData?.user?.email,
-                agenciaNombre: agenciaDisplay,
-                clienteNombre: clientName,
-              }),
-            });
-          } catch {}
-        }
+      if (!cotRes.ok) {
+        const body = await cotRes.json().catch(() => null);
+        rollback(body?.error || "No se pudo guardar la cotización. Intenta de nuevo.");
+        return false;
       }
-    } catch {}
+
+      const saved = await cotRes.json();
+      // Se actualiza siempre — así, si el asesor desbloquea y vuelve a guardar en
+      // la misma sesión (aunque haya sido una creación nueva), la próxima vez PUT
+      // actualiza esta misma fila en vez de duplicarla.
+      setEditingCotId(saved.id);
+      setCotizaciones((prev) =>
+        prev.map((c) => c.id === (isEditing ? editingCotId : newCot.id) ? { ...c, ...saved } : c)
+      );
+      clearDraft();
+      if (!isEditing) {
+        try {
+          await fetch("/api/cotizaciones/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cotizacionId:  saved.id,
+              codigo:        saved.codigo,
+              agenciaEmail:  sessionData?.user?.email,
+              agenciaNombre: agenciaDisplay,
+              clienteNombre: clientName,
+            }),
+          });
+        } catch {}
+      }
+      return true;
+    } catch {
+      rollback("No se pudo guardar la cotización — revisa tu conexión e intenta de nuevo.");
+      return false;
+    }
   };
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -2023,7 +2064,13 @@ export default function DashboardPage() {
                         {!step1CanProceed && (
                           <p className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
                             <AlertCircle size={11} className="shrink-0" />
-                            {!clientName.trim() ? "El nombre del cliente es obligatorio." : "Indica la cantidad de adultos que viajan."}
+                            {!clientName.trim()
+                              ? "El nombre del cliente es obligatorio."
+                              : clientEmailIsGeneric
+                                ? "Ingresa el correo real del cliente — el genérico de cotización rápida no se puede guardar."
+                                : !clientEmailIsValidFormat
+                                  ? "Ingresa un correo válido del cliente."
+                                  : "Indica la cantidad de adultos que viajan."}
                           </p>
                         )}
                         <button
@@ -3615,9 +3662,14 @@ export default function DashboardPage() {
                               )}
                               <li className="flex items-center gap-2"><CheckCircle2 size={11} className="text-secondary shrink-0" />Podrás editar la cotización después si es necesario.</li>
                             </ul>
+                            {saveError && (
+                              <p className="flex items-start gap-2 text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-2xl px-3 py-2.5">
+                                <AlertCircle size={13} className="shrink-0 mt-0.5" /> {saveError}
+                              </p>
+                            )}
                             <div className="flex gap-3 pt-2">
                               <button
-                                onClick={() => setShowSaveConfirm(false)}
+                                onClick={() => { setShowSaveConfirm(false); setSaveError(null); }}
                                 className="flex-1 px-4 py-3 border border-gray-200 text-primary font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
                               >
                                 Cancelar
@@ -3634,9 +3686,11 @@ export default function DashboardPage() {
                                     window.location.reload();
                                     return;
                                   }
-                                  await handleSaveProforma();
-                                  setShowSaveConfirm(false);
+                                  const ok = await handleSaveProforma();
                                   setIsSavingQuote(false);
+                                  // Si falló, el overlay se queda abierto mostrando el motivo
+                                  // real (saveError) en vez de cerrarse como si nada.
+                                  if (ok) setShowSaveConfirm(false);
                                 }}
                                 className="flex-1 px-4 py-3 bg-secondary hover:bg-secondary-light disabled:opacity-40 text-primary font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
                               >

@@ -74,8 +74,8 @@ export async function PATCH(
       if (primaryId) updateData.selectedHotelId = primaryId;
       if (typeof newTotal === "number") {
         updateData.total = newTotal;
-        // Mantener subtotal consistente: total = subtotal + boletoTotal + markup.
-        const derivedSubtotal = newTotal - cotizacion.boletoTotal - cotizacion.markup;
+        // Mantener subtotal consistente: total = subtotal + boletoTotal + markup + ajuste.
+        const derivedSubtotal = newTotal - cotizacion.boletoTotal - cotizacion.markup - (cotizacion.ajuste ?? 0);
         updateData.subtotal = derivedSubtotal > 0 ? derivedSubtotal : cotizacion.subtotal;
       }
 

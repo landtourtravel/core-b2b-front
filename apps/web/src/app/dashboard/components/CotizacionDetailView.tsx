@@ -88,7 +88,12 @@ export default function CotizacionDetailView({
 
   const boletoAdultoPerPax = allHotels[0]?.boletoPerPax ?? 0;
   const boletoNinoPerPax   = allHotels[0]?.boletoChildPerPax ?? 0;
-  const markup             = cot.markup ?? 0;
+  // `cot.markup` (ganancia de agencia) y `cot.ajuste` (ajuste de precio del paquete) se
+  // persisten por separado desde que se dejaron de combinar en un solo campo — el motor de
+  // precios (combineComboLegs/hotelPerDestinoPrice) sigue recibiendo el neto de ambos, igual
+  // que antes. En cotizaciones creadas antes de esta separación, `ajuste` llega en 0 (ver
+  // mapCotizacionRow) y `markup` ya traía el combinado horneado — la suma da el mismo total.
+  const markup             = (cot.markup ?? 0) + (cot.ajuste ?? 0);
 
   // Habitaciones realmente cotizadas (composición fija de la cotización, independiente del
   // hotel elegido — un paquete puede reservarse con varios tipos a la vez, ej. 1 SGL + 1 DBL).

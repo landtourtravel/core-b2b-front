@@ -362,9 +362,14 @@ model Cotizacion {
   // ── Líneas de detalle (una fila por tipoPax cotizado) ───────────────
   detalles CotizacionDetalle[]
 
-  // ── Totales (fórmula: total = subtotal + boletoTotal + markup) ───────
+  // ── Totales (fórmula: total = subtotal + boletoTotal + markup + ajuste) ───────
   subtotal Float              // Σ(detalle.subtotal) — precio neto del paquete
-  markup   Float  @default(0) // Comisión de la agencia (no visible al cliente en PDF)
+  markup   Float  @default(0) // Ganancia de la agencia (Paquete.gananciaAgencia) — no visible al cliente en PDF
+  // Ajuste de precio del paquete (Paquete.ajustePrecio/VersionPaquete.ajuste, puede ser
+  // negativo). Antes se sumaba dentro de `markup`; separado para que la liquidación de
+  // lt-core-admin (que lee `markup` como ganancia pura de la agencia) no quede inflada/
+  // desinflada por el ajuste. Columna ya existía en Supabase sin mapear (verificado por MCP).
+  ajuste   Float?
   total    Float              // Precio final al cliente
 
   // ── Fechas de viaje ─────────────────────────────────────────────────

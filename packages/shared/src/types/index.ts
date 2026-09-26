@@ -207,9 +207,14 @@ export interface Cotizacion {
   precios:   PreciosCotizacion;
 
   // Totales
-  subtotal: number;  // Σ(cant × precio) por tipo
-  markup:   number;  // Comisión de la agencia (oculta en PDF)
-  total:    number;  // subtotal + markup
+  subtotal: number;   // Σ(cant × precio) por tipo
+  markup:   number;   // Ganancia de la agencia (Paquete.gananciaAgencia) — oculta en PDF
+  /** Ajuste de precio del paquete (Paquete.ajustePrecio/VersionPaquete.ajuste) — puede ser
+   * negativo (descuento/oferta del admin). Antes se sumaba dentro de `markup`; separado para
+   * que la liquidación (lt-core-admin, que lee `markup` como ganancia pura de la agencia) no
+   * quede inflada/desinflada por el ajuste. `total = subtotal + boletoTotal + markup + ajuste`. */
+  ajuste?:  number;
+  total:    number;  // subtotal + boletoTotal + markup + ajuste
 
   // Fechas de viaje
   fechaViaje?:   string;  // ISO
