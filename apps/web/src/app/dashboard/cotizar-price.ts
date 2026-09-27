@@ -55,6 +55,32 @@ export function buildRoomRates(
   return rates;
 }
 
+export type RoomTypePrice = { tipoHabitacion: string; cantidad: number; precio: number };
+
+/**
+ * Precio por persona de CADA tipo de habitación cotizado, para una combinación de hoteles
+ * (uno por destino) — la misma fórmula que usa el documento de cotización
+ * (`CotizacionDetailView`): alojamiento de ESE tipo (tarifa × noches, sumado entre paradas)
+ * + servicios por adulto + boleto de adulto + comisión. Solo el alojamiento cambia según el
+ * tipo de habitación; el resto es igual para todos los adultos.
+ */
+export function comboRoomTypePrices(
+  legs: { tarifas: CotHelperHotelTarifa[]; noches: number; servicesPerPax: number }[],
+  roomEntries: [string, number][],
+  boletoAdultoPerPax: number,
+  agencyMarkup: number
+): RoomTypePrice[] {
+  const servicesPerPax = legs.reduce((s, l) => s + l.servicesPerPax, 0);
+  return roomEntries.map(([tipoHabitacion, cantidad]) => {
+    const accom = legs.reduce(
+      (s, l) =>
+        s + (l.tarifas.find((t) => t.tipoHabitacion === tipoHabitacion)?.precioBase ?? 0) * Math.max(1, l.noches),
+      0
+    );
+    return { tipoHabitacion, cantidad, precio: accom + servicesPerPax + boletoAdultoPerPax + agencyMarkup };
+  });
+}
+
 export type ChildPriceResult = { precio: number; aplica: boolean };
 
 /**

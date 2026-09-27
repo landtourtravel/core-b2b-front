@@ -74,6 +74,7 @@ import {
   combineComboLegs,
   hotelPerDestinoPrice,
   buildRoomRates,
+  comboRoomTypePrices,
   numPaxToTipoPax,
   groupIncluyeByDestino,
   dedupeDestinoLabels,
@@ -382,24 +383,11 @@ export default function DashboardPage() {
     setTimeout(() => setConfigSaved(false), 3000);
   };
 
-  // Búsqueda de cliente existente por email
-  const [clientFoundMsg, setClientFoundMsg] = useState<string | null>(null);
-  const handleClientEmailBlur = async () => {
-    if (!clientEmail) return;
-    try {
-      const r = await fetch(`/api/clients?email=${encodeURIComponent(clientEmail)}`);
-      const c = await r.json();
-      if (c?.id) {
-        setClientName(c.nombre || clientName);
-        setClientPhone(c.telefono || clientPhone);
-        setClientId(c.documento || clientId);
-        setClientAddress(c.direccion || clientAddress);
-        setClientFoundMsg(`Cliente encontrado: ${c.nombre}`);
-      } else {
-        setClientFoundMsg(null);
-      }
-    } catch { setClientFoundMsg(null); }
-  };
+  // Los datos del cliente NO se autocompletan desde fichas guardadas: cada cotización
+  // muestra exactamente lo que el asesor escribió en el Paso 1. Antes, al salir del campo
+  // de correo se buscaba una ficha existente y se rellenaban nombre/teléfono/documento/
+  // dirección con lo que hubiera guardado de una cotización anterior — datos que el asesor
+  // nunca ingresó y que igual terminaban impresos en el documento.
 
   // ── Effects ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -859,6 +847,11 @@ export default function DashboardPage() {
   const cotCatUseBaseRooms =
     cotCatBaseRooms.length > 0 && roomsOccupancy(cotCatBaseRooms) === cotNumPersonas;
 
+  // Habitaciones de adulto cotizadas (sin CHD) — base del desglose por tipo que se muestra
+  // en el Paso 4 y que se guarda en el snapshot (`roomRates`), igual que en el documento.
+  const cotRoomEntries: [string, number][] =
+    Object.entries(cotHabs).filter(([t, q]) => t !== "CHD" && q > 0) as [string, number][];
+
   const cotCatBreakdowns: { hotel: CotPaqueteHotel; bd: HotelBreakdown }[] =
     cotMode === "catalogo" && cotSelectedPkg
       ? cotSelectedPkg.hoteles
@@ -1216,7 +1209,6 @@ export default function DashboardPage() {
   const resetForm = () => {
     setStep(1); setQuoteLocked(false); setEditingCotId(null);
     setClientName(""); setClientEmail(""); setClientPhone(""); setClientId(""); setClientAddress("");
-    setClientFoundMsg(null);
     setSelectedPkgId("1"); setExpandedCountry(null);
     setTravelDateFrom(""); setTravelDateTo("");
     setSelectedHotelIds([]);
@@ -1624,12 +1616,14 @@ export default function DashboardPage() {
       const clientRes = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // Se mandan siempre los valores del formulario (aunque estén vacíos) para que la
+        // ficha del cliente quede igual a lo que se ve en el Paso 1 — ver /api/clients.
         body: JSON.stringify({
           nombre:    clientName  || "Sin nombre",
           email:     clientEmail || undefined,
-          telefono:  clientPhone || undefined,
-          documento: clientId    || undefined,
-          direccion: clientAddress || undefined,
+          telefono:  clientPhone.trim(),
+          documento: clientId.trim(),
+          direccion: clientAddress.trim(),
         }),
       });
       if (!clientRes.ok) {
@@ -1997,8 +1991,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-1.5">
                           <label htmlFor="client-email" className={labelCls}>Correo Electrónico</label>
-                          <input id="client-email" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} onBlur={handleClientEmailBlur} placeholder="cliente@email.com" className={inputCls} />
-                          {clientFoundMsg && <p className="text-[10px] font-bold text-secondary mt-1">{clientFoundMsg}</p>}
+                          <input id="client-email" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="cliente@email.com" className={inputCls} />
                         </div>
                         <div className="space-y-1.5">
                           <label htmlFor="client-phone" className={labelCls}>Teléfono / WhatsApp</label>
@@ -3404,6 +3397,16 @@ export default function DashboardPage() {
                               {cotCatCombos.map((combo, idx) => {
                                 const isCheapest = combo === cotCatRepCombo;
                                 const t = combo.totals;
+                                // Mismo desglose por tipo de habitación que el documento de
+                                // cotización — no un promedio único de "Adulto".
+                                const roomPrices = comboRoomTypePrices(
+                                  combo.legs.map(({ hotel, bd }) => ({
+                                    tarifas: hotel.tarifas,
+                                    noches: cotHotelNoches(hotel),
+                                    servicesPerPax: bd.servicesPerPax,
+                                  })),
+                                  cotRoomEntries, cotBoletoAdultoPerPax, cotEffectiveMarkup,
+                                );
                                 return (
                                   <div
                                     key={idx}
@@ -3440,14 +3443,28 @@ export default function DashboardPage() {
                                       ))}
                                     </div>
 
-                                    {/* Precios por persona — Adulto y Niño separados */}
+                                    {/* Precio por persona de cada tipo de habitación + Niño */}
                                     <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
-                                      <div className="flex items-center justify-between px-3 py-2">
-                                        <span className="text-[10px] font-bold text-primary/60">Adulto</span>
-                                        <span className="text-sm font-black text-primary">
-                                          ${fmtN(t.precioAdulto)}
-                                        </span>
-                                      </div>
+                                      {roomPrices.length > 0 ? (
+                                        roomPrices.map((r) => (
+                                          <div key={r.tipoHabitacion} className="flex items-center justify-between px-3 py-2">
+                                            <span className="text-[10px] font-bold text-primary/60">
+                                              {r.tipoHabitacion}
+                                              <span className="ml-1 text-primary/35 font-semibold">
+                                                {r.cantidad} hab.
+                                              </span>
+                                            </span>
+                                            <span className="text-sm font-black text-primary">${fmtN(r.precio)}</span>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <div className="flex items-center justify-between px-3 py-2">
+                                          <span className="text-[10px] font-bold text-primary/60">Adulto</span>
+                                          <span className="text-sm font-black text-primary">
+                                            ${fmtN(t.precioAdulto)}
+                                          </span>
+                                        </div>
+                                      )}
                                       {cotNumNinos > 0 && (
                                         <div className="flex items-center justify-between px-3 py-2">
                                           <span className="text-[10px] font-bold text-primary/60">Niño</span>
@@ -3459,7 +3476,7 @@ export default function DashboardPage() {
                                     </div>
 
                                     <p className="text-[8px] text-primary/30 font-bold leading-relaxed">
-                                      Incluye alojamiento, actividades y traslados{cotFlightActive ? ", boleto aéreo" : ""}{agencyMarkup > 0 ? ", comisión de agencia" : ""}.
+                                      Precio por persona según su habitación. Incluye alojamiento, actividades y traslados{cotFlightActive ? ", boleto aéreo" : ""}{agencyMarkup > 0 ? ", comisión de agencia" : ""}.
                                     </p>
                                   </div>
                                 );
@@ -3565,18 +3582,15 @@ export default function DashboardPage() {
                         // alojamiento varía por tipo (roomRates vía buildRoomRates); actividades,
                         // traslados, boleto y comisión son un único monto por adulto, igual para
                         // todos los tipos de habitación.
-                        const comboRoomPricesLibre = (combo: CotLibreCombo): { tipo: string; price: number }[] => {
-                          if (cotLibreRoomEntries.length === 0) return [{ tipo: "Adulto", price: combo.totals.precioAdulto }];
-                          const adultServices = combo.legs.reduce((s, l) => s + l.adultServicesTotal, 0);
-                          const servicesPerAdult = cotNumPersonas > 0 ? adultServices / cotNumPersonas : 0;
-                          return cotLibreRoomEntries.map(([tipo]) => {
-                            const accom = combo.legs.reduce(
-                              (s, l) => s + (buildRoomRates(l.hotel.tarifas, cotLibreRoomEntries, l.noches)[tipo] ?? 0),
-                              0
-                            );
-                            return { tipo, price: accom + servicesPerAdult + cotBoletoAdultoPerPaxLibre + cotEffectiveMarkup };
-                          });
-                        };
+                        const comboRoomPricesLibre = (combo: CotLibreCombo) =>
+                          comboRoomTypePrices(
+                            combo.legs.map((l) => ({
+                              tarifas: l.hotel.tarifas,
+                              noches: l.noches,
+                              servicesPerPax: cotNumPersonas > 0 ? l.adultServicesTotal / cotNumPersonas : 0,
+                            })),
+                            cotRoomEntries, cotBoletoAdultoPerPaxLibre, cotEffectiveMarkup,
+                          );
                         return (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -3626,14 +3640,26 @@ export default function DashboardPage() {
                                     </div>
 
                                     <div className="rounded-2xl bg-light/60 border border-secondary/15 divide-y divide-gray-100 overflow-hidden">
-                                      {comboRoomPricesLibre(combo).map((r) => (
-                                        <div key={r.tipo} className="flex items-center justify-between px-3 py-2">
-                                          <span className="text-[10px] font-bold text-primary/60">{r.tipo}</span>
+                                      {comboRoomPricesLibre(combo).length > 0 ? (
+                                        comboRoomPricesLibre(combo).map((r) => (
+                                          <div key={r.tipoHabitacion} className="flex items-center justify-between px-3 py-2">
+                                            <span className="text-[10px] font-bold text-primary/60">
+                                              {r.tipoHabitacion}
+                                              <span className="ml-1 text-primary/35 font-semibold">{r.cantidad} hab.</span>
+                                            </span>
+                                            <span className="text-sm font-black text-primary">
+                                              ${fmtN(r.precio)}
+                                            </span>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <div className="flex items-center justify-between px-3 py-2">
+                                          <span className="text-[10px] font-bold text-primary/60">Adulto</span>
                                           <span className="text-sm font-black text-primary">
-                                            ${fmtN(r.price)}
+                                            ${fmtN(t.precioAdulto)}
                                           </span>
                                         </div>
-                                      ))}
+                                      )}
                                       {cotNumNinos > 0 && (
                                         <div className="flex items-center justify-between px-3 py-2">
                                           <span className="text-[10px] font-bold text-primary/60">Niño</span>

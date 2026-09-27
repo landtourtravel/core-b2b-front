@@ -4,33 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { logError } from "@/lib/logger";
 import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 
-// GET /api/clients?email=&documento= — busca cliente existente
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.agenciaId) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-
-  const { searchParams } = new URL(req.url);
-  const email     = searchParams.get("email");
-  const documento = searchParams.get("documento");
-
-  if (!email && !documento) return NextResponse.json(null);
-
-  try {
-    const cliente = await prisma.cliente.findFirst({
-      where: {
-        agenciaId: session.user.agenciaId,
-        OR: [
-          email     ? { email }     : undefined,
-          documento ? { documento } : undefined,
-        ].filter(Boolean) as any,
-      },
-    });
-    return NextResponse.json(cliente);
-  } catch (err) {
-    logError("GET /api/clients", err);
-    return NextResponse.json(null);
-  }
-}
+// El GET de búsqueda por correo/documento se eliminó junto con el autocompletado del Paso 1:
+// su único uso era rellenar el formulario con los datos guardados de una cotización anterior.
+// Los datos del cliente se escriben siempre a mano en cada cotización.
 
 // POST /api/clients — crea o devuelve cliente existente (upsert por email o documento)
 export async function POST(req: NextRequest) {
@@ -71,10 +47,18 @@ export async function POST(req: NextRequest) {
     }
 
     if (cliente) {
-      // Actualizar datos si cambiaron
+      // La ficha queda EXACTAMENTE con lo que el asesor escribió en el Paso 1: un campo
+      // que mandó vacío se limpia, no se rellena con lo que tuviera guardado de una
+      // cotización anterior. Si no, el documento terminaba mostrando teléfonos/direcciones
+      // que el asesor nunca ingresó en esa cotización.
       cliente = await prisma.cliente.update({
         where: { id: cliente.id },
-        data: { nombre, telefono: telefono || cliente.telefono, direccion: direccion || cliente.direccion },
+        data: {
+          nombre,
+          telefono:  telefono  !== undefined ? (telefono  || null) : cliente.telefono,
+          direccion: direccion !== undefined ? (direccion || null) : cliente.direccion,
+          documento: documento !== undefined ? (documento || null) : cliente.documento,
+        },
       });
     } else {
       cliente = await prisma.cliente.create({
