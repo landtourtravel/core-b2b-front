@@ -436,6 +436,31 @@ export type HotelBreakdownMix = HotelBreakdown & {
 };
 
 /**
+ * Composición de habitaciones cargada en la base del paquete (filas `PaqueteHotel`).
+ * Todos los hoteles de un paquete describen la MISMA distribución de pasajeros (solo
+ * cambia la tarifa de cada uno), así que se toma la del primer hotel que la declare.
+ * Las filas CHD se excluyen: los niños se cuentan/tarifan por edad declarada, no por
+ * una "habitación" CHD.
+ */
+export function packageBaseRooms(
+  hoteles: { habitaciones?: RoomMixEntry[] }[] | undefined
+): RoomMixEntry[] {
+  for (const h of hoteles ?? []) {
+    const rooms = (h.habitaciones ?? []).filter(
+      (r) => r.tipoHabitacion !== "CHD" && r.cantidad > 0
+    );
+    if (rooms.length > 0)
+      return rooms.map((r) => ({ tipoHabitacion: r.tipoHabitacion, cantidad: r.cantidad }));
+  }
+  return [];
+}
+
+/** Adultos que ocupa una composición de habitaciones (SGL=1, DBL=2, TPL=3, QUAD=4). */
+export function roomsOccupancy(rooms: RoomMixEntry[]): number {
+  return rooms.reduce((s, r) => s + (PAX_BY_TYPE[r.tipoHabitacion] ?? 1) * r.cantidad, 0);
+}
+
+/**
  * Mismo resultado que `calcHotelBreakdown`, pero para paquetes cuya ocupación BASE es una
  * MEZCLA de tipos de habitación en vez de un solo tipoPax para todo el grupo — las filas
  * `PaqueteHotel` (tipoHabitacion+cantidad) de este hotel son la fuente de verdad de cuántas

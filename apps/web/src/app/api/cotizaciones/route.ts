@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
   const {
     clienteId, paqueteId,
     paqueteNombre, paqueteDuracion, paqueteDestino, paqueteIncluyeDestinos, incluyeBoleto, precioBoleto,
+    boletoTotal: boletoTotalBody,
     cantSGL = 0, cantDBL = 0, cantTPL = 0, cantQUAD = 0, cantCHD = 0,
     precioSGL = 0, precioDBL = 0, precioTPL = 0, precioQUAD = 0, precioCHD = 0,
     subtotal, markup, ajuste, total,
@@ -125,9 +126,14 @@ export async function POST(req: NextRequest) {
       return { tipoPax: h.tipoPax, numPax, cantidad: h.cantidad, precioPorPersona, precioUnitario, subtotal: r2(precioUnitario * h.cantidad) };
     });
 
-  // boletoTotal = precioBoleto × total passengers across all room types
+  // boletoTotal: lo manda el cliente ya desglosado (tarifa de adulto × adultos + tarifa de
+  // niño × niños — el niño puede tener una tarifa propia, `Paquete.precioBoletoNino`). El
+  // derivado local (precioBoleto × pax) es solo el fallback para cuerpos que no lo envían:
+  // aplica la tarifa de adulto a todos y queda descuadrado con `total` cuando hay niños.
   const totalPax = habitaciones.reduce((sum, h) => sum + h.numPax * h.cantidad, 0);
-  const boletoTotal = (incluyeBoleto && precioBoleto) ? r2(precioBoleto * totalPax) : 0;
+  const boletoTotal = isValidAmount(boletoTotalBody)
+    ? r2(boletoTotalBody)
+    : ((incluyeBoleto && precioBoleto) ? r2(precioBoleto * totalPax) : 0);
 
   try {
     let seq = await nextCodigoSeq(agenciaId, creadoPorId);

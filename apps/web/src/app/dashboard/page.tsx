@@ -61,6 +61,9 @@ import { isBuildStale } from "@/lib/staleBuild";
 import CotizacionesTab from "./components/CotizacionesTab";
 import {
   calcHotelBreakdown,
+  calcHotelBreakdownFromRoomMix,
+  packageBaseRooms,
+  roomsOccupancy,
   getUncoveredChildAges,
   getChildPriceForAge,
   getActividadAdultPerPax,
@@ -413,16 +416,30 @@ export default function DashboardPage() {
     });
   }, [cotNumNinos]);
 
-  // Auto-derive room distribution from Step 1 passengers (catalog mode only)
+  // Distribución de habitaciones en modo catálogo — NO se inventa a partir del total de
+  // adultos. Si el paquete trae habitaciones cargadas en la base (filas `PaqueteHotel`) y su
+  // ocupación cuadra con los adultos declarados en el Paso 1, ESA es la distribución de la
+  // cotización (un paquete puede combinar varias: 1 SGL + 2 DBL + 2 TPL = 11 adultos).
+  // Solo si no cuadra (o el paquete no las declara) se cae a una única habitación del tipo
+  // que cubre al grupo — que además no existe para más de 4 adultos, y dejaba la cotización
+  // sin ninguna habitación de adulto (ver `numPaxToTipoPax`).
   useEffect(() => {
     if (cotMode !== "catalogo") return;
-    const typeMap: Record<number, string> = { 1: "SGL", 2: "DBL", 3: "TPL", 4: "QUAD" };
-    const adultType = typeMap[cotNumPersonas] ?? null;
+    const pkg = cotizarData?.paquetes.find((p) => p.id === cotSelectedPkgId) ?? null;
+    const baseRooms = packageBaseRooms(pkg?.hoteles);
+    const basePax = roomsOccupancy(baseRooms);
     const newHabs: Record<string, number> = {};
-    if (adultType) newHabs[adultType] = 1;
+    if (basePax > 0 && basePax === cotNumPersonas) {
+      baseRooms.forEach((r) => {
+        newHabs[r.tipoHabitacion] = (newHabs[r.tipoHabitacion] ?? 0) + r.cantidad;
+      });
+    } else {
+      const adultType = numPaxToTipoPax(cotNumPersonas);
+      if (adultType) newHabs[adultType] = 1;
+    }
     if (cotNumNinos > 0) newHabs["CHD"] = cotNumNinos;
     setCotHabs(newHabs);
-  }, [cotMode, cotNumPersonas, cotNumNinos]);
+  }, [cotMode, cotNumPersonas, cotNumNinos, cotSelectedPkgId, cotizarData]);
 
   useEffect(() => {
     fetch("/api/cotizar-datos")
@@ -832,24 +849,41 @@ export default function DashboardPage() {
   const cotBoletoAdultoPerPax = cotFlightActive ? cotFlightPrice : 0;
   const cotBoletoNinoPerPax = cotFlightActive ? cotFlightPriceChild : 0;
 
+  // Composición de habitaciones cargada en la base del paquete. Se usa para tarifar el
+  // alojamiento cuando su ocupación cuadra con los adultos declarados — así 11 adultos se
+  // cobran como 1 SGL + 2 DBL + 2 TPL (tarifa real de cada tipo) y no como 11 × tarifa DBL.
+  // Es el mismo motor que ya usa la cotización rápida (`POST /api/cotizaciones/quick`).
+  const cotCatBaseRooms = cotMode === "catalogo" && cotSelectedPkg
+    ? packageBaseRooms(cotSelectedPkg.hoteles)
+    : [];
+  const cotCatUseBaseRooms =
+    cotCatBaseRooms.length > 0 && roomsOccupancy(cotCatBaseRooms) === cotNumPersonas;
+
   const cotCatBreakdowns: { hotel: CotPaqueteHotel; bd: HotelBreakdown }[] =
     cotMode === "catalogo" && cotSelectedPkg
       ? cotSelectedPkg.hoteles
           .filter(hotelAptoNinos)
           .filter((h) => cotSelectedHotelIds.includes(h.id))
-          .map((hotel) => ({
-            hotel,
-            bd: calcHotelBreakdown(
-              hotel, cotReqTipoPax, cotNinosEdades, cotNumPersonas,
-              // Local services only: each hotel's stop bears just its own destino's
-              // actividades/traslados. Boleto/markup are global (added once per combo).
-              cotSelectedPkg!.actividades.filter((a) => a.destinoId === hotel.destinoId),
-              cotSelectedPkg!.traslados.filter((t) => t.destinoId === hotel.destinoId),
-              cotFlightActive, cotBoletoAdultoPerPax, cotEffectiveMarkup,
-              cotHotelNoches(hotel),
-              cotBoletoNinoPerPax,
-            ),
-          }))
+          .map((hotel) => {
+            // Local services only: each hotel's stop bears just its own destino's
+            // actividades/traslados. Boleto/markup are global (added once per combo).
+            const acts = cotSelectedPkg!.actividades.filter((a) => a.destinoId === hotel.destinoId);
+            const trs  = cotSelectedPkg!.traslados.filter((t) => t.destinoId === hotel.destinoId);
+            const bd = cotCatUseBaseRooms
+              ? calcHotelBreakdownFromRoomMix(
+                  hotel, cotCatBaseRooms, cotNinosEdades, cotNumPersonas,
+                  acts, trs,
+                  cotFlightActive, cotBoletoAdultoPerPax, cotEffectiveMarkup,
+                  cotHotelNoches(hotel), cotBoletoNinoPerPax,
+                )
+              : calcHotelBreakdown(
+                  hotel, cotReqTipoPax, cotNinosEdades, cotNumPersonas,
+                  acts, trs,
+                  cotFlightActive, cotBoletoAdultoPerPax, cotEffectiveMarkup,
+                  cotHotelNoches(hotel), cotBoletoNinoPerPax,
+                );
+            return { hotel, bd };
+          })
           // Más económico primero (por-adulto, alojamiento+servicios locales) — filtrar por
           // destinoId después conserva este orden dentro de cada grupo (sort estable + subsecuencia).
           .sort((a, b) => a.bd.adultColPerPax - b.bd.adultColPerPax)
@@ -1045,6 +1079,17 @@ export default function DashboardPage() {
   const getSavePrice = (tipoPax: string): number => {
     if (cotMode === "catalogo" && cotCatRep) {
       if (tipoPax === "CHD") return Math.round(cotCatRep.precioCHD * 100) / 100;
+      // Con la composición de la base (varias habitaciones a la vez) cada tipo lleva su
+      // propia tarifa: alojamiento por persona = tarifa del tipo × noches, sumado sobre los
+      // hoteles del combo (uno por destino). Mismo criterio que la cotización rápida.
+      if (cotCatUseBaseRooms) {
+        if ((cotHabs[tipoPax] ?? 0) <= 0 || !cotCatRepCombo) return 0;
+        const total = cotCatRepCombo.legs.reduce((sum, leg) => {
+          const rate = leg.hotel.tarifas.find((t) => t.tipoHabitacion === tipoPax)?.precioBase ?? 0;
+          return sum + rate * cotHotelNoches(leg.hotel);
+        }, 0);
+        return Math.round(total * 100) / 100;
+      }
       if (tipoPax === cotReqTipoPax) return Math.round(cotCatRep.precioAdulto * 100) / 100;
       return 0;
     }
@@ -1612,6 +1657,9 @@ export default function DashboardPage() {
             precioTPL:  getSavePrice("TPL"),  precioQUAD: getSavePrice("QUAD"), precioCHD: getSavePrice("CHD"),
             subtotal: r2(cotSubtotal), markup: r2(agencyMarkup), ajuste: r2(cotAjustePrecio), total: r2(cotTotal),
             precioBoleto: cotFlightActive && cotFlightPrice > 0 ? r2(cotFlightPrice) : null,
+            // Desglosado adulto/niño (el niño puede tener tarifa propia) — el servidor no
+            // puede derivarlo desde `precioBoleto`, que es solo la tarifa de adulto.
+            boletoTotal: r2(cotBoletoTotal),
             fechaViaje:   cotFechaSalida   || null,
             fechaRetorno: cotFechaRetorno  || null,
             notas: notasStr,
@@ -2861,7 +2909,12 @@ export default function DashboardPage() {
                         // (#4) Con niños, ocultar hoteles sin tarifa CHD válida (verificado en vivo contra BD).
                         const elegibles = cotSelectedPkg.hoteles.filter(hotelAptoNinos);
                         const excluidos = cotSelectedPkg.hoteles.length - elegibles.length;
-                        const occupancyLabel = `${requiredTipoPax} · ${cotNumPersonas} ADT${cotNumNinos > 0 ? ` + ${cotNumNinos} CHD` : ""}`;
+                        // Con la composición de la base se listan las habitaciones reales
+                        // (1 SGL + 2 DBL + 2 TPL), no una sola etiqueta para todo el grupo.
+                        const roomsLabel = cotCatUseBaseRooms
+                          ? cotCatBaseRooms.map((r) => `${r.cantidad} ${r.tipoHabitacion}`).join(" + ")
+                          : requiredTipoPax;
+                        const occupancyLabel = `${roomsLabel} · ${cotNumPersonas} ADT${cotNumNinos > 0 ? ` + ${cotNumNinos} CHD` : ""}`;
                         const paxLabel = `${cotNumPersonas} Adulto${cotNumPersonas !== 1 ? "s" : ""}${cotNumNinos > 0 ? ` + ${cotNumNinos} Niño${cotNumNinos !== 1 ? "s" : ""}` : ""}`;
                         // Selección manual (checkbox): el asesor puede marcar varios hoteles en UN
                         // destino; los demás quedan limitados a uno solo (toggleCatHotel, ver arriba).
