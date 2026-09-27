@@ -37,19 +37,38 @@ interface CotizacionesTabProps {
 
 const PAGE_SIZE = 20;
 
+/** Estados que el filtro ofrece, en el orden del flujo de la cotización. */
+const STATUS_OPTIONS: CotizacionStatus[] = ["BORRADOR", "ENVIADA", "APROBADA", "RECHAZADA", "LIQUIDADA"];
+
 export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: CotizacionesTabProps) {
   const { cotizaciones, isLoadingCots, userName } = useDashboard();
 
+  // Búsqueda y filtro de estado — se aplican antes de paginar.
+  const [query, setQuery] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<CotizacionStatus | "">("");
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return cotizaciones.filter((cot) => {
+      if (statusFilter && cot.status !== statusFilter) return false;
+      if (!q) return true;
+      return [cot.codigo, cot.cliente?.nombre, cot.cliente?.email, cot.paqueteNombre]
+        .some((campo) => campo?.toLowerCase().includes(q));
+    });
+  }, [cotizaciones, query, statusFilter]);
+
   // Paginación — 20 por página, compartida por la vista de tarjetas (móvil) y la de tabla.
   const [page, setPage] = React.useState(1);
-  const totalPages = Math.max(1, Math.ceil(cotizaciones.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   // La lista puede acortarse (borrado, refetch) y dejar la página actual fuera de rango.
   const currentPage = Math.min(page, totalPages);
   React.useEffect(() => {
     if (page !== currentPage) setPage(currentPage);
   }, [page, currentPage]);
+  // Al cambiar la búsqueda/filtro se vuelve a la primera página: quedarse en la 3 con un
+  // resultado sería una lista vacía sin motivo aparente.
+  React.useEffect(() => { setPage(1); }, [query, statusFilter]);
   const firstIdx = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = cotizaciones.slice(firstIdx, firstIdx + PAGE_SIZE);
+  const pageItems = filtered.slice(firstIdx, firstIdx + PAGE_SIZE);
   // Ventana de números alrededor de la página actual (evita listar 50 botones).
   const pageNumbers = (() => {
     const around = 1;
@@ -66,17 +85,48 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
     return out;
   })();
 
+  // Al cambiar de página se vuelve al inicio del listado: en móvil el paginador queda al
+  // fondo y, sin esto, la página nueva arranca mostrando sus últimas filas.
+  const topRef = React.useRef<HTMLDivElement>(null);
+  const goToPage = (p: number) => {
+    setPage(p);
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const isFiltering = query.trim().length > 0 || statusFilter !== "";
+  const emptyMsg = isFiltering
+    ? "Ninguna cotización coincide con la búsqueda."
+    : "Sin cotizaciones registradas.";
+
   return (
-    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 animate-fade-scale">
+    <div
+      ref={topRef}
+      className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 animate-fade-scale scroll-mt-20 lg:scroll-mt-6"
+    >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-50 pb-4">
         <h3 className="text-xs font-black text-primary uppercase tracking-widest">Listado de Cotizaciones Generadas</h3>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-primary/40"><Search size={12} /></span>
-            <input type="text" placeholder="Buscar por código, cliente..." className="pl-8 pr-4 py-2 bg-light border border-lighter rounded-xl text-xs font-bold placeholder-primary/30 outline-none w-full md:w-56" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar por código, cliente, paquete..."
+              aria-label="Buscar cotizaciones"
+              className="pl-8 pr-4 py-2 bg-light border border-lighter rounded-xl text-xs font-bold placeholder-primary/30 outline-none w-full md:w-56"
+            />
           </div>
-          <select className="px-3 py-2 bg-light border border-lighter rounded-xl text-xs font-bold text-primary/60 outline-none cursor-pointer">
-            <option>Todos los estados</option>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as CotizacionStatus | "")}
+            aria-label="Filtrar por estado"
+            className="px-3 py-2 bg-light border border-lighter rounded-xl text-xs font-bold text-primary/60 outline-none cursor-pointer"
+          >
+            <option value="">Todos los estados</option>
+            {STATUS_OPTIONS.map((st) => (
+              <option key={st} value={st}>{COTIZACION_STATUS_LABEL[st]}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -103,8 +153,8 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
               </div>
             </div>
           ))
-        ) : cotizaciones.length === 0 ? (
-          <div className="text-center py-10 text-primary/40 text-xs font-bold">Sin cotizaciones registradas.</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-10 text-primary/40 text-xs font-bold">{emptyMsg}</div>
         ) : pageItems.map((cot) => {
           // Fila recién creada, update optimista: el guardado real en el servidor sigue en
           // curso y este id temporal todavía no existe en la BD — navegar con él da "No
@@ -188,8 +238,8 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                   ))}
                 </tr>
               ))
-            ) : cotizaciones.length === 0 ? (
-              <tr><td colSpan={9} className="py-10 text-center text-primary/40 font-bold text-xs">Sin cotizaciones registradas.</td></tr>
+            ) : filtered.length === 0 ? (
+              <tr><td colSpan={9} className="py-10 text-center text-primary/40 font-bold text-xs">{emptyMsg}</td></tr>
             ) : pageItems.map((cot) => {
               // Fila recién creada, update optimista: el guardado real en el servidor sigue en
               // curso y este id temporal todavía no existe en la BD — navegar con él da "No
@@ -259,14 +309,14 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
       </div>
 
       {/* ── Paginador (móvil y escritorio) ── */}
-      {!isLoadingCots && cotizaciones.length > PAGE_SIZE && (
+      {!isLoadingCots && filtered.length > PAGE_SIZE && (
         <div className="flex items-center justify-between gap-3 flex-wrap border-t border-gray-50 pt-4">
           <p className="text-[10px] font-bold text-primary/40">
-            {firstIdx + 1}–{Math.min(firstIdx + PAGE_SIZE, cotizaciones.length)} de {cotizaciones.length}
+            {firstIdx + 1}–{Math.min(firstIdx + PAGE_SIZE, filtered.length)} de {filtered.length}
           </p>
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => setPage(currentPage - 1)}
+              onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
               aria-label="Página anterior"
               className="p-2 bg-light text-primary rounded-xl border border-lighter transition-all hover:bg-secondary/15 hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
@@ -282,7 +332,7 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
                 ) : (
                   <button
                     key={p}
-                    onClick={() => setPage(p)}
+                    onClick={() => goToPage(p)}
                     aria-label={`Página ${p}`}
                     aria-current={p === currentPage ? "page" : undefined}
                     className={`min-w-8 h-8 px-2 text-[11px] font-black rounded-xl border transition-all cursor-pointer ${
@@ -303,7 +353,7 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
             </span>
 
             <button
-              onClick={() => setPage(currentPage + 1)}
+              onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               aria-label="Página siguiente"
               className="p-2 bg-light text-primary rounded-xl border border-lighter transition-all hover:bg-secondary/15 hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
