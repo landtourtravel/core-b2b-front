@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Search, Eye, Trash2, Pencil } from "lucide-react";
+import { Search, Eye, Trash2, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { COTIZACION_STATUS_LABEL, resumenPasajeros } from "@land-tour/shared";
 import type { CotizacionStatus } from "@land-tour/shared";
 import { useDashboard, type CotizacionExtended } from "../DashboardContext";
@@ -35,8 +35,36 @@ interface CotizacionesTabProps {
   onOpenDelete: (id: string) => void;
 }
 
+const PAGE_SIZE = 20;
+
 export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: CotizacionesTabProps) {
   const { cotizaciones, isLoadingCots, userName } = useDashboard();
+
+  // Paginación — 20 por página, compartida por la vista de tarjetas (móvil) y la de tabla.
+  const [page, setPage] = React.useState(1);
+  const totalPages = Math.max(1, Math.ceil(cotizaciones.length / PAGE_SIZE));
+  // La lista puede acortarse (borrado, refetch) y dejar la página actual fuera de rango.
+  const currentPage = Math.min(page, totalPages);
+  React.useEffect(() => {
+    if (page !== currentPage) setPage(currentPage);
+  }, [page, currentPage]);
+  const firstIdx = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = cotizaciones.slice(firstIdx, firstIdx + PAGE_SIZE);
+  // Ventana de números alrededor de la página actual (evita listar 50 botones).
+  const pageNumbers = (() => {
+    const around = 1;
+    const shown = new Set<number>([1, totalPages]);
+    for (let p = currentPage - around; p <= currentPage + around; p++) {
+      if (p >= 1 && p <= totalPages) shown.add(p);
+    }
+    const sorted = [...shown].sort((a, b) => a - b);
+    const out: (number | "gap")[] = [];
+    sorted.forEach((p, i) => {
+      if (i > 0 && p - sorted[i - 1] > 1) out.push("gap");
+      out.push(p);
+    });
+    return out;
+  })();
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 animate-fade-scale">
@@ -77,7 +105,7 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
           ))
         ) : cotizaciones.length === 0 ? (
           <div className="text-center py-10 text-primary/40 text-xs font-bold">Sin cotizaciones registradas.</div>
-        ) : cotizaciones.map((cot) => {
+        ) : pageItems.map((cot) => {
           // Fila recién creada, update optimista: el guardado real en el servidor sigue en
           // curso y este id temporal todavía no existe en la BD — navegar con él da "No
           // encontrada". Se deshabilitan las acciones hasta que el id real lo reemplace.
@@ -162,7 +190,7 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
               ))
             ) : cotizaciones.length === 0 ? (
               <tr><td colSpan={9} className="py-10 text-center text-primary/40 font-bold text-xs">Sin cotizaciones registradas.</td></tr>
-            ) : cotizaciones.map((cot) => {
+            ) : pageItems.map((cot) => {
               // Fila recién creada, update optimista: el guardado real en el servidor sigue en
               // curso y este id temporal todavía no existe en la BD — navegar con él da "No
               // encontrada". Se deshabilitan las acciones hasta que el id real lo reemplace.
@@ -229,6 +257,62 @@ export default function CotizacionesTab({ onViewCot, onEditCot, onOpenDelete }: 
           </tbody>
         </table>
       </div>
+
+      {/* ── Paginador (móvil y escritorio) ── */}
+      {!isLoadingCots && cotizaciones.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between gap-3 flex-wrap border-t border-gray-50 pt-4">
+          <p className="text-[10px] font-bold text-primary/40">
+            {firstIdx + 1}–{Math.min(firstIdx + PAGE_SIZE, cotizaciones.length)} de {cotizaciones.length}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="Página anterior"
+              className="p-2 bg-light text-primary rounded-xl border border-lighter transition-all hover:bg-secondary/15 hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <ChevronLeft size={14} />
+            </button>
+
+            {/* Números solo en pantallas medianas hacia arriba */}
+            <div className="hidden sm:flex items-center gap-1.5">
+              {pageNumbers.map((p, i) =>
+                p === "gap" ? (
+                  <span key={`gap-${i}`} className="px-1 text-[10px] font-black text-primary/25">···</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    aria-label={`Página ${p}`}
+                    aria-current={p === currentPage ? "page" : undefined}
+                    className={`min-w-8 h-8 px-2 text-[11px] font-black rounded-xl border transition-all cursor-pointer ${
+                      p === currentPage
+                        ? "bg-secondary text-white border-secondary"
+                        : "bg-light text-primary/60 border-lighter hover:bg-secondary/15 hover:text-secondary"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* En móvil, solo el indicador de página */}
+            <span className="sm:hidden px-2 text-[10px] font-black text-primary/50">
+              {currentPage} / {totalPages}
+            </span>
+
+            <button
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              aria-label="Página siguiente"
+              className="p-2 bg-light text-primary rounded-xl border border-lighter transition-all hover:bg-secondary/15 hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
