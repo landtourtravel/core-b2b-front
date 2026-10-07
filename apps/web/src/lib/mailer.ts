@@ -45,7 +45,11 @@ function createTransporterCotizacion() {
 }
 
 // AUTH_URL debe apuntar al dominio de producción para que el logo cargue en clientes externos
-const baseUrl = (process.env.AUTH_URL ?? "http://localhost:3000").replace(/\/$/, "");
+// Los clientes de correo (Gmail proxea las imágenes) no siempre siguen el redirect http→https,
+// así que fuera de localhost se fuerza https para que el logo cargue.
+const baseUrl = (process.env.AUTH_URL ?? "http://localhost:3000")
+  .replace(/\/$/, "")
+  .replace(/^http:\/\/(?!localhost|127\.0\.0\.1)/, "https://");
 const logoUrl = `${baseUrl}/images/lttlogo.png`;
 
 function emailWrapper(content: string): string {
