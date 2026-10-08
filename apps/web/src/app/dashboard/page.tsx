@@ -1677,21 +1677,22 @@ export default function DashboardPage() {
         prev.map((c) => c.id === (isEditing ? editingCotId : newCot.id) ? { ...c, ...saved } : c)
       );
       clearDraft();
-      if (!isEditing) {
-        try {
-          await fetch("/api/cotizaciones/notify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              cotizacionId:  saved.id,
-              codigo:        saved.codigo,
-              agenciaEmail:  sessionData?.user?.email,
-              agenciaNombre: agenciaDisplay,
-              clienteNombre: clientName,
-            }),
-          });
-        } catch {}
-      }
+      // Aviso por correo tanto al crear como al guardar una edición (p. ej. una cotización
+      // rápida que el asesor ajusta con los valores reales antes de aprobarla).
+      try {
+        await fetch("/api/cotizaciones/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cotizacionId:  saved.id,
+            codigo:        saved.codigo,
+            agenciaEmail:  sessionData?.user?.email,
+            agenciaNombre: agenciaDisplay,
+            clienteNombre: clientName,
+            actualizada:   isEditing,
+          }),
+        });
+      } catch {}
       return true;
     } catch {
       rollback("No se pudo guardar la cotización — revisa tu conexión e intenta de nuevo.");

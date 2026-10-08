@@ -7,10 +7,13 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
-  const { cotizacionId, codigo, agenciaEmail, agenciaNombre, clienteNombre } = await req.json();
+  const { cotizacionId, codigo, agenciaEmail, agenciaNombre, clienteNombre, actualizada } = await req.json();
 
   try {
-    await sendCotizacionNotifyEmail({ cotizacionId, codigo, agenciaEmail, agenciaNombre, clienteNombre });
+    await sendCotizacionNotifyEmail({
+      cotizacionId, codigo, agenciaEmail, agenciaNombre, clienteNombre,
+      actualizada: actualizada === true,
+    });
   } catch (err) {
     logError("POST /api/cotizaciones/notify", err);
   }

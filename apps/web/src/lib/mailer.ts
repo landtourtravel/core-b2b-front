@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { GENERIC_CLIENT_EMAIL } from "@/lib/constants";
 
 function escapeHtml(value: string): string {
   return value
@@ -506,6 +507,8 @@ export interface CotizacionNotifyData {
   agenciaEmail?: string;
   agenciaNombre: string;
   clienteNombre: string;
+  /** true cuando el aviso corresponde a la edición de una cotización ya existente. */
+  actualizada?:  boolean;
 }
 
 function cotizacionNotifyHtml(data: CotizacionNotifyData): string {
@@ -517,21 +520,21 @@ function cotizacionNotifyHtml(data: CotizacionNotifyData): string {
           <tr>
             <td align="center" style="padding-bottom:20px;">
               <span style="display:inline-block;padding:7px 18px;background:#edf7f5;border-radius:100px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#28bfa9;">
-                &#10022; Nueva Cotización
+                &#10022; ${data.actualizada ? "Cotización Actualizada" : "Nueva Cotización"}
               </span>
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:8px;">
               <h1 style="margin:0;font-size:22px;font-weight:800;color:#0b4339;letter-spacing:-0.5px;">
-                Cotización guardada exitosamente
+                ${data.actualizada ? "Cotización actualizada exitosamente" : "Cotización guardada exitosamente"}
               </h1>
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:32px;">
               <p style="margin:0;font-size:14px;color:#6b7280;line-height:1.7;">
-                La agencia <strong style="color:#0b4339;">${data.agenciaNombre}</strong> ha generado una nueva cotización.
+                La agencia <strong style="color:#0b4339;">${data.agenciaNombre}</strong> ${data.actualizada ? "ha actualizado una cotización." : "ha generado una nueva cotización."}
               </p>
             </td>
           </tr>
@@ -587,11 +590,21 @@ export async function sendForgotPasswordEmail(userEmail: string): Promise<void> 
 
 export async function sendCotizacionNotifyEmail(data: CotizacionNotifyData): Promise<void> {
   const transporter = createTransporterCotizacion();
-  const to = [process.env.ADMIN_EMAIL, data.agenciaEmail].filter(Boolean).join(", ");
+  // El cliente genérico de las cotizaciones rápidas no es un buzón real: jamás debe
+  // quedar como destinatario (rebotaría el envío). También se deduplica.
+  const recipients = new Map<string, string>();
+  for (const raw of [process.env.ADMIN_EMAIL, data.agenciaEmail]) {
+    const email = raw?.trim();
+    if (!email) continue;
+    const key = email.toLowerCase();
+    if (key === GENERIC_CLIENT_EMAIL) continue;
+    if (!recipients.has(key)) recipients.set(key, email);
+  }
+  const to = [...recipients.values()].join(", ");
   await transporter.sendMail({
     from:    `"Land Tour Portal" <${process.env.SMTP_FROM_CTZ}>`,
     to,
-    subject: `[COTIZACIÓN] ${data.codigo} — ${data.clienteNombre}`,
+    subject: `[COTIZACIÓN${data.actualizada ? " ACTUALIZADA" : ""}] ${data.codigo} — ${data.clienteNombre}`,
     html:    cotizacionNotifyHtml(data),
   });
 }
