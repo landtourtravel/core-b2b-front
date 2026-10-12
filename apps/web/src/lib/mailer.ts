@@ -509,6 +509,8 @@ export interface CotizacionNotifyData {
   clienteNombre: string;
   /** true cuando el aviso corresponde a la edición de una cotización ya existente. */
   actualizada?:  boolean;
+  /** HTML ya armado del documento de cotización; si falta se usa el aviso simple. */
+  html?:         string;
 }
 
 function cotizacionNotifyHtml(data: CotizacionNotifyData): string {
@@ -605,7 +607,7 @@ export async function sendCotizacionNotifyEmail(data: CotizacionNotifyData): Pro
     from:    `"Land Tour Portal" <${process.env.SMTP_FROM_CTZ}>`,
     to,
     subject: `[COTIZACIÓN${data.actualizada ? " ACTUALIZADA" : ""}] ${data.codigo} — ${data.clienteNombre}`,
-    html:    cotizacionNotifyHtml(data),
+    html:    data.html ?? cotizacionNotifyHtml(data),
   });
 }
 
