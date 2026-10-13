@@ -758,9 +758,11 @@ export default function DashboardPage() {
   // sin ningún aviso). Todo se bloquea aquí, en el mismo Paso 1 donde se escribe el correo.
   const clientEmailTrimmed = clientEmail.trim();
   const clientEmailIsGeneric = clientEmailTrimmed.toLowerCase() === GENERIC_CLIENT_EMAIL;
-  const clientEmailIsValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmailTrimmed);
+  // Solo el nombre del cliente es obligatorio (más los adultos, necesarios para cotizar): el
+  // correo es opcional y no se valida su formato. Único bloqueo: el correo genérico de las
+  // cotizaciones rápidas, que `/api/clients` rechaza para no corromper el cliente compartido.
   const step1CanProceed = clientName.trim().length > 0 && cotNumPersonas >= 1
-    && clientEmailIsValidFormat && !clientEmailIsGeneric;
+    && !clientEmailIsGeneric;
   // Libre: exige destino(s) elegidos explícitamente (no solo "hay hoteles marcados" — esos
   // ids pueden quedar como residuo de una selección previa en modo catálogo tras cambiar de
   // modo sin resetear) — con multidestino activo, exige más de un destino.
@@ -1322,11 +1324,14 @@ export default function DashboardPage() {
       // sitio, corrompiendo el cliente genérico para TODAS las futuras cotizaciones rápidas
       // de la agencia (y la cotización actual seguiría con email genérico → isGenericClient
       // seguiría bloqueando Aprobar/Rechazar). Se fuerza a que el asesor escriba datos reales.
-      setClientName(isQuickQuoteEdit ? get("clientName", "") : get("clientName", cot.cliente?.nombre ?? ""));
-      setClientEmail(isQuickQuoteEdit ? get("clientEmail", "") : get("clientEmail", cot.cliente?.email ?? ""));
-      setClientPhone(get("clientPhone", isQuickQuoteEdit ? "" : (cot.cliente?.telefono ?? "")));
-      setClientId(get("clientId", isQuickQuoteEdit ? "" : (cot.cliente?.documento ?? "")));
-      setClientAddress(get("clientAddress", isQuickQuoteEdit ? "" : (cot.cliente?.direccion ?? "")));
+      // En una cotización rápida los CINCO campos del cliente arrancan siempre vacíos, sin
+      // leer `wizardState` ni la ficha genérica: así ningún dato residual (cache, borrador
+      // previo, ficha compartida) se cuela en el formulario.
+      setClientName(isQuickQuoteEdit ? "" : get("clientName", cot.cliente?.nombre ?? ""));
+      setClientEmail(isQuickQuoteEdit ? "" : get("clientEmail", cot.cliente?.email ?? ""));
+      setClientPhone(isQuickQuoteEdit ? "" : get("clientPhone", cot.cliente?.telefono ?? ""));
+      setClientId(isQuickQuoteEdit ? "" : get("clientId", cot.cliente?.documento ?? ""));
+      setClientAddress(isQuickQuoteEdit ? "" : get("clientAddress", cot.cliente?.direccion ?? ""));
       setCotMode(finalCotMode);
       setCotSelectedPkgId(get("cotSelectedPkgId", cot.paqueteId ?? null));
       setCotSelectedDestinoId(get("cotSelectedDestinoId", null));
@@ -2109,10 +2114,8 @@ export default function DashboardPage() {
                             {!clientName.trim()
                               ? "El nombre del cliente es obligatorio."
                               : clientEmailIsGeneric
-                                ? "Ingresa el correo real del cliente — el genérico de cotización rápida no se puede guardar."
-                                : !clientEmailIsValidFormat
-                                  ? "Ingresa un correo válido del cliente."
-                                  : "Indica la cantidad de adultos que viajan."}
+                                ? "Ese correo es el genérico de cotización rápida — bórralo o ingresa el correo real del cliente."
+                                : "Indica la cantidad de adultos que viajan."}
                           </p>
                         )}
                         <button
