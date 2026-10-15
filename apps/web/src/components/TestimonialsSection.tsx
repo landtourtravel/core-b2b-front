@@ -1,55 +1,28 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Skeleton } from "@/components/Skeleton";
 import { Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Testimonial {
-  id: number;
+  id: string;
   name: string;
   role: string;
   content: string;
   stars: number;
-  initials: string;
-  avatarColor: string; // bg color class for the avatar circle
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const TESTIMONIALS: Testimonial[] = [
-  {
-    id: 1,
-    name: "María González",
-    role: "Directora, Viajes del Sol",
-    content:
-      '"Land Tour ha sido nuestro aliado estratégico por más de 5 años. Sus tarifas y atención son insuperables. Nuestros clientes siempre quedan encantados."',
-    stars: 5,
-    initials: "MG",
-    avatarColor: "bg-primary/20 text-primary",
-  },
-  {
-    id: 2,
-    name: "Carlos Mendoza",
-    role: "Gerente, Mundo Travel",
-    content:
-      '"El sistema de cotización es muy intuitivo y nos permite responder a nuestros clientes en minutos. La variedad de destinos es impresionante."',
-    stars: 5,
-    initials: "CM",
-    avatarColor: "bg-secondary/20 text-secondary",
-  },
-  {
-    id: 3,
-    name: "Ana Lucía Vargas",
-    role: "Viajera frecuente",
-    content:
-      '"Viajamos a Bali con el paquete de Land Tour y fue una experiencia mágica. Todo estuvo perfectamente organizado, desde los traslados hasta los tours."',
-    stars: 4,
-    initials: "AV",
-    avatarColor: "bg-gold/20 text-primary",
-  },
+const AVATAR_COLORS = [
+  "bg-primary/20 text-primary",
+  "bg-secondary/20 text-secondary",
+  "bg-gold/20 text-primary",
 ];
+
+const initialsOf = (name: string) =>
+  name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
 
@@ -67,7 +40,7 @@ const StarRating: React.FC<{ count: number }> = ({ count }) => (
 
 // ─── Testimonial Card ─────────────────────────────────────────────────────────
 
-const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }) => (
+const TestimonialCard: React.FC<{ testimonial: Testimonial; index: number }> = ({ testimonial, index }) => (
   <div
     className="
       flex flex-col justify-between
@@ -88,7 +61,7 @@ const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }
 
       {/* ── Comment text ── */}
       <p className="text-primary/60 text-sm sm:text-[0.95rem] leading-relaxed">
-        {testimonial.content}
+        &ldquo;{testimonial.content}&rdquo;
       </p>
     </div>
 
@@ -98,16 +71,16 @@ const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }
       <div
         className={`
           w-11 h-11 rounded-full flex items-center justify-center
-          font-bold text-sm flex-shrink-0 ${testimonial.avatarColor}
+          font-bold text-sm flex-shrink-0 ${AVATAR_COLORS[index % AVATAR_COLORS.length]}
         `}
         aria-hidden="true"
       >
-        {testimonial.initials}
+        {initialsOf(testimonial.name)}
       </div>
 
       <div>
         <p className="font-bold text-primary text-sm leading-tight">{testimonial.name}</p>
-        <p className="text-primary/40 text-xs mt-0.5">{testimonial.role}</p>
+        {testimonial.role && <p className="text-primary/40 text-xs mt-0.5">{testimonial.role}</p>}
       </div>
     </div>
   </div>
@@ -115,7 +88,20 @@ const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
-export const TestimonialsSection: React.FC = () => (
+export const TestimonialsSection: React.FC = () => {
+  const [items, setItems] = useState<Testimonial[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/testimonios")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setItems(Array.isArray(d) ? d : []))
+      .catch(() => setItems([]));
+  }, []);
+
+  if (items && items.length === 0) return null;
+  const list = items ?? [];
+
+  return (
   <section className="py-20 sm:py-28 bg-light" id="testimonios">
     <div className="container mx-auto px-4 sm:px-6">
 
@@ -148,11 +134,17 @@ export const TestimonialsSection: React.FC = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="hidden md:grid md:grid-cols-3 gap-6 items-stretch"
+        className={`hidden md:grid gap-6 items-stretch ${
+          list.length === 2
+              ? "md:grid-cols-2"
+              : list.length === 1
+                ? "md:grid-cols-1 max-w-md mx-auto"
+                : "md:grid-cols-3"
+        }`}
       >
-        {TESTIMONIALS.map((t) => (
-          <TestimonialCard key={t.id} testimonial={t} />
-        ))}
+        {items === null
+          ? [0, 1, 2].map((i) => <Skeleton key={i} className="h-64 rounded-3xl" />)
+          : list.map((t, i) => <TestimonialCard key={t.id} testimonial={t} index={i} />)}
       </motion.div>
 
       {/* ── Mobile: horizontal snap carousel ── */}
@@ -170,16 +162,20 @@ export const TestimonialsSection: React.FC = () => (
             [scrollbar-width:none]
           "
         >
-          {TESTIMONIALS.map((t) => (
-            <div key={t.id} className="w-[80vw] flex-shrink-0 snap-center">
-              <TestimonialCard testimonial={t} />
-            </div>
-          ))}
+          {items === null ? (
+            <Skeleton className="h-64 w-[80vw] flex-shrink-0 rounded-3xl" />
+          ) : (
+            list.map((t, i) => (
+              <div key={t.id} className="w-[80vw] flex-shrink-0 snap-center">
+                <TestimonialCard testimonial={t} index={i} />
+              </div>
+            ))
+          )}
         </motion.div>
 
         {/* Indicator dots */}
         <div className="flex justify-center gap-1.5 mt-3">
-          {TESTIMONIALS.map((t) => (
+          {list.map((t) => (
             <span key={t.id} className="w-1.5 h-1.5 rounded-full bg-primary/20" />
           ))}
         </div>
@@ -187,4 +183,5 @@ export const TestimonialsSection: React.FC = () => (
 
     </div>
   </section>
-);
+  );
+};

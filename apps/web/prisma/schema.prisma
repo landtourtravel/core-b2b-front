@@ -27,6 +27,23 @@ datasource db {
 // ==============================================================
 
 /// @readonly — gestionado por lt-core-admin
+/// Reseñas de clientes; el admin decide cuáles se muestran con `visible`.
+model Resena {
+  id         String    @id
+  token      String    @unique
+  referencia String?
+  nombre     String?
+  cargo      String?
+  comentario String?   @db.Text
+  estrellas  Int?
+  visible    Boolean   @default(false)
+  enviadaAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@map("Resena")
+}
+
+/// @readonly — gestionado por lt-core-admin
 model Agencia {
   id          String   @id
   nombre      String

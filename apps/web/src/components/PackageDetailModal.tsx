@@ -657,7 +657,9 @@ export const PackageDetailModal: React.FC<PackageDetailModalProps> = ({
                           <div className="flex gap-2">
                             {agency.telefono && (
                               <a
-                                href={`https://wa.me/${agency.telefono.replace(/\D/g, "")}`}
+                                href={`https://wa.me/${agency.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                  `Saludos, te contacto de la web y estoy interesado en el paquete: ${packageData.title ?? ""}`
+                                )}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex-1 sm:flex-none px-4 py-2 bg-[#25D366]/10 text-[#25D366] text-[10px] font-black rounded-lg hover:bg-[#25D366] hover:text-white transition-all flex items-center justify-center gap-1.5"

@@ -3,6 +3,12 @@ import React from "react";
 import Link from "next/link";
 import { Instagram, Facebook } from "lucide-react";
 
+const SOCIAL_LINKS = {
+  instagram: "https://instagram.com/landtourtravel.ec",
+  facebook:  "https://www.facebook.com/share/19ZrWuvyga/",
+  tiktok:    "https://www.tiktok.com/@land.tour.travel",
+};
+
 // ─── TikTok SVG icon (not in lucide-react) ────────────────────────────────────
 
 const TikTokIcon: React.FC<{ size?: number }> = ({ size = 18 }) => (
@@ -108,9 +114,9 @@ export const Footer: React.FC = () => {
             {/* Mobile: centered icon-only row with white circle backgrounds */}
             <div className="flex items-center justify-center gap-4 md:hidden">
               {[
-                { label: "Instagram", icon: <Instagram size={18} />, href: "#" },
-                { label: "Facebook",  icon: <Facebook  size={18} />, href: "#" },
-                { label: "TikTok",    icon: <TikTokIcon size={18} />, href: "#" },
+                { label: "Instagram", icon: <Instagram size={18} />, href: SOCIAL_LINKS.instagram },
+                { label: "Facebook",  icon: <Facebook  size={18} />, href: SOCIAL_LINKS.facebook },
+                { label: "TikTok",    icon: <TikTokIcon size={18} />, href: SOCIAL_LINKS.tiktok },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -134,9 +140,9 @@ export const Footer: React.FC = () => {
             {/* Desktop: icon + text vertical list */}
             <ul className="hidden md:flex flex-col gap-3">
               {[
-                { label: "Instagram", href: "#", icon: <Instagram size={15} /> },
-                { label: "Facebook",  href: "#", icon: <Facebook  size={15} /> },
-                { label: "TikTok",    href: "#", icon: <TikTokIcon size={15} /> },
+                { label: "Instagram", href: SOCIAL_LINKS.instagram, icon: <Instagram size={15} /> },
+                { label: "Facebook",  href: SOCIAL_LINKS.facebook,  icon: <Facebook  size={15} /> },
+                { label: "TikTok",    href: SOCIAL_LINKS.tiktok,    icon: <TikTokIcon size={15} /> },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
